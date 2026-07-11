@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0.0",
+  "query_set_id": "nimbus-relay-bm25-smoke-v1",
+  "status": "development_smoke_only",
+  "queries": [
+    {
+      "query_id": "auth-current-lifetime",
+      "query_text": "How long does a current Nimbus Relay API v2 key remain valid?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": ["authentication"],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": true
+      }
+    },
+    {
+      "query_id": "auth-version-conflict",
+      "query_text": "API key lifetime seven days versus 24 hours",
+      "top_k": 5,
+      "filters": {
+        "api_areas": ["authentication"],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "include",
+        "version_sensitive_only": true
+      }
+    },
+    {
+      "query_id": "webhook-retry-window",
+      "query_text": "What is the current webhook retry window and pause threshold?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": ["webhooks"],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      }
+    },
+    {
+      "query_id": "idempotency-ambiguous-timeout",
+      "query_text": "How long are API v2 idempotency records retained after an ambiguous timeout?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": ["idempotency"],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      }
+    },
+    {
+      "query_id": "oauth-refresh-invalid-grant",
+      "query_text": "Why does an OAuth refresh token return invalid_grant?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": ["oauth"],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "include",
+        "version_sensitive_only": false
+      }
+    },
+    {
+      "query_id": "cursor-pagination-next",
+      "query_text": "How do I continue cursor pagination using next_cursor?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": ["pagination"],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "include",
+        "version_sensitive_only": false
+      }
+    },
+    {
+      "query_id": "retry-429-delay",
+      "query_text": "Should a 429 response be retried and which header controls the delay?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": ["rate_limits", "retries"],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      }
+    },
+    {
+      "query_id": "error-409-versus-422",
+      "query_text": "What is the difference between error 409 and error 422?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": ["error_codes"],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "include",
+        "version_sensitive_only": false
+      }
+    },
+    {
+      "query_id": "permissions-role-403",
+      "query_text": "Which role permission is required when a request returns 403?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": ["permissions"],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "include",
+        "version_sensitive_only": false
+      }
+    },
+    {
+      "query_id": "sandbox-event-simulation-gap",
+      "query_text": "Can every production webhook event be emitted on demand in the sandbox?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": ["sandbox"],
+        "source_statuses": [],
+        "completeness": ["incomplete"],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      }
+    }
+  ]
+}
