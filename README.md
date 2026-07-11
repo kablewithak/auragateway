@@ -12,18 +12,36 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - **Execution allocation:** 200 hours
 - **Current phase:** Phase 0 — Design Freeze and Benchmark Constitution
 - **Active proof gate:** Gate 0 — Benchmark Constitution
-- **Constitution status:** Draft v0.2.0 — under review, not frozen
+- **Gate 0 status:** Passed
+- **Constitution:** Version 1.0.0 — frozen
+- **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** design-stage standalone AI reliability systems lab
+- **Maturity:** benchmark-constitution validated
 
 ## Governing Documents
 
 - [AuraGateway v2 PRD](docs/product/AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md)
 - [Session Brief](docs/session/AuraGateway_SESSION_BRIEF.md)
-- [Benchmark Constitution](docs/benchmark/AuraGateway_Benchmark_Constitution.md)
+- [Frozen Benchmark Constitution](docs/benchmark/AuraGateway_Benchmark_Constitution.md)
+- [Gate 0 Freeze Review](docs/benchmark/AuraGateway_Gate_0_Freeze_Review.md)
+- [Execution Manifest Requirements](docs/benchmark/AuraGateway_Execution_Manifest_Requirements.md)
 - [Evidence Bundle Specification](docs/benchmark/AuraGateway_Evidence_Bundle_Specification.md)
 - [Privacy and Vendor Boundary](docs/privacy/AuraGateway_Privacy_and_Vendor_Boundary.md)
 - [Architecture Decision Records](docs/adr/README.md)
+
+## Freeze Model
+
+AuraGateway uses two separate controls:
+
+1. **Benchmark Constitution**
+   - frozen at Gate 0;
+   - defines causal contrasts, run rules, failure accounting, review policy, statistics, and invalidation rules.
+
+2. **Execution Manifest**
+   - frozen only after the required downstream assets exist;
+   - pins corpus, retrieval, provider/model, adapters, prompts, schemas, rubrics, manifests, pricing, and implementation hashes.
+
+Freezing the constitution does not permit measured execution.
 
 ## Current Benchmark Conditions
 
@@ -47,7 +65,8 @@ It is a standalone advanced AI reliability systems lab and a Week 3 companion pr
 
 Runtime improvements are accepted only when:
 
-- the benchmark constitution is frozen before measured execution;
+- the frozen constitution governs execution;
+- the execution manifest is frozen before measured runs;
 - compared runs share eligible configuration fingerprints;
 - failed, excluded, retried, and invalidated runs remain visible;
 - completed evidence bundles are append-only and hash-manifested;
