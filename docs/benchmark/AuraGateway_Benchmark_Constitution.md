@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Constitution version** | 0.1.0 |
+| **Constitution version** | 0.2.0 |
 | **Status** | Draft — under review, not frozen |
 | **PRD baseline** | AuraGateway v2 PRD 2.1.0 |
 | **Active phase** | Phase 0 — Design Freeze and Benchmark Constitution |
@@ -471,7 +471,93 @@ The benchmark must not claim:
 - customer-data readiness;
 - Coinbase-scale infrastructure or results.
 
-## 26. Freeze procedure
+## 26. Privacy and vendor boundary
+
+AuraGateway uses synthetic data only during the 200-hour project.
+
+Normal logs, sanitized traces, comparison artifacts, and public evidence bundles must exclude:
+
+- raw prompts;
+- raw user messages;
+- raw conversation history;
+- raw retrieved document text;
+- raw model outputs;
+- hidden reasoning;
+- raw provider payloads;
+- credentials;
+- secrets;
+- direct personal identifiers;
+- unbounded metadata.
+
+Provider adapters are the only components allowed to inspect raw provider SDK objects or payloads.
+
+Protected blinded-review exports:
+
+- remain local under an ignored path;
+- use opaque review IDs;
+- remain separate from public traces and evidence bundles;
+- follow an explicit retention and deletion rule.
+
+Any forbidden trace content is a `PRIVACY_VIOLATION` and blocks affected evidence publication.
+
+The governing controls are defined in:
+
+- ADR-0009;
+- `docs/privacy/AuraGateway_Privacy_and_Vendor_Boundary.md`.
+
+## 27. Evidence bundle and immutability
+
+Every completed benchmark execution produces a typed evidence bundle.
+
+Finalized bundles are append-only.
+
+Corrections produce a new bundle that identifies:
+
+- the superseded bundle;
+- correction reason;
+- affected artifacts;
+- affected claims;
+- rerun scope.
+
+Required bundle evidence includes:
+
+- benchmark and environment manifests;
+- configuration fingerprint;
+- run results;
+- failures;
+- exclusions;
+- reruns;
+- comparison eligibility;
+- comparison table;
+- benchmark report;
+- sanitized trace samples;
+- artifact hash manifest;
+- bundle manifest.
+
+Raw prompts, provider payloads, protected review exports, credentials, and secrets are forbidden in public evidence bundles.
+
+The governing controls are defined in:
+
+- ADR-0010;
+- `docs/benchmark/AuraGateway_Evidence_Bundle_Specification.md`.
+
+## 28. Comparison decision precedence
+
+Comparative reporting follows this order:
+
+1. bundle schema and hash verification;
+2. run-accountability verification;
+3. configuration-fingerprint eligibility;
+4. telemetry-sufficiency decision;
+5. quality non-inferiority decision;
+6. metric calculation;
+7. claim generation.
+
+A failure at an earlier gate blocks dependent downstream claim families.
+
+Human prose may not override a machine-readable blocked decision.
+
+## 29. Freeze procedure
 
 This constitution may be frozen only after:
 
@@ -489,7 +575,7 @@ Until then:
 - measured benchmark execution is prohibited;
 - changes do not require benchmark reruns because no measured benchmark exists.
 
-## 27. Open items before freeze
+## 30. Open items before freeze
 
 - exact primary provider and model alias;
 - exact provider adapter version;
