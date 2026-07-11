@@ -10,13 +10,14 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
-- **Current phase:** Phase 0 — Design Freeze and Benchmark Constitution
-- **Active proof gate:** Gate 0 — Benchmark Constitution
+- **Current phase:** Phase 1 — Corpus, Retrieval, and Eval Asset Construction
+- **Active proof gate:** Gate 1 — Retrieval Readiness
 - **Gate 0 status:** Passed
+- **Gate 1 status:** In progress — corpus contracts and planned inventory
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** benchmark-constitution validated
+- **Maturity:** benchmark-constitution validated; corpus inventory locally validated
 
 ## Governing Documents
 
@@ -74,3 +75,36 @@ Runtime improvements are accepted only when:
 - raw prompts, user messages, retrieved documents, model outputs, provider payloads, PII, and secrets remain outside public traces;
 - fixed task-quality guardrails pass;
 - claims remain limited to the named workload, provider/model, and benchmark configuration.
+
+
+## Local Development
+
+AuraGateway uses Python 3.11 or later with Pydantic v2 contracts.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+```
+
+Validate the planned Nimbus Relay corpus inventory:
+
+```powershell
+python -m auragateway.corpus.validate .\data\corpus\source_inventory.json
+```
+
+Run release gates for the current slice:
+
+```powershell
+python -m pytest
+python -m ruff check .
+python -m ruff format --check .
+python -m mypy src tests
+```
+
+## Phase 1 Boundary
+
+The current source inventory is a planned corpus control artifact. It does not claim that the 30 corpus documents have been authored or that retrieval is ready.
+
+Corpus documents, chunking implementations, dense retrieval, sparse retrieval, and retrieval scorecards arrive in later Phase 1 slices.
