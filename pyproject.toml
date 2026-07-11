@@ -21,6 +21,7 @@ dev = [
 
 [project.scripts]
 auragateway-validate-corpus = "auragateway.corpus.validate:main"
+auragateway-freeze-corpus = "auragateway.corpus.freeze:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

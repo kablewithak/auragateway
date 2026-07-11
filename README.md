@@ -10,14 +10,15 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
+- **Delivery ledger after this slice:** 23 / 200 planned hours (11.5%)
 - **Current phase:** Phase 1 — Corpus, Retrieval, and Eval Asset Construction
 - **Active proof gate:** Gate 1 — Retrieval Readiness
 - **Gate 0 status:** Passed
-- **Gate 1 status:** In progress — corpus contracts and planned inventory
+- **Gate 1 status:** In progress — corpus authored and hash-frozen; retrieval comparison not started
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** benchmark-constitution validated; corpus inventory locally validated
+- **Maturity:** benchmark-constitution validated; synthetic corpus locally validated and hash-frozen
 
 ## Governing Documents
 
@@ -88,10 +89,10 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-Validate the planned Nimbus Relay corpus inventory:
+Validate the frozen Nimbus Relay corpus:
 
 ```powershell
-python -m auragateway.corpus.validate .\data\corpus\source_inventory.json
+python -m auragateway.corpus.freeze verify --repo-root .
 ```
 
 Run release gates for the current slice:
@@ -105,6 +106,4 @@ python -m mypy src tests
 
 ## Phase 1 Boundary
 
-The current source inventory is a planned corpus control artifact. It does not claim that the 30 corpus documents have been authored or that retrieval is ready.
-
-Corpus documents, chunking implementations, dense retrieval, sparse retrieval, and retrieval scorecards arrive in later Phase 1 slices.
+The 30-document synthetic corpus is authored, metadata-validated, and hash-frozen. This establishes the corpus boundary only. Chunking implementations, dense retrieval, sparse retrieval, development retrieval cases, held-out validation, and the retrieval scorecard arrive in later Phase 1 slices.

@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "source_id": "NR-VERS-019",
+    "version": "2026-04",
+    "status": "current",
+    "updated_at": "2026-04-01T10:00:00Z",
+    "document_format": "json",
+    "api_area": "versioning",
+    "is_stale": false,
+    "conflict_group_id": null,
+    "completeness": "complete",
+    "near_duplicate_group_id": null,
+    "version_sensitive_procedure": false
+  },
+  "content": {
+    "current_api_version": "2026-04",
+    "deprecated_endpoints": [
+      {
+        "method": "GET",
+        "path": "/v1/logs",
+        "replacement": "/v2/events",
+        "removal_date": "2026-10-01"
+      },
+      {
+        "method": "POST",
+        "path": "/v1/hooks",
+        "replacement": "/v3/webhook-endpoints",
+        "removal_date": "2026-09-15"
+      },
+      {
+        "method": "POST",
+        "path": "/v1/files",
+        "replacement": "/v2/uploads",
+        "removal_date": "2026-11-01"
+      }
+    ],
+    "rule": "Clients must send an explicit X-Nimbus-Api-Version header during migration."
+  }
+}

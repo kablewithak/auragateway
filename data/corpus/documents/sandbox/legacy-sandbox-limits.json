@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "source_id": "NR-SANDBOX-030",
+    "version": "1.1",
+    "status": "deprecated",
+    "updated_at": "2023-09-12T09:00:00Z",
+    "document_format": "json",
+    "api_area": "sandbox",
+    "is_stale": true,
+    "conflict_group_id": null,
+    "completeness": "complete",
+    "near_duplicate_group_id": null,
+    "version_sensitive_procedure": false
+  },
+  "content": {
+    "lifecycle_warning": "DEPRECATED legacy sandbox limits; use NR-SANDBOX-029 for current behaviour.",
+    "request_limit_per_minute": 60,
+    "resource_retention_hours": 12,
+    "webhook_delivery_simulation": false,
+    "production_data_allowed": false
+  }
+}

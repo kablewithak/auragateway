@@ -1,22 +1,22 @@
-# Nimbus Relay Corpus
+# Nimbus Relay Synthetic Corpus
 
-This directory contains the typed source inventory for AuraGateway's synthetic Nimbus Relay API corpus.
+This directory contains the frozen synthetic documentation corpus used by AuraGateway.
 
-## Current state
+## Controls
 
-```text
-Inventory: planned and locally validated
-Authored documents: 0 / 30
-Retrieval configuration: not started
-Gate 1: not passed
-```
+- `source_inventory.json` defines the typed source inventory and diagnostic labels.
+- `source_manifest.json` records the SHA-256 and byte count of every source document.
+- `corpus_freeze_record.json` records the inventory and manifest fingerprints.
+- `documents/` contains exactly 30 authored Markdown and JSON sources.
 
-`source_inventory.json` defines the 30 planned sources and diagnostic quotas before document authoring begins.
+The corpus includes deliberate stale, conflicting, incomplete, near-duplicate, and version-sensitive evidence. These are diagnostic fixtures, not authoring defects to normalize away.
 
-## Validation
+## Verification
 
 ```powershell
-python -m auragateway.corpus.validate .\data\corpus\source_inventory.json
+python -m auragateway.corpus.freeze verify --repo-root .
 ```
 
-A valid inventory confirms the planned source set satisfies the PRD minimums. It does not confirm that the document files exist or that retrieval quality is acceptable.
+A changed document, metadata mismatch, missing or extra file, malformed JSON source, stale-source warning omission, incomplete-source gap omission, or hash mismatch fails verification.
+
+The corpus is synthetic. Customer data, production logs, secrets, and direct personal identifiers are prohibited.

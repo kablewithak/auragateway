@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_id": "nimbus-relay",
+  "corpus_version": "1.0.0",
+  "status": "frozen",
+  "freeze_date": "2026-07-12",
+  "inventory_path": "data/corpus/source_inventory.json",
+  "inventory_sha256": "25b34bbb646952f0b9345d25a9a958fcab9ca33e88696c474a41621e7f90a3be",
+  "manifest_path": "data/corpus/source_manifest.json",
+  "manifest_sha256": "c68212afd5381dec8bce49d0d5fee231a3b5589bf5460c0f72297e0c84422f55",
+  "document_count": 30,
+  "total_document_bytes": 38092
+}

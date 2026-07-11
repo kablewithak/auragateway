@@ -10,11 +10,25 @@ from auragateway.contracts.corpus import (
     DocumentFormat,
     DocumentStatus,
 )
+from auragateway.contracts.corpus_freeze import (
+    CorpusArtifactRecord,
+    CorpusDocumentHeader,
+    CorpusFreezeRecord,
+    CorpusFreezeStatus,
+    CorpusFreezeSummary,
+    CorpusSourceManifest,
+)
 
 __all__ = [
+    "CorpusArtifactRecord",
+    "CorpusDocumentHeader",
+    "CorpusFreezeRecord",
+    "CorpusFreezeStatus",
+    "CorpusFreezeSummary",
     "CorpusInventory",
     "CorpusMinimumRequirements",
     "CorpusSource",
+    "CorpusSourceManifest",
     "CorpusValidationSummary",
     "DataClassification",
     "DocumentCompleteness",

@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "source_id": "NR-RETRY-010",
+    "version": "3.0",
+    "status": "current",
+    "updated_at": "2026-03-05T10:00:00Z",
+    "document_format": "json",
+    "api_area": "retries",
+    "is_stale": false,
+    "conflict_group_id": null,
+    "completeness": "complete",
+    "near_duplicate_group_id": null,
+    "version_sensitive_procedure": false
+  },
+  "content": {
+    "matrix": [
+      {
+        "http_status": 408,
+        "code": "REQUEST_TIMEOUT",
+        "retryable": true,
+        "requires_idempotency_for_write": true
+      },
+      {
+        "http_status": 429,
+        "code": "RATE_LIMITED",
+        "retryable": true,
+        "honour_retry_after": true
+      },
+      {
+        "http_status": 502,
+        "code": "BAD_GATEWAY",
+        "retryable": true,
+        "requires_idempotency_for_write": true
+      },
+      {
+        "http_status": 503,
+        "code": "SERVICE_UNAVAILABLE",
+        "retryable": true,
+        "requires_idempotency_for_write": true
+      },
+      {
+        "http_status": 504,
+        "code": "UPSTREAM_TIMEOUT",
+        "retryable": true,
+        "ambiguous_for_write": true
+      },
+      {
+        "http_status": 409,
+        "code": "RESOURCE_STATE_CONFLICT",
+        "retryable": false
+      },
+      {
+        "http_status": 422,
+        "code": "FIELD_VALIDATION_FAILED",
+        "retryable": false
+      }
+    ],
+    "maximum_application_attempts": 4
+  }
+}
