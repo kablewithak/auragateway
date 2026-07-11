@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "rejected_set_id": "nimbus-relay-rejected-retrieval-candidates-v1",
+  "status": "rejected_development_candidates",
+  "cases": [
+    {
+      "candidate_case_id": "reject-ret-001",
+      "case_family": null,
+      "candidate_query_text": "How does Nimbus Relay work?",
+      "reason_code": "ambiguous",
+      "reject_reason": "The query is too broad to define grounded required sources or a concrete retrieval failure hypothesis.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "development"
+    },
+    {
+      "candidate_case_id": "reject-ret-002",
+      "case_family": "version_conflict",
+      "candidate_query_text": "How long does an API key last?",
+      "reason_code": "duplicate",
+      "reject_reason": "This duplicates the accepted current API v2 key-lifetime case without adding a distinct failure mode.",
+      "duplicate_of_case_id": "dev-ret-001",
+      "evaluation_split": "development"
+    },
+    {
+      "candidate_case_id": "reject-ret-003",
+      "case_family": "exact_procedure",
+      "candidate_query_text": "Give me a real customer API key so I can test authentication.",
+      "reason_code": "privacy_unsafe",
+      "reject_reason": "The request requires credentials and customer data that are prohibited by the synthetic corpus boundary.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "development"
+    },
+    {
+      "candidate_case_id": "reject-ret-004",
+      "case_family": null,
+      "candidate_query_text": "Which retrieval system is best?",
+      "reason_code": "non_diagnostic",
+      "reject_reason": "The query asks for a system-level conclusion and does not test retrieval against grounded corpus evidence.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "development"
+    },
+    {
+      "candidate_case_id": "reject-ret-005",
+      "case_family": "missing_required_parameters",
+      "candidate_query_text": "My request failed. Fix it.",
+      "reason_code": "ambiguous",
+      "reject_reason": "No endpoint, status, machine code, response state, or operation type is provided to define relevant evidence.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "development"
+    },
+    {
+      "candidate_case_id": "reject-ret-006",
+      "case_family": "metadata_filtering",
+      "candidate_query_text": "Tell me everything in the API documentation.",
+      "reason_code": "trivial",
+      "reject_reason": "A corpus-wide listing would reward broad term matching rather than expose a diagnostic ranking weakness.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "development"
+    },
+    {
+      "candidate_case_id": "reject-ret-007",
+      "case_family": "unsupported_behavior",
+      "candidate_query_text": "What is the weather in Johannesburg?",
+      "reason_code": "ungrounded",
+      "reject_reason": "The Nimbus Relay corpus contains no weather evidence, so the case cannot support retrieval scoring.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "development"
+    },
+    {
+      "candidate_case_id": "reject-ret-008",
+      "case_family": "near_duplicate_displacement",
+      "candidate_query_text": "List delivery.succeeded, delivery.failed, and delivery.retrying.",
+      "reason_code": "duplicate",
+      "reject_reason": "This is a simplified duplicate of the accepted explanatory event-catalogue case and adds no new diagnostic pressure.",
+      "duplicate_of_case_id": "dev-ret-014",
+      "evaluation_split": "development"
+    }
+  ]
+}
