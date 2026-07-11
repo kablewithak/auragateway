@@ -1,5 +1,14 @@
 """Typed boundary contracts for AuraGateway."""
 
+from auragateway.contracts.chunking import (
+    ChunkingCandidateStatus,
+    ChunkingConfiguration,
+    ChunkingManifest,
+    ChunkingRunSummary,
+    ChunkingStrategy,
+    CorpusChunk,
+    SourceChunkCount,
+)
 from auragateway.contracts.corpus import (
     CorpusInventory,
     CorpusMinimumRequirements,
@@ -20,7 +29,13 @@ from auragateway.contracts.corpus_freeze import (
 )
 
 __all__ = [
+    "ChunkingCandidateStatus",
+    "ChunkingConfiguration",
+    "ChunkingManifest",
+    "ChunkingRunSummary",
+    "ChunkingStrategy",
     "CorpusArtifactRecord",
+    "CorpusChunk",
     "CorpusDocumentHeader",
     "CorpusFreezeRecord",
     "CorpusFreezeStatus",
@@ -34,4 +49,5 @@ __all__ = [
     "DocumentCompleteness",
     "DocumentFormat",
     "DocumentStatus",
+    "SourceChunkCount",
 ]
