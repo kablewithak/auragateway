@@ -10,15 +10,15 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
-- **Delivery ledger after this slice:** 23 / 200 planned hours (11.5%)
+- **Delivery ledger after this slice:** 31 / 200 planned hours (15.5%)
 - **Current phase:** Phase 1 — Corpus, Retrieval, and Eval Asset Construction
 - **Active proof gate:** Gate 1 — Retrieval Readiness
 - **Gate 0 status:** Passed
-- **Gate 1 status:** In progress — corpus authored and hash-frozen; retrieval comparison not started
+- **Gate 1 status:** In progress — corpus frozen and both chunking candidates locally validated
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** benchmark-constitution validated; synthetic corpus locally validated and hash-frozen
+- **Maturity:** benchmark-constitution validated; synthetic corpus and chunking candidates locally validated
 
 ## Governing Documents
 
@@ -30,6 +30,8 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - [Evidence Bundle Specification](docs/benchmark/AuraGateway_Evidence_Bundle_Specification.md)
 - [Privacy and Vendor Boundary](docs/privacy/AuraGateway_Privacy_and_Vendor_Boundary.md)
 - [Architecture Decision Records](docs/adr/README.md)
+- [Chunking Candidate Design](docs/benchmark/Nimbus_Relay_Chunking_Design.md)
+- [Chunking Candidate Report](docs/benchmark/Nimbus_Relay_Chunking_Candidate_Report.md)
 
 ## Freeze Model
 
@@ -89,10 +91,11 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-Validate the frozen Nimbus Relay corpus:
+Validate the frozen Nimbus Relay corpus and deterministic chunking candidates:
 
 ```powershell
 python -m auragateway.corpus.freeze verify --repo-root .
+python -m auragateway.chunking.runner verify --repo-root .
 ```
 
 Run release gates for the current slice:
@@ -106,4 +109,4 @@ python -m mypy src tests
 
 ## Phase 1 Boundary
 
-The 30-document synthetic corpus is authored, metadata-validated, and hash-frozen. This establishes the corpus boundary only. Chunking implementations, dense retrieval, sparse retrieval, development retrieval cases, held-out validation, and the retrieval scorecard arrive in later Phase 1 slices.
+The 30-document synthetic corpus is hash-frozen, and both required chunking candidates are implemented and deterministically verified. Neither chunking strategy is selected yet. Development retrieval cases, sparse retrieval, dense retrieval, comparative scoring, held-out validation, and the retrieval freeze decision remain outstanding.

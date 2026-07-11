@@ -1,0 +1,147 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_id": "nimbus-relay",
+  "corpus_version": "1.0.0",
+  "status": "candidate",
+  "strategy": "fixed_window",
+  "config": {
+    "schema_version": "1.0.0",
+    "config_id": "fixed-window-v1",
+    "strategy": "fixed_window",
+    "target_tokens": 96,
+    "overlap_tokens": 16,
+    "minimum_fallback_tokens": 24,
+    "tokenizer_id": "lexical-whitespace-v1",
+    "preserve_parent_headings": false
+  },
+  "config_sha256": "94dc0f27358db477d667cb579ef8719652e30d10b6095fe0965315cb6533316e",
+  "corpus_manifest_path": "data/corpus/source_manifest.json",
+  "corpus_manifest_sha256": "c68212afd5381dec8bce49d0d5fee231a3b5589bf5460c0f72297e0c84422f55",
+  "chunks_path": "data/chunking/fixed-window-v1/chunks.jsonl",
+  "chunks_sha256": "7e0498dabddbd87816c55aff1789aff2c79dde3ae742aee3d30b7cad6ac61842",
+  "source_document_count": 30,
+  "chunk_count": 54,
+  "total_chunk_tokens": 4253,
+  "source_chunk_counts": [
+    {
+      "source_id": "NR-AUTH-001",
+      "chunk_count": 3
+    },
+    {
+      "source_id": "NR-AUTH-002",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-ERROR-011",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-ERROR-012",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-EVENT-024",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-EVENT-025",
+      "chunk_count": 1
+    },
+    {
+      "source_id": "NR-IDEM-020",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-IDEM-021",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-INCIDENT-026",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-OAUTH-003",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-OAUTH-004",
+      "chunk_count": 1
+    },
+    {
+      "source_id": "NR-PAGE-005",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-PAGE-006",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-PERM-027",
+      "chunk_count": 1
+    },
+    {
+      "source_id": "NR-PERM-028",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-RATE-007",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-RATE-008",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-RETRY-009",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-RETRY-010",
+      "chunk_count": 1
+    },
+    {
+      "source_id": "NR-SANDBOX-029",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-SANDBOX-030",
+      "chunk_count": 1
+    },
+    {
+      "source_id": "NR-SDK-016",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-SDK-017",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-UPLOAD-022",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-UPLOAD-023",
+      "chunk_count": 1
+    },
+    {
+      "source_id": "NR-VERS-018",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-VERS-019",
+      "chunk_count": 1
+    },
+    {
+      "source_id": "NR-WEBHOOK-013",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-WEBHOOK-014",
+      "chunk_count": 2
+    },
+    {
+      "source_id": "NR-WEBHOOK-015",
+      "chunk_count": 2
+    }
+  ]
+}
