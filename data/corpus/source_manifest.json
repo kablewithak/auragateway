@@ -1,0 +1,220 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_id": "nimbus-relay",
+  "corpus_version": "1.0.0",
+  "status": "frozen",
+  "inventory_path": "data/corpus/source_inventory.json",
+  "inventory_sha256": "25b34bbb646952f0b9345d25a9a958fcab9ca33e88696c474a41621e7f90a3be",
+  "artifacts": [
+    {
+      "source_id": "NR-AUTH-002",
+      "document_path": "data/corpus/documents/authentication/api-key-quickstart-v1.md",
+      "document_format": "markdown",
+      "byte_count": 1338,
+      "sha256": "272676251ad6073b707f3cf89b5240ce558c01417cc5e055213398bada6d2f8d"
+    },
+    {
+      "source_id": "NR-AUTH-001",
+      "document_path": "data/corpus/documents/authentication/api-key-quickstart-v2.md",
+      "document_format": "markdown",
+      "byte_count": 1627,
+      "sha256": "70484d97b595e2c7cf01018661f6ac6a53a45f9aa9cec3f44adf1892e4771014"
+    },
+    {
+      "source_id": "NR-OAUTH-003",
+      "document_path": "data/corpus/documents/authentication/oauth-client-credentials.md",
+      "document_format": "markdown",
+      "byte_count": 1439,
+      "sha256": "11024c4abe988b2ed171360bf9f2557f5b7cd9e573c91cd16aa235fc6670ca3b"
+    },
+    {
+      "source_id": "NR-OAUTH-004",
+      "document_path": "data/corpus/documents/authentication/oauth-refresh-errors.json",
+      "document_format": "json",
+      "byte_count": 1270,
+      "sha256": "3633e765c9dd28c484e3a3640e4154017025be9a813cf1c02d306b1affbb025a"
+    },
+    {
+      "source_id": "NR-ERROR-012",
+      "document_path": "data/corpus/documents/errors/error-409-versus-422.md",
+      "document_format": "markdown",
+      "byte_count": 1388,
+      "sha256": "0daa07c9a112bc4e2be056c13f2552caf013d152887035863a04fe383527a43d"
+    },
+    {
+      "source_id": "NR-ERROR-011",
+      "document_path": "data/corpus/documents/errors/error-code-reference.md",
+      "document_format": "markdown",
+      "byte_count": 1362,
+      "sha256": "76fc18754e5266f22f0b73c0b1f8cf74653c3880a6fcfd10e13b64664263da1a"
+    },
+    {
+      "source_id": "NR-EVENT-025",
+      "document_path": "data/corpus/documents/events/event-types.json",
+      "document_format": "json",
+      "byte_count": 1286,
+      "sha256": "f7e6ea94009231291ab1039f4584008f9c955905498d8c149c7fb35881f95c68"
+    },
+    {
+      "source_id": "NR-EVENT-024",
+      "document_path": "data/corpus/documents/events/event-types.md",
+      "document_format": "markdown",
+      "byte_count": 1260,
+      "sha256": "397d0a35abe4ed5ae854305df3c5f6af8e1b53c3340ef5ad0543732173c3d56d"
+    },
+    {
+      "source_id": "NR-IDEM-021",
+      "document_path": "data/corpus/documents/idempotency/idempotency-keys-v1.md",
+      "document_format": "markdown",
+      "byte_count": 979,
+      "sha256": "2ba0b12a3ee36fe410b89ae1352d21b21322d2b8b8aac4cf8e31bd94e76472d0"
+    },
+    {
+      "source_id": "NR-IDEM-020",
+      "document_path": "data/corpus/documents/idempotency/idempotency-keys-v2.md",
+      "document_format": "markdown",
+      "byte_count": 1333,
+      "sha256": "9ff7652dded17f4cf25a1b872e6da203eb11a6ebc4f66054ffce53d3c9bbb443"
+    },
+    {
+      "source_id": "NR-INCIDENT-026",
+      "document_path": "data/corpus/documents/incidents/status-and-escalation.md",
+      "document_format": "markdown",
+      "byte_count": 1337,
+      "sha256": "594848ffeba65dfc3dfcd5f54b09a65089c4119e87729f4df114bfba3f32873f"
+    },
+    {
+      "source_id": "NR-PAGE-006",
+      "document_path": "data/corpus/documents/pagination/cursor-pagination-sdk.md",
+      "document_format": "markdown",
+      "byte_count": 1408,
+      "sha256": "3f7154b728508f32ddf04d02fb59466c8200a57b43126c393f6cbd3c7fd53c84"
+    },
+    {
+      "source_id": "NR-PAGE-005",
+      "document_path": "data/corpus/documents/pagination/cursor-pagination.md",
+      "document_format": "markdown",
+      "byte_count": 1427,
+      "sha256": "1e3577fa8753398323e73a840587261783f465744597afab1b7f6a3717a4e0f7"
+    },
+    {
+      "source_id": "NR-PERM-028",
+      "document_path": "data/corpus/documents/permissions/custom-role-guide.md",
+      "document_format": "markdown",
+      "byte_count": 1301,
+      "sha256": "3908b58c4ad925d19b60c4cb23560830d018ef1ecdfb9a2d2862809e0eaa3240"
+    },
+    {
+      "source_id": "NR-PERM-027",
+      "document_path": "data/corpus/documents/permissions/role-permission-matrix.json",
+      "document_format": "json",
+      "byte_count": 955,
+      "sha256": "800d5225258d0e10ec2e54e3944f9b1b8f25d9618cf5018336f2cefd892c899a"
+    },
+    {
+      "source_id": "NR-RATE-008",
+      "document_path": "data/corpus/documents/rate-limits/legacy-rate-limit-policy.md",
+      "document_format": "markdown",
+      "byte_count": 1159,
+      "sha256": "13ef8e471b3c5780a5b8a9b87104ed87eba347ce90946a17aff1e0b64cf8f65a"
+    },
+    {
+      "source_id": "NR-RATE-007",
+      "document_path": "data/corpus/documents/rate-limits/rate-limit-headers.md",
+      "document_format": "markdown",
+      "byte_count": 1422,
+      "sha256": "d3af063c6eb6d14f55d2a9d835b8a3fdd65e0dd96974e529ac49eabe3be348e5"
+    },
+    {
+      "source_id": "NR-RETRY-009",
+      "document_path": "data/corpus/documents/retries/exponential-backoff.md",
+      "document_format": "markdown",
+      "byte_count": 1456,
+      "sha256": "557d5a5ffed7e21df7564071d6694ff69f93b22db381db9107a052d13a1065ef"
+    },
+    {
+      "source_id": "NR-RETRY-010",
+      "document_path": "data/corpus/documents/retries/retryable-error-codes.json",
+      "document_format": "json",
+      "byte_count": 1423,
+      "sha256": "c0240a2eedc69744fc7af2be06626a62f4d56f9e688695ff9af57ef35f5e40bf"
+    },
+    {
+      "source_id": "NR-SANDBOX-030",
+      "document_path": "data/corpus/documents/sandbox/legacy-sandbox-limits.json",
+      "document_format": "json",
+      "byte_count": 647,
+      "sha256": "700ddf522160fa07a3b38826757c7dcb162bac73a4974f859c661ffe74aacbc9"
+    },
+    {
+      "source_id": "NR-SANDBOX-029",
+      "document_path": "data/corpus/documents/sandbox/sandbox-limitations.md",
+      "document_format": "markdown",
+      "byte_count": 1269,
+      "sha256": "6002f66ef0c1e88dcbca03a6e827df1599ed7ca0090fcaccc32090fac17545b1"
+    },
+    {
+      "source_id": "NR-SDK-017",
+      "document_path": "data/corpus/documents/sdk/javascript-client-setup.md",
+      "document_format": "markdown",
+      "byte_count": 1200,
+      "sha256": "b6c566cac060d1f8d0c2a0e38144f43b9203a2765d0115b1befbf2628bb0d8e9"
+    },
+    {
+      "source_id": "NR-SDK-016",
+      "document_path": "data/corpus/documents/sdk/python-client-setup.md",
+      "document_format": "markdown",
+      "byte_count": 1296,
+      "sha256": "1f8aeccd7e3020a4e3361e1e6c43fda3bb03744145cde9ffa25850e2c1c2b14b"
+    },
+    {
+      "source_id": "NR-UPLOAD-022",
+      "document_path": "data/corpus/documents/uploads/multipart-upload.md",
+      "document_format": "markdown",
+      "byte_count": 1252,
+      "sha256": "1574ee3b419eaeed126ce2b7e69cea228f873f4cdad2963b7520400a035525f3"
+    },
+    {
+      "source_id": "NR-UPLOAD-023",
+      "document_path": "data/corpus/documents/uploads/upload-errors.json",
+      "document_format": "json",
+      "byte_count": 1136,
+      "sha256": "38dc7f08a4711f4ad1d9eb4ffa8cca5eeadae9c7c50cacfffdaf70c50193cb43"
+    },
+    {
+      "source_id": "NR-VERS-018",
+      "document_path": "data/corpus/documents/versioning/api-version-migration.md",
+      "document_format": "markdown",
+      "byte_count": 1255,
+      "sha256": "6ab71a4960952fb501e8dad4d4e30e30765db2a269ea5a018ebf6bf02cef5e42"
+    },
+    {
+      "source_id": "NR-VERS-019",
+      "document_path": "data/corpus/documents/versioning/deprecated-endpoints.json",
+      "document_format": "json",
+      "byte_count": 1006,
+      "sha256": "c4c23e8b5645515bf3d6399da41d3a28b51e7326b905e695f38aada09578c90e"
+    },
+    {
+      "source_id": "NR-WEBHOOK-014",
+      "document_path": "data/corpus/documents/webhooks/delivery-and-retries-v2.md",
+      "document_format": "markdown",
+      "byte_count": 1178,
+      "sha256": "7ecf86836adf437b87f731dbf874d5672e877e526c7626c6a2f6cbbf58255e1f"
+    },
+    {
+      "source_id": "NR-WEBHOOK-013",
+      "document_path": "data/corpus/documents/webhooks/delivery-and-retries-v3.md",
+      "document_format": "markdown",
+      "byte_count": 1360,
+      "sha256": "227553e92efc6ada373d048667590a8b60bad3b93904444decaa099edd0a2e20"
+    },
+    {
+      "source_id": "NR-WEBHOOK-015",
+      "document_path": "data/corpus/documents/webhooks/signature-verification.md",
+      "document_format": "markdown",
+      "byte_count": 1323,
+      "sha256": "3c4727077608929da5ed1ed94b11d903b29d5ec49f0ce41f0be74849f18b7a05"
+    }
+  ]
+}

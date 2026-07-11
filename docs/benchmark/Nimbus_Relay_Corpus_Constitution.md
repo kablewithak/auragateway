@@ -4,17 +4,19 @@
 
 ```text
 Version: 1.0.0
-Status: Accepted for Phase 1 corpus authoring
+Status: Frozen
+Freeze date: 2026-07-12
 Benchmark Constitution dependency: 1.0.0
 Corpus inventory schema: 1.0.0
+Corpus version: 1.0.0
 Customer or production data: prohibited
 ```
 
 ## Purpose
 
-This constitution defines the source-level controls for AuraGateway's synthetic Nimbus Relay API corpus before any document text or retrieval implementation is created.
+This constitution defines the source-level controls for AuraGateway's frozen synthetic Nimbus Relay API corpus before retrieval implementation and tuning begin.
 
-It prevents corpus authoring from drifting toward easy, repetitive, current-only documentation that would fail to test stale-source handling, conflict resolution, metadata filtering, near-duplicate displacement, incomplete guidance, or version-sensitive procedure selection.
+It prevents the corpus from drifting toward easy, repetitive, current-only documentation that would fail to test stale-source handling, conflict resolution, metadata filtering, near-duplicate displacement, incomplete guidance, or version-sensitive procedure selection.
 
 ## Workload boundary
 
@@ -36,25 +38,25 @@ Covered areas include:
 - permissions;
 - sandbox limitations.
 
-## Minimum source requirements
+## Frozen source requirements
 
-The authored corpus must contain at least:
+The corpus contains:
 
-| Requirement | Minimum |
+| Requirement | Frozen count |
 |---|---:|
 | Documents | 30 |
-| Distinct intent categories | 10 |
+| Distinct intent categories | 35 |
 | Deliberately stale documents | 5 |
-| Deliberately conflicting documents | 5 |
+| Deliberately conflicting documents | 6 |
 | Incomplete-guidance documents | 4 |
 | Near-duplicate documents | 4 |
-| Version-sensitive procedure documents | 6 |
+| Version-sensitive procedure documents | 9 |
 
 Only Markdown and JSON source documents are permitted.
 
 ## Required metadata
 
-Every source must declare:
+Every source declares:
 
 ```text
 source_id
@@ -78,100 +80,104 @@ contains_personal_data
 contains_secrets
 ```
 
-The Pydantic boundary is the authoritative schema.
+A matching metadata subset is embedded in every source file. The Pydantic boundary is the authoritative schema.
 
 ## Diagnostic design rules
 
 ### Stale sources
 
-A stale source must be marked `deprecated` or `superseded`.
+A stale source is marked `deprecated` or `superseded` in metadata and carries an explicit lifecycle warning in its content.
 
-Stale sources remain retrievable test assets. They are not silently deleted because they are needed to evaluate stale-source selection and metadata filtering.
+Stale sources remain retrieval test assets. They are not silently deleted because they are needed to evaluate stale-source selection and metadata filtering.
 
 ### Conflicting sources
 
-Every conflict group contains at least two sources that disagree on a material operational fact, such as token lifetime, retry timing, or idempotency retention.
+Every conflict group contains at least two sources that disagree on a material operational fact:
 
-The authoritative source must be distinguishable through version, status, and update metadata rather than trivial wording such as "this document is wrong."
+- API-key lifetime;
+- webhook retry window;
+- idempotency retention.
+
+The authoritative source is distinguishable through version, status, update metadata, supersession, and content evidence.
 
 ### Incomplete guidance
 
-Incomplete documents omit one or more details necessary for safe task completion. They must still contain enough relevant information to be plausible retrieval candidates.
+Incomplete documents contain an explicit `Known gap` section and omit one or more details necessary for safe task completion. They still contain enough relevant information to remain plausible retrieval candidates.
 
 ### Near duplicates
 
-Near-duplicate groups contain at least two documents with substantial semantic overlap but meaningful differences in scope, format, SDK, or authority.
+Near-duplicate groups contain substantial semantic overlap with a meaningful difference in SDK scope or document format:
+
+- HTTP pagination versus SDK pagination;
+- Markdown event catalogue versus JSON event catalogue.
 
 ### Version-sensitive procedures
 
-Version-sensitive procedures must produce a different safe answer when the selected API or document version changes.
+Version-sensitive procedures produce a different safe answer when the selected API or document version changes.
 
 ## Privacy and safety
 
 All corpus content is synthetic.
 
-The corpus must not contain:
+The corpus excludes:
 
-- real customer or employee data;
-- real access tokens or API keys;
+- customer or employee data;
+- usable access tokens or API keys;
 - copied production logs;
 - real email addresses or phone numbers;
 - real incidents;
 - vendor-confidential material;
 - instructions that weaken repository or provider security controls.
 
-Example credentials must use unmistakably non-secret placeholders.
+Example credentials use environment-variable placeholders.
 
-## Authoring acceptance rules
+## Freeze controls
 
-A document is accepted only when:
+The freeze validator enforces:
 
-- its source ID and path match the inventory;
-- its metadata validates;
-- it serves at least one declared intent;
-- its diagnostic role is real rather than cosmetic;
-- its content does not contradict its declared lifecycle metadata accidentally;
-- it contains no personal data or secrets;
-- it is grounded in the fictional Nimbus Relay domain;
-- it does not reveal hidden benchmark labels in user-facing prose.
+- exact inventory-to-file-set parity;
+- no missing or extra Markdown and JSON files;
+- embedded metadata parity with the source inventory;
+- valid UTF-8;
+- valid JSON source structure;
+- explicit stale lifecycle warnings;
+- explicit known-gap sections for incomplete sources;
+- forbidden secret-pattern rejection;
+- deterministic per-document SHA-256 values;
+- deterministic byte counts;
+- inventory SHA-256;
+- source-manifest SHA-256;
+- typed freeze-record parity.
 
-A document is rejected when it is:
+## Frozen artifacts
 
-- trivial;
-- ambiguous without diagnostic purpose;
-- a duplicate without a declared near-duplicate role;
-- impossible to distinguish from its conflict counterpart through metadata and evidence;
-- unrelated to the benchmark workload;
-- dependent on real customer data;
-- written mainly to make retrieval metrics easier.
+```text
+data/corpus/source_inventory.json
+data/corpus/source_manifest.json
+data/corpus/corpus_freeze_record.json
+data/corpus/documents/**
+```
 
-## Freeze sequence
+The source manifest records every document path, source ID, format, byte count, and SHA-256 hash.
 
-1. Validate the planned inventory.
-2. Author all 30 documents.
-3. Verify file existence and metadata parity.
-4. Hash every source file.
-5. Generate the corpus manifest.
-6. Run privacy and secret scanning.
-7. Freeze the authored corpus before retrieval tuning begins.
-
-The current inventory is not the final corpus manifest because the source documents do not yet exist.
+Any content or metadata change requires a new corpus version, regenerated freeze evidence, retrieval reruns, and an updated execution-manifest reference.
 
 ## Evidence boundary
 
-This slice proves:
+This corpus freeze proves:
 
-- the planned inventory is typed;
-- source identities and paths are unique;
-- required diagnostic quotas are present;
-- conflict and near-duplicate groups are structurally valid;
-- PII and secret flags are rejected;
-- both Markdown and JSON formats are represented.
+- all 30 documents exist;
+- every document matches its inventory metadata;
+- diagnostic quotas are present;
+- stale and incomplete sources expose their required warnings;
+- documents contain no matched forbidden secret patterns;
+- the authored source set is byte-hashed and reproducible;
+- the corpus is ready for chunking implementation and development retrieval evaluation.
 
 It does not prove:
 
-- that the 30 documents have been authored;
-- retrieval readiness;
-- held-out retrieval quality;
-- corpus hash freeze;
+- chunking quality;
+- dense or sparse retrieval quality;
+- held-out retrieval performance;
+- retrieval-configuration freeze;
 - Gate 1 completion.

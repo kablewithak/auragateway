@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "source_id": "NR-EVENT-025",
+    "version": "3.5",
+    "status": "current",
+    "updated_at": "2026-04-15T10:00:00Z",
+    "document_format": "json",
+    "api_area": "events",
+    "is_stale": false,
+    "conflict_group_id": null,
+    "completeness": "complete",
+    "near_duplicate_group_id": "event-catalogues",
+    "version_sensitive_procedure": false
+  },
+  "content": {
+    "event_types": [
+      {
+        "name": "resource.created",
+        "category": "resource"
+      },
+      {
+        "name": "resource.updated",
+        "category": "resource"
+      },
+      {
+        "name": "resource.deleted",
+        "category": "resource"
+      },
+      {
+        "name": "delivery.succeeded",
+        "category": "delivery"
+      },
+      {
+        "name": "delivery.failed",
+        "category": "delivery"
+      },
+      {
+        "name": "delivery.retrying",
+        "category": "delivery"
+      },
+      {
+        "name": "credential.rotated",
+        "category": "security"
+      },
+      {
+        "name": "permission.changed",
+        "category": "security"
+      }
+    ],
+    "required_payload_fields": [
+      "event_id",
+      "event_type",
+      "created_at",
+      "api_version",
+      "resource"
+    ],
+    "full_resource_state_guaranteed": false
+  }
+}

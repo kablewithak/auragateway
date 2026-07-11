@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "source_id": "NR-OAUTH-004",
+    "version": "3.1",
+    "status": "current",
+    "updated_at": "2026-02-04T09:00:00Z",
+    "document_format": "json",
+    "api_area": "oauth",
+    "is_stale": false,
+    "conflict_group_id": null,
+    "completeness": "complete",
+    "near_duplicate_group_id": null,
+    "version_sensitive_procedure": false
+  },
+  "content": {
+    "errors": [
+      {
+        "code": "invalid_grant",
+        "http_status": 400,
+        "retryable": false,
+        "meaning": "Refresh token is expired, revoked, or was issued to another client."
+      },
+      {
+        "code": "invalid_client",
+        "http_status": 401,
+        "retryable": false,
+        "meaning": "Client authentication failed."
+      },
+      {
+        "code": "invalid_scope",
+        "http_status": 400,
+        "retryable": false,
+        "meaning": "Requested scope exceeds the refresh grant."
+      },
+      {
+        "code": "temporarily_unavailable",
+        "http_status": 503,
+        "retryable": true,
+        "meaning": "Token service is temporarily unavailable; use bounded backoff."
+      }
+    ],
+    "rules": {
+      "rotate_refresh_token_on_success": true,
+      "reuse_old_refresh_token": false,
+      "log_token_values": false
+    }
+  }
+}

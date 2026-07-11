@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "source_id": "NR-UPLOAD-023",
+    "version": "2.3",
+    "status": "current",
+    "updated_at": "2026-04-10T10:00:00Z",
+    "document_format": "json",
+    "api_area": "uploads",
+    "is_stale": false,
+    "conflict_group_id": null,
+    "completeness": "complete",
+    "near_duplicate_group_id": null,
+    "version_sensitive_procedure": false
+  },
+  "content": {
+    "errors": [
+      {
+        "code": "UPLOAD_SESSION_EXPIRED",
+        "http_status": 410,
+        "retryable": false,
+        "resolution": "Create a new upload session."
+      },
+      {
+        "code": "PART_CHECKSUM_MISMATCH",
+        "http_status": 422,
+        "retryable": false,
+        "resolution": "Recompute and resend the affected part."
+      },
+      {
+        "code": "PART_NUMBER_DUPLICATE",
+        "http_status": 409,
+        "retryable": false,
+        "resolution": "Use the existing part or abort the session."
+      },
+      {
+        "code": "UPLOAD_STORAGE_UNAVAILABLE",
+        "http_status": 503,
+        "retryable": true,
+        "resolution": "Retry with bounded backoff while the session is valid."
+      }
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "source_id": "NR-PERM-027",
+    "version": "2.7",
+    "status": "current",
+    "updated_at": "2026-04-22T09:00:00Z",
+    "document_format": "json",
+    "api_area": "permissions",
+    "is_stale": false,
+    "conflict_group_id": null,
+    "completeness": "complete",
+    "near_duplicate_group_id": null,
+    "version_sensitive_procedure": false
+  },
+  "content": {
+    "roles": {
+      "viewer": [
+        "resources.read",
+        "events.read",
+        "incidents.read"
+      ],
+      "operator": [
+        "resources.read",
+        "resources.write",
+        "events.read",
+        "uploads.write"
+      ],
+      "administrator": [
+        "resources.read",
+        "resources.write",
+        "events.read",
+        "uploads.write",
+        "roles.manage",
+        "credentials.manage"
+      ]
+    },
+    "custom_role_restrictions": [
+      "roles.manage",
+      "credentials.manage"
+    ],
+    "propagation_seconds_max": 120
+  }
+}
