@@ -12,6 +12,7 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - **Execution allocation:** 200 hours
 - **Current phase:** Phase 0 — Design Freeze and Benchmark Constitution
 - **Active proof gate:** Gate 0 — Benchmark Constitution
+- **Constitution status:** Draft v0.2.0 — under review, not frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
 - **Maturity:** design-stage standalone AI reliability systems lab
 
@@ -20,6 +21,8 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - [AuraGateway v2 PRD](docs/product/AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md)
 - [Session Brief](docs/session/AuraGateway_SESSION_BRIEF.md)
 - [Benchmark Constitution](docs/benchmark/AuraGateway_Benchmark_Constitution.md)
+- [Evidence Bundle Specification](docs/benchmark/AuraGateway_Evidence_Bundle_Specification.md)
+- [Privacy and Vendor Boundary](docs/privacy/AuraGateway_Privacy_and_Vendor_Boundary.md)
 - [Architecture Decision Records](docs/adr/README.md)
 
 ## Current Benchmark Conditions
@@ -47,6 +50,8 @@ Runtime improvements are accepted only when:
 - the benchmark constitution is frozen before measured execution;
 - compared runs share eligible configuration fingerprints;
 - failed, excluded, retried, and invalidated runs remain visible;
+- completed evidence bundles are append-only and hash-manifested;
 - provider-reported and locally inferred evidence remain distinct;
+- raw prompts, user messages, retrieved documents, model outputs, provider payloads, PII, and secrets remain outside public traces;
 - fixed task-quality guardrails pass;
 - claims remain limited to the named workload, provider/model, and benchmark configuration.
