@@ -1,0 +1,11 @@
+{
+  "record_version": "1.0.0",
+  "artifact": "docs/benchmark/AuraGateway_Benchmark_Constitution.md",
+  "constitution_version": "1.0.0",
+  "status": "frozen",
+  "freeze_date": "2026-07-12",
+  "byte_count": 17844,
+  "sha256": "c58074be896de122d82b063905aed34f67e8f37446a31581391e26d956c9fcc1",
+  "measured_execution_permitted": false,
+  "execution_manifest_required_before_measured_execution": true
+}

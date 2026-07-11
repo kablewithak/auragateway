@@ -2,19 +2,19 @@
 
 | Field | Value |
 |---|---|
-| **Constitution version** | 0.2.0 |
-| **Status** | Draft — under review, not frozen |
+| **Constitution version** | 1.0.0 |
+| **Status** | Frozen |
+| **Freeze date** | 2026-07-12 |
 | **PRD baseline** | AuraGateway v2 PRD 2.1.0 |
-| **Active phase** | Phase 0 — Design Freeze and Benchmark Constitution |
-| **Active proof gate** | Gate 0 — Benchmark Constitution |
-| **Measured execution permitted** | No |
+| **Completed proof gate** | Gate 0 — Benchmark Constitution |
+| **Measured execution permitted** | No — execution manifest and downstream proof gates are not frozen |
 | **Customer data permitted** | No |
 
 ## 1. Purpose
 
 This constitution defines the rules under which AuraGateway benchmark evidence may be generated, compared, interpreted, and reported.
 
-It exists to prevent:
+It prevents:
 
 - post-result rule changes;
 - configuration drift;
@@ -25,13 +25,50 @@ It exists to prevent:
 - unsupported provider-cache claims;
 - causal overstatement.
 
-This document must be frozen before measured provider execution begins.
+This constitution is frozen before benchmark implementation and measured execution.
 
-## 2. Benchmark question
+## 2. Two-layer freeze model
+
+AuraGateway separates experiment rules from execution assets.
+
+### Layer 1 — Benchmark Constitution
+
+Frozen at Gate 0.
+
+It controls:
+
+- benchmark question;
+- conditions and causal contrasts;
+- run order;
+- retry, exclusion, rerun, and denominator policy;
+- cold and warm classification;
+- review blindness;
+- quality non-inferiority;
+- statistical reporting;
+- evidence and privacy rules;
+- invalidation triggers.
+
+### Layer 2 — Execution Manifest
+
+Frozen only after the required downstream assets exist and Gates 1–8 pass.
+
+It pins:
+
+- corpus and retrieval hashes;
+- prompt, context-pack, tool, and schema versions;
+- provider, model, adapter, TTL, and pricing;
+- route policy;
+- evaluation manifests and rubric;
+- negative controls and fault fixtures;
+- implementation, dependency, and Git versions.
+
+Freezing this constitution does not authorize measured execution.
+
+## 3. Benchmark question
 
 > Under a fixed multi-turn retrieval-grounded technical-support workload, do deterministic context construction and cache-affinity routing reduce avoidable uncached input work, prefill or time-to-first-output latency, or versioned estimated trajectory cost without reducing retrieval quality, grounded task success, structured-output validity, citation support, or useful feedback retention?
 
-## 3. Workload boundary
+## 4. Workload boundary
 
 The workload is a synthetic multi-turn API troubleshooting and technical-support assistant for the fictional Nimbus Relay API.
 
@@ -47,7 +84,7 @@ The benchmark requires:
 
 No public, customer, or production data is permitted.
 
-## 4. Conditions
+## 5. Conditions
 
 ### Condition A — Cache-Hostile Baseline
 
@@ -57,6 +94,8 @@ No public, customer, or production data is permitted.
 - no warm-session route preservation;
 - retrieval and output schemas remain fixed.
 
+Condition A must remain functional and plausible. It must not be artificially sabotaged.
+
 ### Condition B — Prefix-Deterministic Runtime
 
 - versioned static anchor;
@@ -65,7 +104,7 @@ No public, customer, or production data is permitted.
 - retrieval evidence appears only in volatile context;
 - HMAC static-prefix fingerprint;
 - prefix mutation and volatile-leak checks;
-- same route behaviour as A for A-versus-B comparison.
+- same route behaviour as A for the A-versus-B comparison.
 
 ### Condition C — Cache-Aware Agent Runtime
 
@@ -77,7 +116,7 @@ No public, customer, or production data is permitted.
 - provider-failure, capability, safety, and quality reroute controls;
 - route-thrash detection.
 
-## 5. Causal contrasts
+## 6. Causal contrasts
 
 ### A versus B
 
@@ -121,9 +160,9 @@ Prohibited interpretation:
 
 - attribution to one mechanism.
 
-## 6. Controlled constants
+## 7. Controlled constants
 
-The following remain fixed across affected comparisons:
+The execution manifest must pin the following before measured execution:
 
 - corpus manifest;
 - chunking strategy;
@@ -147,16 +186,16 @@ The following remain fixed across affected comparisons:
 - runtime condition implementation versions;
 - route-policy version;
 - benchmark runner version;
-- run-order policy;
-- cold/warm classification;
-- retry, exclusion, and rerun rules;
+- run-order schedule IDs;
+- cold/warm classification policy;
+- retry, exclusion, rerun, and denominator policy IDs;
 - statistical reporting configuration;
-- comparison-eligibility rules;
+- comparison-eligibility contract;
 - pricing schedule when cost is reported.
 
-## 7. Run identity
+## 8. Run identity
 
-Every measured trajectory must include:
+Every measured trajectory includes:
 
 - `run_id`;
 - `trace_id`;
@@ -168,37 +207,67 @@ Every measured trajectory must include:
 - `session_id_hash`;
 - `provider_model_alias`;
 - `benchmark_manifest_hash`;
+- `execution_manifest_hash`;
 - `configuration_fingerprint`.
 
 Identifiers must not expose direct personal information.
 
-## 8. Counterbalancing
+## 9. Counterbalancing
 
-The initial planned three-replication condition order is:
+### Functional benchmark schedule
 
-- replication 1: A, B, C;
-- replication 2: B, C, A;
-- replication 3: C, A, B.
+The three repetitions use:
 
-Runtime microbenchmark repetitions will use a deterministic balanced extension of these permutations.
+```text
+Replication 1: A → B → C
+Replication 2: B → C → A
+Replication 3: C → A → B
+```
 
-The exact schedule and seed must be stored in the frozen benchmark manifest.
+Schedule ID:
+
+```text
+functional-counterbalance-v1
+```
+
+### Runtime microbenchmark schedule
+
+The ten repetitions use:
+
+```text
+Replication 01: A → B → C
+Replication 02: B → C → A
+Replication 03: C → A → B
+Replication 04: A → C → B
+Replication 05: C → B → A
+Replication 06: B → A → C
+Replication 07: A → B → C
+Replication 08: B → C → A
+Replication 09: C → A → B
+Replication 10: C → B → A
+```
+
+Schedule ID:
+
+```text
+runtime-counterbalance-v1
+```
 
 No operator may reorder conditions after observing partial results.
 
-## 9. Cache isolation
+## 10. Cache isolation
 
-Each condition, comparison pair, and replication must use distinct cache namespaces.
+Each condition, comparison pair, and replication uses a distinct cache namespace.
 
 Cross-condition namespace reuse is a benchmark isolation failure and invalidates affected comparisons.
 
-## 10. Cold and warm classification
+## 11. Cold and warm classification
 
 ### Cold turn
 
 A turn is cold when no prior eligible request exists in the same session, provider/model route, namespace, and declared TTL window.
 
-The first turn of every trajectory is classified cold.
+The first turn of every trajectory is cold.
 
 ### Warm-eligible turn
 
@@ -207,18 +276,18 @@ A turn is warm-eligible when:
 - a prior eligible request used the same provider/model route;
 - the static prefix fingerprint matches;
 - the cache namespace matches;
-- the request occurs inside the declared TTL assumption;
+- the request occurs inside the execution manifest's TTL assumption;
 - no provider failure, session reset, or benchmark transition invalidated affinity.
 
 Warm eligibility is not proof of a provider cache hit.
 
 ### Ambiguous state
 
-When cache state cannot be classified defensibly, the evidence is marked unavailable or ambiguous and excluded only under a predeclared rule.
+When cache state cannot be classified defensibly, evidence is marked unavailable or ambiguous.
 
 Cold and warm results are reported separately.
 
-## 11. Provider and telemetry evidence
+## 12. Provider and telemetry evidence
 
 Evidence levels are:
 
@@ -234,57 +303,90 @@ Local prompt-evaluation timing must not populate provider cache-token fields.
 
 Cache, latency, and cost claims require an explicit telemetry-sufficiency decision.
 
-## 12. Retry policy
+## 13. Timeout and retry policy
 
-Retries are bounded and provider-error aware.
+Policy ID:
+
+```text
+provider-request-policy-v1
+```
+
+Exact controls:
+
+```text
+Connection timeout: 10 seconds
+First-output timeout: 45 seconds
+Total request timeout: 120 seconds
+Maximum retries after the initial attempt: 1
+Retry backoff: fixed 2 seconds
+Retry jitter during measured execution: disabled
+```
 
 A retry is permitted only when:
 
 - the error is typed as retryable;
 - the response state is `no_response` or `definite_failure`;
 - the maximum retry count has not been reached;
-- the action will not create an ambiguous duplicate.
+- the action cannot create an ambiguous duplicate.
 
 Blind retry after an ambiguous response is prohibited.
 
-The frozen version must declare exact timeout, retry count, and backoff values before live execution.
+## 14. Exclusion policy
 
-## 13. Exclusion policy
+Policy ID:
 
-A run may be excluded from a specific analysis only under a predeclared rule.
+```text
+exclusion-policy-v1
+```
 
-Planned eligible reasons include:
+A run may be excluded from a specific metric family only under a predeclared rule.
+
+Allowed exclusion classes:
 
 - confirmed benchmark isolation failure;
 - confirmed configuration fingerprint mismatch;
-- provider response that cannot be parsed into the declared telemetry contract;
+- provider response that cannot be mapped into the frozen telemetry contract;
 - benchmark harness defect affecting the run;
 - operator interruption recorded before result inspection.
 
-Excluded runs remain in the evidence bundle and in failure-accounted reporting.
+Excluded runs remain in the evidence bundle and failure-accounted reporting.
 
-Poor model quality, high latency, high cost, or an unfavourable result are not exclusion reasons.
+Poor quality, high latency, high cost, or an unfavourable result are not exclusion reasons.
 
-## 14. Rerun policy
+## 15. Rerun policy
+
+Policy ID:
+
+```text
+rerun-policy-v1
+```
 
 A rerun may occur only when:
 
 - a retryable provider failure exhausted the per-request retry policy;
 - a benchmark harness defect invalidated the original run;
-- a configuration mismatch requires a full affected comparison rerun;
+- a configuration mismatch requires a complete affected comparison rerun;
 - a predeclared minimum successful-run count was not reached.
 
 Every rerun records:
 
 - original run ID;
+- replacement run ID;
 - reason code;
-- operator or automated trigger;
-- whether the original remains in denominators;
-- replacement run ID.
+- trigger;
+- whether the original remains in the denominator.
 
-## 15. Denominator policy
+The original record is never deleted.
 
-Reports include:
+## 16. Denominator policy
+
+Policy ID:
+
+```text
+denominator-policy-v1
+```
+
+Every report includes:
 
 - total scheduled runs;
 - completed runs;
@@ -295,21 +397,36 @@ Reports include:
 - configuration invalidations;
 - safety aborts.
 
-Quality rates use the full predeclared eligible denominator unless the frozen metric definition states otherwise.
+### Primary task-quality denominator
 
-Runtime reports provide both:
+All comparison-eligible scheduled trajectories are included.
 
-- successful-run measurements;
-- failure-accounted views.
+The following count as non-success:
 
-## 16. Functional benchmark
+- validation failure;
+- provider error;
+- budget exhaustion;
+- safety abort;
+- failure to reach the required terminal decision.
+
+Runs excluded under `exclusion-policy-v1` remain visible but are removed from the eligible quality denominator only for the affected metric family.
+
+### Runtime denominator
+
+Runtime metrics are reported in two views:
+
+1. completed-run measurements;
+2. failure-accounted completion and failure rates over all scheduled runs.
+
+## 17. Functional benchmark
 
 Planned design:
 
 - 18 multi-turn episodes;
 - 4 turns per episode;
 - 3 conditions;
-- 3 repetitions per condition.
+- 3 repetitions per condition;
+- 162 measured trajectories.
 
 Purpose:
 
@@ -320,14 +437,15 @@ Purpose:
 - route-policy correctness;
 - feedback retention and task sufficiency.
 
-## 17. Runtime microbenchmark
+## 18. Runtime microbenchmark
 
 Planned design:
 
 - 6 selected episodes;
 - 4 turns per episode;
 - 3 conditions;
-- 10 repetitions per condition.
+- 10 repetitions per condition;
+- 180 measured trajectories.
 
 Purpose:
 
@@ -340,7 +458,13 @@ Purpose:
 
 The runtime subset may not replace the full functional quality benchmark.
 
-## 18. Quality gate
+## 19. Quality gate
+
+Policy ID:
+
+```text
+quality-non-inferiority-v1
+```
 
 A runtime improvement is accepted only when:
 
@@ -350,34 +474,32 @@ A runtime improvement is accepted only when:
 - unsupported-answer rate does not increase;
 - retrieval configuration remains unchanged;
 - no new unsafe route, retry, escalation, or refusal pattern appears;
-- compared runs pass configuration-fingerprint eligibility.
+- compared runs pass execution-manifest and configuration-fingerprint eligibility.
 
-A cheaper or faster run that fails this gate is classified as a quality regression, not an improvement.
+A cheaper or faster run that fails this gate is a quality regression, not an improvement.
 
-## 19. Blinded adjudication
+## 20. Blinded adjudication
 
-Rubric-reviewed outputs use opaque review IDs.
+Protocol ID:
 
-Reviewers may inspect:
+```text
+blinded-adjudication-v1
+```
 
-- the task;
-- permitted evidence;
-- output;
-- deterministic validation results needed by the rubric.
+Controls:
 
-Reviewers may not inspect:
+- deterministic checks run on 100 percent of outputs;
+- one primary rubric review is completed for 100 percent of rubric-eligible outputs;
+- 25 percent are independently double-reviewed;
+- the double-review sample is stratified by condition and terminal decision;
+- the sample is selected with seed `20260712`;
+- reviewers cannot see condition, route policy, cost, latency, or cache telemetry;
+- disagreement reasons are retained;
+- material disagreements are resolved by an adjudicator who did not provide both initial ratings.
 
-- condition identity;
-- route-policy identity;
-- cost;
-- latency;
-- cache telemetry.
+Reviewer identities may be assigned later, but this protocol may not change during measured execution.
 
-At least 25 percent of rubric-reviewed outputs are double-reviewed.
-
-Material disagreements require adjudication and retained reasons.
-
-## 20. Feedback evidence
+## 21. Feedback evidence
 
 The benchmark evaluates feedback at trace level:
 
@@ -389,11 +511,15 @@ The benchmark evaluates feedback at trace level:
 
 It does not calculate or claim a universal EFC score.
 
-## 21. Statistical reporting
+## 22. Statistical reporting
 
-The frozen configuration must specify exact bootstrap settings.
+Configuration ID:
 
-The intended report includes:
+```text
+paired-bootstrap-v1
+```
+
+Runtime and paired comparison reports include:
 
 - run count;
 - successful-run count;
@@ -403,15 +529,24 @@ The intended report includes:
 - minimum and maximum;
 - p90 where useful;
 - paired per-episode differences;
-- bootstrap confidence intervals;
 - cold and warm views;
-- success-only and failure-accounted views.
+- completed-run and failure-accounted views.
 
-The project does not claim universal generalisation or academic statistical significance.
+Uncertainty interval:
 
-## 22. Pricing
+```text
+Method: percentile bootstrap
+Resampling unit: comparison pair at episode level
+Bootstrap samples: 10,000
+Confidence level: 95 percent
+Random seed: 20260712
+```
 
-Cost may be reported only against a versioned local pricing schedule containing:
+The project does not claim universal generalisation, causal validity outside the benchmark, or academic statistical significance.
+
+## 23. Pricing
+
+Cost may be reported only against a frozen, versioned local pricing schedule containing:
 
 - provider/model alias;
 - source date;
@@ -419,63 +554,15 @@ Cost may be reported only against a versioned local pricing schedule containing:
 - input price;
 - output price;
 - cache read/write prices where available;
-- whether values are provider-reported or estimated.
+- estimated versus provider-reported status.
 
 Cost estimates are not invoices.
 
-## 23. Comparison eligibility
-
-The comparison gate returns:
-
-- eligible or ineligible;
-- compared run IDs;
-- mismatched fields;
-- invalidated claims;
-- required reruns.
-
-Human prose may not override an ineligible decision.
-
-## 24. Invalidation triggers
-
-Affected comparisons require rerun when:
-
-- any controlled constant changes;
-- held-out or diagnostic cases change after freeze;
-- the constitution changes after execution begins;
-- prompt or static-anchor content changes;
-- retrieval configuration changes;
-- provider/model alias or capability tier changes;
-- adapter changes alter telemetry meaning;
-- quality rubric, scorer, instructions, or thresholds change;
-- route-policy rules change;
-- negative-control or fault definitions change after closure;
-- run order, cold-start, retry, exclusion, or rerun rules change;
-- statistical rules change after results are inspected;
-- pricing changes while cost comparison remains in scope;
-- configuration fingerprint mismatch is discovered.
-
-## 25. Claim language
-
-Permitted language must remain conditional:
-
-> Under the named workload, provider/model, frozen configuration, and benchmark constitution, the tested runtime policy produced the reported outcomes.
-
-The benchmark must not claim:
-
-- guaranteed cache hits;
-- direct GPU KV-cache visibility;
-- guaranteed cache residency, TTL, eviction, or scheduling;
-- universal savings;
-- broad provider rankings;
-- production readiness;
-- customer-data readiness;
-- Coinbase-scale infrastructure or results.
-
-## 26. Privacy and vendor boundary
+## 24. Privacy and vendor boundary
 
 AuraGateway uses synthetic data only during the 200-hour project.
 
-Normal logs, sanitized traces, comparison artifacts, and public evidence bundles must exclude:
+Normal logs, sanitized traces, comparison artifacts, and public evidence bundles exclude:
 
 - raw prompts;
 - raw user messages;
@@ -500,12 +587,7 @@ Protected blinded-review exports:
 
 Any forbidden trace content is a `PRIVACY_VIOLATION` and blocks affected evidence publication.
 
-The governing controls are defined in:
-
-- ADR-0009;
-- `docs/privacy/AuraGateway_Privacy_and_Vendor_Boundary.md`.
-
-## 27. Evidence bundle and immutability
+## 25. Evidence bundle and immutability
 
 Every completed benchmark execution produces a typed evidence bundle.
 
@@ -519,74 +601,84 @@ Corrections produce a new bundle that identifies:
 - affected claims;
 - rerun scope.
 
-Required bundle evidence includes:
-
-- benchmark and environment manifests;
-- configuration fingerprint;
-- run results;
-- failures;
-- exclusions;
-- reruns;
-- comparison eligibility;
-- comparison table;
-- benchmark report;
-- sanitized trace samples;
-- artifact hash manifest;
-- bundle manifest.
-
 Raw prompts, provider payloads, protected review exports, credentials, and secrets are forbidden in public evidence bundles.
 
-The governing controls are defined in:
+## 26. Comparison eligibility
 
-- ADR-0010;
-- `docs/benchmark/AuraGateway_Evidence_Bundle_Specification.md`.
+The comparison gate returns:
 
-## 28. Comparison decision precedence
+- eligible or ineligible;
+- partially eligible metric families where explicitly supported;
+- compared run IDs;
+- mismatched fields;
+- invalidated metrics;
+- invalidated claims;
+- required reruns.
+
+Human-authored report text may not override an ineligible decision.
+
+Runs with different execution-manifest hashes are ineligible by default.
+
+## 27. Decision precedence
 
 Comparative reporting follows this order:
 
 1. bundle schema and hash verification;
 2. run-accountability verification;
-3. configuration-fingerprint eligibility;
+3. execution-manifest and configuration-fingerprint eligibility;
 4. telemetry-sufficiency decision;
 5. quality non-inferiority decision;
 6. metric calculation;
 7. claim generation.
 
-A failure at an earlier gate blocks dependent downstream claim families.
+A failure at an earlier gate blocks dependent claim families.
 
-Human prose may not override a machine-readable blocked decision.
+## 28. Invalidation triggers
 
-## 29. Freeze procedure
+Affected measured comparisons require rerun when:
 
-This constitution may be frozen only after:
+- this constitution changes;
+- an execution-manifest controlled field changes;
+- held-out or diagnostic cases change after their manifest freeze;
+- prompt or static-anchor content changes;
+- retrieval configuration changes;
+- provider/model alias or capability tier changes;
+- adapter changes alter telemetry meaning;
+- quality rubric, scorer, instructions, or thresholds change;
+- route-policy rules change;
+- negative-control or fault definitions change after freeze;
+- run order, cold-start, retry, exclusion, rerun, or denominator rules change;
+- statistical rules change;
+- pricing changes while cost comparison remains in scope;
+- a configuration fingerprint mismatch is discovered.
 
-- all Gate 0 requirements are reviewed;
-- unresolved placeholders are eliminated;
-- exact retry, timeout, counterbalancing, bootstrap, and denominator rules are specified;
-- constitution version is promoted;
-- SHA-256 hash is recorded in the benchmark manifest;
-- the repository commit is recorded;
-- measured execution has not begun.
+## 29. Claim language
 
-Until then:
+Permitted language remains conditional:
 
-- status remains `Draft — under review`;
-- measured benchmark execution is prohibited;
-- changes do not require benchmark reruns because no measured benchmark exists.
+> Under the named workload, provider/model, frozen execution manifest, and Benchmark Constitution 1.0.0, the tested runtime policy produced the reported outcomes.
 
-## 30. Open items before freeze
+The benchmark must not claim:
 
-- exact primary provider and model alias;
-- exact provider adapter version;
-- exact TTL assumption and evidence source;
-- exact timeout and retry count;
-- exact backoff schedule;
-- exact runtime permutation schedule for ten repetitions;
-- exact bootstrap method, sample count, and confidence level;
-- exact quality rubric version;
-- exact functional and runtime episode manifests;
-- exact pricing schedule version;
-- exact comparison fingerprint schema version.
+- guaranteed cache hits;
+- direct GPU KV-cache visibility;
+- guaranteed cache residency, TTL, eviction, or scheduling;
+- universal savings;
+- broad provider rankings;
+- production readiness;
+- customer-data readiness;
+- Coinbase-scale infrastructure or results.
 
-These are intentional unresolved design inputs, not permission to begin measured execution.
+## 30. Change control
+
+This constitution is frozen.
+
+A substantive rule change requires:
+
+1. a new constitution version;
+2. a documented reason;
+3. a new Gate 0 review;
+4. invalidation of affected measured comparisons;
+5. updated execution-manifest compatibility rules.
+
+Downstream asset values are added to the execution manifest and do not reopen the constitution when they conform to these frozen rules.
