@@ -11,6 +11,7 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
 - **Current phase:** Phase 0 — Design Freeze and Benchmark Constitution
+- **Active proof gate:** Gate 0 — Benchmark Constitution
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
 - **Maturity:** design-stage standalone AI reliability systems lab
 
@@ -18,6 +19,20 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - [AuraGateway v2 PRD](docs/product/AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md)
 - [Session Brief](docs/session/AuraGateway_SESSION_BRIEF.md)
+- [Benchmark Constitution](docs/benchmark/AuraGateway_Benchmark_Constitution.md)
+- [Architecture Decision Records](docs/adr/README.md)
+
+## Current Benchmark Conditions
+
+- **Condition A:** Cache-Hostile Baseline
+- **Condition B:** Prefix-Deterministic Runtime
+- **Condition C:** Cache-Aware Agent Runtime
+
+The intended causal interpretations are:
+
+- **A versus B:** context-construction policy only
+- **B versus C:** cache-affinity route policy only
+- **A versus C:** total system effect, not a single-mechanism causal claim
 
 ## Scope Boundary
 
