@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "scorecard_id": "nimbus-relay-bm25-section-aware-v1-development-v1",
+  "status": "development_candidate",
+  "metric_contract_version": "source-level-retrieval-metrics-v1",
+  "retrieval_set_path": "data/evals/retrieval/development-v1/accepted_cases.json",
+  "retrieval_set_sha256": "49d5e9055b7b00bcfdf5f9dc932c836a844c37f835709d0d376d38285934e342",
+  "rejected_set_path": "data/evals/retrieval/development-v1/rejected_cases.json",
+  "rejected_set_sha256": "d8c844cf7c2e203823e56ff1b94ce920989519147f890b9cedd501df64189e58",
+  "retrieval_manifest_path": "data/retrieval/bm25-v1/section-aware-v1/manifest.json",
+  "retrieval_manifest_sha256": "f89019d22b34db24720c812c51be494ef1acbf105919340f32ee70ae4d6340c1",
+  "case_results_path": "data/evals/retrieval/development-v1/bm25-section-aware-v1/case_results.jsonl",
+  "case_results_sha256": "a098bbd09d62d501384f174e23b163b67b8fbb2b0afe194219d86a04a649f3f6",
+  "retriever_config_id": "bm25-section-aware-v1",
+  "retriever_config_sha256": "1f1db39b8f2af5612e2c2a45cee5cc1dea3532444475ae70a365e8ade9ad7396",
+  "chunking_config_id": "section-aware-v1",
+  "aggregate": {
+    "case_count": 24,
+    "mean_recall_at_k": 0.972222222222,
+    "mean_precision_at_k": 0.308333333333,
+    "mean_reciprocal_rank": 0.972222222222,
+    "mean_ndcg_at_k": 0.941375207106,
+    "correct_source_in_top_k_rate": 1.0,
+    "all_required_sources_in_top_k_rate": 0.958333333333,
+    "citation_support_readiness_rate": 0.875,
+    "unsupported_source_retrieval_rate": 0.075,
+    "stale_source_retrieval_rate": 0.0,
+    "metadata_filter_violation_rate": 0.0,
+    "near_duplicate_case_count": 4,
+    "near_duplicate_displacement_rate": 0.0
+  }
+}
