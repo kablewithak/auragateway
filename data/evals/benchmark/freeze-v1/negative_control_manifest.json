@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-execution-negative-controls-v1",
+  "controls": [
+    {
+      "control_id": "neg-prefix-mutation",
+      "control_family": "context_integrity",
+      "injected_condition": "one-byte static prefix mutation",
+      "expected_failure_code": "PREFIX_MUTATION_DETECTED",
+      "required_before_execution": true
+    },
+    {
+      "control_id": "neg-volatile-prefix-leak",
+      "control_family": "context_integrity",
+      "injected_condition": "volatile field inserted into static prefix",
+      "expected_failure_code": "VOLATILE_CONTENT_LEAK",
+      "required_before_execution": true
+    },
+    {
+      "control_id": "neg-cache-namespace-reuse",
+      "control_family": "experiment_isolation",
+      "injected_condition": "cache namespace reused across conditions",
+      "expected_failure_code": "CROSS_CONDITION_NAMESPACE_REUSE",
+      "required_before_execution": true
+    },
+    {
+      "control_id": "neg-telemetry-missing",
+      "control_family": "telemetry_integrity",
+      "injected_condition": "provider cache field unavailable",
+      "expected_failure_code": "CACHE_EVIDENCE_UNAVAILABLE",
+      "required_before_execution": true
+    },
+    {
+      "control_id": "neg-ambiguous-retry",
+      "control_family": "retry_safety",
+      "injected_condition": "retry after ambiguous provider response",
+      "expected_failure_code": "BLOCKED_INVALID_RETRY",
+      "required_before_execution": true
+    },
+    {
+      "control_id": "neg-route-thrash",
+      "control_family": "route_regulation",
+      "injected_condition": "second non-exempt provider/model route change",
+      "expected_failure_code": "BLOCKED_ROUTE_THRASH",
+      "required_before_execution": true
+    },
+    {
+      "control_id": "neg-quality-regression",
+      "control_family": "quality_noninferiority",
+      "injected_condition": "task-success regression beyond five percentage points",
+      "expected_failure_code": "TASK_SUCCESS_NONINFERIORITY_FAILED",
+      "required_before_execution": true
+    },
+    {
+      "control_id": "neg-private-artifact",
+      "control_family": "privacy",
+      "injected_condition": "raw provider payload added to public evidence bundle",
+      "expected_failure_code": "PRIVACY_VIOLATION",
+      "required_before_execution": true
+    },
+    {
+      "control_id": "neg-run-omission",
+      "control_family": "run_accountability",
+      "injected_condition": "one scheduled trajectory omitted from the evidence bundle",
+      "expected_failure_code": "RUN_ACCOUNTABILITY_INCOMPLETE",
+      "required_before_execution": true
+    },
+    {
+      "control_id": "neg-fingerprint-drift",
+      "control_family": "comparison_eligibility",
+      "injected_condition": "retrieval configuration fingerprint differs across conditions",
+      "expected_failure_code": "CONFIGURATION_FINGERPRINT_MISMATCH",
+      "required_before_execution": true
+    }
+  ],
+  "all_controls_predeclared": true,
+  "measured_execution_permitted": false
+}

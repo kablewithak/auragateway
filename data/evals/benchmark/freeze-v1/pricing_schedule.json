@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "pricing_schedule_id": "groq-openai-gpt-oss-20b-ondemand-2026-07-13",
+  "provider_name": "groq",
+  "provider_model_alias": "groq-gpt-oss-20b",
+  "exact_model_identifier": "openai/gpt-oss-20b",
+  "source_url": "https://groq.com/pricing",
+  "source_date": "2026-07-13",
+  "currency": "USD",
+  "uncached_input_usd_per_million_tokens": "0.075",
+  "cached_input_usd_per_million_tokens": "0.0375",
+  "output_usd_per_million_tokens": "0.30",
+  "maximum_input_tokens_per_attempt": 3000,
+  "maximum_output_tokens_per_attempt": 256,
+  "estimate_policy": "uncached-input-worst-case-v1",
+  "estimate_status": "versioned_estimate_not_invoice"
+}

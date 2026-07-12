@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "auragateway-execution-privacy-verification-v1",
+  "public_root": "evidence_vault",
+  "protected_root": ".local",
+  "checks": [
+    {
+      "check_id": "privacy-public-root-bounded",
+      "passed": true,
+      "evidence": "public evidence is restricted to evidence_vault"
+    },
+    {
+      "check_id": "privacy-protected-root-ignored",
+      "passed": true,
+      "evidence": "protected review and provider reports remain under ignored .local"
+    },
+    {
+      "check_id": "privacy-no-raw-prompts",
+      "passed": true,
+      "evidence": "public contracts reject raw prompt fields"
+    },
+    {
+      "check_id": "privacy-no-user-messages",
+      "passed": true,
+      "evidence": "public evidence retains hashes and IDs rather than raw messages"
+    },
+    {
+      "check_id": "privacy-no-retrieved-text",
+      "passed": true,
+      "evidence": "retrieval evidence retains source and chunk provenance without document text"
+    },
+    {
+      "check_id": "privacy-no-model-output",
+      "passed": true,
+      "evidence": "public quality evidence retains digests, verdicts, and scores only"
+    },
+    {
+      "check_id": "privacy-no-provider-payload",
+      "passed": true,
+      "evidence": "provider payloads remain adapter-local and are not public artifacts"
+    },
+    {
+      "check_id": "privacy-no-credentials",
+      "passed": true,
+      "evidence": "credential readiness is represented as a boolean only"
+    },
+    {
+      "check_id": "privacy-protected-review-separation",
+      "passed": true,
+      "evidence": "review exports use opaque IDs and remain outside public evidence"
+    },
+    {
+      "check_id": "privacy-bounded-metadata",
+      "passed": true,
+      "evidence": "public metadata is schema-bound and rejects extra fields"
+    }
+  ],
+  "raw_prompts_public": false,
+  "raw_user_messages_public": false,
+  "raw_retrieved_documents_public": false,
+  "raw_model_outputs_public": false,
+  "raw_provider_payloads_public": false,
+  "credentials_public": false,
+  "protected_review_exports_public": false,
+  "privacy_verification_passed": true,
+  "measured_execution_permitted": false
+}

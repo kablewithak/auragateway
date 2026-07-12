@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "auragateway-cross-condition-isolation-v1",
+  "total_trajectory_count": 342,
+  "unique_run_id_count": 342,
+  "unique_trace_id_count": 342,
+  "unique_cache_namespace_count": 342,
+  "comparison_pair_count": 114,
+  "complete_abc_pair_count": 114,
+  "duplicate_run_id_count": 0,
+  "duplicate_trace_id_count": 0,
+  "duplicate_cache_namespace_count": 0,
+  "cross_condition_namespace_reuse_count": 0,
+  "isolation_passed": true,
+  "measured_execution_permitted": false
+}

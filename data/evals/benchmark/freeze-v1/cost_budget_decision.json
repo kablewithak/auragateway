@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "decision_id": "auragateway-groq-cost-budget-v1",
+  "pricing_schedule_id": "groq-openai-gpt-oss-20b-ondemand-2026-07-13",
+  "maximum_request_attempt_count": 2736,
+  "maximum_input_tokens_per_attempt": 3000,
+  "maximum_output_tokens_per_attempt": 256,
+  "estimated_upper_bound_minor_units": 83,
+  "approved_cost_budget_minor_units": 500,
+  "currency": "USD",
+  "estimate_uses_uncached_input_price": true,
+  "budget_sufficient": true,
+  "estimate_status": "versioned_estimate_not_invoice"
+}
