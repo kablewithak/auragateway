@@ -18,6 +18,7 @@ The ADR set is part of the experiment-control surface. Decisions affecting contr
 | [ADR-0001](ADR-0001-scope-and-non-goals.md) | AuraGateway Scope and Non-Goals | Accepted |
 | [ADR-0002](ADR-0002-benchmark-constitution-and-causal-contrasts.md) | Benchmark Constitution and Causal Contrasts | Accepted |
 | [ADR-0005](ADR-0005-provider-telemetry-semantics.md) | Provider Telemetry Semantics | Accepted |
+| [ADR-0006](ADR-0006-cache-affinity-route-policy.md) | Cache-Affinity Route Policy | Accepted |
 | [ADR-0009](ADR-0009-privacy-safe-observability.md) | Privacy-Safe Observability | Accepted |
 | [ADR-0010](ADR-0010-immutable-evidence-bundles-and-comparison-eligibility.md) | Immutable Evidence Bundles and Comparison Eligibility | Accepted |
 
@@ -29,7 +30,6 @@ The PRD requires the following additional decisions before the corresponding imp
 |---|---|
 | ADR-0003 | Canonical Context Serialization |
 | ADR-0004 | Prefix Fingerprinting |
-| ADR-0006 | Cache-Affinity Route Policy |
 | ADR-0007 | Quality Evaluation and Blinded Adjudication |
 | ADR-0008 | EFC Evidence Contract |
 
