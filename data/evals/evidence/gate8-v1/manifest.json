@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-gate-8-comparison-eligibility-manifest-v1",
+  "fixture_path": "data/evals/evidence/gate8-v1/fixtures.json",
+  "fixture_sha256": "159c562d73bb0abb5462984730a823304801e077b088fb45ca95b43b9a4019d8",
+  "report_path": "data/evals/evidence/gate8-v1/report.json",
+  "report_sha256": "b6a3c7636ac078715ee0580d972a7f9bac22ac17485e0fb2a256b2f68b8449c6",
+  "adr_path": "docs/adr/ADR-0010-immutable-evidence-bundles-and-comparison-eligibility.md",
+  "adr_sha256": "8764369052a9e6e423cf2b6584222ba2607bd0d136a91fb6e1336f01cfb27474",
+  "episode_manifest_path": "data/evals/episodes/manifest.json",
+  "episode_manifest_sha256": "3a77c6fa037c62a1a548c2e5dc13e9668ebd3114cb58903df538bf7fa239ea6b",
+  "quality_gate_manifest_path": "data/evals/quality/noninferiority-v1/manifest.json",
+  "quality_gate_manifest_sha256": "c35e95240ab8c2a76d8f7e1b4ce0283142ec6363f9d49dd72eeb9b31fa62d60b",
+  "efc_manifest_path": "data/evals/feedback/efc-v1/manifest.json",
+  "efc_manifest_sha256": "7e856227772b38d4b66cd41936e0ad695747544f733942d4165c80dd1f71573e",
+  "fixture_count": 11,
+  "negative_control_count": 8,
+  "gate_8_controls_passed": true,
+  "synthetic_fixture_execution": true,
+  "measured_execution_permitted": false
+}
