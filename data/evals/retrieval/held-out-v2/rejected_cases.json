@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "rejected_set_id": "nimbus-relay-held-out-v2-rejected",
+  "status": "rejected_held_out_candidates",
+  "evaluation_split": "held_out",
+  "cases": [
+    {
+      "candidate_case_id": "ho2-rej-001",
+      "case_family": "sdk_variant",
+      "candidate_query_text": "How do I install a Nimbus Relay SDK?",
+      "reason_code": "ambiguous",
+      "reject_reason": "Rejected because it does not name Python or JavaScript and therefore cannot diagnose language-filter behaviour.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "held_out"
+    },
+    {
+      "candidate_case_id": "ho2-rej-002",
+      "case_family": "exact_procedure",
+      "candidate_query_text": "How do OAuth tokens work?",
+      "reason_code": "non_diagnostic",
+      "reject_reason": "Rejected because the query does not identify a grant, failure state, or decision boundary.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "held_out"
+    },
+    {
+      "candidate_case_id": "ho2-rej-003",
+      "case_family": "near_duplicate_displacement",
+      "candidate_query_text": "List Nimbus Relay events.",
+      "reason_code": "duplicate",
+      "reject_reason": "Rejected because it duplicates the machine-versus-human event-catalogue distinction already covered by ho-ret-105 and ho-ret-106.",
+      "duplicate_of_case_id": "ho-ret-105",
+      "evaluation_split": "held_out"
+    },
+    {
+      "candidate_case_id": "ho2-rej-004",
+      "case_family": "multi_source_grounding",
+      "candidate_query_text": "Can this real customer access credentials.manage?",
+      "reason_code": "privacy_unsafe",
+      "reject_reason": "Rejected because it implies customer-specific authorization data outside the synthetic corpus boundary.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "held_out"
+    },
+    {
+      "candidate_case_id": "ho2-rej-005",
+      "case_family": "unsupported_behavior",
+      "candidate_query_text": "Will every possible webhook work in sandbox?",
+      "reason_code": "ungrounded",
+      "reject_reason": "Rejected because \u201cevery possible webhook\u201d has no bounded source-grounded acceptance condition.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "held_out"
+    }
+  ]
+}

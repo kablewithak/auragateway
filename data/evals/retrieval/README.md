@@ -107,3 +107,7 @@ Development v2 applies typed source-applicability filters to seven existing diag
 before/after report preserves development v1 and held-out v1 hashes.
 
 Gate 1 remains blocked until a separately authored and frozen held-out v2 confirms the remediation.
+
+## Held-out v2
+
+Held-out v2 validates the metadata-remediated finalists under unchanged Gate 1 thresholds. Both pass; dense section-aware is selected and the development-v2 BM25 ranking is reversed.

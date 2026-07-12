@@ -29,6 +29,7 @@ from auragateway.contracts.retrieval_gate import (
     HeldOutValidationReport,
     RetrievalFreezeManifest,
 )
+from auragateway.contracts.retrieval_gate_v2 import RetrievalFreezeManifestV1
 from auragateway.contracts.retrieval_selection import (
     MetadataPolicy,
     RetrievalSelectionPolicy,
@@ -776,6 +777,28 @@ def _require_exact_bytes(path: Path, expected: bytes, error_code: str, message: 
         )
 
 
+def _validate_superseding_v2_freeze(repo_root: Path, freeze_path: Path) -> None:
+    """Accept only the later Gate 1 v2 freeze while preserving the v1 blocked record."""
+
+    try:
+        manifest = RetrievalFreezeManifestV1.model_validate(
+            _load_json(freeze_path, "HELD_OUT_UNAUTHORIZED_FREEZE_PRESENT")
+        )
+    except (ValidationError, HeldOutValidationError) as exc:
+        raise HeldOutValidationError(
+            error_code="HELD_OUT_UNAUTHORIZED_FREEZE_PRESENT",
+            safe_message=("A retrieval freeze exists but is not an authorized held-out v2 freeze."),
+            path=str(freeze_path),
+        ) from exc
+    decision_path = repo_root / manifest.gate_1_decision_path
+    if _sha256_file(decision_path) != manifest.gate_1_decision_sha256:
+        raise HeldOutValidationError(
+            error_code="HELD_OUT_UNAUTHORIZED_FREEZE_PRESENT",
+            safe_message="Superseding retrieval freeze does not match its Gate 1 decision.",
+            path=str(freeze_path),
+        )
+
+
 def verify_gate_one(repo_root: Path) -> GateOneSummary:
     """Rebuild Gate 1 evidence and compare every persisted output byte."""
 
@@ -802,13 +825,7 @@ def verify_gate_one(repo_root: Path) -> GateOneSummary:
     freeze_path = repo_root / _RETRIEVAL_FREEZE_PATH
     if build.freeze_manifest_bytes is None:
         if freeze_path.exists():
-            raise HeldOutValidationError(
-                error_code="HELD_OUT_UNAUTHORIZED_FREEZE_PRESENT",
-                safe_message=(
-                    "A retrieval freeze manifest exists despite a blocked Gate 1 decision."
-                ),
-                path=str(freeze_path),
-            )
+            _validate_superseding_v2_freeze(repo_root, freeze_path)
     else:
         _require_exact_bytes(
             freeze_path,

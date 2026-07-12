@@ -10,15 +10,15 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
-- **Delivery ledger after this slice:** 63 / 200 planned hours (31.5%)
-- **Current phase:** Phase 1 — Corpus, Retrieval, and Eval Asset Construction
-- **Active proof gate:** Gate 1 — Retrieval Readiness
+- **Delivery ledger after this slice:** 69 / 200 planned hours (34.5%)
+- **Current phase:** Phase 2 — Diagnostic Eval Set and Output Contracts
+- **Active proof gate:** Gate 2 — Diagnostic Eval Asset Readiness
 - **Gate 0 status:** Passed
-- **Gate 1 status:** Blocked after held-out v1; metadata remediation validated on development v2; held-out v2 required
+- **Gate 1 status:** Passed — dense section-aware remediated retrieval frozen at top-k five
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** benchmark-constitution validated; retrieval remediation locally validated; Gate 1 remains blocked
+- **Maturity:** benchmark-constitution validated; Gate 1 retrieval contract locally validated and frozen
 
 ## Governing Documents
 
@@ -38,6 +38,8 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - [BM25 Development Scorecard](docs/benchmark/Nimbus_Relay_BM25_Development_Scorecard.md)
 - [Dense Retrieval Design](docs/benchmark/Nimbus_Relay_Dense_Retrieval_Design.md)
 - [Dense Retrieval Development Report](docs/benchmark/Nimbus_Relay_Dense_Retrieval_Development_Report.md)
+- [Held-Out v2 Constitution](docs/benchmark/Nimbus_Relay_Held_Out_V2_Constitution.md)
+- [Gate 1 Retrieval Freeze Report](docs/benchmark/Nimbus_Relay_Gate_1_Freeze_Report.md)
 - [Retrieval Selection Policy](docs/benchmark/Nimbus_Relay_Retrieval_Selection_Policy.md)
 - [Development Retrieval Recommendation](docs/benchmark/Nimbus_Relay_Development_Retrieval_Recommendation.md)
 - [Held-Out Retrieval Constitution](docs/benchmark/Nimbus_Relay_Held_Out_Retrieval_Constitution.md)
@@ -114,6 +116,7 @@ python -m auragateway.evals.runner verify --repo-root .
 python -m auragateway.evals.selection_runner verify --repo-root .
 python -m auragateway.evals.heldout_runner verify --repo-root .
 python -m auragateway.evals.remediation_runner verify --repo-root .
+python -m auragateway.evals.heldout_v2_runner verify --repo-root .
 ```
 
 Run release gates for the current slice:
@@ -125,23 +128,22 @@ python -m ruff format --check .
 python -m mypy src tests
 ```
 
-## Retrieval remediation status
+## Gate 1 retrieval freeze
 
 ```text
-Held-out v1 decision: Gate 1 blocked
+Held-out v1: preserved blocked evidence
 Development remediation: complete
-Remediated candidates: 2
-Remaining development citation failures: 0
-Held-out v2 required: yes
-Retrieval freeze permitted: no
+Held-out v2 finalists passing: 2 / 2
+Selected retriever: dense-hashed-tfidf-section-aware-remediated-v2
+Selected top-k: 5
+Metadata policy: authored-case-filters-v1
+Gate 1: passed
+Measured runtime execution: prohibited
 ```
 
-The remediation adds a hash-bound source metadata overlay for language, interface kind, OAuth grant,
-and representation kind. It does not mutate the frozen corpus, generated chunks, development v1, or
-held-out v1.
+The freeze binds the corpus, section-aware chunks, remediated dense manifest, source metadata overlay,
+selection policy, remediation report, held-out v2 set, selected scorecard, and Gate 1 decision.
 
 ## Phase 1 Boundary
 
-The corpus, chunking candidates, sparse and local dense retrieval, development selection, held-out v1,
-and the metadata-remediation intervention are deterministically verified. Gate 1 remains blocked until
-new held-out v2 cases are frozen and the remediated finalists pass the unchanged reliability gates.
+Gate 1 is complete. Dense hashed-TFIDF section-aware retrieval with top-k five and the authored metadata policy is frozen under configuration fingerprint `220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490`. The retrieval freeze does not authorize measured runtime execution. Phase 2 begins with the diagnostic episode set and output contracts.

@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
@@ -40,11 +41,11 @@ _HELD_OUT_V1_PATH: Final = Path("data/evals/retrieval/held-out-v1/accepted_cases
 _OUTPUT_ROOT: Final = Path("data/evals/retrieval/remediation-v1")
 _REPORT_PATH: Final = _OUTPUT_ROOT / "report.json"
 
-_BM25_CONFIG: Final = RetrievalConfiguration(
+BM25_REMEDIATED_CONFIG: Final = RetrievalConfiguration(
     config_id="bm25-fixed-window-remediated-v2",
     chunking_config_id="fixed-window-v1",
 )
-_DENSE_CONFIG: Final = DenseRetrievalConfiguration(
+DENSE_REMEDIATED_CONFIG: Final = DenseRetrievalConfiguration(
     config_id="dense-hashed-tfidf-section-aware-remediated-v2",
     chunking_config_id="section-aware-v1",
 )
@@ -53,6 +54,21 @@ _BASELINE_SCORECARDS: Final = (
     Path("data/evals/retrieval/development-v1/bm25-fixed-window-v1/scorecard.json"),
     Path("data/evals/retrieval/development-v1/dense-hashed-tfidf-section-aware-v1/scorecard.json"),
 )
+
+
+@dataclass(frozen=True, slots=True)
+class RemediatedEvaluationContext:
+    """Verified remediated candidate inputs for later held-out evaluation."""
+
+    index: BM25Index | DenseIndex
+    chunks: tuple[CorpusChunk, ...]
+    manifest_path: Path
+    manifest_file: Path
+    config_id: str
+    config_sha256: str
+    chunking_config_id: str
+    source_metadata_path: Path
+    source_metadata_sha256: str
 
 
 class RemediationError(Exception):
@@ -207,12 +223,12 @@ def _candidate_specs() -> tuple[
     return (
         (
             RemediationAlgorithm.BM25,
-            _BM25_CONFIG,
+            BM25_REMEDIATED_CONFIG,
             Path("data/chunking/fixed-window-v1/chunks.jsonl"),
         ),
         (
             RemediationAlgorithm.DENSE_HASHED_TFIDF,
-            _DENSE_CONFIG,
+            DENSE_REMEDIATED_CONFIG,
             Path("data/chunking/section-aware-v1/chunks.jsonl"),
         ),
     )
@@ -421,6 +437,54 @@ def _build_report(
         remediated_case_ids=remediated_case_ids,
         resolved_development_case_ids=resolved,
         remaining_development_failure_ids=tuple(sorted(after_failures)),
+    )
+
+
+def load_remediated_context(
+    repo_root: Path,
+    config_id: str,
+) -> RemediatedEvaluationContext:
+    """Return one verified remediated candidate for held-out validation."""
+
+    verify_all(repo_root)
+    registry = _load_registry(repo_root)
+    metadata = registry.by_source_id()
+    index: BM25Index | DenseIndex
+    chunking_config_id: str
+    if config_id == BM25_REMEDIATED_CONFIG.config_id:
+        chunks_path = Path("data/chunking/fixed-window-v1/chunks.jsonl")
+        chunks = _load_chunks(repo_root / chunks_path)
+        index = BM25Index(chunks, BM25_REMEDIATED_CONFIG, metadata)
+        chunking_config_id = BM25_REMEDIATED_CONFIG.chunking_config_id
+    elif config_id == DENSE_REMEDIATED_CONFIG.config_id:
+        chunks_path = Path("data/chunking/section-aware-v1/chunks.jsonl")
+        chunks = _load_chunks(repo_root / chunks_path)
+        index = DenseIndex(chunks, DENSE_REMEDIATED_CONFIG, metadata)
+        chunking_config_id = DENSE_REMEDIATED_CONFIG.chunking_config_id
+    else:
+        raise RemediationError(
+            "REMEDIATION_CONFIG_UNSUPPORTED",
+            "Unsupported remediated retrieval configuration.",
+            details=(config_id,),
+        )
+    manifest_path = _OUTPUT_ROOT / config_id / "manifest.json"
+    manifest_file = repo_root / manifest_path
+    if not manifest_file.is_file():
+        raise RemediationError(
+            "REMEDIATION_MANIFEST_NOT_FOUND",
+            "Remediated retrieval manifest was not found.",
+            str(manifest_file),
+        )
+    return RemediatedEvaluationContext(
+        index=index,
+        chunks=chunks,
+        manifest_path=manifest_path,
+        manifest_file=manifest_file,
+        config_id=config_id,
+        config_sha256=index.configuration_sha256,
+        chunking_config_id=chunking_config_id,
+        source_metadata_path=_METADATA_PATH,
+        source_metadata_sha256=_sha256_bytes((repo_root / _METADATA_PATH).read_bytes()),
     )
 
 
