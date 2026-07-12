@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "groq-gpt-oss-20b-readiness-v1",
+  "provider_name": "groq",
+  "provider_model_alias": "groq-gpt-oss-20b",
+  "provider_adapter_version": "groq-chat-completions-v1",
+  "probe_mode": "groq_live",
+  "credentials_configured": true,
+  "probe_performed": true,
+  "probe_passed": true,
+  "call_count": 2,
+  "protected_report_path": ".local/provider-calibration/20260712T232810Z/groq_live-report.json",
+  "protected_report_sha256": "a5d77d8072aa61e346e7f5bcf1089794234cd811c84d74449c63a7b619bcbc43",
+  "raw_payload_persisted": false,
+  "measured_execution_permitted": false,
+  "observed_at": "2026-07-12T23:28:10.224544Z"
+}

@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "auragateway-gate-10-execution-freeze-report-v1",
+  "execution_manifest_id": "execution-manifest-auragateway-v1",
+  "execution_manifest_sha256": "ce6e6174f33d50d66d4a54f0a3b80bfd6dfbeb865076e6851dca15395a4f5862",
+  "implementation_git_sha": "c101585425a5701c2172f0ea75946e71fe046428",
+  "checks": [
+    {
+      "check_name": "gate9_preflight_verified",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "Gate 9 artifacts reproduce"
+      ]
+    },
+    {
+      "check_name": "pricing_schedule_verified",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "official source and token rates pinned"
+      ]
+    },
+    {
+      "check_name": "negative_controls_verified",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "predeclared controls are frozen"
+      ]
+    },
+    {
+      "check_name": "fault_fixtures_verified",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "fault fixtures are frozen"
+      ]
+    },
+    {
+      "check_name": "privacy_verification_passed",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "public and protected evidence remain separated"
+      ]
+    },
+    {
+      "check_name": "cross_condition_isolation_passed",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "cache namespaces are condition-isolated"
+      ]
+    },
+    {
+      "check_name": "provider_configuration_ready",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "credential presence retained as boolean only"
+      ]
+    },
+    {
+      "check_name": "provider_live_probe_passed",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "bounded calls=2"
+      ]
+    },
+    {
+      "check_name": "cost_budget_sufficient",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "estimated_minor_units=83"
+      ]
+    },
+    {
+      "check_name": "execution_manifest_frozen",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "status=frozen"
+      ]
+    },
+    {
+      "check_name": "execution_manifest_hash_valid",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "sha256=ce6e6174f33d50d66d4a54f0a3b80bfd6dfbeb865076e6851dca15395a4f5862"
+      ]
+    },
+    {
+      "check_name": "execution_disabled_pending_runner",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "execution_enabled=false"
+      ]
+    }
+  ],
+  "failure_codes": [],
+  "execution_manifest_frozen": true,
+  "provider_probe_passed": true,
+  "cost_budget_sufficient": true,
+  "privacy_verification_passed": true,
+  "cross_condition_isolation_passed": true,
+  "gate_10_passed": true,
+  "measured_execution_permitted": false
+}
