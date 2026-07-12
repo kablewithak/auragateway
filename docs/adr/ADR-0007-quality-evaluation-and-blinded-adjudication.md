@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-07-12
-- **Decision version:** 1.1.0
+- **Decision version:** 1.2.0
 - **Decision owners:** AuraGateway project maintainers
 - **Applies from:** Phase 5
 - **Supersedes:** None
@@ -202,12 +202,33 @@ The blinded-review preparation slice must prove that:
 
 ## Gate status
 
-This decision version establishes deterministic quality scoring and blinded-review preparation.
+This decision version establishes deterministic quality scoring, blinded-review preparation, and protected synthetic review execution.
 
-Gate 6 remains open until protected review execution, disagreement resolution, held-out quality aggregation, and A/B/C non-inferiority evidence are complete.
+Gate 6 remains open until protected reviews are completed on measured trajectories and A/B/C held-out quality non-inferiority evidence is produced.
+
+## Protected review execution
+
+The prepared blinded workflow is followed by a protected execution boundary that validates complete assignment coverage before producing aggregate quality evidence.
+
+The execution layer must:
+
+- accept exactly one review for every frozen primary and secondary assignment;
+- reject missing, duplicate, or unassigned review submissions;
+- validate every review against its assignment and the frozen rubric;
+- require independent primary and secondary reviewers;
+- detect material disagreement using the accepted verdict, score-delta, and failure-label rules;
+- require exactly one independent adjudication for every material disagreement;
+- prohibit adjudication when no material disagreement exists;
+- calculate reviewer-agreement metrics from the frozen double-review sample;
+- produce metadata-only episode outcomes and held-out aggregates;
+- exclude raw conversations, candidate outputs, reviewer notes, and rationales from public reports.
+
+When double reviews do not materially disagree, the primary review remains the final episode outcome. When a material disagreement is adjudicated, the adjudication becomes the final outcome. This rule is deterministic and versioned.
+
+The first execution evidence is synthetic fixture execution. It validates workflow behavior and aggregate calculations but does not claim that human review or provider-condition comparison has occurred.
 
 ## Claim boundary
 
-This ADR and its implemented slices prove deterministic scoring, blinded export stripping, deterministic review assignment, material-disagreement detection, and adjudicator-independence controls on fixed synthetic fixtures.
+The deterministic scorer, blinded preparation layer, and protected synthetic execution layer prove typed coverage enforcement, assignment matching, reviewer independence, material-disagreement handling, adjudication completeness, agreement metrics, and metadata-only held-out aggregation on frozen synthetic evidence.
 
-They do not prove completed human review, reviewer agreement, semantic answer quality beyond the frozen rubric process, held-out task-quality non-inferiority, benchmark readiness, latency improvement, cost reduction, deployment safety, or production readiness.
+They do not prove completed human review, reviewer reliability on real trajectories, A/B/C task-quality non-inferiority, benchmark readiness, latency improvement, cost reduction, deployment safety, or production readiness.
