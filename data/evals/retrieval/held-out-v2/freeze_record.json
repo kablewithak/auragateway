@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "nimbus-relay-held-out-freeze-v2",
+  "status": "frozen_before_candidate_evaluation",
+  "freeze_date": "2026-07-12",
+  "held_out_set_path": "data/evals/retrieval/held-out-v2/accepted_cases.json",
+  "held_out_set_sha256": "6d2c454a8e2b99cfef55f45c177944154aa09c76d4826cfd83035f0439a0820f",
+  "rejected_set_path": "data/evals/retrieval/held-out-v2/rejected_cases.json",
+  "rejected_set_sha256": "407a67a66a1a1900dc3f4eb18b8f5c45f0ed58fee420a53ac354caecb35ec3d2",
+  "development_set_path": "data/evals/retrieval/development-v2/accepted_cases.json",
+  "development_set_sha256": "5e5b764431d81b668e09d0ff0b03e094c84b0be865c9469695c263740ff9cd20",
+  "held_out_v1_set_path": "data/evals/retrieval/held-out-v1/accepted_cases.json",
+  "held_out_v1_set_sha256": "50f6b85d283598491708040f418e0b794736b551f3c2fd50a5b7531733c73477",
+  "held_out_v1_decision_path": "data/evals/retrieval/held-out-v1/decision.json",
+  "held_out_v1_decision_sha256": "fff8e49c32d1fd77b6696ac5f1e55adda7214cbf1031dc9947a006fe5015b2bd",
+  "remediation_report_path": "data/evals/retrieval/remediation-v1/report.json",
+  "remediation_report_sha256": "5005ad45b17210235e62ae6f89a252aea4a32b86393d55856db4c42c4b666b6a",
+  "source_metadata_path": "data/retrieval/remediation-v1/source_metadata.json",
+  "source_metadata_sha256": "14e03347cb1a0c418e73ea446df0e7a41537bea0a1af21dc92031ccce54eefee",
+  "authoring_complete": true,
+  "candidate_results_present_at_freeze": false
+}

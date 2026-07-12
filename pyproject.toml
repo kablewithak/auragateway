@@ -28,8 +28,8 @@ auragateway-retrieve-dense = "auragateway.retrieval.dense_runner:main"
 auragateway-evaluate-retrieval = "auragateway.evals.runner:main"
 auragateway-select-retrieval = "auragateway.evals.selection_runner:main"
 auragateway-validate-gate-one = "auragateway.evals.heldout_runner:main"
-
 auragateway-remediate-retrieval = "auragateway.evals.remediation_runner:main"
+auragateway-validate-gate-one-v2 = "auragateway.evals.heldout_v2_runner:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -53,3 +53,7 @@ corpus or chunk bytes.
 
 The overlay is used only by versioned remediated candidates. Existing v1 retrieval artifacts remain
 reproducible.
+
+## Frozen retrieval v1
+
+Gate 1 selected `dense-hashed-tfidf-section-aware-remediated-v2` with top-k five and the authored metadata policy. The complete hash-bound contract is in `frozen-v1/manifest.json`.

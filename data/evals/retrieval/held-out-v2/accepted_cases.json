@@ -1,0 +1,667 @@
+{
+  "schema_version": "1.0.0",
+  "retrieval_set_id": "nimbus-relay-held-out-v2",
+  "retrieval_set_version": "2.0.0",
+  "status": "frozen_held_out",
+  "evaluation_split": "held_out",
+  "development_set_path": "data/evals/retrieval/development-v2/accepted_cases.json",
+  "development_set_sha256": "5e5b764431d81b668e09d0ff0b03e094c84b0be865c9469695c263740ff9cd20",
+  "authoring_complete_before_evaluation": true,
+  "cases": [
+    {
+      "case_id": "ho-ret-101",
+      "case_family": "exact_procedure",
+      "failure_hypothesis": "Refresh-token troubleshooting may contaminate a machine-to-machine client-credentials answer.",
+      "query_text": "For a backend daemon using client credentials, does Nimbus Relay issue a refresh token, and when must the daemon request another access token?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "oauth"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false,
+        "metadata": {
+          "languages": [],
+          "interface_kinds": [
+            "raw_http"
+          ],
+          "oauth_grants": [
+            "client_credentials"
+          ],
+          "representations": [
+            "human_guide"
+          ]
+        }
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-OAUTH-003",
+          "grade": 3,
+          "rationale": "The client-credentials guide defines the 900-second token and confirms that no refresh token is issued."
+        }
+      ],
+      "required_sources": [
+        "NR-OAUTH-003"
+      ],
+      "forbidden_sources": [
+        "NR-OAUTH-004"
+      ],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Client-credentials access tokens last 900 seconds.",
+        "The daemon must request a new token instead of using a refresh token."
+      ],
+      "acceptable_variants": [
+        "State fifteen minutes and no refresh-token issuance."
+      ],
+      "failure_labels": [
+        "OAUTH_GRANT_CONFUSION",
+        "WRONG_TOKEN_LIFECYCLE"
+      ],
+      "accept_reason": "Accepted because it directly tests whether the new OAuth-grant discriminator blocks adjacent but inapplicable guidance.",
+      "difficulty_reason": "Both OAuth sources discuss token failures, clients, scopes, and renewal behaviour.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-102",
+      "case_family": "exact_procedure",
+      "failure_hypothesis": "Client-credentials guidance may displace the machine-readable refresh-token error catalogue.",
+      "query_text": "A Nimbus Relay refresh-token exchange returns invalid_grant after token rotation. What does that code mean, and is an immediate retry valid?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "oauth"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false,
+        "metadata": {
+          "languages": [],
+          "interface_kinds": [
+            "raw_http"
+          ],
+          "oauth_grants": [
+            "refresh_token"
+          ],
+          "representations": [
+            "machine_reference"
+          ]
+        }
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-OAUTH-004",
+          "grade": 3,
+          "rationale": "The refresh-token error catalogue defines invalid_grant and marks it non-retryable."
+        }
+      ],
+      "required_sources": [
+        "NR-OAUTH-004"
+      ],
+      "forbidden_sources": [
+        "NR-OAUTH-003"
+      ],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "invalid_grant means the refresh token is expired, revoked, reused, or belongs to another client.",
+        "The error is not retryable without changing the token state."
+      ],
+      "acceptable_variants": [
+        "Explain that a rotated old refresh token must not be reused."
+      ],
+      "failure_labels": [
+        "OAUTH_GRANT_CONFUSION",
+        "INVALID_RETRY"
+      ],
+      "accept_reason": "Accepted because it validates the opposite side of the OAuth-grant boundary under unseen wording.",
+      "difficulty_reason": "The query shares token and client vocabulary with the client-credentials guide.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-103",
+      "case_family": "near_duplicate_displacement",
+      "failure_hypothesis": "The SDK pagination guide may outrank the raw HTTP contract when both mention next_cursor and expiry.",
+      "query_text": "Using direct HTTP calls, what should the first Nimbus Relay page request contain, and how is next_cursor sent on the following request?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "pagination"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false,
+        "metadata": {
+          "languages": [],
+          "interface_kinds": [
+            "raw_http"
+          ],
+          "oauth_grants": [],
+          "representations": [
+            "human_guide"
+          ]
+        }
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-PAGE-005",
+          "grade": 3,
+          "rationale": "The raw HTTP pagination guide gives the exact first-page and subsequent-page request forms."
+        }
+      ],
+      "required_sources": [
+        "NR-PAGE-005"
+      ],
+      "forbidden_sources": [
+        "NR-PAGE-006"
+      ],
+      "near_duplicate_sources": [
+        "NR-PAGE-006"
+      ],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "The first request has a limit but no invented cursor.",
+        "The returned next_cursor is passed unchanged on the next HTTP request."
+      ],
+      "acceptable_variants": [
+        "Show equivalent GET request shapes."
+      ],
+      "failure_labels": [
+        "INTERFACE_DISPLACEMENT",
+        "NEAR_DUPLICATE_SELECTED"
+      ],
+      "accept_reason": "Accepted because it tests raw-interface selection against the intentionally overlapping SDK guide.",
+      "difficulty_reason": "Both sources describe the same cursor scope, expiry, and duplicate handling.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-104",
+      "case_family": "sdk_variant",
+      "failure_hypothesis": "The raw HTTP guide may displace the Python SDK iterator and exception contract.",
+      "query_text": "In the Python Nimbus Relay SDK, which iterator walks event pages, and what exception indicates that the cursor expired?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "pagination"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false,
+        "metadata": {
+          "languages": [
+            "python"
+          ],
+          "interface_kinds": [
+            "sdk"
+          ],
+          "oauth_grants": [],
+          "representations": [
+            "human_guide"
+          ]
+        }
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-PAGE-006",
+          "grade": 3,
+          "rationale": "The SDK pagination guide contains the Python page iterator and CursorExpiredError behaviour."
+        }
+      ],
+      "required_sources": [
+        "NR-PAGE-006"
+      ],
+      "forbidden_sources": [
+        "NR-PAGE-005"
+      ],
+      "near_duplicate_sources": [
+        "NR-PAGE-005"
+      ],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Use client.events.pages with the configured limit.",
+        "CursorExpiredError means traversal must restart."
+      ],
+      "acceptable_variants": [
+        "Describe the Python iterator without requiring an exact code block."
+      ],
+      "failure_labels": [
+        "INTERFACE_DISPLACEMENT",
+        "SDK_PROCEDURE_MISSING"
+      ],
+      "accept_reason": "Accepted because it tests language plus SDK-interface filtering on a near-duplicate pair.",
+      "difficulty_reason": "The raw HTTP guide contains most of the same pagination terms but not the Python iterator contract.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-105",
+      "case_family": "near_duplicate_displacement",
+      "failure_hypothesis": "The JSON event catalogue may displace the human-readable explanation requested by an operator.",
+      "query_text": "Give an operator-friendly explanation of the Nimbus Relay security event names and whether webhook payloads contain the full current resource.",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "events"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false,
+        "metadata": {
+          "languages": [],
+          "interface_kinds": [],
+          "oauth_grants": [],
+          "representations": [
+            "human_guide"
+          ]
+        }
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-EVENT-024",
+          "grade": 3,
+          "rationale": "The human guide explains security event meanings and the partial-resource-state warning."
+        }
+      ],
+      "required_sources": [
+        "NR-EVENT-024"
+      ],
+      "forbidden_sources": [
+        "NR-EVENT-025"
+      ],
+      "near_duplicate_sources": [
+        "NR-EVENT-025"
+      ],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "credential.rotated and permission.changed are security events.",
+        "Payloads are not guaranteed to contain full current resource state."
+      ],
+      "acceptable_variants": [
+        "Recommend retrieving the resource when current state is required."
+      ],
+      "failure_labels": [
+        "REPRESENTATION_DISPLACEMENT",
+        "NEAR_DUPLICATE_SELECTED"
+      ],
+      "accept_reason": "Accepted because the desired human explanation is distinct from a machine-readable enumeration.",
+      "difficulty_reason": "Both catalogues contain the same event names and payload fields.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-106",
+      "case_family": "near_duplicate_displacement",
+      "failure_hypothesis": "The prose event guide may displace the exact machine-readable names and required fields.",
+      "query_text": "I am generating validation code. Return the canonical Nimbus Relay event identifiers and the required payload field list from the machine reference.",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "events"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false,
+        "metadata": {
+          "languages": [],
+          "interface_kinds": [],
+          "oauth_grants": [],
+          "representations": [
+            "machine_reference"
+          ]
+        }
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-EVENT-025",
+          "grade": 3,
+          "rationale": "The JSON catalogue is the canonical machine-readable event and required-field reference."
+        }
+      ],
+      "required_sources": [
+        "NR-EVENT-025"
+      ],
+      "forbidden_sources": [
+        "NR-EVENT-024"
+      ],
+      "near_duplicate_sources": [
+        "NR-EVENT-024"
+      ],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Retrieve the machine-readable event identifiers.",
+        "Retrieve event_id, event_type, created_at, api_version, and resource as required fields."
+      ],
+      "acceptable_variants": [
+        "A structured summary of the JSON reference is acceptable."
+      ],
+      "failure_labels": [
+        "REPRESENTATION_DISPLACEMENT",
+        "MACHINE_REFERENCE_MISSING"
+      ],
+      "accept_reason": "Accepted because it tests the representation discriminator in the reverse direction.",
+      "difficulty_reason": "The prose guide repeats the names and can appear equally relevant lexically.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-107",
+      "case_family": "sdk_variant",
+      "failure_hypothesis": "JavaScript setup guidance may contaminate a Python-only deployment answer.",
+      "query_text": "For a Python worker, which Nimbus Relay package version should be installed, and which environment variable supplies the API key?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "sdk"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false,
+        "metadata": {
+          "languages": [
+            "python"
+          ],
+          "interface_kinds": [
+            "sdk"
+          ],
+          "oauth_grants": [],
+          "representations": [
+            "human_guide"
+          ]
+        }
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-SDK-016",
+          "grade": 3,
+          "rationale": "The Python setup guide specifies nimbus-relay 4.1 and NIMBUS_API_KEY."
+        }
+      ],
+      "required_sources": [
+        "NR-SDK-016"
+      ],
+      "forbidden_sources": [
+        "NR-SDK-017"
+      ],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Install nimbus-relay version 4.1.x.",
+        "Read the API key from NIMBUS_API_KEY."
+      ],
+      "acceptable_variants": [
+        "Mention the isolated environment and configured client."
+      ],
+      "failure_labels": [
+        "SDK_LANGUAGE_CONTAMINATION",
+        "WRONG_PACKAGE"
+      ],
+      "accept_reason": "Accepted because it validates Python-only applicability with a query not used in development.",
+      "difficulty_reason": "Both SDK setup guides contain the same API version, timeout, client, and environment concepts.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-108",
+      "case_family": "sdk_variant",
+      "failure_hypothesis": "Python setup guidance may contaminate a trusted Node.js server answer.",
+      "query_text": "For a trusted Node.js service, which Nimbus Relay package is installed, and may the API key be bundled into browser code?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "sdk"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false,
+        "metadata": {
+          "languages": [
+            "javascript"
+          ],
+          "interface_kinds": [
+            "sdk"
+          ],
+          "oauth_grants": [],
+          "representations": [
+            "human_guide"
+          ]
+        }
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-SDK-017",
+          "grade": 3,
+          "rationale": "The JavaScript guide specifies the package and forbids bundling credentials into browser applications."
+        }
+      ],
+      "required_sources": [
+        "NR-SDK-017"
+      ],
+      "forbidden_sources": [
+        "NR-SDK-016"
+      ],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Install @nimbus-relay/sdk version 4.1.",
+        "Do not bundle credentials into browser applications."
+      ],
+      "acceptable_variants": [
+        "State that the documented client is for trusted server-side runtimes."
+      ],
+      "failure_labels": [
+        "SDK_LANGUAGE_CONTAMINATION",
+        "UNSAFE_SECRET_HANDLING"
+      ],
+      "accept_reason": "Accepted because it tests JavaScript applicability and a security-relevant distinction.",
+      "difficulty_reason": "The Python guide shares configuration vocabulary but cannot answer the browser-secret boundary.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-109",
+      "case_family": "version_conflict",
+      "failure_hypothesis": "The superseded 48-hour webhook schedule may outrank the current 72-hour schedule.",
+      "query_text": "A legacy note says webhook retries stop after 48 hours. For current v3 endpoints, what is the actual retry window and pause threshold?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "webhooks"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "include",
+        "version_sensitive_only": true
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-WEBHOOK-013",
+          "grade": 3,
+          "rationale": "Current v3 guidance defines 72 hours and a twenty-failure pause threshold."
+        },
+        {
+          "source_id": "NR-WEBHOOK-014",
+          "grade": 2,
+          "rationale": "The superseded guide explains the conflicting 48-hour and ten-failure values."
+        }
+      ],
+      "required_sources": [
+        "NR-WEBHOOK-013",
+        "NR-WEBHOOK-014"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Current v3 retries span 72 hours.",
+        "Current endpoints pause after twenty consecutive failures.",
+        "The 48-hour and ten-failure values are legacy v2.4 behaviour."
+      ],
+      "acceptable_variants": [
+        "Explain both versions while selecting v3 as authoritative."
+      ],
+      "failure_labels": [
+        "VERSION_CONFLICT_UNRESOLVED",
+        "STALE_RULE_SELECTED"
+      ],
+      "accept_reason": "Accepted because remediation must preserve deliberate stale-versus-current conflict evidence.",
+      "difficulty_reason": "The new metadata filters must not over-filter valid supersession evidence.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-110",
+      "case_family": "version_conflict",
+      "failure_hypothesis": "The stale seven-day key lifetime may appear despite a current-only version-sensitive query.",
+      "query_text": "For a newly created API v2 key, what is the expiry period, and is extending the same key supported?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "authentication"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": true
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-AUTH-001",
+          "grade": 3,
+          "rationale": "Current API v2 guidance states a 24-hour lifetime and rotation instead of extension."
+        }
+      ],
+      "required_sources": [
+        "NR-AUTH-001"
+      ],
+      "forbidden_sources": [
+        "NR-AUTH-002"
+      ],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "The key expires after 24 hours.",
+        "Rotate the key; extending the same key is not supported."
+      ],
+      "acceptable_variants": [
+        "State one day instead of 24 hours."
+      ],
+      "failure_labels": [
+        "STALE_SOURCE_RANKED",
+        "UNSUPPORTED_EXTENSION"
+      ],
+      "accept_reason": "Accepted because it checks that the original lifecycle controls still work after metadata remediation.",
+      "difficulty_reason": "The superseded source has nearly identical terminology and a plausible conflicting duration.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-111",
+      "case_family": "incomplete_documentation",
+      "failure_hypothesis": "The retriever may treat an intentionally incomplete sandbox guide as proof that every event can be simulated.",
+      "query_text": "Can the Nimbus Relay sandbox emit credential.rotated on demand, or is that capability undocumented?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "sandbox"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-SANDBOX-029",
+          "grade": 3,
+          "rationale": "The current sandbox guide explicitly leaves per-event simulation support undocumented."
+        }
+      ],
+      "required_sources": [
+        "NR-SANDBOX-029"
+      ],
+      "forbidden_sources": [
+        "NR-SANDBOX-030"
+      ],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "clarify",
+      "required_information_gain": [
+        "The guide does not confirm that every production event can be emitted on demand.",
+        "Query the sandbox capability endpoint or escalate."
+      ],
+      "acceptable_variants": [
+        "State that support is unknown rather than answering yes or no."
+      ],
+      "failure_labels": [
+        "INCOMPLETE_GUIDANCE_OVERRIDDEN",
+        "UNSUPPORTED_CAPABILITY"
+      ],
+      "accept_reason": "Accepted because a reliable retriever must preserve the known-gap boundary.",
+      "difficulty_reason": "Generic sandbox and event terminology can encourage unsupported inference.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-112",
+      "case_family": "multi_source_grounding",
+      "failure_hypothesis": "The custom-role guide alone may omit administrator-only restrictions from a permission decision.",
+      "query_text": "Can a custom Nimbus Relay role include credentials.manage, and how long can a permission change take to propagate?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "permissions"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-PERM-027",
+          "grade": 3,
+          "rationale": "The machine-readable matrix marks credentials.manage as restricted and gives the 120-second maximum propagation time."
+        },
+        {
+          "source_id": "NR-PERM-028",
+          "grade": 2,
+          "rationale": "The guide explains custom-role assignment, propagation, and the need to consult the matrix."
+        }
+      ],
+      "required_sources": [
+        "NR-PERM-027",
+        "NR-PERM-028"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "credentials.manage is restricted to built-in administrator roles.",
+        "Permission changes can take up to 120 seconds to propagate."
+      ],
+      "acceptable_variants": [
+        "State two minutes instead of 120 seconds."
+      ],
+      "failure_labels": [
+        "MULTI_SOURCE_EVIDENCE_MISSING",
+        "RESTRICTED_PERMISSION_INVENTED"
+      ],
+      "accept_reason": "Accepted because the decision requires both explanatory and machine-readable permission evidence.",
+      "difficulty_reason": "One source is intentionally incomplete while the other is a compact matrix with overlapping terms.",
+      "evaluation_split": "held_out"
+    }
+  ]
+}
