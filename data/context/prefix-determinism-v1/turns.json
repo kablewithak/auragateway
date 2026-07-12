@@ -1,0 +1,386 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-prefix-stability-turns-v1",
+  "turns": [
+    {
+      "turn_index": 0,
+      "volatile_log": {
+        "schema_version": "1.0.0",
+        "run_id": "gate3-prefix-stability-run-v1",
+        "partition": "volatile",
+        "append_policy": "append-only-no-in-place-mutation-v1",
+        "items": [
+          {
+            "item_id": "user-turn-0",
+            "sequence": 0,
+            "kind": "user_turn",
+            "content_sha256": "1d2679ec70f992192544078c0ecb70453d8c864c6c65119b8fd66c4e00142fc2",
+            "content_bytes": 64,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          }
+        ]
+      }
+    },
+    {
+      "turn_index": 1,
+      "volatile_log": {
+        "schema_version": "1.0.0",
+        "run_id": "gate3-prefix-stability-run-v1",
+        "partition": "volatile",
+        "append_policy": "append-only-no-in-place-mutation-v1",
+        "items": [
+          {
+            "item_id": "user-turn-0",
+            "sequence": 0,
+            "kind": "user_turn",
+            "content_sha256": "1d2679ec70f992192544078c0ecb70453d8c864c6c65119b8fd66c4e00142fc2",
+            "content_bytes": 64,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "user-turn-1",
+            "sequence": 1,
+            "kind": "user_turn",
+            "content_sha256": "25010d107498f739002021cc796cf3cc1ae7f08208ec40aa9f09a347aff86fc4",
+            "content_bytes": 65,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "retrieved-evidence-1",
+            "sequence": 2,
+            "kind": "retrieved_evidence",
+            "content_sha256": "dedbad2274cb90ca844b1d56de47518adc2eda430d60cb792d4e809b713feae5",
+            "content_bytes": 97,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          }
+        ]
+      }
+    },
+    {
+      "turn_index": 2,
+      "volatile_log": {
+        "schema_version": "1.0.0",
+        "run_id": "gate3-prefix-stability-run-v1",
+        "partition": "volatile",
+        "append_policy": "append-only-no-in-place-mutation-v1",
+        "items": [
+          {
+            "item_id": "user-turn-0",
+            "sequence": 0,
+            "kind": "user_turn",
+            "content_sha256": "1d2679ec70f992192544078c0ecb70453d8c864c6c65119b8fd66c4e00142fc2",
+            "content_bytes": 64,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "user-turn-1",
+            "sequence": 1,
+            "kind": "user_turn",
+            "content_sha256": "25010d107498f739002021cc796cf3cc1ae7f08208ec40aa9f09a347aff86fc4",
+            "content_bytes": 65,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "retrieved-evidence-1",
+            "sequence": 2,
+            "kind": "retrieved_evidence",
+            "content_sha256": "dedbad2274cb90ca844b1d56de47518adc2eda430d60cb792d4e809b713feae5",
+            "content_bytes": 97,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "user-turn-2",
+            "sequence": 3,
+            "kind": "user_turn",
+            "content_sha256": "e99f501aa11cf806e106a30eefd1bd9d3be077eb59d06839457471597dbf5fdf",
+            "content_bytes": 66,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "retrieved-evidence-2",
+            "sequence": 4,
+            "kind": "retrieved_evidence",
+            "content_sha256": "d3ba35ce7af1f63c44fd5ad2abd5c116bce29067dc290c4d979e9ca5959ff48f",
+            "content_bytes": 98,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          }
+        ]
+      }
+    },
+    {
+      "turn_index": 3,
+      "volatile_log": {
+        "schema_version": "1.0.0",
+        "run_id": "gate3-prefix-stability-run-v1",
+        "partition": "volatile",
+        "append_policy": "append-only-no-in-place-mutation-v1",
+        "items": [
+          {
+            "item_id": "user-turn-0",
+            "sequence": 0,
+            "kind": "user_turn",
+            "content_sha256": "1d2679ec70f992192544078c0ecb70453d8c864c6c65119b8fd66c4e00142fc2",
+            "content_bytes": 64,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "user-turn-1",
+            "sequence": 1,
+            "kind": "user_turn",
+            "content_sha256": "25010d107498f739002021cc796cf3cc1ae7f08208ec40aa9f09a347aff86fc4",
+            "content_bytes": 65,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "retrieved-evidence-1",
+            "sequence": 2,
+            "kind": "retrieved_evidence",
+            "content_sha256": "dedbad2274cb90ca844b1d56de47518adc2eda430d60cb792d4e809b713feae5",
+            "content_bytes": 97,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "user-turn-2",
+            "sequence": 3,
+            "kind": "user_turn",
+            "content_sha256": "e99f501aa11cf806e106a30eefd1bd9d3be077eb59d06839457471597dbf5fdf",
+            "content_bytes": 66,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "retrieved-evidence-2",
+            "sequence": 4,
+            "kind": "retrieved_evidence",
+            "content_sha256": "d3ba35ce7af1f63c44fd5ad2abd5c116bce29067dc290c4d979e9ca5959ff48f",
+            "content_bytes": 98,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "user-turn-3",
+            "sequence": 5,
+            "kind": "user_turn",
+            "content_sha256": "f9b32c7aa444deaa4189ed544830e9784db4a4e3549739cb31a0794f32129ea2",
+            "content_bytes": 67,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "retrieved-evidence-3",
+            "sequence": 6,
+            "kind": "retrieved_evidence",
+            "content_sha256": "b55948aed310227a437265640250cb8f4181509d17e67a268c1562be989b3b50",
+            "content_bytes": 99,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          }
+        ]
+      }
+    },
+    {
+      "turn_index": 4,
+      "volatile_log": {
+        "schema_version": "1.0.0",
+        "run_id": "gate3-prefix-stability-run-v1",
+        "partition": "volatile",
+        "append_policy": "append-only-no-in-place-mutation-v1",
+        "items": [
+          {
+            "item_id": "user-turn-0",
+            "sequence": 0,
+            "kind": "user_turn",
+            "content_sha256": "1d2679ec70f992192544078c0ecb70453d8c864c6c65119b8fd66c4e00142fc2",
+            "content_bytes": 64,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "user-turn-1",
+            "sequence": 1,
+            "kind": "user_turn",
+            "content_sha256": "25010d107498f739002021cc796cf3cc1ae7f08208ec40aa9f09a347aff86fc4",
+            "content_bytes": 65,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "retrieved-evidence-1",
+            "sequence": 2,
+            "kind": "retrieved_evidence",
+            "content_sha256": "dedbad2274cb90ca844b1d56de47518adc2eda430d60cb792d4e809b713feae5",
+            "content_bytes": 97,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "user-turn-2",
+            "sequence": 3,
+            "kind": "user_turn",
+            "content_sha256": "e99f501aa11cf806e106a30eefd1bd9d3be077eb59d06839457471597dbf5fdf",
+            "content_bytes": 66,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "retrieved-evidence-2",
+            "sequence": 4,
+            "kind": "retrieved_evidence",
+            "content_sha256": "d3ba35ce7af1f63c44fd5ad2abd5c116bce29067dc290c4d979e9ca5959ff48f",
+            "content_bytes": 98,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "user-turn-3",
+            "sequence": 5,
+            "kind": "user_turn",
+            "content_sha256": "f9b32c7aa444deaa4189ed544830e9784db4a4e3549739cb31a0794f32129ea2",
+            "content_bytes": 67,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "retrieved-evidence-3",
+            "sequence": 6,
+            "kind": "retrieved_evidence",
+            "content_sha256": "b55948aed310227a437265640250cb8f4181509d17e67a268c1562be989b3b50",
+            "content_bytes": 99,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "user-turn-4",
+            "sequence": 7,
+            "kind": "user_turn",
+            "content_sha256": "d44c7e93ad68c254ee25445ffdddd06b457d09c5d83cb2328615efe1a0b83387",
+            "content_bytes": 68,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          },
+          {
+            "item_id": "retrieved-evidence-4",
+            "sequence": 8,
+            "kind": "retrieved_evidence",
+            "content_sha256": "1c63635c9f1867148313f75ab8e442a090d51f7085f665f110ce929790664ae5",
+            "content_bytes": 100,
+            "data_classification": "synthetic_protected",
+            "contains_personal_data": false,
+            "contains_secrets": false,
+            "retained": true,
+            "supersedes_item_id": null,
+            "content_in_public_trace": false
+          }
+        ]
+      }
+    }
+  ]
+}

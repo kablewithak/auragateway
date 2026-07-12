@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-prefix-determinism-manifest-v1",
+  "status": "frozen",
+  "context_boundary_manifest_path": "data/context/boundary_manifest.json",
+  "context_boundary_manifest_sha256": "e6f990cfd9b1d3b482139ede48f531523819fed1e44cd8d9b8d3356e9bbbef77",
+  "compiler_spec_path": "data/context/compiler_spec.json",
+  "compiler_spec_sha256": "b424353becc50f35356cb8795405e42d819e4e94492f57bcf6354dba7af05f9c",
+  "turn_fixtures_path": "data/context/prefix-determinism-v1/turns.json",
+  "turn_fixtures_sha256": "6d5f36ff23db905d7b810ec4810bce5ebc93b4042987d167d7e71791bc464f2d",
+  "mutation_cases_path": "data/context/prefix-determinism-v1/mutation_cases.json",
+  "mutation_cases_sha256": "026f895f3b4a147516b089ad47eb69b6bb1ebd34c69c09dd74d412e716c701eb",
+  "report_path": "data/context/prefix-determinism-v1/report.json",
+  "report_sha256": "fefeffdba98be69521080166574ec627763a395463fb185880a2f96edeee7bde",
+  "prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+  "serialization_version": "canonical-static-provider-v1",
+  "hmac_key_id": "synthetic-prefix-fixture-key-v1",
+  "stable_turn_count": 5,
+  "negative_control_count": 7,
+  "gate_3_passed": true,
+  "measured_execution_permitted": false,
+  "required_next_gate": "telemetry_integrity"
+}

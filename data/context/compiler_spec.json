@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0.0",
+  "spec_id": "auragateway-static-compiler-spec-v1",
+  "status": "frozen",
+  "serialization_version": "canonical-static-provider-v1",
+  "template_id": "nimbus-relay-support-template-v1",
+  "template_version": "1.0.0",
+  "tool_contract_version": "nimbus-relay-tools-v1",
+  "static_registry_path": "data/context/static_anchor_registry.json",
+  "static_registry_sha256": "172006d5e574c79ff1ed5191eeb61788c9c2e9d6e3fed25cb1cfecbc9c718a4d",
+  "segments": [
+    {
+      "segment_id": "system-policy-v1",
+      "order": 0,
+      "kind": "system_policy",
+      "content": "Act as the synthetic Nimbus Relay support agent. Use only approved retrieval evidence and the frozen terminal-decision contract. Never invent procedures, limits, capabilities, citations, or escalation paths.",
+      "data_classification": "synthetic_protected",
+      "content_in_public_trace": false
+    },
+    {
+      "segment_id": "task-procedure-v1",
+      "order": 1,
+      "kind": "task_procedure",
+      "content": "For each turn, identify the unresolved information need, request evidence through the retrieval tool when necessary, retain only useful nonredundant feedback, and end with answer, clarify, escalate, or refuse.",
+      "data_classification": "synthetic_protected",
+      "content_in_public_trace": false
+    },
+    {
+      "segment_id": "citation-rules-v1",
+      "order": 2,
+      "kind": "citation_rules",
+      "content": "Citations must use source IDs returned by the frozen retrieval contract. Every material procedural claim requires supporting evidence. Omit any claim that lacks sufficient evidence.",
+      "data_classification": "synthetic_protected",
+      "content_in_public_trace": false
+    },
+    {
+      "segment_id": "few-shot-example-v1",
+      "order": 3,
+      "kind": "few_shot_example",
+      "content": "Example: when the account scope is missing, return decision clarify, list account_scope in missing_information, ask one resolving question, and do not provide a premature procedure.",
+      "data_classification": "synthetic_protected",
+      "content_in_public_trace": false
+    }
+  ],
+  "tools": [
+    {
+      "order": 0,
+      "tool_id": "retrieve-nimbus-docs",
+      "version": "1.0.0",
+      "description": "Retrieve source references from the frozen Nimbus Relay corpus.",
+      "input_fields": [
+        {
+          "order": 0,
+          "name": "query",
+          "value_type": "string",
+          "required": true,
+          "description": "Synthetic retrieval query for the current information need."
+        },
+        {
+          "order": 1,
+          "name": "source_scope",
+          "value_type": "string_list",
+          "required": false,
+          "description": "Optional permitted source IDs from the episode contract."
+        }
+      ]
+    },
+    {
+      "order": 1,
+      "tool_id": "record-terminal-decision",
+      "version": "1.0.0",
+      "description": "Validate and retain the typed terminal decision for one episode.",
+      "input_fields": [
+        {
+          "order": 0,
+          "name": "decision",
+          "value_type": "enum",
+          "required": true,
+          "description": "One of answer, clarify, escalate, or refuse."
+        },
+        {
+          "order": 1,
+          "name": "citation_ids",
+          "value_type": "string_list",
+          "required": true,
+          "description": "Source IDs supporting the terminal decision."
+        }
+      ]
+    }
+  ],
+  "output_schema": {
+    "schema_id": "assistant-terminal-decision-v1",
+    "version": "1.0.0",
+    "fields": [
+      {
+        "order": 0,
+        "name": "decision",
+        "value_type": "enum",
+        "required": true,
+        "enum_values": [
+          "answer",
+          "clarify",
+          "escalate",
+          "refuse"
+        ]
+      },
+      {
+        "order": 1,
+        "name": "answer",
+        "value_type": "string",
+        "required": false,
+        "enum_values": []
+      },
+      {
+        "order": 2,
+        "name": "citations",
+        "value_type": "string_list",
+        "required": true,
+        "enum_values": []
+      },
+      {
+        "order": 3,
+        "name": "missing_information",
+        "value_type": "string_list",
+        "required": true,
+        "enum_values": []
+      },
+      {
+        "order": 4,
+        "name": "escalation_reason",
+        "value_type": "string",
+        "required": false,
+        "enum_values": []
+      },
+      {
+        "order": 5,
+        "name": "confidence_band",
+        "value_type": "enum",
+        "required": true,
+        "enum_values": [
+          "high",
+          "medium",
+          "low"
+        ]
+      }
+    ]
+  },
+  "context_pack": {
+    "context_pack_id": "nimbus-relay-support-constraints-v1",
+    "version": "1.0.0",
+    "content": "Nimbus Relay is a synthetic support domain. Apply the frozen retrieval configuration, preserve source-version distinctions, and prefer clarification or escalation over unsupported completion.",
+    "data_classification": "synthetic_protected",
+    "content_in_public_trace": false
+  },
+  "raw_content_in_public_trace": false
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "case_set_id": "auragateway-prefix-mutation-cases-v1",
+  "cases": [
+    {
+      "case_id": "prefix-mut-001-timestamp",
+      "mutation_kind": "timestamp_insertion",
+      "expected_outcome": "blocked",
+      "expected_reason": "forbidden_volatile_field_detected"
+    },
+    {
+      "case_id": "prefix-mut-002-tool-order",
+      "mutation_kind": "tool_order_change",
+      "expected_outcome": "fingerprint_changed",
+      "expected_reason": "tool_contract_changed"
+    },
+    {
+      "case_id": "prefix-mut-003-schema-version",
+      "mutation_kind": "output_schema_version_change",
+      "expected_outcome": "fingerprint_changed",
+      "expected_reason": "output_schema_changed"
+    },
+    {
+      "case_id": "prefix-mut-004-json-key-order",
+      "mutation_kind": "json_key_order_change",
+      "expected_outcome": "canonically_equivalent",
+      "expected_reason": "provider_serialization_changed"
+    },
+    {
+      "case_id": "prefix-mut-005-one-byte-example",
+      "mutation_kind": "one_byte_example_change",
+      "expected_outcome": "fingerprint_changed",
+      "expected_reason": "context_pack_changed"
+    },
+    {
+      "case_id": "prefix-mut-006-volatile-user",
+      "mutation_kind": "volatile_user_content_change",
+      "expected_outcome": "static_fingerprint_unchanged",
+      "expected_reason": null
+    },
+    {
+      "case_id": "prefix-mut-007-retrieval-order",
+      "mutation_kind": "retrieval_order_change",
+      "expected_outcome": "static_fingerprint_unchanged",
+      "expected_reason": null
+    }
+  ]
+}

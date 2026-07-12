@@ -10,16 +10,19 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
-- **Delivery ledger after this slice:** 82 / 200 planned hours (41%)
-- **Current phase:** Phase 2 — Typed Contracts and Context Compiler
-- **Active proof gate:** Gate 3 — Prefix Determinism
+- **Delivery ledger after this slice:** 95 / 200 planned hours (47.5%)
+- **Current phase:** Phase 3 — Provider Adapters and Telemetry Calibration
+- **Active proof gate:** Gate 4 — Telemetry Integrity
 - **Gate 0 status:** Passed
 - **Gate 1 status:** Passed — retrieval configuration frozen
 - **Gate 2 status:** Passed — functional and runtime diagnostic episode assets frozen
+- **Gate 3 status:** Passed — canonical static prefix and HMAC fingerprint frozen
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** retrieval and diagnostic eval assets hash-frozen; typed context partition boundary locally validated
+- **Maturity:** retrieval, diagnostic eval, and prefix-determinism assets locally validated and hash-frozen
+
+The prior README ledger displayed 77 / 200 after the context-boundary slice. The accepted continuity ledger was 82 / 200; this slice adds the remaining 13 planned Gate 3 hours and records 95 / 200.
 
 ## Governing Documents
 
@@ -30,12 +33,12 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - [Execution Manifest Requirements](docs/benchmark/AuraGateway_Execution_Manifest_Requirements.md)
 - [Evidence Bundle Specification](docs/benchmark/AuraGateway_Evidence_Bundle_Specification.md)
 - [Privacy and Vendor Boundary](docs/privacy/AuraGateway_Privacy_and_Vendor_Boundary.md)
-- [Architecture Decision Records](docs/adr/README.md)
 - [Gate 1 Retrieval Freeze Report](docs/benchmark/Nimbus_Relay_Gate_1_Freeze_Report.md)
 - [Diagnostic Episode Constitution](docs/benchmark/Nimbus_Relay_Diagnostic_Episode_Constitution.md)
 - [Gate 2 Readiness Report](docs/benchmark/Nimbus_Relay_Gate_2_Readiness_Report.md)
 - [Context Boundary Design](docs/benchmark/AuraGateway_Context_Boundary_Design.md)
-- [Context Boundary Report](docs/benchmark/AuraGateway_Context_Boundary_Report.md)
+- [Canonical Prefix Design](docs/benchmark/AuraGateway_Canonical_Prefix_Design.md)
+- [Gate 3 Prefix Determinism Report](docs/benchmark/AuraGateway_Gate_3_Prefix_Determinism_Report.md)
 
 ## Frozen Retrieval Configuration
 
@@ -48,50 +51,32 @@ Configuration fingerprint:
 220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490
 ```
 
-## Frozen Diagnostic Episode Assets
+## Frozen Prefix Configuration
 
 ```text
-Functional episodes: 18
-Development episodes: 12
-Held-out episodes: 6
-Turns per episode: 4
-Runtime microbenchmark subset: 6
-Rejected proposals retained: 8
-Blinded review: 100% primary review, 25% double review
+Serialization version: canonical-static-provider-v1
+Template: nimbus-relay-support-template-v1@1.0.0
+HMAC key ID: synthetic-prefix-fixture-key-v1
+Static prefix fingerprint:
+6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63
+
+Five-turn stability: 5 / 5
+Mutation calibration: 7 / 7
 ```
 
-Terminal-decision distribution:
-
-```text
-answer: 10
-clarify: 3
-escalate: 3
-refuse: 2
-```
-
-The episode assets contain synthetic raw user messages for controlled evaluation. Raw messages, prompts, retrieved text, model outputs, provider payloads, PII, and secrets remain prohibited from public traces.
+Raw static content, raw volatile content, prompts, user messages, retrieved documents, outputs, provider payloads, PII, secrets, and HMAC key material remain outside public traces.
 
 ## Freeze Model
 
 AuraGateway uses separate controls:
 
-1. **Benchmark Constitution**
-   - frozen at Gate 0;
-   - defines causal contrasts, run rules, failure accounting, review policy, statistics, and invalidation rules.
+1. **Benchmark Constitution** — frozen at Gate 0.
+2. **Retrieval Configuration** — frozen at Gate 1.
+3. **Diagnostic Episode Assets** — frozen at Gate 2.
+4. **Static Prefix Determinism** — frozen at Gate 3.
+5. **Execution Manifest** — frozen only after all required downstream assets exist.
 
-2. **Retrieval Configuration**
-   - frozen at Gate 1;
-   - binds corpus, chunking, retrieval, metadata policy, top-k, and held-out evidence.
-
-3. **Diagnostic Episode Assets**
-   - frozen at Gate 2;
-   - binds functional episodes, held-out separation, runtime subset, rejected proposals, terminal decisions, and blinded review protocol.
-
-4. **Execution Manifest**
-   - frozen only after all required downstream assets exist;
-   - pins provider/model, adapters, prompts, schemas, rubrics, pricing, and implementation hashes.
-
-Passing Gate 2 does not permit measured execution.
+Passing Gate 3 does not permit measured execution.
 
 ## Current Benchmark Conditions
 
@@ -122,7 +107,14 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-Validate the complete historical chain and the diagnostic episode freeze:
+Gate 3 verification requires an environment-loaded synthetic fixture key for reproducibility:
+
+```powershell
+$env:AURAGATEWAY_PREFIX_HMAC_KEY = "auragateway-synthetic-prefix-fixture-key-v1-20260712"
+$env:AURAGATEWAY_PREFIX_HMAC_KEY_ID = "synthetic-prefix-fixture-key-v1"
+```
+
+Validate the complete historical evidence chain:
 
 ```powershell
 python -m auragateway.corpus.freeze verify --repo-root .
@@ -136,6 +128,7 @@ python -m auragateway.evals.remediation_runner verify --repo-root .
 python -m auragateway.evals.heldout_v2_runner verify --repo-root .
 python -m auragateway.evals.episode_runner verify --repo-root .
 python -m auragateway.context.runner verify --repo-root .
+python -m auragateway.context.prefix_runner verify --repo-root .
 ```
 
 Run release gates:
@@ -149,4 +142,4 @@ python -m mypy src tests
 
 ## Phase 2 Boundary
 
-The typed static-anchor registry and volatile-append contract are locally validated. Gate 3 remains open. The next slice implements canonical serialization, HMAC-SHA256 prefix fingerprints, mutation audits, and a five-turn prefix-stability report.
+Gate 3 is complete. The next implementation slice begins Gate 4 with the fake provider, deterministic provider fixtures, typed telemetry contracts, and provider-semantic sufficiency decisions.

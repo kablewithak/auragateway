@@ -1,0 +1,154 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "auragateway-prefix-stability-report-v1",
+  "status": "passed",
+  "compiler_spec_path": "data/context/compiler_spec.json",
+  "compiler_spec_sha256": "b424353becc50f35356cb8795405e42d819e4e94492f57bcf6354dba7af05f9c",
+  "static_registry_path": "data/context/static_anchor_registry.json",
+  "static_registry_sha256": "172006d5e574c79ff1ed5191eeb61788c9c2e9d6e3fed25cb1cfecbc9c718a4d",
+  "turn_fixtures_path": "data/context/prefix-determinism-v1/turns.json",
+  "turn_fixtures_sha256": "6d5f36ff23db905d7b810ec4810bce5ebc93b4042987d167d7e71791bc464f2d",
+  "mutation_cases_path": "data/context/prefix-determinism-v1/mutation_cases.json",
+  "mutation_cases_sha256": "026f895f3b4a147516b089ad47eb69b6bb1ebd34c69c09dd74d412e716c701eb",
+  "fingerprint": {
+    "schema_version": "1.0.0",
+    "fingerprint_id": "auragateway-static-prefix-fingerprint-v1",
+    "algorithm": "hmac-sha256",
+    "key_id": "synthetic-prefix-fixture-key-v1",
+    "prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+    "canonical_sha256": "9e95908cd14f8df3f667e7e3e36b2d928652cbe16a43477671068b5680a1bf5b",
+    "canonical_bytes": 24532,
+    "serialization_version": "canonical-static-provider-v1",
+    "template_id": "nimbus-relay-support-template-v1",
+    "template_version": "1.0.0",
+    "tool_contract_fingerprint": "178393f12dfc35f49d2fb3c1446fe5762f4661dba5c03109bbc92304490208e5",
+    "output_schema_fingerprint": "644781b8d2906a7b280c1b9c5abbe7957814c77902707c1facb2b6af5695f149",
+    "context_pack_fingerprint": "7da5fb07efaa398a628e9d55c140f7afcf9ef2413eeccbebb2d260d4e17a25c0",
+    "static_registry_sha256": "172006d5e574c79ff1ed5191eeb61788c9c2e9d6e3fed25cb1cfecbc9c718a4d",
+    "raw_content_retained": false
+  },
+  "turn_audits": [
+    {
+      "turn_index": 0,
+      "volatile_log_sha256": "d0aa302b7fd428018023c22d70a6b7a1d7f97134b878e4e52cdfe4dbd009e057",
+      "volatile_item_count": 1,
+      "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "matches_baseline": true
+    },
+    {
+      "turn_index": 1,
+      "volatile_log_sha256": "83a31d91632d286f55560e1e64af2443dde01295e978656647408a4c16e11876",
+      "volatile_item_count": 3,
+      "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "matches_baseline": true
+    },
+    {
+      "turn_index": 2,
+      "volatile_log_sha256": "e9c9ff116d610461d5a02bea04aca1e91a758268e33be1fe4d1ace23261e4a4b",
+      "volatile_item_count": 5,
+      "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "matches_baseline": true
+    },
+    {
+      "turn_index": 3,
+      "volatile_log_sha256": "03f546d993d2cdc833c2ddf1b439878584af76236e6408636fdf044da1b345da",
+      "volatile_item_count": 7,
+      "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "matches_baseline": true
+    },
+    {
+      "turn_index": 4,
+      "volatile_log_sha256": "051b97e54680d99ebcf49931785e888c3222dbe048cce1ccb47f94d9e671ba59",
+      "volatile_item_count": 9,
+      "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "matches_baseline": true
+    }
+  ],
+  "mutation_results": [
+    {
+      "case_id": "prefix-mut-001-timestamp",
+      "mutation_kind": "timestamp_insertion",
+      "expected_outcome": "blocked",
+      "observed_outcome": "blocked",
+      "expected_reason": "forbidden_volatile_field_detected",
+      "observed_reason": "forbidden_volatile_field_detected",
+      "baseline_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "mutated_fingerprint": null,
+      "passed": true
+    },
+    {
+      "case_id": "prefix-mut-002-tool-order",
+      "mutation_kind": "tool_order_change",
+      "expected_outcome": "fingerprint_changed",
+      "observed_outcome": "fingerprint_changed",
+      "expected_reason": "tool_contract_changed",
+      "observed_reason": "tool_contract_changed",
+      "baseline_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "mutated_fingerprint": "951c0a3534ce4f0b821cb3c983790e2045769404ba3af2af10bce36c6392eabd",
+      "passed": true
+    },
+    {
+      "case_id": "prefix-mut-003-schema-version",
+      "mutation_kind": "output_schema_version_change",
+      "expected_outcome": "fingerprint_changed",
+      "observed_outcome": "fingerprint_changed",
+      "expected_reason": "output_schema_changed",
+      "observed_reason": "output_schema_changed",
+      "baseline_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "mutated_fingerprint": "ab8118dd73dabd4e5e0effcf5e84c65756e88e56021f5ddf6333438f4a6c39e3",
+      "passed": true
+    },
+    {
+      "case_id": "prefix-mut-004-json-key-order",
+      "mutation_kind": "json_key_order_change",
+      "expected_outcome": "canonically_equivalent",
+      "observed_outcome": "canonically_equivalent",
+      "expected_reason": "provider_serialization_changed",
+      "observed_reason": "provider_serialization_changed",
+      "baseline_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "mutated_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "passed": true
+    },
+    {
+      "case_id": "prefix-mut-005-one-byte-example",
+      "mutation_kind": "one_byte_example_change",
+      "expected_outcome": "fingerprint_changed",
+      "observed_outcome": "fingerprint_changed",
+      "expected_reason": "context_pack_changed",
+      "observed_reason": "context_pack_changed",
+      "baseline_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "mutated_fingerprint": "66ca24e0fcbfbb2b17d79fd376954fc181477c77d043e59b0fb421bfc1214777",
+      "passed": true
+    },
+    {
+      "case_id": "prefix-mut-006-volatile-user",
+      "mutation_kind": "volatile_user_content_change",
+      "expected_outcome": "static_fingerprint_unchanged",
+      "observed_outcome": "static_fingerprint_unchanged",
+      "expected_reason": null,
+      "observed_reason": null,
+      "baseline_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "mutated_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "passed": true
+    },
+    {
+      "case_id": "prefix-mut-007-retrieval-order",
+      "mutation_kind": "retrieval_order_change",
+      "expected_outcome": "static_fingerprint_unchanged",
+      "observed_outcome": "static_fingerprint_unchanged",
+      "expected_reason": null,
+      "observed_reason": null,
+      "baseline_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "mutated_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+      "passed": true
+    }
+  ],
+  "stable_turn_count": 5,
+  "negative_control_count": 7,
+  "negative_control_pass_count": 7,
+  "canonical_serialization_implemented": true,
+  "hmac_prefix_fingerprinting_implemented": true,
+  "gate_3_passed": true,
+  "measured_execution_permitted": false,
+  "required_next_gate": "telemetry_integrity"
+}
