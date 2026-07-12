@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "model_id": "openai/gpt-oss-20b",
+  "snapshots": [
+    {
+      "fixture_id": "groq-deterministic-cold-v1",
+      "output_text": "READY-1",
+      "prompt_tokens": 2310,
+      "cached_tokens": 0,
+      "completion_tokens": 5,
+      "total_time_seconds": 0.84
+    },
+    {
+      "fixture_id": "groq-deterministic-warm-v1",
+      "output_text": "READY-2",
+      "prompt_tokens": 2312,
+      "cached_tokens": 2176,
+      "completion_tokens": 5,
+      "total_time_seconds": 0.31
+    }
+  ]
+}

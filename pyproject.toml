@@ -9,6 +9,7 @@ description = "Cache-aware agent runtime and evaluation harness for controlled A
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+  "groq>=1.5,<2",
   "pydantic>=2.12,<3",
 ]
 
@@ -34,6 +35,7 @@ auragateway-validate-episodes = "auragateway.evals.episode_runner:main"
 auragateway-validate-context-boundary = "auragateway.context.runner:main"
 auragateway-validate-prefix-determinism = "auragateway.context.prefix_runner:main"
 auragateway-validate-telemetry-integrity = "auragateway.telemetry.runner:main"
+auragateway-calibrate-providers = "auragateway.providers.calibration_runner:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
