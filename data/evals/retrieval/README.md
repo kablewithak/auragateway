@@ -87,3 +87,23 @@ held-out artifacts preserve both finalist scorecards, frozen hard-gate outcomes,
 decision.
 
 No retrieval configuration is frozen.
+
+## Development remediation
+
+```text
+development-v2/
+  accepted_cases.json
+  rejected_cases.json
+
+remediation-v1/
+  <remediated-config-id>/
+    manifest.json
+    case_results.jsonl
+    scorecard.json
+  report.json
+```
+
+Development v2 applies typed source-applicability filters to seven existing diagnostic cases. The
+before/after report preserves development v1 and held-out v1 hashes.
+
+Gate 1 remains blocked until a separately authored and frozen held-out v2 confirms the remediation.

@@ -44,3 +44,12 @@ document text or persist vectors.
 
 These artifacts prove deterministic candidate construction and ranking behaviour. They are not held-out
 retrieval-quality evidence and do not select a winning strategy.
+
+## Metadata remediation v1
+
+`remediation-v1/source_metadata.json` is a typed, hash-bound applicability overlay for the frozen
+corpus. It adds language, interface, OAuth-grant, and representation discriminators without changing
+corpus or chunk bytes.
+
+The overlay is used only by versioned remediated candidates. Existing v1 retrieval artifacts remain
+reproducible.
