@@ -9,6 +9,10 @@ from enum import StrEnum
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from auragateway.contracts.corpus import DocumentCompleteness, DocumentStatus
+from auragateway.contracts.retrieval_metadata import (
+    RetrievalMetadataFilter,
+    SourceRetrievalMetadata,
+)
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 _QUERY_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{2,63}$")
@@ -45,6 +49,10 @@ class RetrievalFilter(BaseModel):
     source_ids: tuple[str, ...] = ()
     stale_policy: StalePolicy = StalePolicy.INCLUDE
     version_sensitive_only: bool = False
+    metadata: RetrievalMetadataFilter | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
 
     @field_validator("api_areas", "source_ids")
     @classmethod
@@ -139,6 +147,10 @@ class RetrievalHit(BaseModel):
     is_stale: bool
     completeness: DocumentCompleteness
     version_sensitive_procedure: bool
+    retrieval_metadata: SourceRetrievalMetadata | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     chunk_index: int = Field(ge=0)
     parent_headings: tuple[str, ...]
     content: str = Field(min_length=1)
@@ -212,6 +224,10 @@ class RetrievalEvidenceHit(BaseModel):
     source_status: DocumentStatus
     api_area: str
     is_stale: bool
+    retrieval_metadata: SourceRetrievalMetadata | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     chunk_index: int = Field(ge=0)
     parent_headings: tuple[str, ...]
     matched_terms: tuple[str, ...] = Field(min_length=1)

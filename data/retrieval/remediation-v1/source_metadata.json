@@ -1,0 +1,221 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "nimbus-relay-retrieval-metadata-v1",
+  "status": "development_remediation",
+  "corpus_id": "nimbus-relay",
+  "corpus_version": "1.0.0",
+  "corpus_manifest_path": "data/corpus/source_manifest.json",
+  "corpus_manifest_sha256": "c68212afd5381dec8bce49d0d5fee231a3b5589bf5460c0f72297e0c84422f55",
+  "entries": [
+    {
+      "source_id": "NR-AUTH-001",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-AUTH-002",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-OAUTH-003",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "client_credentials",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-OAUTH-004",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "refresh_token",
+      "representation": "machine_reference"
+    },
+    {
+      "source_id": "NR-PAGE-005",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-PAGE-006",
+      "language": "python",
+      "interface_kind": "sdk",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-RATE-007",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-RATE-008",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-RETRY-009",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-RETRY-010",
+      "language": "language_agnostic",
+      "interface_kind": "general",
+      "oauth_grant": "not_applicable",
+      "representation": "machine_reference"
+    },
+    {
+      "source_id": "NR-ERROR-011",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-ERROR-012",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-WEBHOOK-013",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-WEBHOOK-014",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-WEBHOOK-015",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-SDK-016",
+      "language": "python",
+      "interface_kind": "sdk",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-SDK-017",
+      "language": "javascript",
+      "interface_kind": "sdk",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-VERS-018",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-VERS-019",
+      "language": "language_agnostic",
+      "interface_kind": "general",
+      "oauth_grant": "not_applicable",
+      "representation": "machine_reference"
+    },
+    {
+      "source_id": "NR-IDEM-020",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-IDEM-021",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-UPLOAD-022",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-UPLOAD-023",
+      "language": "language_agnostic",
+      "interface_kind": "general",
+      "oauth_grant": "not_applicable",
+      "representation": "machine_reference"
+    },
+    {
+      "source_id": "NR-EVENT-024",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-EVENT-025",
+      "language": "language_agnostic",
+      "interface_kind": "general",
+      "oauth_grant": "not_applicable",
+      "representation": "machine_reference"
+    },
+    {
+      "source_id": "NR-INCIDENT-026",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-PERM-027",
+      "language": "language_agnostic",
+      "interface_kind": "general",
+      "oauth_grant": "not_applicable",
+      "representation": "machine_reference"
+    },
+    {
+      "source_id": "NR-PERM-028",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-SANDBOX-029",
+      "language": "language_agnostic",
+      "interface_kind": "raw_http",
+      "oauth_grant": "not_applicable",
+      "representation": "human_guide"
+    },
+    {
+      "source_id": "NR-SANDBOX-030",
+      "language": "language_agnostic",
+      "interface_kind": "general",
+      "oauth_grant": "not_applicable",
+      "representation": "machine_reference"
+    }
+  ]
+}

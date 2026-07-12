@@ -8,6 +8,7 @@ import math
 import re
 import unicodedata
 from collections import Counter
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from pydantic import BaseModel
@@ -24,6 +25,7 @@ from auragateway.contracts.retrieval import (
     RetrievalResult,
     StalePolicy,
 )
+from auragateway.contracts.retrieval_metadata import SourceRetrievalMetadata
 
 _TERM_PATTERN = re.compile(r"[a-z0-9]+")
 
@@ -56,6 +58,7 @@ class IndexedChunk:
     chunk: CorpusChunk
     terms: tuple[str, ...]
     term_frequencies: dict[str, int]
+    retrieval_metadata: SourceRetrievalMetadata | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,6 +78,7 @@ class BM25Index:
         self,
         chunks: tuple[CorpusChunk, ...],
         configuration: RetrievalConfiguration,
+        source_metadata: Mapping[str, SourceRetrievalMetadata] | None = None,
     ) -> None:
         if not chunks:
             raise ValueError("BM25Index requires at least one chunk")
@@ -83,6 +87,7 @@ class BM25Index:
 
         self.configuration = configuration
         self.configuration_sha256 = _model_sha256(configuration)
+        self.source_metadata = dict(source_metadata or {})
         self.indexed_chunks = tuple(self._index_chunk(chunk) for chunk in chunks)
         self.chunk_count = len(self.indexed_chunks)
         self.document_frequency = self._document_frequency(self.indexed_chunks)
@@ -91,8 +96,7 @@ class BM25Index:
         self.vocabulary_size = len(self.document_frequency)
         self.source_document_count = len({chunk.source_id for chunk in chunks})
 
-    @staticmethod
-    def _index_chunk(chunk: CorpusChunk) -> IndexedChunk:
+    def _index_chunk(self, chunk: CorpusChunk) -> IndexedChunk:
         terms = tokenize(chunk.content)
         if not terms:
             raise ValueError(f"chunk {chunk.chunk_id} produced no retrieval terms")
@@ -100,6 +104,7 @@ class BM25Index:
             chunk=chunk,
             terms=terms,
             term_frequencies=dict(Counter(terms)),
+            retrieval_metadata=self.source_metadata.get(chunk.source_id),
         )
 
     @staticmethod
@@ -116,7 +121,9 @@ class BM25Index:
         query_term_frequencies = Counter(query_terms)
         top_k = query.top_k or self.configuration.default_top_k
         eligible = tuple(
-            item for item in self.indexed_chunks if matches_filter(item.chunk, query.filters)
+            item
+            for item in self.indexed_chunks
+            if matches_filter(item.chunk, query.filters, item.retrieval_metadata)
         )
         scored = tuple(
             candidate
@@ -213,6 +220,7 @@ class BM25Index:
             is_stale=chunk.is_stale,
             completeness=chunk.completeness,
             version_sensitive_procedure=chunk.version_sensitive_procedure,
+            retrieval_metadata=item.indexed_chunk.retrieval_metadata,
             chunk_index=chunk.chunk_index,
             parent_headings=chunk.parent_headings,
             content=chunk.content,
@@ -222,7 +230,11 @@ class BM25Index:
         )
 
 
-def matches_filter(chunk: CorpusChunk, filters: RetrievalFilter) -> bool:
+def matches_filter(
+    chunk: CorpusChunk,
+    filters: RetrievalFilter,
+    metadata: SourceRetrievalMetadata | None = None,
+) -> bool:
     if filters.api_areas and chunk.api_area not in filters.api_areas:
         return False
     if filters.source_statuses and chunk.source_status not in filters.source_statuses:
@@ -235,7 +247,22 @@ def matches_filter(chunk: CorpusChunk, filters: RetrievalFilter) -> bool:
         return False
     if filters.stale_policy is StalePolicy.ONLY and not chunk.is_stale:
         return False
-    return not filters.version_sensitive_only or chunk.version_sensitive_procedure
+    if filters.version_sensitive_only and not chunk.version_sensitive_procedure:
+        return False
+    constraints = filters.metadata
+    if constraints is None:
+        return True
+    if metadata is None:
+        return False
+    if constraints.languages and metadata.language not in constraints.languages:
+        return False
+    if constraints.interface_kinds and metadata.interface_kind not in constraints.interface_kinds:
+        return False
+    if constraints.oauth_grants and metadata.oauth_grant not in constraints.oauth_grants:
+        return False
+    return not (
+        constraints.representations and metadata.representation not in constraints.representations
+    )
 
 
 def to_evidence_result(result: RetrievalResult) -> RetrievalEvidenceResult:
@@ -252,6 +279,7 @@ def to_evidence_result(result: RetrievalResult) -> RetrievalEvidenceResult:
             source_status=hit.source_status,
             api_area=hit.api_area,
             is_stale=hit.is_stale,
+            retrieval_metadata=hit.retrieval_metadata,
             chunk_index=hit.chunk_index,
             parent_headings=hit.parent_headings,
             matched_terms=hit.matched_terms,

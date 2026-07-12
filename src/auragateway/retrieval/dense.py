@@ -6,6 +6,7 @@ import hashlib
 import json
 import math
 from collections import Counter
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from pydantic import BaseModel
@@ -20,6 +21,7 @@ from auragateway.contracts.dense_retrieval import (
     DenseSimilarityEvidence,
 )
 from auragateway.contracts.retrieval import RetrievalQuery
+from auragateway.contracts.retrieval_metadata import SourceRetrievalMetadata
 from auragateway.retrieval.bm25 import matches_filter, tokenize
 
 Vector = tuple[float, ...]
@@ -81,6 +83,7 @@ class DenseIndexedChunk:
     chunk: CorpusChunk
     vector: Vector
     nonzero_dimensions: int
+    retrieval_metadata: SourceRetrievalMetadata | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,6 +102,7 @@ class DenseIndex:
         self,
         chunks: tuple[CorpusChunk, ...],
         configuration: DenseRetrievalConfiguration,
+        source_metadata: Mapping[str, SourceRetrievalMetadata] | None = None,
     ) -> None:
         if not chunks:
             raise ValueError("DenseIndex requires at least one chunk")
@@ -107,6 +111,7 @@ class DenseIndex:
 
         self.configuration = configuration
         self.configuration_sha256 = _model_sha256(configuration)
+        self.source_metadata = dict(source_metadata or {})
         self.chunk_count = len(chunks)
         chunk_features = tuple(self._features(chunk.content) for chunk in chunks)
         self.document_frequency = self._document_frequency(chunk_features)
@@ -171,6 +176,7 @@ class DenseIndex:
             chunk=chunk,
             vector=vector,
             nonzero_dimensions=nonzero_dimensions,
+            retrieval_metadata=self.source_metadata.get(chunk.source_id),
         )
 
     def search(self, query: RetrievalQuery) -> DenseRetrievalResult:
@@ -180,7 +186,9 @@ class DenseIndex:
         query_nonzero_dimensions = _nonzero_count(query_vector)
         top_k = query.top_k or self.configuration.default_top_k
         eligible = tuple(
-            item for item in self.indexed_chunks if matches_filter(item.chunk, query.filters)
+            item
+            for item in self.indexed_chunks
+            if matches_filter(item.chunk, query.filters, item.retrieval_metadata)
         )
         scored = tuple(
             candidate
@@ -269,6 +277,7 @@ class DenseIndex:
             is_stale=chunk.is_stale,
             completeness=chunk.completeness,
             version_sensitive_procedure=chunk.version_sensitive_procedure,
+            retrieval_metadata=item.indexed_chunk.retrieval_metadata,
             chunk_index=chunk.chunk_index,
             parent_headings=chunk.parent_headings,
             content=chunk.content,
@@ -291,6 +300,7 @@ def to_dense_evidence_result(result: DenseRetrievalResult) -> DenseRetrievalEvid
             source_status=hit.source_status,
             api_area=hit.api_area,
             is_stale=hit.is_stale,
+            retrieval_metadata=hit.retrieval_metadata,
             chunk_index=hit.chunk_index,
             parent_headings=hit.parent_headings,
             similarity_evidence=hit.similarity_evidence,

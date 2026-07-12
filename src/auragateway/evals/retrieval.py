@@ -65,7 +65,23 @@ def _metadata_filter_matches(
         return False
     if filters.stale_policy.value == "only" and not hit.is_stale:
         return False
-    return not filters.version_sensitive_only or hit.version_sensitive_procedure
+    if filters.version_sensitive_only and not hit.version_sensitive_procedure:
+        return False
+    constraints = filters.metadata
+    if constraints is None:
+        return True
+    metadata = hit.retrieval_metadata
+    if metadata is None:
+        return False
+    if constraints.languages and metadata.language not in constraints.languages:
+        return False
+    if constraints.interface_kinds and metadata.interface_kind not in constraints.interface_kinds:
+        return False
+    if constraints.oauth_grants and metadata.oauth_grant not in constraints.oauth_grants:
+        return False
+    return not (
+        constraints.representations and metadata.representation not in constraints.representations
+    )
 
 
 def evaluate_case(

@@ -10,15 +10,15 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
-- **Delivery ledger after this slice:** 57 / 200 planned hours (28.5%)
+- **Delivery ledger after this slice:** 63 / 200 planned hours (31.5%)
 - **Current phase:** Phase 1 — Corpus, Retrieval, and Eval Asset Construction
 - **Active proof gate:** Gate 1 — Retrieval Readiness
 - **Gate 0 status:** Passed
-- **Gate 1 status:** Blocked — held-out validation completed; no finalist passed every hard gate
+- **Gate 1 status:** Blocked after held-out v1; metadata remediation validated on development v2; held-out v2 required
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** benchmark-constitution validated; retrieval candidates and held-out evidence locally validated; retrieval remains unfrozen
+- **Maturity:** benchmark-constitution validated; retrieval remediation locally validated; Gate 1 remains blocked
 
 ## Governing Documents
 
@@ -42,6 +42,8 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - [Development Retrieval Recommendation](docs/benchmark/Nimbus_Relay_Development_Retrieval_Recommendation.md)
 - [Held-Out Retrieval Constitution](docs/benchmark/Nimbus_Relay_Held_Out_Retrieval_Constitution.md)
 - [Gate 1 Held-Out Report](docs/benchmark/Nimbus_Relay_Gate_1_Held_Out_Report.md)
+- [Retrieval Metadata Remediation Design](docs/benchmark/Nimbus_Relay_Retrieval_Metadata_Remediation_Design.md)
+- [Retrieval Metadata Remediation Report](docs/benchmark/Nimbus_Relay_Retrieval_Metadata_Remediation_Report.md)
 
 ## Freeze Model
 
@@ -111,6 +113,7 @@ python -m auragateway.retrieval.dense_runner verify --repo-root .
 python -m auragateway.evals.runner verify --repo-root .
 python -m auragateway.evals.selection_runner verify --repo-root .
 python -m auragateway.evals.heldout_runner verify --repo-root .
+python -m auragateway.evals.remediation_runner verify --repo-root .
 ```
 
 Run release gates for the current slice:
@@ -122,24 +125,23 @@ python -m ruff format --check .
 python -m mypy src tests
 ```
 
-## Held-Out Gate 1 Decision
+## Retrieval remediation status
 
 ```text
-Development recommendation: dense-hashed-tfidf-section-aware-v1, top-5
-Held-out finalists passing every hard gate: 0 / 2
-Gate 1 status: blocked
-Selected retrieval configuration: none
+Held-out v1 decision: Gate 1 blocked
+Development remediation: complete
+Remediated candidates: 2
+Remaining development citation failures: 0
+Held-out v2 required: yes
 Retrieval freeze permitted: no
 ```
 
-Both finalists retrieved every required source, but both failed citation-readiness, MRR,
-failure-weighted case-pass, and unsupported-source gates. Dense section-aware also failed the
-near-duplicate displacement gate.
-
-The shared held-out failures are OAuth grant contamination and SDK-language contamination. Thresholds
-and held-out labels remain unchanged. Remediation requires typed variant metadata and a new held-out
-version.
+The remediation adds a hash-bound source metadata overlay for language, interface kind, OAuth grant,
+and representation kind. It does not mutate the frozen corpus, generated chunks, development v1, or
+held-out v1.
 
 ## Phase 1 Boundary
 
-The 30-document corpus, both chunking candidates, sparse and local dense retrieval, four development scorecards, the 36-variant development sweep, and held-out v1 are deterministically verified. Gate 1 is blocked because neither finalist passed every held-out hard gate. No retrieval configuration or runtime execution is authorized.
+The corpus, chunking candidates, sparse and local dense retrieval, development selection, held-out v1,
+and the metadata-remediation intervention are deterministically verified. Gate 1 remains blocked until
+new held-out v2 cases are frozen and the remediated finalists pass the unchanged reliability gates.

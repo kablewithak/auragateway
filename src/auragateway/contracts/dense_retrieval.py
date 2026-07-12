@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from auragateway.contracts.corpus import DocumentCompleteness, DocumentStatus
 from auragateway.contracts.retrieval import RetrievalFilter
+from auragateway.contracts.retrieval_metadata import SourceRetrievalMetadata
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
@@ -85,6 +86,10 @@ class DenseRetrievalHit(BaseModel):
     is_stale: bool
     completeness: DocumentCompleteness
     version_sensitive_procedure: bool
+    retrieval_metadata: SourceRetrievalMetadata | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     chunk_index: int = Field(ge=0)
     parent_headings: tuple[str, ...]
     content: str = Field(min_length=1)
@@ -157,6 +162,10 @@ class DenseRetrievalEvidenceHit(BaseModel):
     source_status: DocumentStatus
     api_area: str
     is_stale: bool
+    retrieval_metadata: SourceRetrievalMetadata | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     chunk_index: int = Field(ge=0)
     parent_headings: tuple[str, ...]
     similarity_evidence: DenseSimilarityEvidence

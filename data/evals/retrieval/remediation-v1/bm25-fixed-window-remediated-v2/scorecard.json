@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "scorecard_id": "nimbus-relay-bm25-fixed-window-remediated-v2-development-v2",
+  "status": "development_remediated_candidate",
+  "metric_contract_version": "source-level-retrieval-metrics-v1",
+  "retrieval_set_path": "data/evals/retrieval/development-v2/accepted_cases.json",
+  "retrieval_set_sha256": "5e5b764431d81b668e09d0ff0b03e094c84b0be865c9469695c263740ff9cd20",
+  "rejected_set_path": "data/evals/retrieval/development-v2/rejected_cases.json",
+  "rejected_set_sha256": "d2512c68dbe72e110c46c1e93bbf67e84343a1efb18e901bf0990bc84a23c6b9",
+  "retrieval_manifest_path": "data/evals/retrieval/remediation-v1/bm25-fixed-window-remediated-v2/manifest.json",
+  "retrieval_manifest_sha256": "bbfb85de26674c574617dc293f2b3ab001271691e96e903d7d021d05b4f54357",
+  "case_results_path": "data/evals/retrieval/remediation-v1/bm25-fixed-window-remediated-v2/case_results.jsonl",
+  "case_results_sha256": "11c7a594b7fc9f48da590ff53fc21ad938fac96e904b8ce407ddb50c50b2f0ae",
+  "retriever_config_id": "bm25-fixed-window-remediated-v2",
+  "retriever_config_sha256": "af174e40243a821eff4dc5ccd85075dcd79838c8f7373161f564fe8cefe93168",
+  "chunking_config_id": "fixed-window-v1",
+  "aggregate": {
+    "case_count": 24,
+    "mean_recall_at_k": 1.0,
+    "mean_precision_at_k": 0.291666666667,
+    "mean_reciprocal_rank": 1.0,
+    "mean_ndcg_at_k": 0.977113417408,
+    "correct_source_in_top_k_rate": 1.0,
+    "all_required_sources_in_top_k_rate": 1.0,
+    "citation_support_readiness_rate": 1.0,
+    "unsupported_source_retrieval_rate": 0.029166666667,
+    "stale_source_retrieval_rate": 0.0,
+    "metadata_filter_violation_rate": 0.0,
+    "near_duplicate_case_count": 4,
+    "near_duplicate_displacement_rate": 0.0
+  }
+}
