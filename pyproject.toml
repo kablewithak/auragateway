@@ -36,6 +36,7 @@ auragateway-validate-context-boundary = "auragateway.context.runner:main"
 auragateway-validate-prefix-determinism = "auragateway.context.prefix_runner:main"
 auragateway-validate-telemetry-integrity = "auragateway.telemetry.runner:main"
 auragateway-calibrate-providers = "auragateway.providers.calibration_runner:main"
+auragateway-validate-route-regulation = "auragateway.routing.regulation_runner:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

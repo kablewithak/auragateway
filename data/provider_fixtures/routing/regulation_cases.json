@@ -1,0 +1,603 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate5-route-regulation-v1",
+  "route_cases": [
+    {
+      "case_id": "warm-preservation-authorized",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_decision": {
+          "schema_version": "1.0.0",
+          "policy_id": "gate5-route-policy-v1",
+          "policy_version": "1.1.0",
+          "evaluated_at": "2026-07-12T16:01:00Z",
+          "status": "authorized",
+          "decision_code": "AUTHORIZED_WARM_PRESERVATION",
+          "proposed_reason": "warm_cache_affinity",
+          "authorized_transition": {
+            "schema_version": "1.0.0",
+            "previous_state": {
+              "schema_version": "1.0.0",
+              "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+              "active_provider": "groq",
+              "active_model": "groq-gpt-oss-20b",
+              "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+              "cache_affinity_status": "plausibly_warm",
+              "route_change_count": 0,
+              "last_route_reason": "warm_cache_affinity"
+            },
+            "target_provider": "groq",
+            "target_model": "groq-gpt-oss-20b",
+            "target_cache_affinity_status": "plausibly_warm",
+            "reason": "warm_cache_affinity",
+            "cache_evidence_at": "2026-07-12T16:00:00Z"
+          }
+        },
+        "history": {
+          "schema_version": "1.0.0",
+          "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+          "entries": []
+        },
+        "max_route_changes_per_session": 1
+      },
+      "expected_status": "authorized",
+      "expected_code": "AUTHORIZED_POLICY_DECISION",
+      "negative_control": false
+    },
+    {
+      "case_id": "first-route-change-authorized",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_decision": {
+          "schema_version": "1.0.0",
+          "policy_id": "gate5-route-policy-v1",
+          "policy_version": "1.1.0",
+          "evaluated_at": "2026-07-12T16:01:00Z",
+          "status": "authorized",
+          "decision_code": "AUTHORIZED_PROVIDER_FAILURE_REROUTE",
+          "proposed_reason": "provider_failure",
+          "authorized_transition": {
+            "schema_version": "1.0.0",
+            "previous_state": {
+              "schema_version": "1.0.0",
+              "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+              "active_provider": "groq",
+              "active_model": "groq-gpt-oss-20b",
+              "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+              "cache_affinity_status": "plausibly_warm",
+              "route_change_count": 0,
+              "last_route_reason": "warm_cache_affinity"
+            },
+            "target_provider": "ollama",
+            "target_model": "ollama-llama3.2-3b",
+            "target_cache_affinity_status": "unknown",
+            "reason": "provider_failure",
+            "cache_evidence_at": null
+          }
+        },
+        "history": {
+          "schema_version": "1.0.0",
+          "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+          "entries": []
+        },
+        "max_route_changes_per_session": 1
+      },
+      "expected_status": "authorized",
+      "expected_code": "AUTHORIZED_POLICY_DECISION",
+      "negative_control": false
+    },
+    {
+      "case_id": "second-route-change-blocked",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_decision": {
+          "schema_version": "1.0.0",
+          "policy_id": "gate5-route-policy-v1",
+          "policy_version": "1.1.0",
+          "evaluated_at": "2026-07-12T16:02:00Z",
+          "status": "authorized",
+          "decision_code": "AUTHORIZED_PROVIDER_FAILURE_REROUTE",
+          "proposed_reason": "provider_failure",
+          "authorized_transition": {
+            "schema_version": "1.0.0",
+            "previous_state": {
+              "schema_version": "1.0.0",
+              "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+              "active_provider": "ollama",
+              "active_model": "ollama-llama3.2-3b",
+              "last_cache_evidence_at": null,
+              "cache_affinity_status": "unknown",
+              "route_change_count": 1,
+              "last_route_reason": "provider_failure"
+            },
+            "target_provider": "anthropic",
+            "target_model": "anthropic-capable-v1",
+            "target_cache_affinity_status": "unknown",
+            "reason": "provider_failure",
+            "cache_evidence_at": null
+          }
+        },
+        "history": {
+          "schema_version": "1.0.0",
+          "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+          "entries": [
+            {
+              "sequence_index": 1,
+              "policy_decision": {
+                "schema_version": "1.0.0",
+                "policy_id": "gate5-route-policy-v1",
+                "policy_version": "1.1.0",
+                "evaluated_at": "2026-07-12T16:01:00Z",
+                "status": "authorized",
+                "decision_code": "AUTHORIZED_PROVIDER_FAILURE_REROUTE",
+                "proposed_reason": "provider_failure",
+                "authorized_transition": {
+                  "schema_version": "1.0.0",
+                  "previous_state": {
+                    "schema_version": "1.0.0",
+                    "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+                    "active_provider": "groq",
+                    "active_model": "groq-gpt-oss-20b",
+                    "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+                    "cache_affinity_status": "plausibly_warm",
+                    "route_change_count": 0,
+                    "last_route_reason": "warm_cache_affinity"
+                  },
+                  "target_provider": "ollama",
+                  "target_model": "ollama-llama3.2-3b",
+                  "target_cache_affinity_status": "unknown",
+                  "reason": "provider_failure",
+                  "cache_evidence_at": null
+                }
+              },
+              "transition_result": {
+                "schema_version": "1.0.0",
+                "previous_state": {
+                  "schema_version": "1.0.0",
+                  "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+                  "active_provider": "groq",
+                  "active_model": "groq-gpt-oss-20b",
+                  "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+                  "cache_affinity_status": "plausibly_warm",
+                  "route_change_count": 0,
+                  "last_route_reason": "warm_cache_affinity"
+                },
+                "current_state": {
+                  "schema_version": "1.0.0",
+                  "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+                  "active_provider": "ollama",
+                  "active_model": "ollama-llama3.2-3b",
+                  "last_cache_evidence_at": null,
+                  "cache_affinity_status": "unknown",
+                  "route_change_count": 1,
+                  "last_route_reason": "provider_failure"
+                },
+                "transition_kind": "changed",
+                "route_changed": true,
+                "reason": "provider_failure"
+              },
+              "applied_at": "2026-07-12T16:01:00Z"
+            }
+          ]
+        },
+        "max_route_changes_per_session": 1
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_ROUTE_THRASH",
+      "negative_control": true
+    },
+    {
+      "case_id": "benchmark-control-exempt-from-thrash",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_decision": {
+          "schema_version": "1.0.0",
+          "policy_id": "gate5-route-policy-v1",
+          "policy_version": "1.1.0",
+          "evaluated_at": "2026-07-12T16:02:00Z",
+          "status": "authorized",
+          "decision_code": "AUTHORIZED_BENCHMARK_CONTROL",
+          "proposed_reason": "benchmark_control",
+          "authorized_transition": {
+            "schema_version": "1.0.0",
+            "previous_state": {
+              "schema_version": "1.0.0",
+              "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+              "active_provider": "ollama",
+              "active_model": "ollama-llama3.2-3b",
+              "last_cache_evidence_at": null,
+              "cache_affinity_status": "unknown",
+              "route_change_count": 1,
+              "last_route_reason": "provider_failure"
+            },
+            "target_provider": "groq",
+            "target_model": "groq-gpt-oss-20b",
+            "target_cache_affinity_status": "unknown",
+            "reason": "benchmark_control",
+            "cache_evidence_at": null
+          }
+        },
+        "history": {
+          "schema_version": "1.0.0",
+          "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+          "entries": [
+            {
+              "sequence_index": 1,
+              "policy_decision": {
+                "schema_version": "1.0.0",
+                "policy_id": "gate5-route-policy-v1",
+                "policy_version": "1.1.0",
+                "evaluated_at": "2026-07-12T16:01:00Z",
+                "status": "authorized",
+                "decision_code": "AUTHORIZED_PROVIDER_FAILURE_REROUTE",
+                "proposed_reason": "provider_failure",
+                "authorized_transition": {
+                  "schema_version": "1.0.0",
+                  "previous_state": {
+                    "schema_version": "1.0.0",
+                    "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+                    "active_provider": "groq",
+                    "active_model": "groq-gpt-oss-20b",
+                    "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+                    "cache_affinity_status": "plausibly_warm",
+                    "route_change_count": 0,
+                    "last_route_reason": "warm_cache_affinity"
+                  },
+                  "target_provider": "ollama",
+                  "target_model": "ollama-llama3.2-3b",
+                  "target_cache_affinity_status": "unknown",
+                  "reason": "provider_failure",
+                  "cache_evidence_at": null
+                }
+              },
+              "transition_result": {
+                "schema_version": "1.0.0",
+                "previous_state": {
+                  "schema_version": "1.0.0",
+                  "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+                  "active_provider": "groq",
+                  "active_model": "groq-gpt-oss-20b",
+                  "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+                  "cache_affinity_status": "plausibly_warm",
+                  "route_change_count": 0,
+                  "last_route_reason": "warm_cache_affinity"
+                },
+                "current_state": {
+                  "schema_version": "1.0.0",
+                  "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+                  "active_provider": "ollama",
+                  "active_model": "ollama-llama3.2-3b",
+                  "last_cache_evidence_at": null,
+                  "cache_affinity_status": "unknown",
+                  "route_change_count": 1,
+                  "last_route_reason": "provider_failure"
+                },
+                "transition_kind": "changed",
+                "route_changed": true,
+                "reason": "provider_failure"
+              },
+              "applied_at": "2026-07-12T16:01:00Z"
+            }
+          ]
+        },
+        "max_route_changes_per_session": 1
+      },
+      "expected_status": "authorized",
+      "expected_code": "AUTHORIZED_POLICY_DECISION",
+      "negative_control": false
+    },
+    {
+      "case_id": "blocked-policy-remains-blocked",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_decision": {
+          "schema_version": "1.0.0",
+          "policy_id": "gate5-route-policy-v1",
+          "policy_version": "1.1.0",
+          "evaluated_at": "2026-07-12T16:01:00Z",
+          "status": "blocked",
+          "decision_code": "BLOCKED_AMBIGUOUS_RESPONSE",
+          "proposed_reason": "provider_failure",
+          "authorized_transition": null
+        },
+        "history": {
+          "schema_version": "1.0.0",
+          "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+          "entries": []
+        },
+        "max_route_changes_per_session": 1
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_POLICY_DECISION",
+      "negative_control": true
+    }
+  ],
+  "retry_cases": [
+    {
+      "case_id": "bounded-retry-authorized",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_id": "gate5-retry-policy-v1",
+        "policy_version": "1.0.0",
+        "max_retries": 1,
+        "attempts": [
+          {
+            "attempt_index": 1,
+            "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+            "provider": "groq",
+            "model_alias": "groq-gpt-oss-20b",
+            "outcome": "definite_failure",
+            "error_code": "PROVIDER_TIMEOUT",
+            "retryable": true,
+            "recovery_action_fingerprint": null,
+            "new_evidence_fingerprint": null
+          }
+        ],
+        "proposed_attempt": {
+          "attempt_index": 2,
+          "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "recovery_action_fingerprint": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+          "new_evidence_fingerprint": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+        }
+      },
+      "expected_status": "authorized",
+      "expected_code": "AUTHORIZED_BOUNDED_RETRY",
+      "negative_control": false
+    },
+    {
+      "case_id": "ambiguous-response-retry-blocked",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_id": "gate5-retry-policy-v1",
+        "policy_version": "1.0.0",
+        "max_retries": 1,
+        "attempts": [
+          {
+            "attempt_index": 1,
+            "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+            "provider": "groq",
+            "model_alias": "groq-gpt-oss-20b",
+            "outcome": "ambiguous",
+            "error_code": "PROVIDER_RESPONSE_AMBIGUOUS",
+            "retryable": false,
+            "recovery_action_fingerprint": null,
+            "new_evidence_fingerprint": null
+          }
+        ],
+        "proposed_attempt": {
+          "attempt_index": 2,
+          "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "recovery_action_fingerprint": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+          "new_evidence_fingerprint": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+        }
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_AMBIGUOUS_DUPLICATE_RISK",
+      "negative_control": true
+    },
+    {
+      "case_id": "non-retryable-failure-blocked",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_id": "gate5-retry-policy-v1",
+        "policy_version": "1.0.0",
+        "max_retries": 1,
+        "attempts": [
+          {
+            "attempt_index": 1,
+            "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+            "provider": "groq",
+            "model_alias": "groq-gpt-oss-20b",
+            "outcome": "definite_failure",
+            "error_code": "PROVIDER_PERMISSION_DENIED",
+            "retryable": false,
+            "recovery_action_fingerprint": null,
+            "new_evidence_fingerprint": null
+          }
+        ],
+        "proposed_attempt": {
+          "attempt_index": 2,
+          "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "recovery_action_fingerprint": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+          "new_evidence_fingerprint": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+        }
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_NON_RETRYABLE_FAILURE",
+      "negative_control": true
+    },
+    {
+      "case_id": "retry-budget-exhausted",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_id": "gate5-retry-policy-v1",
+        "policy_version": "1.0.0",
+        "max_retries": 1,
+        "attempts": [
+          {
+            "attempt_index": 1,
+            "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+            "provider": "groq",
+            "model_alias": "groq-gpt-oss-20b",
+            "outcome": "definite_failure",
+            "error_code": "PROVIDER_TIMEOUT",
+            "retryable": true,
+            "recovery_action_fingerprint": null,
+            "new_evidence_fingerprint": null
+          },
+          {
+            "attempt_index": 2,
+            "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+            "provider": "groq",
+            "model_alias": "groq-gpt-oss-20b",
+            "outcome": "definite_failure",
+            "error_code": "PROVIDER_TIMEOUT",
+            "retryable": true,
+            "recovery_action_fingerprint": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+            "new_evidence_fingerprint": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+          }
+        ],
+        "proposed_attempt": {
+          "attempt_index": 3,
+          "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "recovery_action_fingerprint": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f",
+          "new_evidence_fingerprint": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+        }
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_RETRY_BUDGET_EXHAUSTED",
+      "negative_control": true
+    },
+    {
+      "case_id": "repeated-recovery-action-blocked",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_id": "gate5-retry-policy-v1",
+        "policy_version": "1.0.0",
+        "max_retries": 3,
+        "attempts": [
+          {
+            "attempt_index": 1,
+            "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+            "provider": "groq",
+            "model_alias": "groq-gpt-oss-20b",
+            "outcome": "definite_failure",
+            "error_code": "PROVIDER_TIMEOUT",
+            "retryable": true,
+            "recovery_action_fingerprint": null,
+            "new_evidence_fingerprint": null
+          },
+          {
+            "attempt_index": 2,
+            "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+            "provider": "groq",
+            "model_alias": "groq-gpt-oss-20b",
+            "outcome": "definite_failure",
+            "error_code": "PROVIDER_TIMEOUT",
+            "retryable": true,
+            "recovery_action_fingerprint": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+            "new_evidence_fingerprint": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+          }
+        ],
+        "proposed_attempt": {
+          "attempt_index": 3,
+          "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "recovery_action_fingerprint": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+          "new_evidence_fingerprint": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+        }
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_INVALID_RETRY",
+      "negative_control": true
+    },
+    {
+      "case_id": "retry-route-change-blocked",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_id": "gate5-retry-policy-v1",
+        "policy_version": "1.0.0",
+        "max_retries": 1,
+        "attempts": [
+          {
+            "attempt_index": 1,
+            "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+            "provider": "groq",
+            "model_alias": "groq-gpt-oss-20b",
+            "outcome": "definite_failure",
+            "error_code": "PROVIDER_TIMEOUT",
+            "retryable": true,
+            "recovery_action_fingerprint": null,
+            "new_evidence_fingerprint": null
+          }
+        ],
+        "proposed_attempt": {
+          "attempt_index": 2,
+          "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+          "provider": "ollama",
+          "model_alias": "ollama-llama3.2-3b",
+          "recovery_action_fingerprint": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+          "new_evidence_fingerprint": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+        }
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_ROUTE_CHANGE_REQUIRES_POLICY",
+      "negative_control": true
+    },
+    {
+      "case_id": "retry-request-mismatch-blocked",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_id": "gate5-retry-policy-v1",
+        "policy_version": "1.0.0",
+        "max_retries": 1,
+        "attempts": [
+          {
+            "attempt_index": 1,
+            "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+            "provider": "groq",
+            "model_alias": "groq-gpt-oss-20b",
+            "outcome": "definite_failure",
+            "error_code": "PROVIDER_TIMEOUT",
+            "retryable": true,
+            "recovery_action_fingerprint": null,
+            "new_evidence_fingerprint": null
+          }
+        ],
+        "proposed_attempt": {
+          "attempt_index": 2,
+          "logical_request_fingerprint": "2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f2f",
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "recovery_action_fingerprint": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+          "new_evidence_fingerprint": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+        }
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_RETRY_REQUEST_MISMATCH",
+      "negative_control": true
+    },
+    {
+      "case_id": "retry-after-success-blocked",
+      "request": {
+        "schema_version": "1.0.0",
+        "policy_id": "gate5-retry-policy-v1",
+        "policy_version": "1.0.0",
+        "max_retries": 1,
+        "attempts": [
+          {
+            "attempt_index": 1,
+            "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+            "provider": "groq",
+            "model_alias": "groq-gpt-oss-20b",
+            "outcome": "succeeded",
+            "error_code": null,
+            "retryable": false,
+            "recovery_action_fingerprint": null,
+            "new_evidence_fingerprint": null
+          }
+        ],
+        "proposed_attempt": {
+          "attempt_index": 2,
+          "logical_request_fingerprint": "1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "recovery_action_fingerprint": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+          "new_evidence_fingerprint": "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+        }
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_NO_DEFINITE_FAILURE",
+      "negative_control": true
+    }
+  ]
+}
