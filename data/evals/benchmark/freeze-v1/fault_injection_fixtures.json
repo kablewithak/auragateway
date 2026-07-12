@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-execution-fault-fixtures-v1",
+  "fixtures": [
+    {
+      "fixture_id": "fault-provider-timeout",
+      "fault_type": "provider_timeout",
+      "injection_boundary": "provider_adapter",
+      "expected_terminal_state": "provider_error",
+      "expected_failure_code": "PROVIDER_TIMEOUT",
+      "retry_permitted": true,
+      "evidence_retained": true
+    },
+    {
+      "fixture_id": "fault-provider-rate-limit",
+      "fault_type": "rate_limit",
+      "injection_boundary": "provider_adapter",
+      "expected_terminal_state": "provider_error",
+      "expected_failure_code": "PROVIDER_RATE_LIMITED",
+      "retry_permitted": true,
+      "evidence_retained": true
+    },
+    {
+      "fixture_id": "fault-ambiguous-response",
+      "fault_type": "ambiguous_response",
+      "injection_boundary": "provider_adapter",
+      "expected_terminal_state": "aborted_safety_control",
+      "expected_failure_code": "AMBIGUOUS_RESPONSE_DUPLICATE_RISK",
+      "retry_permitted": false,
+      "evidence_retained": true
+    },
+    {
+      "fixture_id": "fault-malformed-telemetry",
+      "fault_type": "telemetry_schema_mismatch",
+      "injection_boundary": "telemetry_normalizer",
+      "expected_terminal_state": "completed_validation_failure",
+      "expected_failure_code": "TELEMETRY_SCHEMA_MISMATCH",
+      "retry_permitted": false,
+      "evidence_retained": true
+    },
+    {
+      "fixture_id": "fault-prefix-mutation",
+      "fault_type": "static_prefix_mutation",
+      "injection_boundary": "context_compiler",
+      "expected_terminal_state": "aborted_safety_control",
+      "expected_failure_code": "PREFIX_MUTATION_DETECTED",
+      "retry_permitted": false,
+      "evidence_retained": true
+    },
+    {
+      "fixture_id": "fault-cache-namespace-reuse",
+      "fault_type": "cross_condition_namespace_reuse",
+      "injection_boundary": "benchmark_runner",
+      "expected_terminal_state": "invalidated_configuration_mismatch",
+      "expected_failure_code": "CROSS_CONDITION_NAMESPACE_REUSE",
+      "retry_permitted": false,
+      "evidence_retained": true
+    },
+    {
+      "fixture_id": "fault-budget-exhaustion",
+      "fault_type": "cost_budget_exhaustion",
+      "injection_boundary": "trajectory_regulator",
+      "expected_terminal_state": "budget_exhausted",
+      "expected_failure_code": "COST_BUDGET_EXHAUSTED",
+      "retry_permitted": false,
+      "evidence_retained": true
+    },
+    {
+      "fixture_id": "fault-route-thrash",
+      "fault_type": "route_thrash",
+      "injection_boundary": "route_regulator",
+      "expected_terminal_state": "aborted_safety_control",
+      "expected_failure_code": "BLOCKED_ROUTE_THRASH",
+      "retry_permitted": false,
+      "evidence_retained": true
+    },
+    {
+      "fixture_id": "fault-invalid-retry",
+      "fault_type": "reused_recovery_action",
+      "injection_boundary": "retry_regulator",
+      "expected_terminal_state": "aborted_safety_control",
+      "expected_failure_code": "BLOCKED_INVALID_RETRY",
+      "retry_permitted": false,
+      "evidence_retained": true
+    }
+  ],
+  "raw_provider_payloads_required": false,
+  "measured_execution_permitted": false
+}
