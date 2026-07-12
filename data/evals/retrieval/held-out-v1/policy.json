@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "retrieval-held-out-validation-v1",
+  "status": "frozen_before_candidate_evaluation",
+  "selection_policy_path": "data/evals/retrieval/selection-v1/policy.json",
+  "selection_policy_sha256": "9959710183212b57047da8a39af9ef8afbcc8c0af7f7b6b5f56e00a5831044e2",
+  "development_report_path": "data/evals/retrieval/selection-v1/report.json",
+  "development_report_sha256": "3401519ef6ac55276cea3092e333fa014ad5a272734e1aa6ccd9b4dce22ecd76",
+  "held_out_freeze_record_path": "data/evals/retrieval/held-out-v1/freeze_record.json",
+  "held_out_freeze_record_sha256": "a6cce149d51411200255b681ab9ae90c33fdd5aed386489bc1fd35f990ccb79a",
+  "finalists": [
+    {
+      "retriever_config_id": "dense-hashed-tfidf-section-aware-v1",
+      "retriever_config_sha256": "2741ca603cf7a2a009e6d4143a882eefee119544376f1c2d4272b64400064f0f",
+      "chunking_config_id": "section-aware-v1",
+      "retrieval_manifest_path": "data/retrieval/hashed-tfidf-dense-v1/section-aware-v1/manifest.json",
+      "retrieval_manifest_sha256": "5fd748bb8f3dfb55172bc32d77ca18fe3e1262e797c3aec730fd57857b11a234",
+      "development_rank": 1,
+      "development_final_score": 89.2954431949,
+      "top_k": 5,
+      "metadata_policy": "authored-case-filters-v1"
+    },
+    {
+      "retriever_config_id": "bm25-fixed-window-v1",
+      "retriever_config_sha256": "14fe9392cca07a37ba9c754558ee03dc9120d36c35d87776bcb79a5a54bde0e0",
+      "chunking_config_id": "fixed-window-v1",
+      "retrieval_manifest_path": "data/retrieval/bm25-v1/fixed-window-v1/manifest.json",
+      "retrieval_manifest_sha256": "52a73055d3c277b745ae19b2bf7975f7b1631d7799a67af0e18d3b2ba497e3bb",
+      "development_rank": 2,
+      "development_final_score": 89.0012929043,
+      "top_k": 5,
+      "metadata_policy": "authored-case-filters-v1"
+    }
+  ],
+  "decision_rule": "highest-score-among-hard-gate-passers-v1",
+  "tie_break_policy": [
+    "final_score_desc",
+    "mean_recall_at_k_desc",
+    "citation_support_readiness_rate_desc",
+    "unsupported_source_retrieval_rate_asc",
+    "development_rank_asc",
+    "retriever_config_id_asc"
+  ],
+  "development_recommendation_is_not_auto_confirmed": true,
+  "minimum_held_out_case_count": 12,
+  "retrieval_freeze_requires_gate_pass": true,
+  "measured_execution_permitted": false
+}

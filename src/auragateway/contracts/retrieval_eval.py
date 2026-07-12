@@ -1,4 +1,4 @@
-"""Typed contracts for development retrieval evaluation."""
+"""Typed contracts for development and held-out retrieval evaluation."""
 
 from __future__ import annotations
 
@@ -11,7 +11,8 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from auragateway.contracts.retrieval import RetrievalFilter
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
-_CASE_ID_PATTERN = re.compile(r"^dev-ret-[0-9]{3}$")
+_DEVELOPMENT_CASE_ID_PATTERN = re.compile(r"^dev-ret-[0-9]{3}$")
+_HELD_OUT_CASE_ID_PATTERN = re.compile(r"^ho-ret-[0-9]{3}$")
 _SOURCE_ID_PATTERN = re.compile(r"^NR-[A-Z][A-Z0-9-]*-[0-9]{3}$")
 
 
@@ -75,7 +76,7 @@ class SourceRelevanceJudgment(BaseModel):
 
 
 class RetrievalEvaluationCase(BaseModel):
-    """One accepted, grounded, diagnostic development retrieval case."""
+    """One accepted, grounded, diagnostic retrieval case."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -96,13 +97,6 @@ class RetrievalEvaluationCase(BaseModel):
     accept_reason: str = Field(min_length=20, max_length=500)
     difficulty_reason: str = Field(min_length=20, max_length=500)
     evaluation_split: EvaluationSplit = EvaluationSplit.DEVELOPMENT
-
-    @field_validator("case_id")
-    @classmethod
-    def validate_case_id(cls, value: str) -> str:
-        if _CASE_ID_PATTERN.fullmatch(value) is None:
-            raise ValueError("case_id must match dev-ret-<NNN>")
-        return value
 
     @field_validator(
         "required_sources",
@@ -158,8 +152,18 @@ class RetrievalEvaluationCase(BaseModel):
             raise ValueError("required and forbidden sources must not overlap")
         if set(self.required_sources) & set(self.near_duplicate_sources):
             raise ValueError("required and near-duplicate displacement sources must not overlap")
-        if self.evaluation_split is not EvaluationSplit.DEVELOPMENT:
-            raise ValueError("development retrieval cases must use the development split")
+        pattern = (
+            _DEVELOPMENT_CASE_ID_PATTERN
+            if self.evaluation_split is EvaluationSplit.DEVELOPMENT
+            else _HELD_OUT_CASE_ID_PATTERN
+        )
+        expected = (
+            "dev-ret-<NNN>"
+            if self.evaluation_split is EvaluationSplit.DEVELOPMENT
+            else "ho-ret-<NNN>"
+        )
+        if pattern.fullmatch(self.case_id) is None:
+            raise ValueError(f"case_id must match {expected} for the selected evaluation split")
         return self
 
 
@@ -184,6 +188,11 @@ class DevelopmentRetrievalSet(BaseModel):
             if duplicates:
                 raise ValueError(f"duplicate {label}: {', '.join(duplicates)}")
 
+        if self.evaluation_split is not EvaluationSplit.DEVELOPMENT:
+            raise ValueError("development retrieval set must use the development split")
+        if any(case.evaluation_split is not EvaluationSplit.DEVELOPMENT for case in self.cases):
+            raise ValueError("development retrieval set contains a non-development case")
+
         required_families = {
             RetrievalCaseFamily.VERSION_CONFLICT,
             RetrievalCaseFamily.SIMILAR_ERROR_CODES,
@@ -198,6 +207,56 @@ class DevelopmentRetrievalSet(BaseModel):
         if missing_families:
             raise ValueError(
                 "development set is missing required case families: " + ", ".join(missing_families)
+            )
+        return self
+
+
+class HeldOutRetrievalSet(BaseModel):
+    """Frozen accepted held-out retrieval set."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = "1.0.0"
+    retrieval_set_id: str = Field(min_length=3, max_length=100)
+    retrieval_set_version: str = Field(min_length=1, max_length=32)
+    status: str = "frozen_held_out"
+    evaluation_split: EvaluationSplit = EvaluationSplit.HELD_OUT
+    development_set_path: str
+    development_set_sha256: str
+    authoring_complete_before_evaluation: bool = True
+    cases: tuple[RetrievalEvaluationCase, ...] = Field(min_length=12, max_length=12)
+
+    @model_validator(mode="after")
+    def validate_set(self) -> HeldOutRetrievalSet:
+        if self.evaluation_split is not EvaluationSplit.HELD_OUT:
+            raise ValueError("held-out retrieval set must use the held-out split")
+        if any(case.evaluation_split is not EvaluationSplit.HELD_OUT for case in self.cases):
+            raise ValueError("held-out retrieval set contains a non-held-out case")
+        if _SHA256_PATTERN.fullmatch(self.development_set_sha256) is None:
+            raise ValueError("development_set_sha256 must contain lowercase SHA-256")
+        if not self.authoring_complete_before_evaluation:
+            raise ValueError("held-out authoring must complete before candidate evaluation")
+
+        case_ids = [case.case_id for case in self.cases]
+        queries = [case.query_text.casefold() for case in self.cases]
+        for label, values in (("case IDs", case_ids), ("query texts", queries)):
+            duplicates = sorted(value for value, count in Counter(values).items() if count > 1)
+            if duplicates:
+                raise ValueError(f"duplicate held-out {label}: {', '.join(duplicates)}")
+
+        required_families = {
+            RetrievalCaseFamily.VERSION_CONFLICT,
+            RetrievalCaseFamily.INCOMPLETE_DOCUMENTATION,
+            RetrievalCaseFamily.NEAR_DUPLICATE_DISPLACEMENT,
+            RetrievalCaseFamily.MULTI_SOURCE_GROUNDING,
+            RetrievalCaseFamily.EXACT_PROCEDURE,
+            RetrievalCaseFamily.SDK_VARIANT,
+        }
+        present_families = {case.case_family for case in self.cases}
+        missing_families = sorted(family.value for family in required_families - present_families)
+        if missing_families:
+            raise ValueError(
+                "held-out set is missing required case families: " + ", ".join(missing_families)
             )
         return self
 
@@ -243,6 +302,28 @@ class RejectedRetrievalSet(BaseModel):
         duplicates = sorted(value for value, count in Counter(candidate_ids).items() if count > 1)
         if duplicates:
             raise ValueError(f"duplicate rejected candidate IDs: {', '.join(duplicates)}")
+        return self
+
+
+class HeldOutRejectedRetrievalSet(BaseModel):
+    """Rejected held-out proposals retained before candidate evaluation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = "1.0.0"
+    rejected_set_id: str = Field(min_length=3, max_length=100)
+    status: str = "rejected_held_out_candidates"
+    evaluation_split: EvaluationSplit = EvaluationSplit.HELD_OUT
+    cases: tuple[RejectedRetrievalCase, ...] = Field(min_length=5)
+
+    @model_validator(mode="after")
+    def validate_rejected_set(self) -> HeldOutRejectedRetrievalSet:
+        if any(case.evaluation_split is not EvaluationSplit.HELD_OUT for case in self.cases):
+            raise ValueError("held-out rejected set contains a non-held-out proposal")
+        candidate_ids = [case.candidate_case_id for case in self.cases]
+        duplicates = sorted(value for value, count in Counter(candidate_ids).items() if count > 1)
+        if duplicates:
+            raise ValueError(f"duplicate held-out rejected candidate IDs: {', '.join(duplicates)}")
         return self
 
 
@@ -339,6 +420,45 @@ class RetrievalDevelopmentScorecard(BaseModel):
         for name, value in (
             ("retrieval_set_sha256", self.retrieval_set_sha256),
             ("rejected_set_sha256", self.rejected_set_sha256),
+            ("retrieval_manifest_sha256", self.retrieval_manifest_sha256),
+            ("case_results_sha256", self.case_results_sha256),
+            ("retriever_config_sha256", self.retriever_config_sha256),
+        ):
+            if _SHA256_PATTERN.fullmatch(value) is None:
+                raise ValueError(f"{name} must contain 64 lowercase hexadecimal characters")
+        return self
+
+
+class RetrievalHeldOutScorecard(BaseModel):
+    """Hash-bound held-out scorecard for one finalist."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = "1.0.0"
+    scorecard_id: str
+    status: str = "held_out_candidate"
+    metric_contract_version: str = "source-level-retrieval-metrics-v1"
+    retrieval_set_path: str
+    retrieval_set_sha256: str
+    rejected_set_path: str
+    rejected_set_sha256: str
+    freeze_record_path: str
+    freeze_record_sha256: str
+    retrieval_manifest_path: str
+    retrieval_manifest_sha256: str
+    case_results_path: str
+    case_results_sha256: str
+    retriever_config_id: str
+    retriever_config_sha256: str
+    chunking_config_id: str
+    aggregate: RetrievalAggregateMetrics
+
+    @model_validator(mode="after")
+    def validate_hashes(self) -> RetrievalHeldOutScorecard:
+        for name, value in (
+            ("retrieval_set_sha256", self.retrieval_set_sha256),
+            ("rejected_set_sha256", self.rejected_set_sha256),
+            ("freeze_record_sha256", self.freeze_record_sha256),
             ("retrieval_manifest_sha256", self.retrieval_manifest_sha256),
             ("case_results_sha256", self.case_results_sha256),
             ("retriever_config_sha256", self.retriever_config_sha256),

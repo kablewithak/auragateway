@@ -1,0 +1,611 @@
+{
+  "schema_version": "1.0.0",
+  "retrieval_set_id": "nimbus-relay-held-out-retrieval-v1",
+  "retrieval_set_version": "1.0.0",
+  "status": "frozen_held_out",
+  "evaluation_split": "held_out",
+  "development_set_path": "data/evals/retrieval/development-v1/accepted_cases.json",
+  "development_set_sha256": "49d5e9055b7b00bcfdf5f9dc932c836a844c37f835709d0d376d38285934e342",
+  "authoring_complete_before_evaluation": true,
+  "cases": [
+    {
+      "case_id": "ho-ret-001",
+      "case_family": "version_conflict",
+      "failure_hypothesis": "A retriever may prefer the stale fixed-delay quota guide and omit the current Retry-After contract when both documents share rate-limit language.",
+      "query_text": "An older Nimbus Relay runbook says to wait sixty seconds after a 429, but the current response includes Retry-After. Which guidance applies now, and why do the limits differ?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "rate_limits"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "include",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-RATE-007",
+          "grade": 3,
+          "rationale": "Current v4 guidance defines Retry-After, minute quotas, and endpoint burst limits."
+        },
+        {
+          "source_id": "NR-RATE-008",
+          "grade": 2,
+          "rationale": "The deprecated v2 guide explains the historical fixed sixty-second delay and daily quota."
+        }
+      ],
+      "required_sources": [
+        "NR-RATE-007",
+        "NR-RATE-008"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Current clients must honour Retry-After rather than a fixed delay.",
+        "The sixty-second rule belongs to the deprecated daily-quota model."
+      ],
+      "acceptable_variants": [
+        "Explain both lifecycle contexts and select the current v4 rule.",
+        "State the current rule first and identify the older rule as deprecated evidence."
+      ],
+      "failure_labels": [
+        "stale_policy_preferred",
+        "version_conflict_unresolved"
+      ],
+      "accept_reason": "The case tests whether lifecycle metadata and conflicting operational values survive ranking under shared terminology.",
+      "difficulty_reason": "Both documents discuss 429 handling and quotas, so lexical overlap can hide the decisive version and status evidence.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-002",
+      "case_family": "exact_procedure",
+      "failure_hypothesis": "A retriever may surface refresh-token troubleshooting for a client-credentials workload even though that grant never receives refresh tokens.",
+      "query_text": "Our server-to-server Nimbus Relay worker uses the OAuth client-credentials grant. How long is its access token valid, and should the worker use a refresh token?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "oauth"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-OAUTH-003",
+          "grade": 3,
+          "rationale": "The client-credentials procedure states a 900-second access-token lifetime and no refresh token issuance."
+        }
+      ],
+      "required_sources": [
+        "NR-OAUTH-003"
+      ],
+      "forbidden_sources": [
+        "NR-OAUTH-004"
+      ],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Access tokens expire after 900 seconds.",
+        "The grant issues no refresh token; request a new access token."
+      ],
+      "acceptable_variants": [
+        "State fifteen minutes instead of 900 seconds.",
+        "Explain that refresh-token error guidance is not the correct contract for this grant."
+      ],
+      "failure_labels": [
+        "oauth_grant_confusion",
+        "irrelevant_refresh_guidance"
+      ],
+      "accept_reason": "The case distinguishes two adjacent OAuth documents with materially different grant semantics.",
+      "difficulty_reason": "Both sources contain token and client terminology, but only one answers the server-to-server grant question.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-003",
+      "case_family": "multi_source_grounding",
+      "failure_hypothesis": "The retriever may find the upload error catalogue without the general bounded-backoff procedure, or vice versa.",
+      "query_text": "A multipart part upload returns UPLOAD_STORAGE_UNAVAILABLE while the upload session is still valid. May the client retry, and what retry discipline should it use?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "uploads",
+          "retries"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-UPLOAD-023",
+          "grade": 3,
+          "rationale": "The upload error catalogue marks UPLOAD_STORAGE_UNAVAILABLE as retryable while the session is valid."
+        },
+        {
+          "source_id": "NR-RETRY-009",
+          "grade": 3,
+          "rationale": "The general retry procedure defines bounded backoff and safe transient retry behaviour."
+        }
+      ],
+      "required_sources": [
+        "NR-UPLOAD-023",
+        "NR-RETRY-009"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "The upload error is retryable while the session remains valid.",
+        "Use bounded backoff rather than uncontrolled immediate retries."
+      ],
+      "acceptable_variants": [
+        "Combine the upload-specific condition with the general backoff rule.",
+        "State that a new upload session is not required unless the existing session expires."
+      ],
+      "failure_labels": [
+        "multi_source_coverage_failure",
+        "retry_policy_omitted"
+      ],
+      "accept_reason": "The case requires complementary evidence from an endpoint-specific catalogue and the shared retry policy.",
+      "difficulty_reason": "Either source alone provides only part of the safe action and can create an incomplete answer.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-004",
+      "case_family": "near_duplicate_displacement",
+      "failure_hypothesis": "The SDK pagination guide may displace the raw HTTP procedure because both describe cursor expiry and page traversal.",
+      "query_text": "A raw HTTP integration changed its sort order and then reused a Nimbus Relay cursor that was more than ten minutes old. What must it do next?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "pagination"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-PAGE-005",
+          "grade": 3,
+          "rationale": "The HTTP guide states cursor scope, ten-minute expiry, and restart behaviour."
+        }
+      ],
+      "required_sources": [
+        "NR-PAGE-005"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [
+        "NR-PAGE-006"
+      ],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Changing sort order invalidates the cursor context.",
+        "An expired cursor requires restarting from the first page."
+      ],
+      "acceptable_variants": [
+        "Explain both the context mismatch and expiry independently.",
+        "Recommend a fresh first-page request with the intended sort configuration."
+      ],
+      "failure_labels": [
+        "near_duplicate_displacement",
+        "http_sdk_scope_confusion"
+      ],
+      "accept_reason": "The case tests format-specific retrieval where the two pagination guides are intentionally near duplicates.",
+      "difficulty_reason": "The SDK and HTTP documents share almost all cursor concepts, but the requested implementation boundary is raw HTTP.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-005",
+      "case_family": "multi_source_grounding",
+      "failure_hypothesis": "Signature verification evidence and event payload completeness evidence may not both appear in the top five.",
+      "query_text": "Before processing a Nimbus Relay webhook, how should we verify its signature, and can the event payload be treated as the complete current resource state?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "webhooks",
+          "events"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-WEBHOOK-015",
+          "grade": 3,
+          "rationale": "The signature guide defines verification against the unchanged request body."
+        },
+        {
+          "source_id": "NR-EVENT-025",
+          "grade": 3,
+          "rationale": "The machine-readable event catalogue states required payload fields and that full resource state is not guaranteed."
+        }
+      ],
+      "required_sources": [
+        "NR-WEBHOOK-015",
+        "NR-EVENT-025"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [
+        "NR-EVENT-024"
+      ],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Verify using the unchanged raw request body and supplied signature contract.",
+        "Retrieve the resource when current complete state is required because payload completeness is not guaranteed."
+      ],
+      "acceptable_variants": [
+        "Use the human-readable event catalogue only if it supplies the same completeness warning.",
+        "Separate authenticity verification from resource-state freshness."
+      ],
+      "failure_labels": [
+        "multi_source_coverage_failure",
+        "payload_completeness_overclaim"
+      ],
+      "accept_reason": "The case joins security and event-semantics evidence required for a safe webhook consumer.",
+      "difficulty_reason": "The two facts live in different API areas and neither source alone supports the complete operational answer.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-006",
+      "case_family": "multi_source_grounding",
+      "failure_hypothesis": "The retriever may find the migration procedure without the exact replacement endpoint, or the endpoint register without the explicit version-header rule.",
+      "query_text": "We still call POST /v1/hooks. What Nimbus Relay endpoint replaces it, and what API-version handling is required during migration?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "versioning"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-VERS-019",
+          "grade": 3,
+          "rationale": "The deprecated endpoint register maps POST /v1/hooks to POST /v3/webhook-endpoints."
+        },
+        {
+          "source_id": "NR-VERS-018",
+          "grade": 3,
+          "rationale": "The migration procedure requires an explicit X-Nimbus-Api-Version header and controlled rollout."
+        }
+      ],
+      "required_sources": [
+        "NR-VERS-018",
+        "NR-VERS-019"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "POST /v3/webhook-endpoints replaces POST /v1/hooks.",
+        "The client must send an explicit version header during migration."
+      ],
+      "acceptable_variants": [
+        "Mention the removal date as additional evidence.",
+        "Describe staged rollout and rollback after identifying the replacement and version contract."
+      ],
+      "failure_labels": [
+        "replacement_endpoint_missing",
+        "version_header_omitted"
+      ],
+      "accept_reason": "The case requires two current versioning assets to produce a complete migration instruction.",
+      "difficulty_reason": "The exact endpoint mapping and the migration control procedure are intentionally separated across documents.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-007",
+      "case_family": "incomplete_documentation",
+      "failure_hypothesis": "The retriever may encourage an invented multipart limit rather than surfacing the documented knowledge gap.",
+      "query_text": "Can we hard-code a Nimbus Relay multipart part size and part-count limit from the repository documentation, or must the client obtain another capability value?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "uploads"
+        ],
+        "source_statuses": [],
+        "completeness": [
+          "incomplete"
+        ],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-UPLOAD-022",
+          "grade": 3,
+          "rationale": "The multipart procedure explicitly omits both limits and directs clients to a separate capability response."
+        }
+      ],
+      "required_sources": [
+        "NR-UPLOAD-022"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "clarify",
+      "required_information_gain": [
+        "The repository document does not state the maximum part size or part count.",
+        "A separate capability response is required before configuring production limits."
+      ],
+      "acceptable_variants": [
+        "Refuse to invent numeric limits.",
+        "Recommend retrieving the capability response and validating it before upload."
+      ],
+      "failure_labels": [
+        "unsupported_limit_invention",
+        "known_gap_ignored"
+      ],
+      "accept_reason": "The case tests whether incomplete evidence leads to a bounded clarification rather than fabricated configuration.",
+      "difficulty_reason": "Upload terminology can retrieve a nearby error catalogue that does not contain the missing capability limits.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-008",
+      "case_family": "missing_required_parameters",
+      "failure_hypothesis": "The custom-role narrative may be retrieved without the machine-readable restriction list needed to answer safely.",
+      "query_text": "A custom Nimbus Relay role change has not taken effect after one minute, and the role includes credentials.manage. Is that permission allowed, and how long can propagation take?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "permissions"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-PERM-027",
+          "grade": 3,
+          "rationale": "The matrix identifies credentials.manage as restricted and gives a 120-second propagation maximum."
+        },
+        {
+          "source_id": "NR-PERM-028",
+          "grade": 2,
+          "rationale": "The custom-role guide explains propagation and directs readers to the matrix for restricted permissions."
+        }
+      ],
+      "required_sources": [
+        "NR-PERM-027",
+        "NR-PERM-028"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "credentials.manage is restricted to the built-in administrator role.",
+        "Permission changes can take up to 120 seconds to propagate."
+      ],
+      "acceptable_variants": [
+        "State two minutes instead of 120 seconds.",
+        "Recommend checking effective grants after propagation."
+      ],
+      "failure_labels": [
+        "restriction_matrix_missing",
+        "propagation_window_missing"
+      ],
+      "accept_reason": "The case requires exact machine-readable restrictions plus the operational custom-role procedure.",
+      "difficulty_reason": "The narrative guide acknowledges a gap, so retrieving it without the matrix produces an unsafe partial answer.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-009",
+      "case_family": "version_conflict",
+      "failure_hypothesis": "The deprecated sandbox register may be presented as current because it contains precise numeric limits absent from the current limitations guide.",
+      "query_text": "A legacy Nimbus Relay sandbox register says 60 requests per minute and no webhook simulation. Are those values current, and what should an integration rely on instead?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "sandbox"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "include",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-SANDBOX-029",
+          "grade": 3,
+          "rationale": "The current guide describes supported behaviour, lower unspecified limits, and a known event-simulation gap."
+        },
+        {
+          "source_id": "NR-SANDBOX-030",
+          "grade": 2,
+          "rationale": "The deprecated register supplies the historical 60-per-minute and simulation-false values named in the question."
+        }
+      ],
+      "required_sources": [
+        "NR-SANDBOX-029",
+        "NR-SANDBOX-030"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "clarify",
+      "required_information_gain": [
+        "The numeric legacy limits are deprecated and must not be treated as current.",
+        "Current integrations should use NR-SANDBOX-029 and obtain missing capability evidence for specific simulation needs."
+      ],
+      "acceptable_variants": [
+        "Explain the lifecycle conflict before discussing current supported behaviour.",
+        "Decline to infer a current request limit from the deprecated register."
+      ],
+      "failure_labels": [
+        "stale_numeric_value_selected",
+        "sandbox_capability_overclaim"
+      ],
+      "accept_reason": "The case tests resistance to precise but stale values when the current source deliberately remains incomplete.",
+      "difficulty_reason": "The stale source offers more specific numbers, which can outrank safer current evidence in naive retrieval or answer generation.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-010",
+      "case_family": "near_duplicate_displacement",
+      "failure_hypothesis": "The human-readable event catalogue may displace the JSON catalogue when exact machine field names are requested.",
+      "query_text": "For a machine validator, which required fields must every Nimbus Relay event payload contain, and what is the exact credential-rotation event name?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "events"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-EVENT-025",
+          "grade": 3,
+          "rationale": "The JSON catalogue provides the exact required_payload_fields array and credential.rotated event name."
+        }
+      ],
+      "required_sources": [
+        "NR-EVENT-025"
+      ],
+      "forbidden_sources": [],
+      "near_duplicate_sources": [
+        "NR-EVENT-024"
+      ],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Required fields are event_id, event_type, created_at, api_version, and resource.",
+        "The exact event name is credential.rotated."
+      ],
+      "acceptable_variants": [
+        "Return the field names as a machine-oriented list.",
+        "Mention that full current resource state is not guaranteed as additional context."
+      ],
+      "failure_labels": [
+        "machine_readable_source_displaced",
+        "payload_field_omission"
+      ],
+      "accept_reason": "The case evaluates near-duplicate format selection where exact keys matter more than prose similarity.",
+      "difficulty_reason": "Both event catalogues contain the same event family, but only the JSON source is authoritative for exact machine fields.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-011",
+      "case_family": "sdk_variant",
+      "failure_hypothesis": "The Python setup guide may contaminate a Node.js-specific request because both SDK documents share authentication and timeout language.",
+      "query_text": "Our service runs Node.js 20. Which Nimbus Relay SDK setup should it use for API version 2026-04 with a 30-second request timeout?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "sdk"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-SDK-017",
+          "grade": 3,
+          "rationale": "The JavaScript SDK guide is the language-specific source for Node.js 20 configuration."
+        }
+      ],
+      "required_sources": [
+        "NR-SDK-017"
+      ],
+      "forbidden_sources": [
+        "NR-SDK-016"
+      ],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "answer",
+      "required_information_gain": [
+        "Use the JavaScript SDK configuration for Node.js 20.",
+        "Set the explicit API version and 30-second timeout using the JavaScript client contract."
+      ],
+      "acceptable_variants": [
+        "Exclude Python examples from the cited support set.",
+        "Identify the JavaScript guide even if shared authentication guidance is also returned."
+      ],
+      "failure_labels": [
+        "sdk_language_contamination",
+        "forbidden_parallel_sdk_source"
+      ],
+      "accept_reason": "The case preserves the known SDK-language risk using held-out wording and a strict forbidden-source criterion.",
+      "difficulty_reason": "The two SDK setup documents are structurally parallel and differ mainly in language-specific code and runtime details.",
+      "evaluation_split": "held_out"
+    },
+    {
+      "case_id": "ho-ret-012",
+      "case_family": "multi_source_grounding",
+      "failure_hypothesis": "The retriever may find generic retry guidance but miss the idempotency body-mismatch rule that makes an unchanged replay mandatory.",
+      "query_text": "A client reused a Nimbus Relay idempotency key with a changed request body and received IDEMPOTENCY_BODY_MISMATCH. Should it keep retrying, change the key, or first reconcile the original operation?",
+      "top_k": 5,
+      "filters": {
+        "api_areas": [
+          "idempotency",
+          "retries"
+        ],
+        "source_statuses": [],
+        "completeness": [],
+        "source_ids": [],
+        "stale_policy": "exclude",
+        "version_sensitive_only": false
+      },
+      "relevance_judgments": [
+        {
+          "source_id": "NR-IDEM-020",
+          "grade": 3,
+          "rationale": "The current idempotency contract explains byte-equivalent replay and the 409 body-mismatch outcome."
+        },
+        {
+          "source_id": "NR-RETRY-009",
+          "grade": 2,
+          "rationale": "The retry policy prohibits blind retry and requires unchanged idempotent replay when safety is available."
+        }
+      ],
+      "required_sources": [
+        "NR-IDEM-020",
+        "NR-RETRY-009"
+      ],
+      "forbidden_sources": [
+        "NR-IDEM-021"
+      ],
+      "near_duplicate_sources": [],
+      "expected_terminal_decision": "clarify",
+      "required_information_gain": [
+        "A changed body with the same key is rejected and does not represent a safe replay.",
+        "Do not create a new operation blindly; reconcile the original operation and use identical request content for replay."
+      ],
+      "acceptable_variants": [
+        "Explain that a new key creates a new logical operation.",
+        "Require the original request body and operation state before another retry."
+      ],
+      "failure_labels": [
+        "idempotency_replay_misunderstood",
+        "unsafe_new_key_retry"
+      ],
+      "accept_reason": "The case requires the endpoint-specific idempotency contract and the general retry-safety rule.",
+      "difficulty_reason": "Generic retry terms can dominate ranking while the decisive body-equivalence requirement lives in the idempotency source.",
+      "evaluation_split": "held_out"
+    }
+  ]
+}

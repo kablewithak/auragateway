@@ -10,15 +10,15 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
-- **Delivery ledger after this slice:** 52 / 200 planned hours (26%)
+- **Delivery ledger after this slice:** 57 / 200 planned hours (28.5%)
 - **Current phase:** Phase 1 — Corpus, Retrieval, and Eval Asset Construction
 - **Active proof gate:** Gate 1 — Retrieval Readiness
 - **Gate 0 status:** Passed
-- **Gate 1 status:** In progress — development recommendation selected; held-out validation outstanding
+- **Gate 1 status:** Blocked — held-out validation completed; no finalist passed every hard gate
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** benchmark-constitution validated; corpus, retrieval candidates, development scorecards, and development selection locally validated
+- **Maturity:** benchmark-constitution validated; retrieval candidates and held-out evidence locally validated; retrieval remains unfrozen
 
 ## Governing Documents
 
@@ -40,6 +40,8 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - [Dense Retrieval Development Report](docs/benchmark/Nimbus_Relay_Dense_Retrieval_Development_Report.md)
 - [Retrieval Selection Policy](docs/benchmark/Nimbus_Relay_Retrieval_Selection_Policy.md)
 - [Development Retrieval Recommendation](docs/benchmark/Nimbus_Relay_Development_Retrieval_Recommendation.md)
+- [Held-Out Retrieval Constitution](docs/benchmark/Nimbus_Relay_Held_Out_Retrieval_Constitution.md)
+- [Gate 1 Held-Out Report](docs/benchmark/Nimbus_Relay_Gate_1_Held_Out_Report.md)
 
 ## Freeze Model
 
@@ -108,6 +110,7 @@ python -m auragateway.retrieval.runner verify --repo-root .
 python -m auragateway.retrieval.dense_runner verify --repo-root .
 python -m auragateway.evals.runner verify --repo-root .
 python -m auragateway.evals.selection_runner verify --repo-root .
+python -m auragateway.evals.heldout_runner verify --repo-root .
 ```
 
 Run release gates for the current slice:
@@ -119,20 +122,24 @@ python -m ruff format --check .
 python -m mypy src tests
 ```
 
-## Development Retrieval Recommendation
+## Held-Out Gate 1 Decision
 
 ```text
-Retriever: dense-hashed-tfidf-section-aware-v1
-Chunking: section-aware-v1
-Top-k: 5
-Metadata policy: authored-case-filters-v1
-Status: development recommendation only
+Development recommendation: dense-hashed-tfidf-section-aware-v1, top-5
+Held-out finalists passing every hard gate: 0 / 2
+Gate 1 status: blocked
+Selected retrieval configuration: none
 Retrieval freeze permitted: no
 ```
 
-The development margin over BM25 fixed-window top-5 is 0.2941502906 points. Held-out
-validation may confirm or reverse this recommendation.
+Both finalists retrieved every required source, but both failed citation-readiness, MRR,
+failure-weighted case-pass, and unsupported-source gates. Dense section-aware also failed the
+near-duplicate displacement gate.
+
+The shared held-out failures are OAuth grant contamination and SDK-language contamination. Thresholds
+and held-out labels remain unchanged. Remediation requires typed variant metadata and a new held-out
+version.
 
 ## Phase 1 Boundary
 
-The 30-document corpus, both chunking candidates, BM25 and deterministic local dense retrieval, four development scorecards, and the 36-variant cross-retriever selection sweep are deterministically verified. Dense section-aware retrieval at top-5 with authored metadata filters is the development recommendation. Held-out validation and the retrieval freeze decision remain outstanding.
+The 30-document corpus, both chunking candidates, sparse and local dense retrieval, four development scorecards, the 36-variant development sweep, and held-out v1 are deterministically verified. Gate 1 is blocked because neither finalist passed every held-out hard gate. No retrieval configuration or runtime execution is authorized.

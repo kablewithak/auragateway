@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "record_id": "nimbus-relay-held-out-freeze-v1",
+  "status": "frozen_before_candidate_evaluation",
+  "freeze_date": "2026-07-12",
+  "held_out_set_path": "data/evals/retrieval/held-out-v1/accepted_cases.json",
+  "held_out_set_sha256": "50f6b85d283598491708040f418e0b794736b551f3c2fd50a5b7531733c73477",
+  "rejected_set_path": "data/evals/retrieval/held-out-v1/rejected_cases.json",
+  "rejected_set_sha256": "1375774d4886c8b50fb391edbc930aef22f9ef82647b574cd2baea4408dd7faa",
+  "development_set_path": "data/evals/retrieval/development-v1/accepted_cases.json",
+  "development_set_sha256": "49d5e9055b7b00bcfdf5f9dc932c836a844c37f835709d0d376d38285934e342",
+  "authoring_complete": true,
+  "candidate_results_present_at_freeze": false
+}
