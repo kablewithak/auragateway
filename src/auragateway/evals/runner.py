@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
@@ -13,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from auragateway.contracts.chunking import CorpusChunk
 from auragateway.contracts.corpus import CorpusInventory
+from auragateway.contracts.dense_retrieval import DenseIndexManifest
 from auragateway.contracts.retrieval import RetrievalIndexManifest
 from auragateway.contracts.retrieval_eval import (
     DevelopmentRetrievalSet,
@@ -22,18 +24,30 @@ from auragateway.contracts.retrieval_eval import (
 )
 from auragateway.evals.retrieval import aggregate_metrics, evaluate_cases
 from auragateway.retrieval.bm25 import BM25Index
+from auragateway.retrieval.dense import DenseIndex
+from auragateway.retrieval.dense_runner import (
+    FIXED_WINDOW_DENSE_CONFIG,
+    SECTION_AWARE_DENSE_CONFIG,
+    DenseRetrievalError,
+)
+from auragateway.retrieval.dense_runner import (
+    verify_candidate as verify_dense_candidate,
+)
 from auragateway.retrieval.runner import (
     FIXED_WINDOW_BM25_CONFIG,
     SECTION_AWARE_BM25_CONFIG,
     RetrievalError,
-    verify_candidate,
+)
+from auragateway.retrieval.runner import (
+    verify_candidate as verify_bm25_candidate,
 )
 
 _DEVELOPMENT_ROOT: Final = Path("data/evals/retrieval/development-v1")
 _DEVELOPMENT_SET_PATH: Final = _DEVELOPMENT_ROOT / "accepted_cases.json"
 _REJECTED_SET_PATH: Final = _DEVELOPMENT_ROOT / "rejected_cases.json"
 _CORPUS_INVENTORY_PATH: Final = Path("data/corpus/source_inventory.json")
-_RETRIEVAL_ROOT: Final = Path("data/retrieval/bm25-v1")
+_BM25_ROOT: Final = Path("data/retrieval/bm25-v1")
+_DENSE_ROOT: Final = Path("data/retrieval/hashed-tfidf-dense-v1")
 
 
 class RetrievalEvaluationError(Exception):
@@ -62,6 +76,19 @@ class RetrievalEvaluationErrorEnvelope(BaseModel):
     safe_message: str
     path: str | None = None
     details: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class EvaluationIndexContext:
+    """Verified candidate inputs required by the shared metric harness."""
+
+    index: BM25Index | DenseIndex
+    chunks: tuple[CorpusChunk, ...]
+    manifest_path: Path
+    manifest_file: Path
+    config_id: str
+    config_sha256: str
+    chunking_config_id: str
 
 
 def _sha256_bytes(payload: bytes) -> str:
@@ -219,44 +246,101 @@ def _candidate_paths(config_id: str) -> tuple[Path, Path, Path]:
     )
 
 
-def build_scorecard(repo_root: Path, config_id: str) -> tuple[RetrievalDevelopmentScorecard, bytes]:
-    """Build one development scorecard in memory."""
-
+def _bm25_context(repo_root: Path, config_id: str) -> EvaluationIndexContext | None:
     configs = {
         FIXED_WINDOW_BM25_CONFIG.config_id: FIXED_WINDOW_BM25_CONFIG,
         SECTION_AWARE_BM25_CONFIG.config_id: SECTION_AWARE_BM25_CONFIG,
     }
+    config = configs.get(config_id)
+    if config is None:
+        return None
     try:
-        config = configs[config_id]
-    except KeyError as exc:
-        raise RetrievalEvaluationError(
-            error_code="RETRIEVAL_EVAL_CONFIG_UNSUPPORTED",
-            safe_message="Unsupported retrieval candidate configuration.",
-            details=(config_id,),
-        ) from exc
-
-    try:
-        verify_candidate(repo_root, config)
+        verify_bm25_candidate(repo_root, config)
     except RetrievalError as exc:
         raise RetrievalEvaluationError(
             error_code="RETRIEVAL_EVAL_CANDIDATE_INVALID",
-            safe_message="Retrieval candidate verification failed before evaluation.",
+            safe_message="BM25 candidate verification failed before evaluation.",
             path=exc.path,
             details=(exc.error_code, *exc.details),
         ) from exc
 
-    development_set, _, _ = _load_assets(repo_root)
-    retrieval_manifest_path = _RETRIEVAL_ROOT / config.chunking_config_id / "manifest.json"
-    retrieval_manifest_file = repo_root / retrieval_manifest_path
-    retrieval_manifest = _load_model(
-        retrieval_manifest_file,
+    manifest_path = _BM25_ROOT / config.chunking_config_id / "manifest.json"
+    manifest_file = repo_root / manifest_path
+    manifest = _load_model(
+        manifest_file,
         RetrievalIndexManifest,
         "RETRIEVAL_EVAL_RETRIEVAL_MANIFEST_NOT_FOUND",
     )
-    assert isinstance(retrieval_manifest, RetrievalIndexManifest)
-    chunks = _load_chunks(repo_root / retrieval_manifest.chunks_path)
+    assert isinstance(manifest, RetrievalIndexManifest)
+    chunks = _load_chunks(repo_root / manifest.chunks_path)
     index = BM25Index(chunks, config)
-    results = evaluate_cases(chunks, index, development_set.cases)
+    return EvaluationIndexContext(
+        index=index,
+        chunks=chunks,
+        manifest_path=manifest_path,
+        manifest_file=manifest_file,
+        config_id=config.config_id,
+        config_sha256=index.configuration_sha256,
+        chunking_config_id=config.chunking_config_id,
+    )
+
+
+def _dense_context(repo_root: Path, config_id: str) -> EvaluationIndexContext | None:
+    configs = {
+        FIXED_WINDOW_DENSE_CONFIG.config_id: FIXED_WINDOW_DENSE_CONFIG,
+        SECTION_AWARE_DENSE_CONFIG.config_id: SECTION_AWARE_DENSE_CONFIG,
+    }
+    config = configs.get(config_id)
+    if config is None:
+        return None
+    try:
+        verify_dense_candidate(repo_root, config)
+    except DenseRetrievalError as exc:
+        raise RetrievalEvaluationError(
+            error_code="RETRIEVAL_EVAL_CANDIDATE_INVALID",
+            safe_message="Dense candidate verification failed before evaluation.",
+            path=exc.path,
+            details=(exc.error_code, *exc.details),
+        ) from exc
+
+    manifest_path = _DENSE_ROOT / config.chunking_config_id / "manifest.json"
+    manifest_file = repo_root / manifest_path
+    manifest = _load_model(
+        manifest_file,
+        DenseIndexManifest,
+        "RETRIEVAL_EVAL_DENSE_MANIFEST_NOT_FOUND",
+    )
+    assert isinstance(manifest, DenseIndexManifest)
+    chunks = _load_chunks(repo_root / manifest.chunks_path)
+    index = DenseIndex(chunks, config)
+    return EvaluationIndexContext(
+        index=index,
+        chunks=chunks,
+        manifest_path=manifest_path,
+        manifest_file=manifest_file,
+        config_id=config.config_id,
+        config_sha256=index.configuration_sha256,
+        chunking_config_id=config.chunking_config_id,
+    )
+
+
+def _index_context(repo_root: Path, config_id: str) -> EvaluationIndexContext:
+    context = _bm25_context(repo_root, config_id) or _dense_context(repo_root, config_id)
+    if context is None:
+        raise RetrievalEvaluationError(
+            error_code="RETRIEVAL_EVAL_CONFIG_UNSUPPORTED",
+            safe_message="Unsupported retrieval candidate configuration.",
+            details=(config_id,),
+        )
+    return context
+
+
+def build_scorecard(repo_root: Path, config_id: str) -> tuple[RetrievalDevelopmentScorecard, bytes]:
+    """Build one development scorecard in memory."""
+
+    context = _index_context(repo_root, config_id)
+    development_set, _, _ = _load_assets(repo_root)
+    results = evaluate_cases(context.chunks, context.index, development_set.cases)
     results_bytes = _case_results_jsonl(results)
     aggregate = aggregate_metrics(results)
     _, results_path, _ = _candidate_paths(config_id)
@@ -266,13 +350,13 @@ def build_scorecard(repo_root: Path, config_id: str) -> tuple[RetrievalDevelopme
         retrieval_set_sha256=_sha256_bytes((repo_root / _DEVELOPMENT_SET_PATH).read_bytes()),
         rejected_set_path=_REJECTED_SET_PATH.as_posix(),
         rejected_set_sha256=_sha256_bytes((repo_root / _REJECTED_SET_PATH).read_bytes()),
-        retrieval_manifest_path=retrieval_manifest_path.as_posix(),
-        retrieval_manifest_sha256=_sha256_bytes(retrieval_manifest_file.read_bytes()),
+        retrieval_manifest_path=context.manifest_path.as_posix(),
+        retrieval_manifest_sha256=_sha256_bytes(context.manifest_file.read_bytes()),
         case_results_path=results_path.as_posix(),
         case_results_sha256=_sha256_bytes(results_bytes),
-        retriever_config_id=config.config_id,
-        retriever_config_sha256=index.configuration_sha256,
-        chunking_config_id=config.chunking_config_id,
+        retriever_config_id=context.config_id,
+        retriever_config_sha256=context.config_sha256,
+        chunking_config_id=context.chunking_config_id,
         aggregate=aggregate,
     )
     return scorecard, results_bytes
@@ -343,22 +427,25 @@ def verify_scorecard(repo_root: Path, config_id: str) -> RetrievalEvaluationSumm
     return _summary(expected_scorecard)
 
 
-def build_all_scorecards(repo_root: Path) -> tuple[RetrievalEvaluationSummary, ...]:
-    """Persist development scorecards for both BM25 chunking candidates."""
-
-    return tuple(
-        write_scorecard(repo_root, config.config_id)
-        for config in (FIXED_WINDOW_BM25_CONFIG, SECTION_AWARE_BM25_CONFIG)
+def _all_config_ids() -> tuple[str, ...]:
+    return (
+        FIXED_WINDOW_BM25_CONFIG.config_id,
+        SECTION_AWARE_BM25_CONFIG.config_id,
+        FIXED_WINDOW_DENSE_CONFIG.config_id,
+        SECTION_AWARE_DENSE_CONFIG.config_id,
     )
+
+
+def build_all_scorecards(repo_root: Path) -> tuple[RetrievalEvaluationSummary, ...]:
+    """Persist development scorecards for all current retrieval candidates."""
+
+    return tuple(write_scorecard(repo_root, config_id) for config_id in _all_config_ids())
 
 
 def verify_all_scorecards(repo_root: Path) -> tuple[RetrievalEvaluationSummary, ...]:
-    """Verify both persisted BM25 development scorecards."""
+    """Verify all persisted development retrieval scorecards."""
 
-    return tuple(
-        verify_scorecard(repo_root, config.config_id)
-        for config in (FIXED_WINDOW_BM25_CONFIG, SECTION_AWARE_BM25_CONFIG)
-    )
+    return tuple(verify_scorecard(repo_root, config_id) for config_id in _all_config_ids())
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:

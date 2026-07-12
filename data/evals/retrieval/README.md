@@ -14,6 +14,12 @@ development-v1/
   bm25-section-aware-v1/
     case_results.jsonl
     scorecard.json
+  dense-hashed-tfidf-fixed-window-v1/
+    case_results.jsonl
+    scorecard.json
+  dense-hashed-tfidf-section-aware-v1/
+    case_results.jsonl
+    scorecard.json
 ```
 
 The accepted set contains exactly 24 grounded diagnostic cases.
@@ -32,13 +38,14 @@ Every accepted case records:
 - acceptance and difficulty reasons;
 - the development split identity.
 
-Rejected proposed cases remain versioned with explicit reasons such as ambiguity, duplication,
-weak diagnostic value, lack of grounding, or privacy risk.
+Rejected proposed cases remain versioned with explicit reasons such as ambiguity, duplication, weak
+diagnostic value, lack of grounding, or privacy risk.
 
 ## Evidence boundary
 
 Persisted case results exclude raw query text and retrieved chunk content. They retain query hashes,
 source and chunk identities, rankings, deterministic metrics, and failure evidence.
 
-No held-out retrieval cases are stored in this directory. Held-out assets must be created and frozen
-through a separate protected slice after the retrieval configuration is selected.
+The four scorecards share the same frozen cases and metric contract. They remain development evidence;
+no held-out retrieval cases are stored here. Held-out assets must be created and frozen only after a
+retrieval configuration is selected.

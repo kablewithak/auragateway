@@ -4,15 +4,26 @@ from __future__ import annotations
 
 import math
 from collections.abc import Iterable
+from typing import cast
 
 from auragateway.contracts.chunking import CorpusChunk
-from auragateway.contracts.retrieval import RetrievalFilter, RetrievalHit, RetrievalQuery
+from auragateway.contracts.dense_retrieval import (
+    DenseRetrievalHit,
+    DenseRetrievalResult,
+)
+from auragateway.contracts.retrieval import (
+    RetrievalFilter,
+    RetrievalHit,
+    RetrievalQuery,
+    RetrievalResult,
+)
 from auragateway.contracts.retrieval_eval import (
     RetrievalAggregateMetrics,
     RetrievalCaseMetrics,
     RetrievalEvaluationCase,
 )
 from auragateway.retrieval.bm25 import BM25Index
+from auragateway.retrieval.dense import DenseIndex
 
 _METRIC_PRECISION = 12
 
@@ -38,7 +49,10 @@ def _dcg(grades: Iterable[int]) -> float:
     return total
 
 
-def _metadata_filter_matches(hit: RetrievalHit, filters: RetrievalFilter) -> bool:
+def _metadata_filter_matches(
+    hit: RetrievalHit | DenseRetrievalHit,
+    filters: RetrievalFilter,
+) -> bool:
     if filters.api_areas and hit.api_area not in filters.api_areas:
         return False
     if filters.source_statuses and hit.source_status not in filters.source_statuses:
@@ -54,7 +68,10 @@ def _metadata_filter_matches(hit: RetrievalHit, filters: RetrievalFilter) -> boo
     return not filters.version_sensitive_only or hit.version_sensitive_procedure
 
 
-def evaluate_case(index: BM25Index, case: RetrievalEvaluationCase) -> RetrievalCaseMetrics:
+def evaluate_case(
+    index: BM25Index | DenseIndex,
+    case: RetrievalEvaluationCase,
+) -> RetrievalCaseMetrics:
     """Run one accepted development case and compute deterministic source metrics."""
 
     result = index.search(
@@ -65,7 +82,9 @@ def evaluate_case(index: BM25Index, case: RetrievalEvaluationCase) -> RetrievalC
             filters=case.filters,
         )
     )
-    hits = result.hits
+    if not isinstance(result, (RetrievalResult, DenseRetrievalResult)):
+        raise TypeError("unsupported retrieval result type")
+    hits = cast(tuple[RetrievalHit | DenseRetrievalHit, ...], result.hits)
     ranked_hit_sources = tuple(hit.source_id for hit in hits)
     ranked_unique_sources = _deduplicate(ranked_hit_sources)
     relevance_by_source = {
@@ -161,12 +180,12 @@ def evaluate_case(index: BM25Index, case: RetrievalEvaluationCase) -> RetrievalC
 
 def evaluate_cases(
     chunks: tuple[CorpusChunk, ...],
-    index: BM25Index,
+    index: BM25Index | DenseIndex,
     cases: tuple[RetrievalEvaluationCase, ...],
 ) -> tuple[RetrievalCaseMetrics, ...]:
     """Evaluate all cases after confirming the supplied index covers the chunks."""
 
-    if len(index.indexed_chunks) != len(chunks):
+    if index.chunk_count != len(chunks):
         raise ValueError("retrieval index and supplied chunks must contain the same chunk count")
     return tuple(evaluate_case(index, case) for case in cases)
 

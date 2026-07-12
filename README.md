@@ -10,15 +10,15 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
-- **Delivery ledger after this slice:** 41 / 200 planned hours (20.5%)
+- **Delivery ledger after this slice:** 48 / 200 planned hours (24%)
 - **Current phase:** Phase 1 — Corpus, Retrieval, and Eval Asset Construction
 - **Active proof gate:** Gate 1 — Retrieval Readiness
 - **Gate 0 status:** Passed
-- **Gate 1 status:** In progress — development retrieval set and BM25 scorecards locally validated
+- **Gate 1 status:** In progress — sparse and local dense candidates scored on the frozen development set
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** benchmark-constitution validated; synthetic corpus, chunking, sparse retrieval, and development retrieval scorecards locally validated
+- **Maturity:** benchmark-constitution validated; synthetic corpus, chunking, sparse retrieval, local dense retrieval, and development scorecards locally validated
 
 ## Governing Documents
 
@@ -36,6 +36,8 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - [Sparse Retrieval Candidate Report](docs/benchmark/Nimbus_Relay_Sparse_Retrieval_Candidate_Report.md)
 - [Development Retrieval Set](docs/benchmark/Nimbus_Relay_Development_Retrieval_Set.md)
 - [BM25 Development Scorecard](docs/benchmark/Nimbus_Relay_BM25_Development_Scorecard.md)
+- [Dense Retrieval Design](docs/benchmark/Nimbus_Relay_Dense_Retrieval_Design.md)
+- [Dense Retrieval Development Report](docs/benchmark/Nimbus_Relay_Dense_Retrieval_Development_Report.md)
 
 ## Freeze Model
 
@@ -95,12 +97,13 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-Validate the frozen corpus, chunking candidates, BM25 candidates, and development scorecards:
+Validate the frozen corpus, chunking candidates, sparse and dense candidates, and development scorecards:
 
 ```powershell
 python -m auragateway.corpus.freeze verify --repo-root .
 python -m auragateway.chunking.runner verify --repo-root .
 python -m auragateway.retrieval.runner verify --repo-root .
+python -m auragateway.retrieval.dense_runner verify --repo-root .
 python -m auragateway.evals.runner verify --repo-root .
 ```
 
@@ -115,4 +118,4 @@ python -m mypy src tests
 
 ## Phase 1 Boundary
 
-The 30-document corpus, both chunking candidates, BM25 over both candidates, the 24 accepted development cases, eight rejected case proposals, and both sparse development scorecards are deterministically verified. No chunking or retrieval candidate is selected. Dense retrieval, cross-retriever comparison, top-k and filter-policy selection, held-out validation, and the retrieval freeze decision remain outstanding.
+The 30-document corpus, both chunking candidates, BM25 and deterministic local dense retrieval over both candidates, the 24 accepted development cases, eight rejected proposals, and all four development scorecards are deterministically verified. No chunking or retrieval candidate is selected. Cross-retriever selection, top-k and filter-policy selection, held-out validation, and the retrieval freeze decision remain outstanding.

@@ -313,7 +313,7 @@ class RetrievalAggregateMetrics(BaseModel):
 
 
 class RetrievalDevelopmentScorecard(BaseModel):
-    """Hash-bound development scorecard for one BM25 candidate."""
+    """Hash-bound development scorecard for one retrieval candidate."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 

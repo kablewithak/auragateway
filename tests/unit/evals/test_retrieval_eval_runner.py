@@ -12,6 +12,7 @@ from auragateway.evals.runner import (
     verify_scorecard,
     write_scorecard,
 )
+from auragateway.retrieval.dense_runner import FIXED_WINDOW_DENSE_CONFIG
 from auragateway.retrieval.runner import (
     FIXED_WINDOW_BM25_CONFIG,
     SECTION_AWARE_BM25_CONFIG,
@@ -47,10 +48,18 @@ def test_build_scorecard_returns_twenty_four_case_results() -> None:
     assert scorecard.aggregate.correct_source_in_top_k_rate == 1.0
 
 
+def test_dense_scorecard_uses_same_twenty_four_cases() -> None:
+    scorecard, results = build_scorecard(REPO_ROOT, FIXED_WINDOW_DENSE_CONFIG.config_id)
+
+    assert scorecard.aggregate.case_count == 24
+    assert results.count(b"\n") == 24
+    assert scorecard.retriever_config_id == FIXED_WINDOW_DENSE_CONFIG.config_id
+
+
 def test_both_persisted_scorecards_verify() -> None:
     summaries = verify_all_scorecards(REPO_ROOT)
 
-    assert [summary.case_count for summary in summaries] == [24, 24]
+    assert [summary.case_count for summary in summaries] == [24, 24, 24, 24]
     assert all(summary.validation_status == "valid" for summary in summaries)
 
 
@@ -119,6 +128,6 @@ def test_cli_verify_prints_content_free_summary(capsys: object) -> None:
     payload = json.loads(captured.out)
 
     assert exit_code == 0
-    assert len(payload) == 2
+    assert len(payload) == 4
     assert payload[0]["case_count"] == 24
     assert "query_text" not in captured.out
