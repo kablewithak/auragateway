@@ -1,0 +1,526 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-7-efc-evidence-v1",
+  "cases": [
+    {
+      "case_id": "efc-pass-retained-action-change",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-pass-retained-action-change",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-pass-diagnosis",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "a7e90dc2696397b8b9451e77395e39f9de9996ef8e4f12a7d2f20f4df0e4ed77",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "dbb0bd84cee8930ec51b4da3e258e6808944fd339b510f29922868819a8ee722",
+            "informativeness_status": "informative",
+            "novelty_status": "new",
+            "retained_in_state": true,
+            "retention_location": "state.subgoal-diagnosis",
+            "next_action_changed": true,
+            "next_action_fingerprint_before": "8461b8a166254267b947136eab02fd19311c7e50064c535d4498e435274e8f51",
+            "next_action_fingerprint_after": "5291a13017513ded3d3cf1f87becc7af3f3a1dbac4fd86880ad3e275575e4acb",
+            "task_sufficiency_status": "insufficient",
+            "evidence_reason_code": "fixture_pass_diagnosis"
+          },
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 2,
+            "event_id": "efc-event-pass-resolution",
+            "subgoal_id": "subgoal-resolution",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "857f020d3bdc4a697003f6b42819cbfea7a220792b76e95ba6d127caa1ae15c3",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "61b3c941b660a563fb5d2f912e7602249b19ee5a3d335c6215b2eca82dc376e9",
+            "informativeness_status": "informative",
+            "novelty_status": "new",
+            "retained_in_state": true,
+            "retention_location": "state.subgoal-resolution",
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "b63f40e4d4836c6dd1ac4c740123cf8014306e6b6dbbb6cd5ee460c29a2ae064",
+            "next_action_fingerprint_after": "b63f40e4d4836c6dd1ac4c740123cf8014306e6b6dbbb6cd5ee460c29a2ae064",
+            "task_sufficiency_status": "sufficient",
+            "evidence_reason_code": "fixture_pass_resolution"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis",
+          "subgoal-resolution"
+        ],
+        "completed_subgoal_ids": [
+          "subgoal-diagnosis",
+          "subgoal-resolution"
+        ],
+        "task_completed": true,
+        "expected_terminal_decision_reached": true
+      },
+      "expected_pass": true,
+      "expected_failure_codes": [],
+      "negative_control": false
+    },
+    {
+      "case_id": "efc-pass-retained-no-action-change",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-pass-retained-no-action-change",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-pass-no-action-change",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "9caa9665b7ced1ee100761a9f3a393c8dd4ee9962df5ee08e3d3cd7c51e6c3a6",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "2ea8ac0f9c0a7b7f07302de3ad5b4d9aa3370d7383149e2dc5f0db4c86026c00",
+            "informativeness_status": "informative",
+            "novelty_status": "new",
+            "retained_in_state": true,
+            "retention_location": "state.subgoal-diagnosis",
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "5eacc0e2ca6c9ade06bb71e842b5cc4d756c3d0ae9ccf65f56f2889c8f65281e",
+            "next_action_fingerprint_after": "5eacc0e2ca6c9ade06bb71e842b5cc4d756c3d0ae9ccf65f56f2889c8f65281e",
+            "task_sufficiency_status": "sufficient",
+            "evidence_reason_code": "fixture_pass_no_action_change"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "completed_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "task_completed": true,
+        "expected_terminal_decision_reached": true
+      },
+      "expected_pass": true,
+      "expected_failure_codes": [],
+      "negative_control": false
+    },
+    {
+      "case_id": "efc-invalid-feedback",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-invalid-feedback",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-invalid-feedback",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "16e98a7874fa811cd91520f3c492909f17315680a45f742c56841792fc18c28f",
+            "validity_status": "invalid",
+            "validity_evidence_sha256": "4385676fe0c9e8c3636542a502f330333d0fe2d70cde93cf62bcfa18e4951b4b",
+            "informativeness_status": "informative",
+            "novelty_status": "new",
+            "retained_in_state": false,
+            "retention_location": null,
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "75e29a1ee94774c29b4a2b54a3ad07ace5dd5d987326de0e7ed88c7c74b85766",
+            "next_action_fingerprint_after": "75e29a1ee94774c29b4a2b54a3ad07ace5dd5d987326de0e7ed88c7c74b85766",
+            "task_sufficiency_status": "insufficient",
+            "evidence_reason_code": "fixture_invalid_feedback"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "completed_subgoal_ids": [],
+        "task_completed": false,
+        "expected_terminal_decision_reached": false
+      },
+      "expected_pass": false,
+      "expected_failure_codes": [
+        "INVALID_FEEDBACK",
+        "MISSING_REQUIRED_SUBGOAL_EVIDENCE",
+        "TASK_INSUFFICIENT"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "efc-unknown-validity",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-unknown-validity",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-unknown-validity",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "6951e8980717c623a1ab3a915ab93b5435a582516d992980aff8e19b9fa0133f",
+            "validity_status": "unknown",
+            "validity_evidence_sha256": null,
+            "informativeness_status": "informative",
+            "novelty_status": "new",
+            "retained_in_state": null,
+            "retention_location": null,
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "1bd0709f509a366166d4622fb610a54b557040afcd1fdeba39171dde24c76321",
+            "next_action_fingerprint_after": "1bd0709f509a366166d4622fb610a54b557040afcd1fdeba39171dde24c76321",
+            "task_sufficiency_status": "unknown",
+            "evidence_reason_code": "fixture_unknown_validity"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "completed_subgoal_ids": [],
+        "task_completed": false,
+        "expected_terminal_decision_reached": false
+      },
+      "expected_pass": false,
+      "expected_failure_codes": [
+        "UNKNOWN_VALIDITY",
+        "MISSING_REQUIRED_SUBGOAL_EVIDENCE",
+        "TASK_INSUFFICIENT"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "efc-uninformative-feedback",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-uninformative-feedback",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-uninformative",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "c2c0c56c2d482dd7c5345cf89f9351184552dbcd1f662853f42d31e3c58f74f0",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "12673eae37306364e2f0661b805739d56c9e16cc602848356565c27df764a832",
+            "informativeness_status": "irrelevant",
+            "novelty_status": "new",
+            "retained_in_state": true,
+            "retention_location": "state.subgoal-diagnosis",
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "5b6159cfa4eaafdc7b8b4031e04fb3fc545ec73a896d231ceb8043d151ad4812",
+            "next_action_fingerprint_after": "5b6159cfa4eaafdc7b8b4031e04fb3fc545ec73a896d231ceb8043d151ad4812",
+            "task_sufficiency_status": "sufficient",
+            "evidence_reason_code": "fixture_uninformative"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "completed_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "task_completed": true,
+        "expected_terminal_decision_reached": true
+      },
+      "expected_pass": false,
+      "expected_failure_codes": [
+        "UNINFORMATIVE_FEEDBACK",
+        "MISSING_REQUIRED_SUBGOAL_EVIDENCE",
+        "TASK_INSUFFICIENT"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "efc-redundant-feedback",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-redundant-feedback",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-redundant-first",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "8a3603ade6b057696e1fb9d0154387ed06f6fd2f34f3f51d1ecab97dd1059c0f",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "abcab0c5f30c6c10c99336c68994616ecd25a0eff93f69b445136abea9b9a7b9",
+            "informativeness_status": "informative",
+            "novelty_status": "new",
+            "retained_in_state": true,
+            "retention_location": "state.subgoal-diagnosis",
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "fd50bed784b237af654aed717012d0a621be49bf112a680e723b07025ced1fef",
+            "next_action_fingerprint_after": "fd50bed784b237af654aed717012d0a621be49bf112a680e723b07025ced1fef",
+            "task_sufficiency_status": "insufficient",
+            "evidence_reason_code": "fixture_redundant_first"
+          },
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 2,
+            "event_id": "efc-event-redundant-second",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "8a3603ade6b057696e1fb9d0154387ed06f6fd2f34f3f51d1ecab97dd1059c0f",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "80c535586bfd049a698b5253020793f63eede865df4386a3314578711c87f9ff",
+            "informativeness_status": "informative",
+            "novelty_status": "redundant",
+            "retained_in_state": true,
+            "retention_location": "state.subgoal-diagnosis",
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "d75f181684fd32ab9656b3a6dc6324e31396a5acb066a230d72109240bf6aa2c",
+            "next_action_fingerprint_after": "d75f181684fd32ab9656b3a6dc6324e31396a5acb066a230d72109240bf6aa2c",
+            "task_sufficiency_status": "sufficient",
+            "evidence_reason_code": "fixture_redundant_second"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "completed_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "task_completed": true,
+        "expected_terminal_decision_reached": true
+      },
+      "expected_pass": false,
+      "expected_failure_codes": [
+        "REDUNDANT_FEEDBACK"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "efc-novelty-inconsistent",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-novelty-inconsistent",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-novelty-inconsistent",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "fbde7651a1f211fc66f0ab5936328e3185ed28d99c6af8927d9dbd4ec46cb6f7",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "e8f28db1d400b35529407d70e7d99cfdc2e1957b1ee3626def0da521e4f1cb0c",
+            "informativeness_status": "informative",
+            "novelty_status": "redundant",
+            "retained_in_state": true,
+            "retention_location": "state.subgoal-diagnosis",
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "77eee83fba42b47f4a960a8a70a7ca123bb3aca1a7b9373510ca86dc2be858e4",
+            "next_action_fingerprint_after": "77eee83fba42b47f4a960a8a70a7ca123bb3aca1a7b9373510ca86dc2be858e4",
+            "task_sufficiency_status": "sufficient",
+            "evidence_reason_code": "fixture_novelty_inconsistent"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "completed_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "task_completed": true,
+        "expected_terminal_decision_reached": true
+      },
+      "expected_pass": false,
+      "expected_failure_codes": [
+        "NOVELTY_STATUS_INCONSISTENT",
+        "MISSING_REQUIRED_SUBGOAL_EVIDENCE",
+        "TASK_INSUFFICIENT"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "efc-unretained-valid",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-unretained-valid",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-unretained-valid",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "9696d2eaa0de8d83680216e7262b24b8af311ef62d90ac24a3ffe4c3a0e0ea08",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "892e31f1561abd9ea4eaee2bda96ade8d391dc4631aba2c03901953bc49efb01",
+            "informativeness_status": "informative",
+            "novelty_status": "new",
+            "retained_in_state": false,
+            "retention_location": null,
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "d41531005cf47d54d15bf28c6030750587eb79e91ae3f4dca6a6aebf6ef766d6",
+            "next_action_fingerprint_after": "d41531005cf47d54d15bf28c6030750587eb79e91ae3f4dca6a6aebf6ef766d6",
+            "task_sufficiency_status": "sufficient",
+            "evidence_reason_code": "fixture_unretained_valid"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "completed_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "task_completed": true,
+        "expected_terminal_decision_reached": true
+      },
+      "expected_pass": false,
+      "expected_failure_codes": [
+        "UNRETAINED_VALID_FEEDBACK",
+        "MISSING_REQUIRED_SUBGOAL_EVIDENCE",
+        "TASK_INSUFFICIENT"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "efc-unknown-retention",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-unknown-retention",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-unknown-retention",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "ee917b5c67f89657c05190a8d74bffe1ee0ec449edad3d250d95f1503b8f8c58",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "e6b9694e7178026509e6cb91389158cede84efb6e865140f65674fe804d24b79",
+            "informativeness_status": "informative",
+            "novelty_status": "new",
+            "retained_in_state": null,
+            "retention_location": null,
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "4d8e8622048efde4e014762159905dc9e6d5dd8888c0d9a7498963a88c172e5c",
+            "next_action_fingerprint_after": "4d8e8622048efde4e014762159905dc9e6d5dd8888c0d9a7498963a88c172e5c",
+            "task_sufficiency_status": "sufficient",
+            "evidence_reason_code": "fixture_unknown_retention"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "completed_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "task_completed": true,
+        "expected_terminal_decision_reached": true
+      },
+      "expected_pass": false,
+      "expected_failure_codes": [
+        "UNKNOWN_RETENTION",
+        "MISSING_REQUIRED_SUBGOAL_EVIDENCE",
+        "TASK_INSUFFICIENT"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "efc-task-incomplete",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-task-incomplete",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-task-incomplete",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "a072491643c895e946e2aad36365fa02bfe3297c3606a11f6df5f04df692b5f2",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "9c4db2aa5edd28d50ed82999bf41b4bc6fcc32955467af15321f1bd1d5121934",
+            "informativeness_status": "informative",
+            "novelty_status": "new",
+            "retained_in_state": true,
+            "retention_location": "state.subgoal-diagnosis",
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "cfb0c03136f72a4bb815dd2d7e01a40b78bac03d05c918fc18ed9a1c4a9058dd",
+            "next_action_fingerprint_after": "cfb0c03136f72a4bb815dd2d7e01a40b78bac03d05c918fc18ed9a1c4a9058dd",
+            "task_sufficiency_status": "sufficient",
+            "evidence_reason_code": "fixture_task_incomplete"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis"
+        ],
+        "completed_subgoal_ids": [],
+        "task_completed": false,
+        "expected_terminal_decision_reached": false
+      },
+      "expected_pass": false,
+      "expected_failure_codes": [
+        "TASK_INSUFFICIENT"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "efc-missing-subgoal-evidence",
+      "trajectory": {
+        "schema_version": "1.0.0",
+        "trajectory_id": "efc-trajectory-missing-subgoal-evidence",
+        "trace_id": "11111111-1111-4111-8111-111111111111",
+        "events": [
+          {
+            "schema_version": "1.0.0",
+            "trace_id": "11111111-1111-4111-8111-111111111111",
+            "turn_index": 1,
+            "event_id": "efc-event-missing-subgoal",
+            "subgoal_id": "subgoal-diagnosis",
+            "evidence_source": "retrieval",
+            "evidence_fingerprint": "41553da3b9a3d1dfd3bb75783824490a70cca2b74e0bbe742ae924fd67f456a6",
+            "validity_status": "valid",
+            "validity_evidence_sha256": "8ef5772021ceeae3591be6f5f97a1cc4187b974ac79ba7d00b5b9b4acd17fec2",
+            "informativeness_status": "informative",
+            "novelty_status": "new",
+            "retained_in_state": true,
+            "retention_location": "state.subgoal-diagnosis",
+            "next_action_changed": false,
+            "next_action_fingerprint_before": "1131b6ef3bc4aa3d9115b7ff110ca6d264312813b422a4293bdc2b0cefd6f4f0",
+            "next_action_fingerprint_after": "1131b6ef3bc4aa3d9115b7ff110ca6d264312813b422a4293bdc2b0cefd6f4f0",
+            "task_sufficiency_status": "sufficient",
+            "evidence_reason_code": "fixture_missing_subgoal"
+          }
+        ],
+        "required_subgoal_ids": [
+          "subgoal-diagnosis",
+          "subgoal-resolution"
+        ],
+        "completed_subgoal_ids": [
+          "subgoal-diagnosis",
+          "subgoal-resolution"
+        ],
+        "task_completed": true,
+        "expected_terminal_decision_reached": true
+      },
+      "expected_pass": false,
+      "expected_failure_codes": [
+        "MISSING_REQUIRED_SUBGOAL_EVIDENCE",
+        "TASK_INSUFFICIENT"
+      ],
+      "negative_control": true
+    }
+  ]
+}
