@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0.0",
+  "status": "passed",
+  "fixture_set_id": "auragateway-gate5-route-regulation-v1",
+  "results": [
+    {
+      "case_id": "warm-preservation-authorized",
+      "category": "route",
+      "actual_status": "authorized",
+      "actual_code": "AUTHORIZED_POLICY_DECISION",
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "first-route-change-authorized",
+      "category": "route",
+      "actual_status": "authorized",
+      "actual_code": "AUTHORIZED_POLICY_DECISION",
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "second-route-change-blocked",
+      "category": "route",
+      "actual_status": "blocked",
+      "actual_code": "BLOCKED_ROUTE_THRASH",
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "benchmark-control-exempt-from-thrash",
+      "category": "route",
+      "actual_status": "authorized",
+      "actual_code": "AUTHORIZED_POLICY_DECISION",
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "blocked-policy-remains-blocked",
+      "category": "route",
+      "actual_status": "blocked",
+      "actual_code": "BLOCKED_POLICY_DECISION",
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "bounded-retry-authorized",
+      "category": "retry",
+      "actual_status": "authorized",
+      "actual_code": "AUTHORIZED_BOUNDED_RETRY",
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "ambiguous-response-retry-blocked",
+      "category": "retry",
+      "actual_status": "blocked",
+      "actual_code": "BLOCKED_AMBIGUOUS_DUPLICATE_RISK",
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "non-retryable-failure-blocked",
+      "category": "retry",
+      "actual_status": "blocked",
+      "actual_code": "BLOCKED_NON_RETRYABLE_FAILURE",
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "retry-budget-exhausted",
+      "category": "retry",
+      "actual_status": "blocked",
+      "actual_code": "BLOCKED_RETRY_BUDGET_EXHAUSTED",
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "repeated-recovery-action-blocked",
+      "category": "retry",
+      "actual_status": "blocked",
+      "actual_code": "BLOCKED_INVALID_RETRY",
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "retry-route-change-blocked",
+      "category": "retry",
+      "actual_status": "blocked",
+      "actual_code": "BLOCKED_ROUTE_CHANGE_REQUIRES_POLICY",
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "retry-request-mismatch-blocked",
+      "category": "retry",
+      "actual_status": "blocked",
+      "actual_code": "BLOCKED_RETRY_REQUEST_MISMATCH",
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "retry-after-success-blocked",
+      "category": "retry",
+      "actual_status": "blocked",
+      "actual_code": "BLOCKED_NO_DEFINITE_FAILURE",
+      "expectation_matched": true,
+      "negative_control": true
+    }
+  ],
+  "fixture_count": 13,
+  "negative_control_count": 9,
+  "all_expectations_matched": true,
+  "route_thrash_detected": true,
+  "ambiguous_duplicate_risk_blocked": true,
+  "retry_budget_enforced": true,
+  "invalid_retry_detected": true,
+  "gate_5_regulation_passed": true,
+  "measured_execution_permitted": false
+}

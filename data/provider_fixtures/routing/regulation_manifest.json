@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_path": "data/provider_fixtures/routing/regulation_cases.json",
+  "fixture_sha256": "2bf3aecf36cabf9a1002efd84d39037ee1e4ad640bd8408ea73b2ce624cee300",
+  "report_path": "data/provider_fixtures/routing/regulation_report.json",
+  "report_sha256": "4f74e25dc9b6abf6ba84206bc8d260481225f819afd6a653b30a2fd580766f88",
+  "fixture_count": 13,
+  "negative_control_count": 9,
+  "gate_5_regulation_passed": true
+}
