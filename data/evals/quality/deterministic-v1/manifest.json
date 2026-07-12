@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-gate-6-deterministic-quality-manifest-v1",
+  "fixture_path": "data/evals/quality/deterministic-v1/fixtures.json",
+  "fixture_sha256": "74b37879bc081c36f168ae706d6064c7d0a917cb4607ad0fb77d59777fc4682c",
+  "report_path": "data/evals/quality/deterministic-v1/report.json",
+  "report_sha256": "611fc4df5785e6b047c95c19be7f3b11e2b959b327b95576f25067958f7f8a89",
+  "episode_manifest_path": "data/evals/episodes/manifest.json",
+  "episode_manifest_sha256": "3a77c6fa037c62a1a548c2e5dc13e9668ebd3114cb58903df538bf7fa239ea6b",
+  "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+  "fixture_count": 14,
+  "negative_control_count": 10,
+  "deterministic_scorers_passed": true,
+  "measured_execution_permitted": false
+}

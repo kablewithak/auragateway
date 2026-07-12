@@ -1,0 +1,779 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-6-deterministic-quality-v1",
+  "cases": [
+    {
+      "case_id": "quality-answer-grounded-pass",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-answer-grounded",
+        "episode_id": "ep-func-001",
+        "output_sha256": "cad770cfd4b88645be826438cb1fb2134b38cdd427ec4d61eff5f789010d28b5",
+        "candidate_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient",
+          "response": "Synthetic fixture output; raw response content is not retained in score results.",
+          "citation_ids": [
+            "NR-AUTH-001",
+            "NR-AUTH-002"
+          ],
+          "unresolved_items": []
+        },
+        "retrieved_source_ids": [
+          "NR-AUTH-001",
+          "NR-AUTH-002"
+        ],
+        "claim_evidence": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "citation_source_ids": [
+              "NR-AUTH-001"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "citation_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ]
+          }
+        ],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-001",
+        "entries": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "supporting_source_ids": [
+              "NR-AUTH-001"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "supporting_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": []
+          },
+          {
+            "claim_sha256": "549761af3304e9b3a27fc48bc6915ef86569d3ecb8c0533df7878ced66881232",
+            "supporting_source_ids": [
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-001"
+            ]
+          }
+        ]
+      },
+      "expected_pass": true,
+      "expected_failure_labels": [],
+      "negative_control": false
+    },
+    {
+      "case_id": "quality-structured-output-invalid",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-schema-invalid",
+        "episode_id": "ep-func-001",
+        "output_sha256": "c91f18d9c5592cba775b8a99ee8a9cc468425291d7ce63831a237255898141c3",
+        "candidate_output": {
+          "decision": "answer",
+          "response": "Missing required reason_code.",
+          "citation_ids": [
+            "NR-AUTH-001",
+            "NR-AUTH-002"
+          ],
+          "unresolved_items": []
+        },
+        "retrieved_source_ids": [
+          "NR-AUTH-001",
+          "NR-AUTH-002"
+        ],
+        "claim_evidence": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "citation_source_ids": [
+              "NR-AUTH-001"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "citation_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ]
+          }
+        ],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-001",
+        "entries": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "supporting_source_ids": [
+              "NR-AUTH-001"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "supporting_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": []
+          },
+          {
+            "claim_sha256": "549761af3304e9b3a27fc48bc6915ef86569d3ecb8c0533df7878ced66881232",
+            "supporting_source_ids": [
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-001"
+            ]
+          }
+        ]
+      },
+      "expected_pass": false,
+      "expected_failure_labels": [
+        "STRUCTURED_OUTPUT_INVALID"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-clarification-bypassed",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-clarify-bypassed",
+        "episode_id": "ep-func-002",
+        "output_sha256": "e99d3d1e0880ed1daf21854e406e1c2a8cd66c6003452dc755650357d822fc10",
+        "candidate_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient",
+          "response": "Unsupported guess instead of clarification.",
+          "citation_ids": [
+            "NR-OAUTH-003",
+            "NR-OAUTH-004"
+          ],
+          "unresolved_items": []
+        },
+        "retrieved_source_ids": [
+          "NR-OAUTH-003",
+          "NR-OAUTH-004"
+        ],
+        "claim_evidence": [],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-002",
+        "entries": []
+      },
+      "expected_pass": false,
+      "expected_failure_labels": [
+        "MISSING_CLARIFICATION"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-clarification-complete-pass",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-clarify-complete",
+        "episode_id": "ep-func-002",
+        "output_sha256": "15f0f9c5ea14d1a21a33d0403fc86a863a9b958a810b868815fcd2b6e325c1f5",
+        "candidate_output": {
+          "decision": "clarify",
+          "reason_code": "missing_required_parameter",
+          "question": "Please provide the grant_type and the relevant redacted token request fields.",
+          "missing_fields": [
+            "grant_type",
+            "relevant token request fields"
+          ],
+          "citation_ids": []
+        },
+        "retrieved_source_ids": [
+          "NR-OAUTH-003",
+          "NR-OAUTH-004"
+        ],
+        "claim_evidence": [],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-002",
+        "entries": []
+      },
+      "expected_pass": true,
+      "expected_failure_labels": [],
+      "negative_control": false
+    },
+    {
+      "case_id": "quality-clarification-incomplete",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-clarify-incomplete",
+        "episode_id": "ep-func-002",
+        "output_sha256": "5501861f6c07d21e5c46e098fe721457b50e7f5d115c2bd19c5493249179f6bb",
+        "candidate_output": {
+          "decision": "clarify",
+          "reason_code": "missing_required_parameter",
+          "question": "Please provide the grant_type and the relevant redacted token request fields.",
+          "missing_fields": [
+            "grant_type"
+          ],
+          "citation_ids": []
+        },
+        "retrieved_source_ids": [
+          "NR-OAUTH-003",
+          "NR-OAUTH-004"
+        ],
+        "claim_evidence": [],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-002",
+        "entries": []
+      },
+      "expected_pass": false,
+      "expected_failure_labels": [
+        "MISSING_CLARIFICATION"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-escalation-grounded-pass",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-escalation-grounded",
+        "episode_id": "ep-func-005",
+        "output_sha256": "dc1e280330ca488951107fd5823ca296bcf2c318f27b68d100ba1415cd232c6e",
+        "candidate_output": {
+          "decision": "escalate",
+          "reason_code": "incomplete_documentation",
+          "escalation_reason_code": "documentation_gap",
+          "explanation": "The frozen sources do not define an exact safe production limit.",
+          "evidence_source_ids": [
+            "NR-UPLOAD-022",
+            "NR-UPLOAD-023"
+          ]
+        },
+        "retrieved_source_ids": [
+          "NR-UPLOAD-022",
+          "NR-UPLOAD-023"
+        ],
+        "claim_evidence": [],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-005",
+        "entries": []
+      },
+      "expected_pass": true,
+      "expected_failure_labels": [],
+      "negative_control": false
+    },
+    {
+      "case_id": "quality-escalation-reason-mismatch",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-escalation-mismatch",
+        "episode_id": "ep-func-005",
+        "output_sha256": "c1c74fb491d0d99b63e291cd048dbd2505d4bf9004ffa1482f97759a9b55090a",
+        "candidate_output": {
+          "decision": "escalate",
+          "reason_code": "incomplete_documentation",
+          "escalation_reason_code": "provider_failure",
+          "explanation": "The frozen sources do not define an exact safe production limit.",
+          "evidence_source_ids": [
+            "NR-UPLOAD-022",
+            "NR-UPLOAD-023"
+          ]
+        },
+        "retrieved_source_ids": [
+          "NR-UPLOAD-022",
+          "NR-UPLOAD-023"
+        ],
+        "claim_evidence": [],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-005",
+        "entries": []
+      },
+      "expected_pass": false,
+      "expected_failure_labels": [
+        "ESCALATION_BYPASSED"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-refusal-safe-pass",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-refusal-safe",
+        "episode_id": "ep-func-006",
+        "output_sha256": "fba99982650a54f3531c6a4c92cefc3cb7c563dd4c9307d8959df47a2ed7efa2",
+        "candidate_output": {
+          "decision": "refuse",
+          "reason_code": "unsupported_capability",
+          "refusal_reason_code": "unsupported_product_behaviour",
+          "explanation": "The current sandbox cannot emit that production-only event.",
+          "safe_alternative": "Use a supported sandbox event or a clearly labelled synthetic local fixture."
+        },
+        "retrieved_source_ids": [
+          "NR-SANDBOX-029"
+        ],
+        "claim_evidence": [],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-006",
+        "entries": []
+      },
+      "expected_pass": true,
+      "expected_failure_labels": [],
+      "negative_control": false
+    },
+    {
+      "case_id": "quality-forbidden-stale-source",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-forbidden-stale",
+        "episode_id": "ep-func-006",
+        "output_sha256": "fba99982650a54f3531c6a4c92cefc3cb7c563dd4c9307d8959df47a2ed7efa2",
+        "candidate_output": {
+          "decision": "refuse",
+          "reason_code": "unsupported_capability",
+          "refusal_reason_code": "unsupported_product_behaviour",
+          "explanation": "The current sandbox cannot emit that production-only event.",
+          "safe_alternative": "Use a supported sandbox event or a clearly labelled synthetic local fixture."
+        },
+        "retrieved_source_ids": [
+          "NR-SANDBOX-029",
+          "NR-SANDBOX-030"
+        ],
+        "claim_evidence": [],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-006",
+        "entries": []
+      },
+      "expected_pass": false,
+      "expected_failure_labels": [
+        "FORBIDDEN_SOURCE_USED",
+        "STALE_SOURCE_SELECTED"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-invalid-citation-id",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-invalid-citation",
+        "episode_id": "ep-func-001",
+        "output_sha256": "64917126409db85a2185fead89febb0b597d8173c47c2f12685384fad8634cb9",
+        "candidate_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient",
+          "response": "Synthetic fixture output; raw response content is not retained in score results.",
+          "citation_ids": [
+            "NR-FAKE-999"
+          ],
+          "unresolved_items": []
+        },
+        "retrieved_source_ids": [
+          "NR-AUTH-001",
+          "NR-AUTH-002"
+        ],
+        "claim_evidence": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "citation_source_ids": [
+              "NR-AUTH-001"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "citation_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ]
+          }
+        ],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-001",
+        "entries": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "supporting_source_ids": [
+              "NR-AUTH-001"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "supporting_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": []
+          },
+          {
+            "claim_sha256": "549761af3304e9b3a27fc48bc6915ef86569d3ecb8c0533df7878ced66881232",
+            "supporting_source_ids": [
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-001"
+            ]
+          }
+        ]
+      },
+      "expected_pass": false,
+      "expected_failure_labels": [
+        "INVALID_CITATION_ID",
+        "CITATION_UNSUPPORTED"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-unregistered-claim",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-unregistered-claim",
+        "episode_id": "ep-func-001",
+        "output_sha256": "cad770cfd4b88645be826438cb1fb2134b38cdd427ec4d61eff5f789010d28b5",
+        "candidate_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient",
+          "response": "Synthetic fixture output; raw response content is not retained in score results.",
+          "citation_ids": [
+            "NR-AUTH-001",
+            "NR-AUTH-002"
+          ],
+          "unresolved_items": []
+        },
+        "retrieved_source_ids": [
+          "NR-AUTH-001",
+          "NR-AUTH-002"
+        ],
+        "claim_evidence": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "citation_source_ids": [
+              "NR-AUTH-001"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "citation_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "claim_sha256": "cc83e7c2be090abbdfba79da6656de7315a9f8c89f61446558e84d9751548d16",
+            "citation_source_ids": [
+              "NR-AUTH-001"
+            ]
+          }
+        ],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-001",
+        "entries": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "supporting_source_ids": [
+              "NR-AUTH-001"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "supporting_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": []
+          },
+          {
+            "claim_sha256": "549761af3304e9b3a27fc48bc6915ef86569d3ecb8c0533df7878ced66881232",
+            "supporting_source_ids": [
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-001"
+            ]
+          }
+        ]
+      },
+      "expected_pass": false,
+      "expected_failure_labels": [
+        "CITATION_UNSUPPORTED"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-forbidden-claim",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-forbidden-claim",
+        "episode_id": "ep-func-001",
+        "output_sha256": "cad770cfd4b88645be826438cb1fb2134b38cdd427ec4d61eff5f789010d28b5",
+        "candidate_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient",
+          "response": "Synthetic fixture output; raw response content is not retained in score results.",
+          "citation_ids": [
+            "NR-AUTH-001",
+            "NR-AUTH-002"
+          ],
+          "unresolved_items": []
+        },
+        "retrieved_source_ids": [
+          "NR-AUTH-001",
+          "NR-AUTH-002"
+        ],
+        "claim_evidence": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "citation_source_ids": [
+              "NR-AUTH-001"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "citation_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "claim_sha256": "549761af3304e9b3a27fc48bc6915ef86569d3ecb8c0533df7878ced66881232",
+            "citation_source_ids": [
+              "NR-AUTH-002"
+            ]
+          }
+        ],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-001",
+        "entries": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "supporting_source_ids": [
+              "NR-AUTH-001"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "supporting_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": []
+          },
+          {
+            "claim_sha256": "549761af3304e9b3a27fc48bc6915ef86569d3ecb8c0533df7878ced66881232",
+            "supporting_source_ids": [
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-001"
+            ]
+          }
+        ]
+      },
+      "expected_pass": false,
+      "expected_failure_labels": [
+        "UNSUPPORTED_CLAIM"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-fingerprint-mismatch",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-fingerprint-mismatch",
+        "episode_id": "ep-func-001",
+        "output_sha256": "cad770cfd4b88645be826438cb1fb2134b38cdd427ec4d61eff5f789010d28b5",
+        "candidate_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient",
+          "response": "Synthetic fixture output; raw response content is not retained in score results.",
+          "citation_ids": [
+            "NR-AUTH-001",
+            "NR-AUTH-002"
+          ],
+          "unresolved_items": []
+        },
+        "retrieved_source_ids": [
+          "NR-AUTH-001",
+          "NR-AUTH-002"
+        ],
+        "claim_evidence": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "citation_source_ids": [
+              "NR-AUTH-001"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "citation_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ]
+          }
+        ],
+        "retrieval_configuration_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-001",
+        "entries": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "supporting_source_ids": [
+              "NR-AUTH-001"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "supporting_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": []
+          },
+          {
+            "claim_sha256": "549761af3304e9b3a27fc48bc6915ef86569d3ecb8c0533df7878ced66881232",
+            "supporting_source_ids": [
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-001"
+            ]
+          }
+        ]
+      },
+      "expected_pass": false,
+      "expected_failure_labels": [
+        "CONTRADICTORY_STATE"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-required-source-missing",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-source-missing",
+        "episode_id": "ep-func-001",
+        "output_sha256": "cad770cfd4b88645be826438cb1fb2134b38cdd427ec4d61eff5f789010d28b5",
+        "candidate_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient",
+          "response": "Synthetic fixture output; raw response content is not retained in score results.",
+          "citation_ids": [
+            "NR-AUTH-001",
+            "NR-AUTH-002"
+          ],
+          "unresolved_items": []
+        },
+        "retrieved_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "claim_evidence": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "citation_source_ids": [
+              "NR-AUTH-001"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "citation_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ]
+          }
+        ],
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490"
+      },
+      "claim_support": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-001",
+        "entries": [
+          {
+            "claim_sha256": "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+            "supporting_source_ids": [
+              "NR-AUTH-001"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "claim_sha256": "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d",
+            "supporting_source_ids": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": []
+          },
+          {
+            "claim_sha256": "549761af3304e9b3a27fc48bc6915ef86569d3ecb8c0533df7878ced66881232",
+            "supporting_source_ids": [
+              "NR-AUTH-002"
+            ],
+            "contradicting_source_ids": [
+              "NR-AUTH-001"
+            ]
+          }
+        ]
+      },
+      "expected_pass": false,
+      "expected_failure_labels": [
+        "MISSING_REQUIRED_SOURCE",
+        "CITATION_UNSUPPORTED"
+      ],
+      "negative_control": true
+    }
+  ]
+}
