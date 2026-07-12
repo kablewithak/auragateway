@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-context-boundary-manifest-v1",
+  "status": "candidate",
+  "static_registry_path": "data/context/static_anchor_registry.json",
+  "static_registry_sha256": "172006d5e574c79ff1ed5191eeb61788c9c2e9d6e3fed25cb1cfecbc9c718a4d",
+  "static_anchor_count": 6,
+  "volatile_contract_version": "volatile-append-v1",
+  "canonical_serialization_implemented": false,
+  "hmac_prefix_fingerprinting_implemented": false,
+  "gate_3_passed": false,
+  "measured_execution_permitted": false
+}

@@ -10,7 +10,7 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
-- **Delivery ledger after this slice:** 77 / 200 planned hours (38.5%)
+- **Delivery ledger after this slice:** 82 / 200 planned hours (41%)
 - **Current phase:** Phase 2 — Typed Contracts and Context Compiler
 - **Active proof gate:** Gate 3 — Prefix Determinism
 - **Gate 0 status:** Passed
@@ -19,7 +19,7 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** retrieval and diagnostic eval assets locally validated and hash-frozen
+- **Maturity:** retrieval and diagnostic eval assets hash-frozen; typed context partition boundary locally validated
 
 ## Governing Documents
 
@@ -34,6 +34,8 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - [Gate 1 Retrieval Freeze Report](docs/benchmark/Nimbus_Relay_Gate_1_Freeze_Report.md)
 - [Diagnostic Episode Constitution](docs/benchmark/Nimbus_Relay_Diagnostic_Episode_Constitution.md)
 - [Gate 2 Readiness Report](docs/benchmark/Nimbus_Relay_Gate_2_Readiness_Report.md)
+- [Context Boundary Design](docs/benchmark/AuraGateway_Context_Boundary_Design.md)
+- [Context Boundary Report](docs/benchmark/AuraGateway_Context_Boundary_Report.md)
 
 ## Frozen Retrieval Configuration
 
@@ -133,6 +135,7 @@ python -m auragateway.evals.heldout_runner verify --repo-root .
 python -m auragateway.evals.remediation_runner verify --repo-root .
 python -m auragateway.evals.heldout_v2_runner verify --repo-root .
 python -m auragateway.evals.episode_runner verify --repo-root .
+python -m auragateway.context.runner verify --repo-root .
 ```
 
 Run release gates:
@@ -146,4 +149,4 @@ python -m mypy src tests
 
 ## Phase 2 Boundary
 
-Gate 2 is complete. The next implementation slice introduces the typed static-anchor registry and volatile-append contract before canonical serialization and prefix fingerprinting are implemented.
+The typed static-anchor registry and volatile-append contract are locally validated. Gate 3 remains open. The next slice implements canonical serialization, HMAC-SHA256 prefix fingerprints, mutation audits, and a five-turn prefix-stability report.

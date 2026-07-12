@@ -9,6 +9,18 @@ from auragateway.contracts.chunking import (
     CorpusChunk,
     SourceChunkCount,
 )
+from auragateway.contracts.context import (
+    ContextBoundaryManifest,
+    ContextBoundarySummary,
+    ContextDataClassification,
+    ContextPartition,
+    StaticAnchor,
+    StaticAnchorKind,
+    StaticAnchorRegistry,
+    VolatileAppendItem,
+    VolatileAppendLog,
+    VolatileItemKind,
+)
 from auragateway.contracts.corpus import (
     CorpusInventory,
     CorpusMinimumRequirements,
@@ -177,6 +189,10 @@ __all__ = [
     "ChunkingStrategy",
     "ClarifyDecisionOutput",
     "ClarifyExpectation",
+    "ContextBoundaryManifest",
+    "ContextBoundarySummary",
+    "ContextDataClassification",
+    "ContextPartition",
     "CorpusArtifactRecord",
     "CorpusChunk",
     "CorpusDocumentHeader",
@@ -299,7 +315,13 @@ __all__ = [
     "SourceRetrievalMetadata",
     "SourceRetrievalMetadataRegistry",
     "StalePolicy",
+    "StaticAnchor",
+    "StaticAnchorKind",
+    "StaticAnchorRegistry",
     "TerminalDecision",
     "TerminalDecisionOutput",
     "TerminalReasonCode",
+    "VolatileAppendItem",
+    "VolatileAppendLog",
+    "VolatileItemKind",
 ]
