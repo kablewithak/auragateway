@@ -1,0 +1,1495 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-6-deterministic-quality-v1",
+  "results": [
+    {
+      "case_id": "quality-answer-grounded-pass",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-answer-grounded",
+        "episode_id": "ep-func-001",
+        "output_sha256": "cad770cfd4b88645be826438cb1fb2134b38cdd427ec4d61eff5f789010d28b5",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "answer",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [],
+        "deterministic_quality_passed": true
+      },
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "quality-structured-output-invalid",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-schema-invalid",
+        "episode_id": "ep-func-001",
+        "output_sha256": "c91f18d9c5592cba775b8a99ee8a9cc468425291d7ce63831a237255898141c3",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": false,
+        "terminal_decision": null,
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "failed",
+            "failure_label": "STRUCTURED_OUTPUT_INVALID",
+            "details": [
+              "answer.reason_code: Field required"
+            ]
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [
+          "STRUCTURED_OUTPUT_INVALID"
+        ],
+        "deterministic_quality_passed": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-clarification-bypassed",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-clarify-bypassed",
+        "episode_id": "ep-func-002",
+        "output_sha256": "e99d3d1e0880ed1daf21854e406e1c2a8cd66c6003452dc755650357d822fc10",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "answer",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "failed",
+            "failure_label": "MISSING_CLARIFICATION",
+            "details": [
+              "expected=clarify",
+              "actual=answer"
+            ]
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [
+          "MISSING_CLARIFICATION"
+        ],
+        "deterministic_quality_passed": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-clarification-complete-pass",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-clarify-complete",
+        "episode_id": "ep-func-002",
+        "output_sha256": "15f0f9c5ea14d1a21a33d0403fc86a863a9b958a810b868815fcd2b6e325c1f5",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "clarify",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [],
+        "deterministic_quality_passed": true
+      },
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "quality-clarification-incomplete",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-clarify-incomplete",
+        "episode_id": "ep-func-002",
+        "output_sha256": "5501861f6c07d21e5c46e098fe721457b50e7f5d115c2bd19c5493249179f6bb",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "clarify",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "failed",
+            "failure_label": "MISSING_CLARIFICATION",
+            "details": [
+              "relevant token request fields"
+            ]
+          }
+        ],
+        "failure_labels": [
+          "MISSING_CLARIFICATION"
+        ],
+        "deterministic_quality_passed": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-escalation-grounded-pass",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-escalation-grounded",
+        "episode_id": "ep-func-005",
+        "output_sha256": "dc1e280330ca488951107fd5823ca296bcf2c318f27b68d100ba1415cd232c6e",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "escalate",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [],
+        "deterministic_quality_passed": true
+      },
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "quality-escalation-reason-mismatch",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-escalation-mismatch",
+        "episode_id": "ep-func-005",
+        "output_sha256": "c1c74fb491d0d99b63e291cd048dbd2505d4bf9004ffa1482f97759a9b55090a",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "escalate",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "failed",
+            "failure_label": "ESCALATION_BYPASSED",
+            "details": [
+              "escalation_reason_code"
+            ]
+          }
+        ],
+        "failure_labels": [
+          "ESCALATION_BYPASSED"
+        ],
+        "deterministic_quality_passed": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-refusal-safe-pass",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-refusal-safe",
+        "episode_id": "ep-func-006",
+        "output_sha256": "fba99982650a54f3531c6a4c92cefc3cb7c563dd4c9307d8959df47a2ed7efa2",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "refuse",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [],
+        "deterministic_quality_passed": true
+      },
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "quality-forbidden-stale-source",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-forbidden-stale",
+        "episode_id": "ep-func-006",
+        "output_sha256": "fba99982650a54f3531c6a4c92cefc3cb7c563dd4c9307d8959df47a2ed7efa2",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "refuse",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "failed",
+            "failure_label": "FORBIDDEN_SOURCE_USED",
+            "details": [
+              "NR-SANDBOX-030"
+            ]
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "failed",
+            "failure_label": "STALE_SOURCE_SELECTED",
+            "details": [
+              "NR-SANDBOX-030"
+            ]
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "not_applicable",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [
+          "FORBIDDEN_SOURCE_USED",
+          "STALE_SOURCE_SELECTED"
+        ],
+        "deterministic_quality_passed": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-invalid-citation-id",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-invalid-citation",
+        "episode_id": "ep-func-001",
+        "output_sha256": "64917126409db85a2185fead89febb0b597d8173c47c2f12685384fad8634cb9",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "answer",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "failed",
+            "failure_label": "INVALID_CITATION_ID",
+            "details": [
+              "NR-FAKE-999"
+            ]
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "failed",
+            "failure_label": "CITATION_UNSUPPORTED",
+            "details": [
+              "NR-FAKE-999"
+            ]
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "failed",
+            "failure_label": "CITATION_UNSUPPORTED",
+            "details": [
+              "NR-AUTH-001",
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "failed",
+            "failure_label": "CITATION_UNSUPPORTED",
+            "details": [
+              "111bd4f9398692d08514bba6d1d32c391db62c5d3c626b5e0eb32f1c8c6e35ce",
+              "7737687c04289b17be24509e8726524dd0cd824b6dc2c1cdab4c4cea891bd59d"
+            ]
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [
+          "INVALID_CITATION_ID",
+          "CITATION_UNSUPPORTED"
+        ],
+        "deterministic_quality_passed": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-unregistered-claim",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-unregistered-claim",
+        "episode_id": "ep-func-001",
+        "output_sha256": "cad770cfd4b88645be826438cb1fb2134b38cdd427ec4d61eff5f789010d28b5",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "answer",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "failed",
+            "failure_label": "CITATION_UNSUPPORTED",
+            "details": [
+              "cc83e7c2be090abbdfba79da6656de7315a9f8c89f61446558e84d9751548d16"
+            ]
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [
+          "CITATION_UNSUPPORTED"
+        ],
+        "deterministic_quality_passed": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-forbidden-claim",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-forbidden-claim",
+        "episode_id": "ep-func-001",
+        "output_sha256": "cad770cfd4b88645be826438cb1fb2134b38cdd427ec4d61eff5f789010d28b5",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "answer",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "failed",
+            "failure_label": "UNSUPPORTED_CLAIM",
+            "details": [
+              "549761af3304e9b3a27fc48bc6915ef86569d3ecb8c0533df7878ced66881232"
+            ]
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [
+          "UNSUPPORTED_CLAIM"
+        ],
+        "deterministic_quality_passed": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-fingerprint-mismatch",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-fingerprint-mismatch",
+        "episode_id": "ep-func-001",
+        "output_sha256": "cad770cfd4b88645be826438cb1fb2134b38cdd427ec4d61eff5f789010d28b5",
+        "retrieval_configuration_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "structured_output_valid": true,
+        "terminal_decision": "answer",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "failed",
+            "failure_label": "CONTRADICTORY_STATE",
+            "details": [
+              "retrieval_configuration_fingerprint"
+            ]
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [
+          "CONTRADICTORY_STATE"
+        ],
+        "deterministic_quality_passed": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-required-source-missing",
+      "scorecard": {
+        "schema_version": "1.0.0",
+        "trace_id": "quality-trace-source-missing",
+        "episode_id": "ep-func-001",
+        "output_sha256": "cad770cfd4b88645be826438cb1fb2134b38cdd427ec4d61eff5f789010d28b5",
+        "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+        "structured_output_valid": true,
+        "terminal_decision": "answer",
+        "checks": [
+          {
+            "check_name": "structured_output_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "configuration_fingerprint_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_decision_correct",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "retrieved_source_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_sources_present",
+            "status": "failed",
+            "failure_label": "MISSING_REQUIRED_SOURCE",
+            "details": [
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "check_name": "forbidden_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "unscoped_stale_sources_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_ids_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "citations_retrieved",
+            "status": "failed",
+            "failure_label": "CITATION_UNSUPPORTED",
+            "details": [
+              "NR-AUTH-002"
+            ]
+          },
+          {
+            "check_name": "required_citations_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "required_claims_present",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "forbidden_claims_absent",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "claim_citation_support_valid",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          },
+          {
+            "check_name": "terminal_expectation_details_match",
+            "status": "passed",
+            "failure_label": null,
+            "details": []
+          }
+        ],
+        "failure_labels": [
+          "MISSING_REQUIRED_SOURCE",
+          "CITATION_UNSUPPORTED"
+        ],
+        "deterministic_quality_passed": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    }
+  ],
+  "fixture_count": 14,
+  "negative_control_count": 10,
+  "all_expectations_matched": true,
+  "deterministic_scorers_passed": true,
+  "measured_execution_permitted": false
+}
