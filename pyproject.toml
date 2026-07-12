@@ -33,6 +33,7 @@ auragateway-validate-gate-one-v2 = "auragateway.evals.heldout_v2_runner:main"
 auragateway-validate-episodes = "auragateway.evals.episode_runner:main"
 auragateway-validate-context-boundary = "auragateway.context.runner:main"
 auragateway-validate-prefix-determinism = "auragateway.context.prefix_runner:main"
+auragateway-validate-telemetry-integrity = "auragateway.telemetry.runner:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -59,4 +60,3 @@ strict = true
 plugins = ["pydantic.mypy"]
 files = ["src", "tests"]
 warn_unused_configs = true
-

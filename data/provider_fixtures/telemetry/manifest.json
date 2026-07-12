@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-gate-4-telemetry-manifest-v1",
+  "status": "frozen",
+  "fixture_path": "data/provider_fixtures/telemetry/fixtures.json",
+  "fixture_sha256": "a18ac6c8e09589be3a9173bfc75ccbd0fa3fa805bba84d94911ee4840817dcee",
+  "report_path": "data/provider_fixtures/telemetry/report.json",
+  "report_sha256": "185d26a3d0f117a3054bef7f1390117a199232d3d66d3f66c7d84c8b1f65d624",
+  "fixture_count": 8,
+  "negative_control_count": 6,
+  "gate_4_passed": true,
+  "measured_execution_permitted": false,
+  "required_next_work": "primary_live_provider_adapter"
+}

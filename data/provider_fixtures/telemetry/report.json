@@ -1,0 +1,602 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "auragateway-gate-4-telemetry-report-v1",
+  "status": "passed",
+  "fixture_set_id": "auragateway-gate-4-telemetry-fixtures-v1",
+  "results": [
+    {
+      "case_id": "cached-detail-valid",
+      "semantic_family": "cached_input_detail",
+      "evidence_level": "observed_provider",
+      "invocation_output_sha256": "4a235a0df465dec1f4819f5e94d8d1996a9b9b89ac1db225d9171d74307f672e",
+      "normalized_telemetry": {
+        "schema_version": "1.0.0",
+        "fixture_id": "cached-detail-valid",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "semantic_family": "cached_input_detail",
+        "evidence_level": "observed_provider",
+        "denominator_kind": "provider_input_total",
+        "accounting_input_tokens": 1000,
+        "provider_input_tokens": 1000,
+        "provider_output_tokens": 120,
+        "provider_cached_input_tokens": 700,
+        "provider_uncached_input_tokens": 300,
+        "provider_cache_creation_input_tokens": null,
+        "provider_cache_read_input_tokens": null,
+        "local_prompt_eval_count": null,
+        "local_prompt_eval_duration_ms": null,
+        "time_to_first_output_ms": 220,
+        "total_duration_ms": 810
+      },
+      "sufficiency": {
+        "fixture_id": "cached-detail-valid",
+        "decisions": [
+          {
+            "claim_kind": "cache_efficiency",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "provider_input_tokens",
+              "provider_cached_input_tokens"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "latency",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "time_to_first_output_ms",
+              "total_duration_ms"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "estimated_cost",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "standard_input_per_million",
+              "cached_input_per_million",
+              "output_per_million"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          }
+        ]
+      },
+      "expectations_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "creation-read-valid",
+      "semantic_family": "cache_creation_read",
+      "evidence_level": "observed_provider",
+      "invocation_output_sha256": "47ca9f6a9a34657202a1449480a1cb08ad5fd94609e3a3be71a6f827d139d3a8",
+      "normalized_telemetry": {
+        "schema_version": "1.0.0",
+        "fixture_id": "creation-read-valid",
+        "provider": "anthropic",
+        "model_alias": "synthetic-anthropic-cache-model",
+        "semantic_family": "cache_creation_read",
+        "evidence_level": "observed_provider",
+        "denominator_kind": "provider_component_sum",
+        "accounting_input_tokens": 1500,
+        "provider_input_tokens": null,
+        "provider_output_tokens": 110,
+        "provider_cached_input_tokens": null,
+        "provider_uncached_input_tokens": 300,
+        "provider_cache_creation_input_tokens": 500,
+        "provider_cache_read_input_tokens": 700,
+        "local_prompt_eval_count": null,
+        "local_prompt_eval_duration_ms": null,
+        "time_to_first_output_ms": 245,
+        "total_duration_ms": 930
+      },
+      "sufficiency": {
+        "fixture_id": "creation-read-valid",
+        "decisions": [
+          {
+            "claim_kind": "cache_efficiency",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "provider_uncached_input_tokens",
+              "provider_cache_creation_input_tokens",
+              "provider_cache_read_input_tokens"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "latency",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "time_to_first_output_ms",
+              "total_duration_ms"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "estimated_cost",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "standard_input_per_million",
+              "cache_creation_input_per_million",
+              "cache_read_input_per_million",
+              "output_per_million"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          }
+        ]
+      },
+      "expectations_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "local-timing-only",
+      "semantic_family": "local_prompt_evaluation",
+      "evidence_level": "inferred_local",
+      "invocation_output_sha256": "0683e074524fc15f7f6b838a4c780d9379313cd0775a291671ddf0a2be333c58",
+      "normalized_telemetry": {
+        "schema_version": "1.0.0",
+        "fixture_id": "local-timing-only",
+        "provider": "ollama",
+        "model_alias": "synthetic-ollama-local-model",
+        "semantic_family": "local_prompt_evaluation",
+        "evidence_level": "inferred_local",
+        "denominator_kind": "local_prompt_eval_count",
+        "accounting_input_tokens": 900,
+        "provider_input_tokens": null,
+        "provider_output_tokens": 95,
+        "provider_cached_input_tokens": null,
+        "provider_uncached_input_tokens": null,
+        "provider_cache_creation_input_tokens": null,
+        "provider_cache_read_input_tokens": null,
+        "local_prompt_eval_count": 900,
+        "local_prompt_eval_duration_ms": 360,
+        "time_to_first_output_ms": null,
+        "total_duration_ms": 820
+      },
+      "sufficiency": {
+        "fixture_id": "local-timing-only",
+        "decisions": [
+          {
+            "claim_kind": "cache_efficiency",
+            "decision": "blocked",
+            "reason_code": "CACHE_EVIDENCE_UNAVAILABLE",
+            "evidence_level": "inferred_local",
+            "required_fields": [
+              "provider_cache_token_evidence"
+            ],
+            "missing_fields": [
+              "provider_cache_token_evidence"
+            ],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "latency",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "inferred_local",
+            "required_fields": [
+              "total_duration_ms",
+              "local_prompt_eval_duration_ms"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "estimated_cost",
+            "decision": "blocked",
+            "reason_code": "TOKEN_EVIDENCE_UNAVAILABLE",
+            "evidence_level": "inferred_local",
+            "required_fields": [
+              "provider_token_accounting"
+            ],
+            "missing_fields": [
+              "provider_token_accounting"
+            ],
+            "invalid_fields": []
+          }
+        ]
+      },
+      "expectations_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "missing-cache-field",
+      "semantic_family": "cached_input_detail",
+      "evidence_level": "observed_provider",
+      "invocation_output_sha256": "e51bf69ea9941bf366966274cd82af29c39f42af060015dc44108eab1c1a766f",
+      "normalized_telemetry": {
+        "schema_version": "1.0.0",
+        "fixture_id": "missing-cache-field",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "semantic_family": "cached_input_detail",
+        "evidence_level": "observed_provider",
+        "denominator_kind": "provider_input_total",
+        "accounting_input_tokens": 1000,
+        "provider_input_tokens": 1000,
+        "provider_output_tokens": 100,
+        "provider_cached_input_tokens": null,
+        "provider_uncached_input_tokens": null,
+        "provider_cache_creation_input_tokens": null,
+        "provider_cache_read_input_tokens": null,
+        "local_prompt_eval_count": null,
+        "local_prompt_eval_duration_ms": null,
+        "time_to_first_output_ms": 230,
+        "total_duration_ms": 840
+      },
+      "sufficiency": {
+        "fixture_id": "missing-cache-field",
+        "decisions": [
+          {
+            "claim_kind": "cache_efficiency",
+            "decision": "blocked",
+            "reason_code": "CACHE_EVIDENCE_UNAVAILABLE",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "provider_input_tokens",
+              "provider_cached_input_tokens"
+            ],
+            "missing_fields": [
+              "provider_cached_input_tokens"
+            ],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "latency",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "time_to_first_output_ms",
+              "total_duration_ms"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "estimated_cost",
+            "decision": "blocked",
+            "reason_code": "TOKEN_EVIDENCE_UNAVAILABLE",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "provider_input_tokens",
+              "provider_cached_input_tokens"
+            ],
+            "missing_fields": [
+              "provider_cached_input_tokens"
+            ],
+            "invalid_fields": []
+          }
+        ]
+      },
+      "expectations_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "invalid-cache-denominator",
+      "semantic_family": "cached_input_detail",
+      "evidence_level": "observed_provider",
+      "invocation_output_sha256": "0c8ccf047d6efa504b7ac965ca9c9070a80736b576c1418e740514e1dfbfbc86",
+      "normalized_telemetry": {
+        "schema_version": "1.0.0",
+        "fixture_id": "invalid-cache-denominator",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "semantic_family": "cached_input_detail",
+        "evidence_level": "observed_provider",
+        "denominator_kind": "provider_input_total",
+        "accounting_input_tokens": 500,
+        "provider_input_tokens": 500,
+        "provider_output_tokens": 90,
+        "provider_cached_input_tokens": 700,
+        "provider_uncached_input_tokens": null,
+        "provider_cache_creation_input_tokens": null,
+        "provider_cache_read_input_tokens": null,
+        "local_prompt_eval_count": null,
+        "local_prompt_eval_duration_ms": null,
+        "time_to_first_output_ms": 210,
+        "total_duration_ms": 790
+      },
+      "sufficiency": {
+        "fixture_id": "invalid-cache-denominator",
+        "decisions": [
+          {
+            "claim_kind": "cache_efficiency",
+            "decision": "blocked",
+            "reason_code": "CACHE_SEMANTICS_MISMATCH",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "provider_input_tokens",
+              "provider_cached_input_tokens"
+            ],
+            "missing_fields": [],
+            "invalid_fields": [
+              "provider_input_tokens",
+              "provider_cached_input_tokens"
+            ]
+          },
+          {
+            "claim_kind": "latency",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "time_to_first_output_ms",
+              "total_duration_ms"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "estimated_cost",
+            "decision": "blocked",
+            "reason_code": "CACHE_SEMANTICS_MISMATCH",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "provider_input_tokens",
+              "provider_cached_input_tokens"
+            ],
+            "missing_fields": [],
+            "invalid_fields": [
+              "provider_input_tokens",
+              "provider_cached_input_tokens"
+            ]
+          }
+        ]
+      },
+      "expectations_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "missing-latency-fields",
+      "semantic_family": "cache_creation_read",
+      "evidence_level": "observed_provider",
+      "invocation_output_sha256": "50add10e2d4c87f27333c9d88b0d069a9dbd2cbdcfa5b7e421f407daa50193fb",
+      "normalized_telemetry": {
+        "schema_version": "1.0.0",
+        "fixture_id": "missing-latency-fields",
+        "provider": "anthropic",
+        "model_alias": "synthetic-anthropic-cache-model",
+        "semantic_family": "cache_creation_read",
+        "evidence_level": "observed_provider",
+        "denominator_kind": "provider_component_sum",
+        "accounting_input_tokens": 1000,
+        "provider_input_tokens": null,
+        "provider_output_tokens": 100,
+        "provider_cached_input_tokens": null,
+        "provider_uncached_input_tokens": 250,
+        "provider_cache_creation_input_tokens": 250,
+        "provider_cache_read_input_tokens": 500,
+        "local_prompt_eval_count": null,
+        "local_prompt_eval_duration_ms": null,
+        "time_to_first_output_ms": null,
+        "total_duration_ms": null
+      },
+      "sufficiency": {
+        "fixture_id": "missing-latency-fields",
+        "decisions": [
+          {
+            "claim_kind": "cache_efficiency",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "provider_uncached_input_tokens",
+              "provider_cache_creation_input_tokens",
+              "provider_cache_read_input_tokens"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "latency",
+            "decision": "blocked",
+            "reason_code": "LATENCY_EVIDENCE_UNAVAILABLE",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "time_to_first_output_ms",
+              "total_duration_ms",
+              "local_prompt_eval_duration_ms"
+            ],
+            "missing_fields": [
+              "time_to_first_output_ms",
+              "total_duration_ms",
+              "local_prompt_eval_duration_ms"
+            ],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "estimated_cost",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "standard_input_per_million",
+              "cache_creation_input_per_million",
+              "cache_read_input_per_million",
+              "output_per_million"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          }
+        ]
+      },
+      "expectations_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "missing-pricing-schedule",
+      "semantic_family": "cached_input_detail",
+      "evidence_level": "observed_provider",
+      "invocation_output_sha256": "95a8ae8ce366986ee3b1071f3234a3f5287d3fb5216b77f7abb42ad3b43994eb",
+      "normalized_telemetry": {
+        "schema_version": "1.0.0",
+        "fixture_id": "missing-pricing-schedule",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "semantic_family": "cached_input_detail",
+        "evidence_level": "observed_provider",
+        "denominator_kind": "provider_input_total",
+        "accounting_input_tokens": 800,
+        "provider_input_tokens": 800,
+        "provider_output_tokens": 80,
+        "provider_cached_input_tokens": 400,
+        "provider_uncached_input_tokens": 400,
+        "provider_cache_creation_input_tokens": null,
+        "provider_cache_read_input_tokens": null,
+        "local_prompt_eval_count": null,
+        "local_prompt_eval_duration_ms": null,
+        "time_to_first_output_ms": 200,
+        "total_duration_ms": 730
+      },
+      "sufficiency": {
+        "fixture_id": "missing-pricing-schedule",
+        "decisions": [
+          {
+            "claim_kind": "cache_efficiency",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "provider_input_tokens",
+              "provider_cached_input_tokens"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "latency",
+            "decision": "permitted",
+            "reason_code": "CLAIM_PERMITTED",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "time_to_first_output_ms",
+              "total_duration_ms"
+            ],
+            "missing_fields": [],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "estimated_cost",
+            "decision": "blocked",
+            "reason_code": "PRICING_EVIDENCE_UNAVAILABLE",
+            "evidence_level": "observed_provider",
+            "required_fields": [
+              "pricing_schedule"
+            ],
+            "missing_fields": [
+              "pricing_schedule"
+            ],
+            "invalid_fields": []
+          }
+        ]
+      },
+      "expectations_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "telemetry-unavailable",
+      "semantic_family": "unavailable",
+      "evidence_level": "unavailable",
+      "invocation_output_sha256": "df84920c5fda6179f1a847161fd141a782c064543b0a933cdc31b5653bf1baf2",
+      "normalized_telemetry": {
+        "schema_version": "1.0.0",
+        "fixture_id": "telemetry-unavailable",
+        "provider": "unavailable",
+        "model_alias": "synthetic-unavailable-model",
+        "semantic_family": "unavailable",
+        "evidence_level": "unavailable",
+        "denominator_kind": "unavailable",
+        "accounting_input_tokens": null,
+        "provider_input_tokens": null,
+        "provider_output_tokens": null,
+        "provider_cached_input_tokens": null,
+        "provider_uncached_input_tokens": null,
+        "provider_cache_creation_input_tokens": null,
+        "provider_cache_read_input_tokens": null,
+        "local_prompt_eval_count": null,
+        "local_prompt_eval_duration_ms": null,
+        "time_to_first_output_ms": null,
+        "total_duration_ms": null
+      },
+      "sufficiency": {
+        "fixture_id": "telemetry-unavailable",
+        "decisions": [
+          {
+            "claim_kind": "cache_efficiency",
+            "decision": "blocked",
+            "reason_code": "CACHE_EVIDENCE_UNAVAILABLE",
+            "evidence_level": "unavailable",
+            "required_fields": [
+              "provider_cache_token_evidence"
+            ],
+            "missing_fields": [
+              "provider_cache_token_evidence"
+            ],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "latency",
+            "decision": "blocked",
+            "reason_code": "LATENCY_EVIDENCE_UNAVAILABLE",
+            "evidence_level": "unavailable",
+            "required_fields": [
+              "time_to_first_output_ms",
+              "total_duration_ms",
+              "local_prompt_eval_duration_ms"
+            ],
+            "missing_fields": [
+              "time_to_first_output_ms",
+              "total_duration_ms",
+              "local_prompt_eval_duration_ms"
+            ],
+            "invalid_fields": []
+          },
+          {
+            "claim_kind": "estimated_cost",
+            "decision": "blocked",
+            "reason_code": "TOKEN_EVIDENCE_UNAVAILABLE",
+            "evidence_level": "unavailable",
+            "required_fields": [
+              "provider_token_accounting"
+            ],
+            "missing_fields": [
+              "provider_token_accounting"
+            ],
+            "invalid_fields": []
+          }
+        ]
+      },
+      "expectations_matched": true,
+      "negative_control": true
+    }
+  ],
+  "fixture_count": 8,
+  "negative_control_count": 6,
+  "all_expectations_matched": true,
+  "provider_semantics_preserved": true,
+  "unknown_values_remained_none": true,
+  "local_timing_separated_from_provider_cache": true,
+  "raw_provider_payloads_persisted": false,
+  "gate_4_passed": true,
+  "measured_execution_permitted": false,
+  "required_next_work": "primary_live_provider_adapter"
+}
