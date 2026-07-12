@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-5-session-route-state-v1",
+  "valid_cases": [
+    {
+      "case_id": "cold-bound-session-start",
+      "payload": {
+        "schema_version": "1.0.0",
+        "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+        "active_provider": "groq",
+        "active_model": "groq-gpt-oss-20b",
+        "last_cache_evidence_at": null,
+        "cache_affinity_status": "cold",
+        "route_change_count": 0,
+        "last_route_reason": "session_start"
+      }
+    },
+    {
+      "case_id": "plausibly-warm-preserved",
+      "payload": {
+        "schema_version": "1.0.0",
+        "session_id_hash": "20bd31ca992f9a2624b02f615f1fecd59e1bddaaa41ae9b496ba040e0c5ccbf8",
+        "active_provider": "ollama",
+        "active_model": "ollama-llama3.2-3b",
+        "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+        "cache_affinity_status": "plausibly_warm",
+        "route_change_count": 0,
+        "last_route_reason": "warm_cache_affinity"
+      }
+    },
+    {
+      "case_id": "expired-route-awaiting-reevaluation",
+      "payload": {
+        "schema_version": "1.0.0",
+        "session_id_hash": "c7d2bddce264d5f4850bcb87b56b7ead8e8cbaab7d0e7d0864bdf02fc89f0143",
+        "active_provider": "groq",
+        "active_model": "groq-gpt-oss-20b",
+        "last_cache_evidence_at": "2026-07-12T15:55:00Z",
+        "cache_affinity_status": "expired",
+        "route_change_count": 1,
+        "last_route_reason": "ttl_expired"
+      }
+    },
+    {
+      "case_id": "reset-unbound-session",
+      "payload": {
+        "schema_version": "1.0.0",
+        "session_id_hash": "a5bff52e06309f6ca7b5954da56ce2a91c6b46b2a2f1e9cf9b9e69f4e28987df",
+        "active_provider": null,
+        "active_model": null,
+        "last_cache_evidence_at": null,
+        "cache_affinity_status": "cold",
+        "route_change_count": 1,
+        "last_route_reason": "session_reset"
+      }
+    }
+  ],
+  "invalid_cases": [
+    {
+      "case_id": "provider-without-model",
+      "expected_error_fragment": "active_provider and active_model must be present or absent together",
+      "payload": {
+        "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+        "active_provider": "groq",
+        "active_model": null,
+        "last_cache_evidence_at": null,
+        "cache_affinity_status": "cold",
+        "route_change_count": 0,
+        "last_route_reason": "session_start"
+      }
+    },
+    {
+      "case_id": "warm-without-evidence",
+      "expected_error_fragment": "warm or expired route state requires an active route and evidence timestamp",
+      "payload": {
+        "session_id_hash": "20bd31ca992f9a2624b02f615f1fecd59e1bddaaa41ae9b496ba040e0c5ccbf8",
+        "active_provider": "ollama",
+        "active_model": "ollama-llama3.2-3b",
+        "last_cache_evidence_at": null,
+        "cache_affinity_status": "plausibly_warm",
+        "route_change_count": 0,
+        "last_route_reason": "warm_cache_affinity"
+      }
+    },
+    {
+      "case_id": "expired-without-route",
+      "expected_error_fragment": "warm or expired route state requires an active route and evidence timestamp",
+      "payload": {
+        "session_id_hash": "c7d2bddce264d5f4850bcb87b56b7ead8e8cbaab7d0e7d0864bdf02fc89f0143",
+        "active_provider": null,
+        "active_model": null,
+        "last_cache_evidence_at": "2026-07-12T15:55:00Z",
+        "cache_affinity_status": "expired",
+        "route_change_count": 1,
+        "last_route_reason": "ttl_expired"
+      }
+    },
+    {
+      "case_id": "session-start-with-change-count",
+      "expected_error_fragment": "session_start requires route_change_count equal to zero",
+      "payload": {
+        "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+        "active_provider": "groq",
+        "active_model": "groq-gpt-oss-20b",
+        "last_cache_evidence_at": null,
+        "cache_affinity_status": "cold",
+        "route_change_count": 2,
+        "last_route_reason": "session_start"
+      }
+    },
+    {
+      "case_id": "warm-reason-with-cold-status",
+      "expected_error_fragment": "warm_cache_affinity requires plausibly_warm state",
+      "payload": {
+        "session_id_hash": "20bd31ca992f9a2624b02f615f1fecd59e1bddaaa41ae9b496ba040e0c5ccbf8",
+        "active_provider": "ollama",
+        "active_model": "ollama-llama3.2-3b",
+        "last_cache_evidence_at": null,
+        "cache_affinity_status": "cold",
+        "route_change_count": 0,
+        "last_route_reason": "warm_cache_affinity"
+      }
+    },
+    {
+      "case_id": "unknown-route-reason",
+      "expected_error_fragment": "Input should be",
+      "payload": {
+        "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+        "active_provider": "groq",
+        "active_model": "groq-gpt-oss-20b",
+        "last_cache_evidence_at": null,
+        "cache_affinity_status": "cold",
+        "route_change_count": 0,
+        "last_route_reason": "manual_override"
+      }
+    }
+  ]
+}
