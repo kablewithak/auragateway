@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0.0",
+  "plan_id": "benchmark-plan-auragateway-abc-v1",
+  "execution_manifest_id": "execution-manifest-auragateway-v1-draft",
+  "checks": [
+    {
+      "check_name": "execution_manifest_valid",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "execution manifest must contain all typed identity and asset fields"
+      ]
+    },
+    {
+      "check_name": "execution_manifest_assets_resolved",
+      "status": "failed",
+      "failure_code": "EXECUTION_MANIFEST_ASSETS_UNRESOLVED",
+      "details": [
+        "pricing_schedule_version",
+        "pricing_source_date",
+        "currency",
+        "negative_control_manifest_sha256",
+        "fault_injection_fixture_sha256",
+        "privacy_verification_report_sha256",
+        "cross_condition_isolation_test_sha256"
+      ]
+    },
+    {
+      "check_name": "execution_manifest_frozen",
+      "status": "failed",
+      "failure_code": "EXECUTION_MANIFEST_NOT_FROZEN",
+      "details": [
+        "measured execution requires the canonical manifest to be frozen"
+      ]
+    },
+    {
+      "check_name": "execution_manifest_hash_valid",
+      "status": "not_applicable",
+      "failure_code": null,
+      "details": [
+        "draft manifests do not carry a frozen self-hash"
+      ]
+    },
+    {
+      "check_name": "provider_configuration_ready",
+      "status": "failed",
+      "failure_code": "PROVIDER_CONFIGURATION_NOT_READY",
+      "details": [
+        "provider credentials are represented only as a configured boolean"
+      ]
+    },
+    {
+      "check_name": "provider_live_probe_passed",
+      "status": "failed",
+      "failure_code": "PROVIDER_LIVE_PROBE_NOT_PASSED",
+      "details": [
+        "a bounded live dry-run probe is required before measured execution"
+      ]
+    },
+    {
+      "check_name": "request_budget_sufficient",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "request budget must cover 342 trajectories, 1368 turns, and 2736 attempts"
+      ]
+    },
+    {
+      "check_name": "cost_budget_declared",
+      "status": "failed",
+      "failure_code": "COST_BUDGET_NOT_DECLARED",
+      "details": [
+        "a versioned approved cost ceiling is required before provider execution"
+      ]
+    },
+    {
+      "check_name": "functional_matrix_complete",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "functional plan requires 18 episodes, 3 replications, and A/B/C"
+      ]
+    },
+    {
+      "check_name": "runtime_matrix_complete",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "runtime plan requires 6 episodes, 10 replications, and A/B/C"
+      ]
+    },
+    {
+      "check_name": "evidence_vault_contract_valid",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "public and protected evidence roots must remain separated"
+      ]
+    },
+    {
+      "check_name": "execution_disabled_by_default",
+      "status": "passed",
+      "failure_code": null,
+      "details": [
+        "planning commands must not execute provider calls"
+      ]
+    }
+  ],
+  "failure_codes": [
+    "EXECUTION_MANIFEST_ASSETS_UNRESOLVED",
+    "EXECUTION_MANIFEST_NOT_FROZEN",
+    "PROVIDER_CONFIGURATION_NOT_READY",
+    "PROVIDER_LIVE_PROBE_NOT_PASSED",
+    "COST_BUDGET_NOT_DECLARED"
+  ],
+  "functional_trajectory_count": 162,
+  "runtime_trajectory_count": 180,
+  "total_trajectory_count": 342,
+  "total_turn_count": 1368,
+  "maximum_request_attempt_count": 2736,
+  "planning_ready": true,
+  "measured_execution_ready": false,
+  "execution_enabled": false,
+  "measured_execution_permitted": false
+}

@@ -43,6 +43,7 @@ auragateway-validate-prefix-determinism = "auragateway.context.prefix_runner:mai
 auragateway-validate-telemetry-integrity = "auragateway.telemetry.runner:main"
 auragateway-calibrate-providers = "auragateway.providers.calibration_runner:main"
 auragateway-validate-route-regulation = "auragateway.routing.regulation_runner:main"
+auragateway-benchmark-preflight = "auragateway.benchmark.preflight_runner:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
