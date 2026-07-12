@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "smoke_id": "auragateway-development-controlled-smoke-v1",
+  "authorization_id": "development-controlled-smoke-auth-v1",
+  "execution_manifest_sha256": "ce6e6174f33d50d66d4a54f0a3b80bfd6dfbeb865076e6851dca15395a4f5862",
+  "selected_episode_ids": [
+    "ep-func-001"
+  ],
+  "selected_run_count": 3,
+  "terminal_record_count": 3,
+  "attempt_record_count": 11,
+  "retry_authorized_count": 1,
+  "ambiguous_retry_blocked_count": 1,
+  "terminal_status_counts": [
+    {
+      "terminal_status": "completed",
+      "count": 2
+    },
+    {
+      "terminal_status": "aborted_safety_control",
+      "count": 1
+    }
+  ],
+  "expected_terminal_statuses_matched": true,
+  "attempt_budget_respected": true,
+  "cost_budget_respected": true,
+  "resume_preserved_terminal_records": true,
+  "development_only": true,
+  "live_provider_called": false,
+  "held_out_executed": false,
+  "full_benchmark_executed": false,
+  "benchmark_claims_permitted": false,
+  "smoke_passed": true,
+  "measured_execution_permitted": false
+}

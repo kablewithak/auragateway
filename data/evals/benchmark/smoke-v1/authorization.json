@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "smoke_id": "auragateway-development-controlled-smoke-v1",
+  "authorization_id": "development-controlled-smoke-auth-v1",
+  "execution_manifest_sha256": "ce6e6174f33d50d66d4a54f0a3b80bfd6dfbeb865076e6851dca15395a4f5862",
+  "gate10_manifest_sha256": "9aca4dffc78a30a8af2d258dd990b7f1a71e76ae424f42ba42d5cebe250d2b9e",
+  "gate9_manifest_sha256": "9645e3b2a39107fe0bf1ec11725af3ceae90ee2cf2899796a1d79214c6fa80da",
+  "planned_run_ledger_sha256": "bc7767f35822ecc6b61ce351cc29e0695f677eab34e2ca0bc13d1109d8b9ac50",
+  "functional_episode_set_sha256": "6229df94a6a426f815a2050172a79e115d9554031239043b397140ce13894285",
+  "allowed_episode_ids": [
+    "ep-func-001"
+  ],
+  "allowed_run_ids": [
+    "run-functional-ep-func-001-r01-condition-a",
+    "run-functional-ep-func-001-r01-condition-b",
+    "run-functional-ep-func-001-r01-condition-c"
+  ],
+  "allowed_conditions": [
+    "condition_a",
+    "condition_b",
+    "condition_c"
+  ],
+  "maximum_run_count": 3,
+  "maximum_total_attempt_count": 11,
+  "maximum_total_cost_microusd": 5000,
+  "turns_per_run": 4,
+  "development_only": true,
+  "scripted_execution_only": true,
+  "live_provider_execution_permitted": false,
+  "held_out_execution_permitted": false,
+  "full_benchmark_execution_permitted": false,
+  "benchmark_claims_permitted": false
+}

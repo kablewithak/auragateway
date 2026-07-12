@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-gate-11-controlled-smoke-manifest-v1",
+  "authorization_path": "data/evals/benchmark/smoke-v1/authorization.json",
+  "authorization_sha256": "41080fb99bc93a60c61697a1b85c297f63aa373e052bcc48e4d85309448b5b0e",
+  "fixture_path": "data/evals/benchmark/smoke-v1/scripted_attempts.json",
+  "fixture_sha256": "c251a1efb6f9713174ebb49f3c881fb98807ea98e93d274aac4b97074fa95991",
+  "run_records_path": "data/evals/benchmark/smoke-v1/run_records.json",
+  "run_records_sha256": "a42f3c47f00fbe152636d683f3d72eb10fd62ac4c860cbec91a377011ddeb702",
+  "report_path": "data/evals/benchmark/smoke-v1/smoke_report.json",
+  "report_sha256": "868aa10d2dbe7e476fa27fe37faa6357260ab7e7fa4656a240945e3dbd0812dd",
+  "gate10_manifest_sha256": "9aca4dffc78a30a8af2d258dd990b7f1a71e76ae424f42ba42d5cebe250d2b9e",
+  "execution_manifest_sha256": "ce6e6174f33d50d66d4a54f0a3b80bfd6dfbeb865076e6851dca15395a4f5862",
+  "planned_run_ledger_sha256": "bc7767f35822ecc6b61ce351cc29e0695f677eab34e2ca0bc13d1109d8b9ac50",
+  "functional_episode_set_sha256": "6229df94a6a426f815a2050172a79e115d9554031239043b397140ce13894285",
+  "smoke_passed": true,
+  "live_provider_called": false,
+  "held_out_executed": false,
+  "full_benchmark_executed": false,
+  "benchmark_claims_permitted": false,
+  "measured_execution_permitted": false
+}
