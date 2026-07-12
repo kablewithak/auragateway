@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-6-blinded-quality-v1",
+  "assignment_manifest_id": "auragateway-gate-6-review-assignments-v1",
+  "results": [
+    {
+      "case_id": "blind-primary-pass",
+      "expectation_matched": true,
+      "observed_error_code": null,
+      "material_disagreement": null,
+      "export_sha256": "8f7f1e006d7c021795a554781c1ce07e03eb37a3aff8ecb8233a1de40daaf4c1",
+      "negative_control": false
+    },
+    {
+      "case_id": "blind-double-review-agreement",
+      "expectation_matched": true,
+      "observed_error_code": null,
+      "material_disagreement": false,
+      "export_sha256": "7890ac9fcf07ccf3402f3d4c52e7adb9807c03d20ef3c14753bfb5ed52693c18",
+      "negative_control": false
+    },
+    {
+      "case_id": "blind-verdict-disagreement-adjudicated",
+      "expectation_matched": true,
+      "observed_error_code": null,
+      "material_disagreement": true,
+      "export_sha256": "eb35a19434f267f0a28e291571b85f949326c9577d9b5a7fe1d442c56be86bbb",
+      "negative_control": false
+    },
+    {
+      "case_id": "blind-score-delta-adjudicated",
+      "expectation_matched": true,
+      "observed_error_code": null,
+      "material_disagreement": true,
+      "export_sha256": "4bc6d510c55c50144cebbb8b5546913a94c3bb10e9001997f224746ac83e0bf7",
+      "negative_control": false
+    },
+    {
+      "case_id": "blind-failure-label-disagreement-adjudicated",
+      "expectation_matched": true,
+      "observed_error_code": null,
+      "material_disagreement": true,
+      "export_sha256": "118a5fc9a7e90d9c77992a1ceddb578bdf7a3893916e1da7962ee54ca6d370f0",
+      "negative_control": false
+    },
+    {
+      "case_id": "blind-export-episode-mismatch",
+      "expectation_matched": true,
+      "observed_error_code": "REVIEW_EXPORT_EPISODE_MISMATCH",
+      "material_disagreement": null,
+      "export_sha256": null,
+      "negative_control": true
+    },
+    {
+      "case_id": "blind-review-assignment-mismatch",
+      "expectation_matched": true,
+      "observed_error_code": "REVIEW_ASSIGNMENT_MISMATCH",
+      "material_disagreement": null,
+      "export_sha256": "7b7a8ec86e47b66cc830540b7a5cb483822730f5aabfce68ae973f3cd1d7927f",
+      "negative_control": true
+    },
+    {
+      "case_id": "blind-reviewer-independence-violation",
+      "expectation_matched": true,
+      "observed_error_code": "REVIEWER_INDEPENDENCE_VIOLATION",
+      "material_disagreement": null,
+      "export_sha256": "b3c0c9b4f4c4bb6991b7ba4a8b24f54a98dd1e5cf33221cbab2b31f973451114",
+      "negative_control": true
+    },
+    {
+      "case_id": "blind-adjudicator-independence-violation",
+      "expectation_matched": true,
+      "observed_error_code": "ADJUDICATOR_INDEPENDENCE_VIOLATION",
+      "material_disagreement": true,
+      "export_sha256": "eb35a19434f267f0a28e291571b85f949326c9577d9b5a7fe1d442c56be86bbb",
+      "negative_control": true
+    },
+    {
+      "case_id": "blind-unnecessary-adjudication",
+      "expectation_matched": true,
+      "observed_error_code": "ADJUDICATION_NOT_REQUIRED",
+      "material_disagreement": false,
+      "export_sha256": "7890ac9fcf07ccf3402f3d4c52e7adb9807c03d20ef3c14753bfb5ed52693c18",
+      "negative_control": true
+    }
+  ],
+  "fixture_count": 10,
+  "negative_control_count": 5,
+  "material_disagreement_fixture_count": 4,
+  "all_expectations_matched": true,
+  "blinded_workflow_passed": true,
+  "measured_execution_permitted": false
+}
