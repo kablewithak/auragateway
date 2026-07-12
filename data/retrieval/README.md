@@ -4,7 +4,8 @@ This directory contains deterministic development artifacts for AuraGateway retr
 
 ## BM25 v1
 
-`bm25-v1/` contains one shared development-only smoke-query set and one candidate directory per chunking strategy:
+`bm25-v1/` contains one shared development-only smoke-query set and one candidate directory per
+chunking strategy:
 
 ```text
 bm25-v1/
@@ -17,6 +18,29 @@ bm25-v1/
     └── smoke_results.jsonl
 ```
 
-The smoke results are content-free ranking evidence. They retain query hashes, source and chunk identifiers, scores, filters, and matched terms, but do not duplicate retrieved document text.
+## Hashed TF-IDF dense v1
 
-These artifacts prove deterministic index construction and ranking behaviour. They are not retrieval-quality evaluation results and must not be used to select a chunking strategy.
+`hashed-tfidf-dense-v1/` applies the same smoke queries to deterministic local dense vectors:
+
+```text
+hashed-tfidf-dense-v1/
+├── fixed-window-v1/
+│   ├── manifest.json
+│   └── smoke_results.jsonl
+└── section-aware-v1/
+    ├── manifest.json
+    └── smoke_results.jsonl
+```
+
+The dense baseline uses hashed TF-IDF vectors, not a neural embedding model. It is a local,
+provider-neutral diagnostic baseline designed for deterministic comparison without model downloads,
+network calls, or external vector infrastructure.
+
+## Evidence boundary
+
+Smoke results are content-free ranking evidence. They retain query hashes, source and chunk
+identifiers, scores, filters, and algorithm-specific scoring evidence, but do not duplicate retrieved
+document text or persist vectors.
+
+These artifacts prove deterministic candidate construction and ranking behaviour. They are not held-out
+retrieval-quality evidence and do not select a winning strategy.

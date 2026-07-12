@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "scorecard_id": "nimbus-relay-dense-hashed-tfidf-section-aware-v1-development-v1",
+  "status": "development_candidate",
+  "metric_contract_version": "source-level-retrieval-metrics-v1",
+  "retrieval_set_path": "data/evals/retrieval/development-v1/accepted_cases.json",
+  "retrieval_set_sha256": "49d5e9055b7b00bcfdf5f9dc932c836a844c37f835709d0d376d38285934e342",
+  "rejected_set_path": "data/evals/retrieval/development-v1/rejected_cases.json",
+  "rejected_set_sha256": "d8c844cf7c2e203823e56ff1b94ce920989519147f890b9cedd501df64189e58",
+  "retrieval_manifest_path": "data/retrieval/hashed-tfidf-dense-v1/section-aware-v1/manifest.json",
+  "retrieval_manifest_sha256": "5fd748bb8f3dfb55172bc32d77ca18fe3e1262e797c3aec730fd57857b11a234",
+  "case_results_path": "data/evals/retrieval/development-v1/dense-hashed-tfidf-section-aware-v1/case_results.jsonl",
+  "case_results_sha256": "1edb6fa3174e88c661023e5cd57bca6d80a30953730aa0c2a273e9fbabf4c301",
+  "retriever_config_id": "dense-hashed-tfidf-section-aware-v1",
+  "retriever_config_sha256": "2741ca603cf7a2a009e6d4143a882eefee119544376f1c2d4272b64400064f0f",
+  "chunking_config_id": "section-aware-v1",
+  "aggregate": {
+    "case_count": 24,
+    "mean_recall_at_k": 0.986111111111,
+    "mean_precision_at_k": 0.316666666667,
+    "mean_reciprocal_rank": 1.0,
+    "mean_ndcg_at_k": 0.959306224252,
+    "correct_source_in_top_k_rate": 1.0,
+    "all_required_sources_in_top_k_rate": 1.0,
+    "citation_support_readiness_rate": 0.916666666667,
+    "unsupported_source_retrieval_rate": 0.083333333333,
+    "stale_source_retrieval_rate": 0.0,
+    "metadata_filter_violation_rate": 0.0,
+    "near_duplicate_case_count": 4,
+    "near_duplicate_displacement_rate": 0.0
+  }
+}

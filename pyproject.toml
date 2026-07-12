@@ -24,6 +24,7 @@ auragateway-validate-corpus = "auragateway.corpus.validate:main"
 auragateway-freeze-corpus = "auragateway.corpus.freeze:main"
 auragateway-chunk-corpus = "auragateway.chunking.runner:main"
 auragateway-retrieve-bm25 = "auragateway.retrieval.runner:main"
+auragateway-retrieve-dense = "auragateway.retrieval.dense_runner:main"
 auragateway-evaluate-retrieval = "auragateway.evals.runner:main"
 
 [tool.setuptools.packages.find]

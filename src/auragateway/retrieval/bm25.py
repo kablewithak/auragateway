@@ -84,6 +84,7 @@ class BM25Index:
         self.configuration = configuration
         self.configuration_sha256 = _model_sha256(configuration)
         self.indexed_chunks = tuple(self._index_chunk(chunk) for chunk in chunks)
+        self.chunk_count = len(self.indexed_chunks)
         self.document_frequency = self._document_frequency(self.indexed_chunks)
         self.total_index_tokens = sum(len(item.terms) for item in self.indexed_chunks)
         self.average_chunk_length = self.total_index_tokens / len(self.indexed_chunks)
@@ -115,7 +116,7 @@ class BM25Index:
         query_term_frequencies = Counter(query_terms)
         top_k = query.top_k or self.configuration.default_top_k
         eligible = tuple(
-            item for item in self.indexed_chunks if _matches_filter(item.chunk, query.filters)
+            item for item in self.indexed_chunks if matches_filter(item.chunk, query.filters)
         )
         scored = tuple(
             candidate
@@ -221,7 +222,7 @@ class BM25Index:
         )
 
 
-def _matches_filter(chunk: CorpusChunk, filters: RetrievalFilter) -> bool:
+def matches_filter(chunk: CorpusChunk, filters: RetrievalFilter) -> bool:
     if filters.api_areas and chunk.api_area not in filters.api_areas:
         return False
     if filters.source_statuses and chunk.source_status not in filters.source_statuses:
