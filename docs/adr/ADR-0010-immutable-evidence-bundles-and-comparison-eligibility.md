@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-07-12
+- **Decision version:** 1.1.0
 - **Decision owners:** AuraGateway project maintainers
 - **Applies from:** Phase 0
 - **Supersedes:** None
@@ -218,6 +219,29 @@ Initial storage is local and repository-adjacent:
 
 A later storage adapter may be added without weakening bundle immutability or comparison rules.
 
+## First deterministic implementation slice
+
+The first Gate 8 implementation creates a provider-free verification harness over fixed synthetic bundle candidates.
+
+It introduces:
+
+- explicit A/B/C configuration-fingerprint snapshots;
+- frozen scheduled-run plans;
+- terminal run-evidence records;
+- exact scheduled-run accountability;
+- explicit failed and excluded run retention;
+- public-safe artifact inventories;
+- non-recursive artifact-hash-manifest verification;
+- finalized content digests;
+- append-only supersession metadata;
+- machine-decided eligibility for cost, latency, quality, and feedback metric families;
+- partial eligibility when the comparison contract isolates independent metric families;
+- deterministic report and manifest reproduction.
+
+The implementation treats bundle validity and comparison eligibility as separate decisions. A structurally valid bundle may be partially eligible or fully ineligible, but report prose cannot restore an invalidated metric family.
+
+The first slice uses synthetic metadata only and does not create a measured benchmark bundle.
+
 ## Consequences
 
 ### Positive
@@ -246,3 +270,9 @@ Implementation must prove:
 - fingerprint mismatches block affected comparisons;
 - report generation honours eligibility and telemetry sufficiency;
 - forbidden private artifacts cannot enter the public bundle.
+
+## Claim boundary
+
+The first implementation slice proves typed bundle-accountability, artifact-inventory, digest, supersession, public-artifact, and metric-family eligibility behavior on fixed synthetic metadata.
+
+It does not prove append-only filesystem enforcement under hostile access, measured benchmark completeness, provider execution, comparative performance, cost savings, latency improvement, production deployment, or production readiness.

@@ -1,0 +1,3686 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-8-comparison-eligibility-v1",
+  "cases": [
+    {
+      "case_id": "bundle-complete-eligible",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-cae662172fd450bb0cd710a7",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "9dd1a02a6e13bc6eb74ec88c43455e7acaf5eb926107679fcfc8528b0550d66e"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "f6ffdfc5e8e37dfd7bfa2b371a2138e31e2c9342ca9e36d9d53dee3c1b9e096c"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-002",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "579744bc089d6d2de02a88c4bfea6a87f1a86616fdba2dfef3a6cf42a67d476c",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "failures.jsonl",
+            "byte_count": 114,
+            "sha256": "61ddbb441291200e3444976f12db9451a309e8bad89ab0ffe222d7fc050fd6eb",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "4df7fdfe84e6005d6880484b7b848acee1d99fd9f8b903720e7cef5f2f5ed4ae",
+        "supersession": null,
+        "finalized_content_sha256": "382a2c5ebccacff059c9db5c2a517c66ab1ac5debc3852a5005738a75e004bf0",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": true,
+      "expected_eligibility_status": "eligible",
+      "expected_failure_codes": [],
+      "expected_invalidated_metric_families": [],
+      "negative_control": false
+    },
+    {
+      "case_id": "bundle-partial-pricing-mismatch",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-723c14fb4a5e55e6df5bf3c4",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v2",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "6959b2444711ff0da10b8e365da84a2a1d95e0a4bb2ffc2c733b8d79edc647da"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v2",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "6fe47cf781882f2026f68b7b97cdb98427a7b44440ec2cce5e0b73fd198705ce"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-002",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "579744bc089d6d2de02a88c4bfea6a87f1a86616fdba2dfef3a6cf42a67d476c",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "failures.jsonl",
+            "byte_count": 114,
+            "sha256": "61ddbb441291200e3444976f12db9451a309e8bad89ab0ffe222d7fc050fd6eb",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "4df7fdfe84e6005d6880484b7b848acee1d99fd9f8b903720e7cef5f2f5ed4ae",
+        "supersession": null,
+        "finalized_content_sha256": "d40a0eb818377e48ea3d16a6e0464d6b5eac1eab7bd3c46df674fb6b334d4a32",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": true,
+      "expected_eligibility_status": "partially_eligible",
+      "expected_failure_codes": [],
+      "expected_invalidated_metric_families": [
+        "cost"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-retrieval-mismatch-ineligible",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-2ca97ad6be73163875ab4048",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "1c678ceaf5d6ab6942058fb6bf36b985274ae1c16907ddf58e352df1ba395188",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "e3564093fed85923c9bb6dc234bad747d7ceb50182cdeb464babe705fcf0c235"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "f6ffdfc5e8e37dfd7bfa2b371a2138e31e2c9342ca9e36d9d53dee3c1b9e096c"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-002",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "579744bc089d6d2de02a88c4bfea6a87f1a86616fdba2dfef3a6cf42a67d476c",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "failures.jsonl",
+            "byte_count": 114,
+            "sha256": "61ddbb441291200e3444976f12db9451a309e8bad89ab0ffe222d7fc050fd6eb",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "4df7fdfe84e6005d6880484b7b848acee1d99fd9f8b903720e7cef5f2f5ed4ae",
+        "supersession": null,
+        "finalized_content_sha256": "0a029a6d8cb75b5285059d192c8fda42c1380b7c3686222248c810f69e85ea29",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": true,
+      "expected_eligibility_status": "ineligible",
+      "expected_failure_codes": [],
+      "expected_invalidated_metric_families": [
+        "cost",
+        "latency",
+        "quality",
+        "feedback"
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-missing-scheduled-run",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-dab52fc8d7f85cab1bec6233",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "9dd1a02a6e13bc6eb74ec88c43455e7acaf5eb926107679fcfc8528b0550d66e"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "f6ffdfc5e8e37dfd7bfa2b371a2138e31e2c9342ca9e36d9d53dee3c1b9e096c"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "failures.jsonl",
+            "byte_count": 114,
+            "sha256": "61ddbb441291200e3444976f12db9451a309e8bad89ab0ffe222d7fc050fd6eb",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "4df7fdfe84e6005d6880484b7b848acee1d99fd9f8b903720e7cef5f2f5ed4ae",
+        "supersession": null,
+        "finalized_content_sha256": "30e736c3c03ad8a94fcea0428970561b0209c43cb43f025b5e23dd2a70d0bba1",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": false,
+      "expected_eligibility_status": "eligible",
+      "expected_failure_codes": [
+        "RUN_ACCOUNTABILITY_INCOMPLETE",
+        "RUN_RECORD_MISMATCH"
+      ],
+      "expected_invalidated_metric_families": [],
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-missing-required-artifact",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-909b584e988cd9d53294dea2",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "9dd1a02a6e13bc6eb74ec88c43455e7acaf5eb926107679fcfc8528b0550d66e"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "f6ffdfc5e8e37dfd7bfa2b371a2138e31e2c9342ca9e36d9d53dee3c1b9e096c"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-002",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "579744bc089d6d2de02a88c4bfea6a87f1a86616fdba2dfef3a6cf42a67d476c",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "4c59c0dc6a088f613ffb1dfc94055b7cc1edaf0de27374cac801cb658a93fee2",
+        "supersession": null,
+        "finalized_content_sha256": "7195721d14d030dd90a9fc9ed9830fb98cbda5ae9b759c240f7c32398a90aa21",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": false,
+      "expected_eligibility_status": "eligible",
+      "expected_failure_codes": [
+        "REQUIRED_ARTIFACT_MISSING"
+      ],
+      "expected_invalidated_metric_families": [],
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-forbidden-private-artifact",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-c91efec88d7f91ed01bdace1",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "9dd1a02a6e13bc6eb74ec88c43455e7acaf5eb926107679fcfc8528b0550d66e"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "f6ffdfc5e8e37dfd7bfa2b371a2138e31e2c9342ca9e36d9d53dee3c1b9e096c"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-002",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "579744bc089d6d2de02a88c4bfea6a87f1a86616fdba2dfef3a6cf42a67d476c",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "failures.jsonl",
+            "byte_count": 114,
+            "sha256": "61ddbb441291200e3444976f12db9451a309e8bad89ab0ffe222d7fc050fd6eb",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "raw_prompts.jsonl",
+            "byte_count": 117,
+            "sha256": "98761078f258bd882a97e15ffca65ab4eac6ce502a7db99e1b16fd3cbade7c14",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "16ec5d840c9ce8530b57f1aa194127ce73dedd4e9372305f4ef03069ced74718",
+        "supersession": null,
+        "finalized_content_sha256": "4c39908825cf6189a49c2e36feb62eeef1ff149c612bc6d987dc7c56782517f1",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": false,
+      "expected_eligibility_status": "eligible",
+      "expected_failure_codes": [
+        "FORBIDDEN_PUBLIC_ARTIFACT"
+      ],
+      "expected_invalidated_metric_families": [],
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-finalized-content-mutated",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-297f778c0e6131b540ba634f",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "9dd1a02a6e13bc6eb74ec88c43455e7acaf5eb926107679fcfc8528b0550d66e"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "f6ffdfc5e8e37dfd7bfa2b371a2138e31e2c9342ca9e36d9d53dee3c1b9e096c"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-002",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "579744bc089d6d2de02a88c4bfea6a87f1a86616fdba2dfef3a6cf42a67d476c",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "failures.jsonl",
+            "byte_count": 114,
+            "sha256": "61ddbb441291200e3444976f12db9451a309e8bad89ab0ffe222d7fc050fd6eb",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "4df7fdfe84e6005d6880484b7b848acee1d99fd9f8b903720e7cef5f2f5ed4ae",
+        "supersession": null,
+        "finalized_content_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": false,
+      "expected_eligibility_status": "eligible",
+      "expected_failure_codes": [
+        "BUNDLE_CONTENT_DIGEST_MISMATCH"
+      ],
+      "expected_invalidated_metric_families": [],
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-fingerprint-digest-mismatch",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-e0b9bbc16838367ce0a7f22e",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "f6ffdfc5e8e37dfd7bfa2b371a2138e31e2c9342ca9e36d9d53dee3c1b9e096c"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-002",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "579744bc089d6d2de02a88c4bfea6a87f1a86616fdba2dfef3a6cf42a67d476c",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "failures.jsonl",
+            "byte_count": 114,
+            "sha256": "61ddbb441291200e3444976f12db9451a309e8bad89ab0ffe222d7fc050fd6eb",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "4df7fdfe84e6005d6880484b7b848acee1d99fd9f8b903720e7cef5f2f5ed4ae",
+        "supersession": null,
+        "finalized_content_sha256": "ff799bed5c0fb144e28e4107f0c3efbffb3b60d40b44e214f1e604833efb9856",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": false,
+      "expected_eligibility_status": "eligible",
+      "expected_failure_codes": [
+        "FINGERPRINT_DIGEST_MISMATCH"
+      ],
+      "expected_invalidated_metric_families": [],
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-explicit-exclusion-retained",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-68f061225c3e11a0d779d739",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "9dd1a02a6e13bc6eb74ec88c43455e7acaf5eb926107679fcfc8528b0550d66e"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "f6ffdfc5e8e37dfd7bfa2b371a2138e31e2c9342ca9e36d9d53dee3c1b9e096c"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-002",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-002",
+            "terminal_status": "excluded_predeclared",
+            "attempt_count": 1,
+            "result_artifact_sha256": null,
+            "failure_code": null,
+            "exclusion_rule_id": "exclude-known-provider-maintenance-v1",
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "failures.jsonl",
+            "byte_count": 114,
+            "sha256": "61ddbb441291200e3444976f12db9451a309e8bad89ab0ffe222d7fc050fd6eb",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "4df7fdfe84e6005d6880484b7b848acee1d99fd9f8b903720e7cef5f2f5ed4ae",
+        "supersession": null,
+        "finalized_content_sha256": "e7484d84e09aaa0600cf7a4f801eca246d9ef5243930d974b36f8514c738c792",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": true,
+      "expected_eligibility_status": "eligible",
+      "expected_failure_codes": [],
+      "expected_invalidated_metric_families": [],
+      "negative_control": false
+    },
+    {
+      "case_id": "bundle-valid-append-only-supersession",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-e4002a0058fe8dd45fb2240d",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "9dd1a02a6e13bc6eb74ec88c43455e7acaf5eb926107679fcfc8528b0550d66e"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "f6ffdfc5e8e37dfd7bfa2b371a2138e31e2c9342ca9e36d9d53dee3c1b9e096c"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-002",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "579744bc089d6d2de02a88c4bfea6a87f1a86616fdba2dfef3a6cf42a67d476c",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "failures.jsonl",
+            "byte_count": 114,
+            "sha256": "61ddbb441291200e3444976f12db9451a309e8bad89ab0ffe222d7fc050fd6eb",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "4df7fdfe84e6005d6880484b7b848acee1d99fd9f8b903720e7cef5f2f5ed4ae",
+        "supersession": {
+          "supersedes_bundle_id": "evb-4946da72d2a8a50bce1f8ea9",
+          "supersession_reason": "Correct a report rendering defect without hiding prior evidence.",
+          "affected_artifacts": [
+            "benchmark_manifest.json",
+            "bundle_manifest.json"
+          ],
+          "benchmark_runs_repeated": false,
+          "superseded_claims": [
+            "prior-report-rendering-only"
+          ]
+        },
+        "finalized_content_sha256": "874e458b352fcfb14d4da86857926a50b3d931af8c79718bad120201208b6612",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": true,
+      "expected_eligibility_status": "eligible",
+      "expected_failure_codes": [],
+      "expected_invalidated_metric_families": [],
+      "negative_control": false
+    },
+    {
+      "case_id": "bundle-invalid-self-supersession",
+      "candidate": {
+        "schema_version": "1.0.0",
+        "evidence_bundle_id": "evb-2fa33008d287456f6765833a",
+        "run_group_id": "run-group-gate8-control",
+        "bundle_type": "functional_dry_run",
+        "benchmark_constitution_version": "constitution-v1",
+        "benchmark_constitution_sha256": "749322818ed2d364c0b9b6b0b77794d25550227eb206022293113a667decca98",
+        "benchmark_manifest_sha256": "ce1bd7ab934928833f1caf182489083e8d43b049cadc19f27fa51a4ca0da162e",
+        "created_at": "2026-07-13T12:00:00Z",
+        "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_snapshots": [
+          {
+            "condition_id": "condition_a",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_a-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_a",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "4da275bcde1905a6d70c49a340eaba10a5f1c44bb8c6a7e1ba47d0bae919f150"
+          },
+          {
+            "condition_id": "condition_b",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_b-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_b",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "9dd1a02a6e13bc6eb74ec88c43455e7acaf5eb926107679fcfc8528b0550d66e"
+          },
+          {
+            "condition_id": "condition_c",
+            "corpus_manifest_sha256": "f7e2a744a11243fb10a084dc016199d567a714545c8316070301577d34c47918",
+            "retrieval_configuration_sha256": "d9546c501b0f87b83bc591c5ea8c45593fa5ebd0e1c0d70bb171ff76b72ba79a",
+            "prompt_template_version": "prompt-v1",
+            "static_context_pack_version": "context-pack-v1",
+            "tool_contract_version": "tools-v1",
+            "output_schema_version": "output-v1",
+            "episode_manifest_sha256": "3d8c5d5b5394cd9d131294cbc53d24a3b3b5e6ab6b1e45d5c33be210d3eab315",
+            "quality_rubric_version": "rubric-v1",
+            "blinded_review_protocol_version": "blinded-v1",
+            "negative_control_manifest_sha256": "e629df93605f58ede984c338d5155ffe72baff6dff0688e399f25289a48e2740",
+            "fault_injection_fixture_sha256": "f7cd5fa8c47546584e893ea928c4246b859762aa19b47e31d018b944cb7f1af6",
+            "telemetry_rules_version": "telemetry-v1",
+            "route_policy_version": "route-policy-v1",
+            "runtime_condition_implementation_version": "runtime-condition_c-v1",
+            "benchmark_runner_version": "runner-v1",
+            "statistical_reporting_version": "stats-v1",
+            "comparison_eligibility_contract_version": "comparison-eligibility-v1",
+            "pricing_schedule_version": "pricing-v1",
+            "provider_model_alias": "model-condition_c",
+            "provider_adapter_version": "provider-adapter-v1",
+            "python_version": "3.11",
+            "dependency_lock_sha256": "7e69c8c300a77387f3326374291b55b0d0bb5bdc3d51051ceaf4527a5997478f",
+            "git_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fingerprint_sha256": "f6ffdfc5e8e37dfd7bfa2b371a2138e31e2c9342ca9e36d9d53dee3c1b9e096c"
+          }
+        ],
+        "run_plan": {
+          "run_group_id": "run-group-gate8-control",
+          "scheduled_runs": [
+            {
+              "run_id": "run-condition-a-ep-001",
+              "schedule_index": 0,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-a-ep-002",
+              "schedule_index": 1,
+              "condition_id": "condition_a",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-b-ep-001",
+              "schedule_index": 2,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-b-ep-002",
+              "schedule_index": 3,
+              "condition_id": "condition_b",
+              "episode_id": "ep-func-002"
+            },
+            {
+              "run_id": "run-condition-c-ep-001",
+              "schedule_index": 4,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-001"
+            },
+            {
+              "run_id": "run-condition-c-ep-002",
+              "schedule_index": 5,
+              "condition_id": "condition_c",
+              "episode_id": "ep-func-002"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "run_id": "run-condition-a-ep-001",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "0e4feb73514bcdfb29fd4051ec043cafac25ed58d540969ae59905d64a53dd88",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-a-ep-002",
+            "condition_id": "condition_a",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "f9273279acc90c957c9045b9880f4e71f6f2b80d0b218c17d3202fe2a89d3a5b",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-001",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "3f29515903131eb0dce5571508ab39db600137b84d88dc54ac58ebf77aa5b168",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-b-ep-002",
+            "condition_id": "condition_b",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "63d166f590c2db024673adc48f7da70a105b236f34eb1aba692fe246ca590cf7",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-001",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-001",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "57088fc0e1704fc6abacd77d055276f1e99fde2b2bf8e98cc35edbba0f7621c8",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          },
+          {
+            "run_id": "run-condition-c-ep-002",
+            "condition_id": "condition_c",
+            "episode_id": "ep-func-002",
+            "terminal_status": "completed",
+            "attempt_count": 1,
+            "result_artifact_sha256": "579744bc089d6d2de02a88c4bfea6a87f1a86616fdba2dfef3a6cf42a67d476c",
+            "failure_code": null,
+            "exclusion_rule_id": null,
+            "rerun_of_run_id": null
+          }
+        ],
+        "comparison_contract": {
+          "schema_version": "1.0.0",
+          "contract_version": "comparison-eligibility-v1",
+          "rules": [
+            {
+              "metric_family": "cost",
+              "allowed_mismatch_fields": [
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "allowed_mismatch_fields": [
+                "pricing_schedule_version",
+                "provider_model_alias",
+                "runtime_condition_implementation_version"
+              ]
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "relative_path": "benchmark_manifest.json",
+            "byte_count": 123,
+            "sha256": "79eaada11e76b5f9171587e1fd6b302a47081df3f6b5afcb5fbd0093ce288a63",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "configuration_fingerprint.json",
+            "byte_count": 130,
+            "sha256": "9e34228593a6b2322f477e8854fd60f6adf5f9a06bdb914b8d826d2e2bb55bde",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "environment_manifest.json",
+            "byte_count": 125,
+            "sha256": "623190455884c38934691f3af31967e97db32573c2494f84099a22d6f0b4f3ff",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "run_results.jsonl",
+            "byte_count": 117,
+            "sha256": "94f51dcaa725facacf1f8687b8ea4ae9662fa3c6453d48a47b5cd6247dd94256",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "failures.jsonl",
+            "byte_count": 114,
+            "sha256": "61ddbb441291200e3444976f12db9451a309e8bad89ab0ffe222d7fc050fd6eb",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "exclusions.jsonl",
+            "byte_count": 116,
+            "sha256": "58ce120da91d3f8b594c3ccc18946d923913f488047feb703b5553f35c5fe2f7",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "reruns.jsonl",
+            "byte_count": 112,
+            "sha256": "e0f64a81cb344ddfca601d5d048837331c6e482122bd9a8d8f4aae7c234611cf",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "comparison_eligibility.json",
+            "byte_count": 127,
+            "sha256": "c4411e582e08c91580b99225ee37ebf072d6e0b5fc84a44eefd2064da932af9f",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "sanitized_trace_samples.jsonl",
+            "byte_count": 129,
+            "sha256": "b491dd6baf5a24b826df225186012e2097d5f22bb69c8a9c839a22f1df733423",
+            "artifact_type": "jsonl",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "artifact_hashes.json",
+            "byte_count": 120,
+            "sha256": "1a6edad1fce4583ed7f57ec4e1138f8649d2e53aa2ffa55396645afbbedc764a",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          },
+          {
+            "relative_path": "bundle_manifest.json",
+            "byte_count": 120,
+            "sha256": "2f1ae19df86f771be2c13cef88c5b10b92d1f7d205f016853366c851a9a1666d",
+            "artifact_type": "json",
+            "schema_version": "1.0.0"
+          }
+        ],
+        "artifact_hash_manifest_sha256": "4df7fdfe84e6005d6880484b7b848acee1d99fd9f8b903720e7cef5f2f5ed4ae",
+        "supersession": {
+          "supersedes_bundle_id": "evb-2fa33008d287456f6765833a",
+          "supersession_reason": "Invalid self-referential correction record.",
+          "affected_artifacts": [
+            "bundle_manifest.json"
+          ],
+          "benchmark_runs_repeated": false,
+          "superseded_claims": []
+        },
+        "finalized_content_sha256": "17a44e41a5e35decaedf9de8cb8630865a169fe4cc0cd3714eb7be9a20a8692b",
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expected_bundle_valid": false,
+      "expected_eligibility_status": "eligible",
+      "expected_failure_codes": [
+        "INVALID_SUPERSESSION"
+      ],
+      "expected_invalidated_metric_families": [],
+      "negative_control": true
+    }
+  ]
+}

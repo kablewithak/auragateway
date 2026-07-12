@@ -1,0 +1,999 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-8-comparison-eligibility-v1",
+  "results": [
+    {
+      "case_id": "bundle-complete-eligible",
+      "evaluation": {
+        "evidence_bundle_id": "evb-cae662172fd450bb0cd710a7",
+        "bundle_valid": true,
+        "run_accountability_complete": true,
+        "fingerprint_digests_valid": true,
+        "artifact_inventory_complete": true,
+        "private_artifacts_absent": true,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": true,
+        "supersession_valid": true,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 6
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 0
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "eligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "latency",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "quality",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": true,
+              "mismatched_fields": []
+            }
+          ],
+          "eligible_metric_families": [
+            "cost",
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "invalidated_metric_families": [],
+          "mismatched_fields": [
+            "provider_model_alias",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": true
+        },
+        "failure_codes": [],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "bundle-partial-pricing-mismatch",
+      "evaluation": {
+        "evidence_bundle_id": "evb-723c14fb4a5e55e6df5bf3c4",
+        "bundle_valid": true,
+        "run_accountability_complete": true,
+        "fingerprint_digests_valid": true,
+        "artifact_inventory_complete": true,
+        "private_artifacts_absent": true,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": true,
+        "supersession_valid": true,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 6
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 0
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "partially_eligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": false,
+              "mismatched_fields": [
+                "pricing_schedule_version"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "quality",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": true,
+              "mismatched_fields": []
+            }
+          ],
+          "eligible_metric_families": [
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "invalidated_metric_families": [
+            "cost"
+          ],
+          "mismatched_fields": [
+            "pricing_schedule_version",
+            "provider_model_alias",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": true
+        },
+        "failure_codes": [],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-retrieval-mismatch-ineligible",
+      "evaluation": {
+        "evidence_bundle_id": "evb-2ca97ad6be73163875ab4048",
+        "bundle_valid": true,
+        "run_accountability_complete": true,
+        "fingerprint_digests_valid": true,
+        "artifact_inventory_complete": true,
+        "private_artifacts_absent": true,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": true,
+        "supersession_valid": true,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 6
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 0
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "ineligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": false,
+              "mismatched_fields": [
+                "retrieval_configuration_sha256"
+              ]
+            },
+            {
+              "metric_family": "latency",
+              "eligible": false,
+              "mismatched_fields": [
+                "retrieval_configuration_sha256"
+              ]
+            },
+            {
+              "metric_family": "quality",
+              "eligible": false,
+              "mismatched_fields": [
+                "retrieval_configuration_sha256"
+              ]
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": false,
+              "mismatched_fields": [
+                "retrieval_configuration_sha256"
+              ]
+            }
+          ],
+          "eligible_metric_families": [],
+          "invalidated_metric_families": [
+            "cost",
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "mismatched_fields": [
+            "provider_model_alias",
+            "retrieval_configuration_sha256",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": false
+        },
+        "failure_codes": [],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-missing-scheduled-run",
+      "evaluation": {
+        "evidence_bundle_id": "evb-dab52fc8d7f85cab1bec6233",
+        "bundle_valid": false,
+        "run_accountability_complete": false,
+        "fingerprint_digests_valid": true,
+        "artifact_inventory_complete": true,
+        "private_artifacts_absent": true,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": true,
+        "supersession_valid": true,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 5
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 0
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "eligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "latency",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "quality",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": true,
+              "mismatched_fields": []
+            }
+          ],
+          "eligible_metric_families": [
+            "cost",
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "invalidated_metric_families": [],
+          "mismatched_fields": [
+            "provider_model_alias",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": true
+        },
+        "failure_codes": [
+          "RUN_ACCOUNTABILITY_INCOMPLETE",
+          "RUN_RECORD_MISMATCH"
+        ],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-missing-required-artifact",
+      "evaluation": {
+        "evidence_bundle_id": "evb-909b584e988cd9d53294dea2",
+        "bundle_valid": false,
+        "run_accountability_complete": true,
+        "fingerprint_digests_valid": true,
+        "artifact_inventory_complete": false,
+        "private_artifacts_absent": true,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": true,
+        "supersession_valid": true,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 6
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 0
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "eligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "latency",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "quality",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": true,
+              "mismatched_fields": []
+            }
+          ],
+          "eligible_metric_families": [
+            "cost",
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "invalidated_metric_families": [],
+          "mismatched_fields": [
+            "provider_model_alias",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": true
+        },
+        "failure_codes": [
+          "REQUIRED_ARTIFACT_MISSING"
+        ],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-forbidden-private-artifact",
+      "evaluation": {
+        "evidence_bundle_id": "evb-c91efec88d7f91ed01bdace1",
+        "bundle_valid": false,
+        "run_accountability_complete": true,
+        "fingerprint_digests_valid": true,
+        "artifact_inventory_complete": true,
+        "private_artifacts_absent": false,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": true,
+        "supersession_valid": true,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 6
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 0
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "eligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "latency",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "quality",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": true,
+              "mismatched_fields": []
+            }
+          ],
+          "eligible_metric_families": [
+            "cost",
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "invalidated_metric_families": [],
+          "mismatched_fields": [
+            "provider_model_alias",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": true
+        },
+        "failure_codes": [
+          "FORBIDDEN_PUBLIC_ARTIFACT"
+        ],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-finalized-content-mutated",
+      "evaluation": {
+        "evidence_bundle_id": "evb-297f778c0e6131b540ba634f",
+        "bundle_valid": false,
+        "run_accountability_complete": true,
+        "fingerprint_digests_valid": true,
+        "artifact_inventory_complete": true,
+        "private_artifacts_absent": true,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": false,
+        "supersession_valid": true,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 6
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 0
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "eligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "latency",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "quality",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": true,
+              "mismatched_fields": []
+            }
+          ],
+          "eligible_metric_families": [
+            "cost",
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "invalidated_metric_families": [],
+          "mismatched_fields": [
+            "provider_model_alias",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": true
+        },
+        "failure_codes": [
+          "BUNDLE_CONTENT_DIGEST_MISMATCH"
+        ],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-fingerprint-digest-mismatch",
+      "evaluation": {
+        "evidence_bundle_id": "evb-e0b9bbc16838367ce0a7f22e",
+        "bundle_valid": false,
+        "run_accountability_complete": true,
+        "fingerprint_digests_valid": false,
+        "artifact_inventory_complete": true,
+        "private_artifacts_absent": true,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": true,
+        "supersession_valid": true,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 6
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 0
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "eligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "latency",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "quality",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": true,
+              "mismatched_fields": []
+            }
+          ],
+          "eligible_metric_families": [
+            "cost",
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "invalidated_metric_families": [],
+          "mismatched_fields": [
+            "provider_model_alias",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": true
+        },
+        "failure_codes": [
+          "FINGERPRINT_DIGEST_MISMATCH"
+        ],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "bundle-explicit-exclusion-retained",
+      "evaluation": {
+        "evidence_bundle_id": "evb-68f061225c3e11a0d779d739",
+        "bundle_valid": true,
+        "run_accountability_complete": true,
+        "fingerprint_digests_valid": true,
+        "artifact_inventory_complete": true,
+        "private_artifacts_absent": true,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": true,
+        "supersession_valid": true,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 5
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 1
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "eligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "latency",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "quality",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": true,
+              "mismatched_fields": []
+            }
+          ],
+          "eligible_metric_families": [
+            "cost",
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "invalidated_metric_families": [],
+          "mismatched_fields": [
+            "provider_model_alias",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": true
+        },
+        "failure_codes": [],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "bundle-valid-append-only-supersession",
+      "evaluation": {
+        "evidence_bundle_id": "evb-e4002a0058fe8dd45fb2240d",
+        "bundle_valid": true,
+        "run_accountability_complete": true,
+        "fingerprint_digests_valid": true,
+        "artifact_inventory_complete": true,
+        "private_artifacts_absent": true,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": true,
+        "supersession_valid": true,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 6
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 0
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "eligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "latency",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "quality",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": true,
+              "mismatched_fields": []
+            }
+          ],
+          "eligible_metric_families": [
+            "cost",
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "invalidated_metric_families": [],
+          "mismatched_fields": [
+            "provider_model_alias",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": true
+        },
+        "failure_codes": [],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "bundle-invalid-self-supersession",
+      "evaluation": {
+        "evidence_bundle_id": "evb-2fa33008d287456f6765833a",
+        "bundle_valid": false,
+        "run_accountability_complete": true,
+        "fingerprint_digests_valid": true,
+        "artifact_inventory_complete": true,
+        "private_artifacts_absent": true,
+        "artifact_hash_manifest_valid": true,
+        "finalized_content_digest_valid": true,
+        "supersession_valid": false,
+        "terminal_status_counts": [
+          {
+            "terminal_status": "completed",
+            "count": 6
+          },
+          {
+            "terminal_status": "completed_validation_failure",
+            "count": 0
+          },
+          {
+            "terminal_status": "provider_error",
+            "count": 0
+          },
+          {
+            "terminal_status": "budget_exhausted",
+            "count": 0
+          },
+          {
+            "terminal_status": "excluded_predeclared",
+            "count": 0
+          },
+          {
+            "terminal_status": "invalidated_configuration_mismatch",
+            "count": 0
+          },
+          {
+            "terminal_status": "aborted_safety_control",
+            "count": 0
+          }
+        ],
+        "comparison": {
+          "contract_version": "comparison-eligibility-v1",
+          "status": "eligible",
+          "metric_results": [
+            {
+              "metric_family": "cost",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "latency",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "quality",
+              "eligible": true,
+              "mismatched_fields": []
+            },
+            {
+              "metric_family": "feedback",
+              "eligible": true,
+              "mismatched_fields": []
+            }
+          ],
+          "eligible_metric_families": [
+            "cost",
+            "latency",
+            "quality",
+            "feedback"
+          ],
+          "invalidated_metric_families": [],
+          "mismatched_fields": [
+            "provider_model_alias",
+            "runtime_condition_implementation_version"
+          ],
+          "comparative_claims_permitted": true
+        },
+        "failure_codes": [
+          "INVALID_SUPERSESSION"
+        ],
+        "synthetic_fixture_execution": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    }
+  ],
+  "fixture_count": 11,
+  "negative_control_count": 8,
+  "valid_bundle_count": 5,
+  "fully_eligible_count": 9,
+  "partially_eligible_count": 1,
+  "ineligible_count": 1,
+  "all_expectations_matched": true,
+  "gate_8_controls_passed": true,
+  "synthetic_fixture_execution": true,
+  "measured_execution_permitted": false
+}
