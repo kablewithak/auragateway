@@ -1,0 +1,350 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-5-route-policy-cases-v1",
+  "cases": [
+    {
+      "case_id": "warm-preservation-authorized",
+      "request": {
+        "policy_id": "gate5-route-policy-v1",
+        "policy_version": "1.0.0",
+        "warm_ttl_seconds": 300,
+        "evaluated_at": "2026-07-12T16:04:00Z",
+        "proposed_transition": {
+          "previous_state": {
+            "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+            "active_provider": "groq",
+            "active_model": "groq-gpt-oss-20b",
+            "last_cache_evidence_at": null,
+            "cache_affinity_status": "cold",
+            "route_change_count": 0,
+            "last_route_reason": "session_start"
+          },
+          "target_provider": "groq",
+          "target_model": "groq-gpt-oss-20b",
+          "target_cache_affinity_status": "plausibly_warm",
+          "reason": "warm_cache_affinity",
+          "cache_evidence_at": "2026-07-12T16:00:00Z"
+        },
+        "active_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "target_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "provider_response_state": "none",
+        "provider_error_code": null
+      },
+      "expected_status": "authorized",
+      "expected_code": "AUTHORIZED_WARM_PRESERVATION"
+    },
+    {
+      "case_id": "warm-preservation-expired-blocked",
+      "request": {
+        "policy_id": "gate5-route-policy-v1",
+        "policy_version": "1.0.0",
+        "warm_ttl_seconds": 300,
+        "evaluated_at": "2026-07-12T16:06:00Z",
+        "proposed_transition": {
+          "previous_state": {
+            "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+            "active_provider": "groq",
+            "active_model": "groq-gpt-oss-20b",
+            "last_cache_evidence_at": null,
+            "cache_affinity_status": "cold",
+            "route_change_count": 0,
+            "last_route_reason": "session_start"
+          },
+          "target_provider": "groq",
+          "target_model": "groq-gpt-oss-20b",
+          "target_cache_affinity_status": "plausibly_warm",
+          "reason": "warm_cache_affinity",
+          "cache_evidence_at": "2026-07-12T16:00:00Z"
+        },
+        "active_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "target_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "provider_response_state": "none",
+        "provider_error_code": null
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_TTL_EXPIRED"
+    },
+    {
+      "case_id": "ttl-expiry-authorized",
+      "request": {
+        "policy_id": "gate5-route-policy-v1",
+        "policy_version": "1.0.0",
+        "warm_ttl_seconds": 300,
+        "evaluated_at": "2026-07-12T16:06:00Z",
+        "proposed_transition": {
+          "previous_state": {
+            "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+            "active_provider": "groq",
+            "active_model": "groq-gpt-oss-20b",
+            "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+            "cache_affinity_status": "plausibly_warm",
+            "route_change_count": 0,
+            "last_route_reason": "warm_cache_affinity"
+          },
+          "target_provider": "groq",
+          "target_model": "groq-gpt-oss-20b",
+          "target_cache_affinity_status": "expired",
+          "reason": "ttl_expired",
+          "cache_evidence_at": "2026-07-12T16:00:00Z"
+        },
+        "active_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "target_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "provider_response_state": "none",
+        "provider_error_code": null
+      },
+      "expected_status": "authorized",
+      "expected_code": "AUTHORIZED_TTL_EXPIRY"
+    },
+    {
+      "case_id": "ttl-expiry-too-early-blocked",
+      "request": {
+        "policy_id": "gate5-route-policy-v1",
+        "policy_version": "1.0.0",
+        "warm_ttl_seconds": 300,
+        "evaluated_at": "2026-07-12T16:04:00Z",
+        "proposed_transition": {
+          "previous_state": {
+            "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+            "active_provider": "groq",
+            "active_model": "groq-gpt-oss-20b",
+            "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+            "cache_affinity_status": "plausibly_warm",
+            "route_change_count": 0,
+            "last_route_reason": "warm_cache_affinity"
+          },
+          "target_provider": "groq",
+          "target_model": "groq-gpt-oss-20b",
+          "target_cache_affinity_status": "expired",
+          "reason": "ttl_expired",
+          "cache_evidence_at": "2026-07-12T16:00:00Z"
+        },
+        "active_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "target_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "provider_response_state": "none",
+        "provider_error_code": null
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_TTL_NOT_EXPIRED"
+    },
+    {
+      "case_id": "provider-definite-failure-reroute-authorized",
+      "request": {
+        "policy_id": "gate5-route-policy-v1",
+        "policy_version": "1.0.0",
+        "warm_ttl_seconds": 300,
+        "evaluated_at": "2026-07-12T16:02:00Z",
+        "proposed_transition": {
+          "previous_state": {
+            "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+            "active_provider": "groq",
+            "active_model": "groq-gpt-oss-20b",
+            "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+            "cache_affinity_status": "plausibly_warm",
+            "route_change_count": 0,
+            "last_route_reason": "warm_cache_affinity"
+          },
+          "target_provider": "ollama",
+          "target_model": "ollama-llama3.2-3b",
+          "target_cache_affinity_status": "unknown",
+          "reason": "provider_failure",
+          "cache_evidence_at": null
+        },
+        "active_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "target_route_eligibility": {
+          "provider": "ollama",
+          "model_alias": "ollama-llama3.2-3b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "provider_response_state": "definite_failure",
+        "provider_error_code": "PROVIDER_UNAVAILABLE"
+      },
+      "expected_status": "authorized",
+      "expected_code": "AUTHORIZED_PROVIDER_FAILURE_REROUTE"
+    },
+    {
+      "case_id": "provider-ambiguous-response-blocked",
+      "request": {
+        "policy_id": "gate5-route-policy-v1",
+        "policy_version": "1.0.0",
+        "warm_ttl_seconds": 300,
+        "evaluated_at": "2026-07-12T16:02:00Z",
+        "proposed_transition": {
+          "previous_state": {
+            "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+            "active_provider": "groq",
+            "active_model": "groq-gpt-oss-20b",
+            "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+            "cache_affinity_status": "plausibly_warm",
+            "route_change_count": 0,
+            "last_route_reason": "warm_cache_affinity"
+          },
+          "target_provider": "ollama",
+          "target_model": "ollama-llama3.2-3b",
+          "target_cache_affinity_status": "unknown",
+          "reason": "provider_failure",
+          "cache_evidence_at": null
+        },
+        "active_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "target_route_eligibility": {
+          "provider": "ollama",
+          "model_alias": "ollama-llama3.2-3b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "provider_response_state": "ambiguous",
+        "provider_error_code": "PROVIDER_RESPONSE_AMBIGUOUS"
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_AMBIGUOUS_RESPONSE"
+    },
+    {
+      "case_id": "capability-reroute-authorized",
+      "request": {
+        "policy_id": "gate5-route-policy-v1",
+        "policy_version": "1.0.0",
+        "warm_ttl_seconds": 300,
+        "evaluated_at": "2026-07-12T16:02:00Z",
+        "proposed_transition": {
+          "previous_state": {
+            "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+            "active_provider": "groq",
+            "active_model": "groq-gpt-oss-20b",
+            "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+            "cache_affinity_status": "plausibly_warm",
+            "route_change_count": 0,
+            "last_route_reason": "warm_cache_affinity"
+          },
+          "target_provider": "ollama",
+          "target_model": "ollama-llama3.2-3b",
+          "target_cache_affinity_status": "unknown",
+          "reason": "capability_requirement",
+          "cache_evidence_at": null
+        },
+        "active_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": false,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "target_route_eligibility": {
+          "provider": "ollama",
+          "model_alias": "ollama-llama3.2-3b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "provider_response_state": "none",
+        "provider_error_code": null
+      },
+      "expected_status": "authorized",
+      "expected_code": "AUTHORIZED_CAPABILITY_REROUTE"
+    },
+    {
+      "case_id": "capability-reroute-unneeded-blocked",
+      "request": {
+        "policy_id": "gate5-route-policy-v1",
+        "policy_version": "1.0.0",
+        "warm_ttl_seconds": 300,
+        "evaluated_at": "2026-07-12T16:02:00Z",
+        "proposed_transition": {
+          "previous_state": {
+            "session_id_hash": "7d973d0fbe4c55f1401f480b498b6cc67b271f3fd4f92f43e9f149b0520d47ec",
+            "active_provider": "groq",
+            "active_model": "groq-gpt-oss-20b",
+            "last_cache_evidence_at": "2026-07-12T16:00:00Z",
+            "cache_affinity_status": "plausibly_warm",
+            "route_change_count": 0,
+            "last_route_reason": "warm_cache_affinity"
+          },
+          "target_provider": "ollama",
+          "target_model": "ollama-llama3.2-3b",
+          "target_cache_affinity_status": "unknown",
+          "reason": "capability_requirement",
+          "cache_evidence_at": null
+        },
+        "active_route_eligibility": {
+          "provider": "groq",
+          "model_alias": "groq-gpt-oss-20b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "target_route_eligibility": {
+          "provider": "ollama",
+          "model_alias": "ollama-llama3.2-3b",
+          "capability_eligible": true,
+          "safety_eligible": true,
+          "quality_eligible": true
+        },
+        "provider_response_state": "none",
+        "provider_error_code": null
+      },
+      "expected_status": "blocked",
+      "expected_code": "BLOCKED_ACTIVE_CAPABILITY_ELIGIBLE"
+    }
+  ]
+}
