@@ -1,0 +1,1520 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-6-blinded-quality-v1",
+  "cases": [
+    {
+      "case_id": "blind-primary-pass",
+      "source": {
+        "episode_id": "ep-func-001",
+        "synthetic_conversation": [
+          "Synthetic user context for ep-func-001.",
+          "Synthetic assistant candidate for ep-func-001."
+        ],
+        "terminal_decision_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient"
+        },
+        "citation_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "deterministic_validation_results": {
+          "deterministic_quality_passed": true,
+          "failure_labels": []
+        },
+        "condition_id": "condition-b",
+        "provider": "synthetic-provider",
+        "model": "synthetic-model",
+        "route": "synthetic-route",
+        "cost": 0.0123,
+        "latency": 432,
+        "cache_telemetry": {
+          "status": "plausibly_warm"
+        },
+        "run_order": 2
+      },
+      "assignments": [
+        {
+          "review_id": "review-fbc6fd8b5c9f592872de73f3",
+          "episode_id": "ep-func-001",
+          "role": "primary",
+          "assignment_key_sha256": "fbc6fd8b5c9f592872de73f3d95476bcc75f4730b141d7babcc0363741bdecb2"
+        }
+      ],
+      "primary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-fbc6fd8b5c9f592872de73f3",
+        "episode_id": "ep-func-001",
+        "reviewer_id_sha256": "51a4dbdb33ea0c7a82ae6d0a3b8d45e6ff728d87d00d683b4deafc40d34be31c",
+        "role": "primary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "a981a987202747266cd414fba7881ff614daf920621cca225531845a9bb6194b"
+      },
+      "secondary_review": null,
+      "adjudication": null,
+      "expected_material_disagreement": null,
+      "expected_error_code": null,
+      "negative_control": false
+    },
+    {
+      "case_id": "blind-double-review-agreement",
+      "source": {
+        "episode_id": "ep-func-002",
+        "synthetic_conversation": [
+          "Synthetic user context for ep-func-002.",
+          "Synthetic assistant candidate for ep-func-002."
+        ],
+        "terminal_decision_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient"
+        },
+        "citation_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "deterministic_validation_results": {
+          "deterministic_quality_passed": true,
+          "failure_labels": []
+        },
+        "condition_id": "condition-b",
+        "provider": "synthetic-provider",
+        "model": "synthetic-model",
+        "route": "synthetic-route",
+        "cost": 0.0123,
+        "latency": 432,
+        "cache_telemetry": {
+          "status": "plausibly_warm"
+        },
+        "run_order": 2
+      },
+      "assignments": [
+        {
+          "review_id": "review-7bd923b14991ab577d40673e",
+          "episode_id": "ep-func-002",
+          "role": "primary",
+          "assignment_key_sha256": "7bd923b14991ab577d40673e4904a5b2922a3ce661061ee9750156a04e23d427"
+        },
+        {
+          "review_id": "review-d3304afe2e0fc6245ca67dbc",
+          "episode_id": "ep-func-002",
+          "role": "secondary",
+          "assignment_key_sha256": "d3304afe2e0fc6245ca67dbc998ef8699e5979fc28394b747109864be7152374"
+        }
+      ],
+      "primary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-7bd923b14991ab577d40673e",
+        "episode_id": "ep-func-002",
+        "reviewer_id_sha256": "66534737fb1ec83293744418cd219233451bb2a55780664b62b46be9d9b0a423",
+        "role": "primary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "fee99ffca80f542a7ef4684857822906624ee7d21c8ac7514e57b8d5894cccbc"
+      },
+      "secondary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-d3304afe2e0fc6245ca67dbc",
+        "episode_id": "ep-func-002",
+        "reviewer_id_sha256": "6e2478a8b9481e5c19825f221e6590cc5073595bcbf3fb1fc35c8b3474da60a9",
+        "role": "secondary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "cf6b98671a999ee53b6cec2248cbccc5bf353d4e827ba4d5018648fcabe3f0a2"
+      },
+      "adjudication": null,
+      "expected_material_disagreement": false,
+      "expected_error_code": null,
+      "negative_control": false
+    },
+    {
+      "case_id": "blind-verdict-disagreement-adjudicated",
+      "source": {
+        "episode_id": "ep-func-003",
+        "synthetic_conversation": [
+          "Synthetic user context for ep-func-003.",
+          "Synthetic assistant candidate for ep-func-003."
+        ],
+        "terminal_decision_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient"
+        },
+        "citation_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "deterministic_validation_results": {
+          "deterministic_quality_passed": true,
+          "failure_labels": []
+        },
+        "condition_id": "condition-b",
+        "provider": "synthetic-provider",
+        "model": "synthetic-model",
+        "route": "synthetic-route",
+        "cost": 0.0123,
+        "latency": 432,
+        "cache_telemetry": {
+          "status": "plausibly_warm"
+        },
+        "run_order": 2
+      },
+      "assignments": [
+        {
+          "review_id": "review-10f3e9cfb2d6d1aa8d9266bf",
+          "episode_id": "ep-func-003",
+          "role": "primary",
+          "assignment_key_sha256": "10f3e9cfb2d6d1aa8d9266bf7c345dbed8a4c32a2a82f0500813322c46445cda"
+        },
+        {
+          "review_id": "review-c519297f7fd2348c39616a61",
+          "episode_id": "ep-func-003",
+          "role": "secondary",
+          "assignment_key_sha256": "c519297f7fd2348c39616a6103cfcab69f9a6da3daf33dd96df5a03cf3f25ded"
+        }
+      ],
+      "primary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-10f3e9cfb2d6d1aa8d9266bf",
+        "episode_id": "ep-func-003",
+        "reviewer_id_sha256": "57ef1f617c4298f6e18facda08eef66cfb3cc8510ff7631f6aec7c1ce1c38858",
+        "role": "primary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "ab4ef1f9b545067feca6d10bc4fb70a60c5753dfdc027c94ab0190190b384e8f"
+      },
+      "secondary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-c519297f7fd2348c39616a61",
+        "episode_id": "ep-func-003",
+        "reviewer_id_sha256": "a4fdbd182af4c3bd70b72d29e8af177599c757b309b0a759f8e6de80c5bafc63",
+        "role": "secondary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 1,
+            "evidence_note_sha256": "dd09fb310e041a3c3e0edc1d3ad087d988d5d8deea82bf120dc7ac5537d237de"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 1,
+            "evidence_note_sha256": "92b21f7326fb2532e1ccbc9ac55d65aadd236a33e4239c642176efb5f7fd58ba"
+          },
+          {
+            "criterion": "source_use",
+            "score": 1,
+            "evidence_note_sha256": "a6a5cbb711b37a7357af7dd1ae10fa8278a48dc8259bfdfd1e6aacf79b78b0cc"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 1,
+            "evidence_note_sha256": "4d7e8c13fe5b8b912fe3b0b15072846e310aa16d996054d0db076a19226b9da4"
+          },
+          {
+            "criterion": "completeness",
+            "score": 1,
+            "evidence_note_sha256": "00e4ddd284d91e82b0e44a4edd47b896150ad1653db3058e01245f4d7e20f17e"
+          },
+          {
+            "criterion": "clarity",
+            "score": 1,
+            "evidence_note_sha256": "8fd1b3aadc940c00440d13c3e1fea387f1cf9b9ccbea2f3c38b339c9115ac7e5"
+          },
+          {
+            "criterion": "safety",
+            "score": 1,
+            "evidence_note_sha256": "6f6f91bba771651e18409b59c2c688fcb15ebd4fd8bde2d88870ebb0dac20c80"
+          }
+        ],
+        "failure_labels": [
+          "TASK_INSUFFICIENT"
+        ],
+        "verdict": "fail",
+        "rationale_sha256": "d2040bd842e04d615602537be2fc372843050938b65dfa03b06c7e030b278252"
+      },
+      "adjudication": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-003",
+        "primary_review_id": "review-10f3e9cfb2d6d1aa8d9266bf",
+        "secondary_review_id": "review-c519297f7fd2348c39616a61",
+        "adjudicator_id_sha256": "4eb1b38adc1ece7be6c14f74d322f7a47dd7db43ddb8d68c0ed0a9abf3270146",
+        "final_criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "final_failure_labels": [],
+        "final_verdict": "pass",
+        "rationale_sha256": "c602659702b4b9ca6aef96a0d66a984478fcf961d4dbb2288461027bdf5a6cae"
+      },
+      "expected_material_disagreement": true,
+      "expected_error_code": null,
+      "negative_control": false
+    },
+    {
+      "case_id": "blind-score-delta-adjudicated",
+      "source": {
+        "episode_id": "ep-func-004",
+        "synthetic_conversation": [
+          "Synthetic user context for ep-func-004.",
+          "Synthetic assistant candidate for ep-func-004."
+        ],
+        "terminal_decision_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient"
+        },
+        "citation_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "deterministic_validation_results": {
+          "deterministic_quality_passed": true,
+          "failure_labels": []
+        },
+        "condition_id": "condition-b",
+        "provider": "synthetic-provider",
+        "model": "synthetic-model",
+        "route": "synthetic-route",
+        "cost": 0.0123,
+        "latency": 432,
+        "cache_telemetry": {
+          "status": "plausibly_warm"
+        },
+        "run_order": 2
+      },
+      "assignments": [
+        {
+          "review_id": "review-205aec3133bba797af6bd7a8",
+          "episode_id": "ep-func-004",
+          "role": "primary",
+          "assignment_key_sha256": "205aec3133bba797af6bd7a800d72f6364111ae58a6af4960699a3179bddde49"
+        },
+        {
+          "review_id": "review-f20ceab55aa443b8d70bad95",
+          "episode_id": "ep-func-004",
+          "role": "secondary",
+          "assignment_key_sha256": "f20ceab55aa443b8d70bad95b5b52667a393a95d52e89e64e76c4c6658daa355"
+        }
+      ],
+      "primary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-205aec3133bba797af6bd7a8",
+        "episode_id": "ep-func-004",
+        "reviewer_id_sha256": "22949ec8875faf853a58bfc95d98a6e6683de3fa16becaff5b696154bbabf342",
+        "role": "primary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 4,
+            "evidence_note_sha256": "6bf58f04c7898445a7c6f382dd620387cbce573ae7c29ba6d4c9a303462c5d68"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 4,
+            "evidence_note_sha256": "cbb2793c4ba2acdff905add93dec2bc206dac60b7def8a0aba5946966fc138a6"
+          },
+          {
+            "criterion": "source_use",
+            "score": 4,
+            "evidence_note_sha256": "0eb8c3710cf2caf4a500b8882b88602f67442d9d961540e64b0b35057dac3a83"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 4,
+            "evidence_note_sha256": "ff5c45a540e7fb0cc8d53a6b303ec1c8249c8445569efe05148f05a37274fc9c"
+          },
+          {
+            "criterion": "completeness",
+            "score": 4,
+            "evidence_note_sha256": "f5766788655b0559ba32c6d98db31ea63c98ead2fde7220b1cb6f446c3e03029"
+          },
+          {
+            "criterion": "clarity",
+            "score": 4,
+            "evidence_note_sha256": "af241933cb8b0b10758e6dd39a9bc8eb37efa24194e0414ab8089102f4b75f32"
+          },
+          {
+            "criterion": "safety",
+            "score": 4,
+            "evidence_note_sha256": "baa04c59e46f283e84bd4ae23e65a320f87c05c77cbee9d879734adaa5535c34"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "1176dd59889fa1c940dcf915d0ffb9ac89c25a0059df1fc0418c0c539cab3189"
+      },
+      "secondary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-f20ceab55aa443b8d70bad95",
+        "episode_id": "ep-func-004",
+        "reviewer_id_sha256": "e94fa3588ea9aa7779654ac47c86782e5cf931174f4ad5fa91868e5a86df580b",
+        "role": "secondary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 2,
+            "evidence_note_sha256": "b8c58f8734b3d82f1395a15f5eb68e74e7dcfa817b19bf2146a2d81a52b992dc"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 4,
+            "evidence_note_sha256": "cbb2793c4ba2acdff905add93dec2bc206dac60b7def8a0aba5946966fc138a6"
+          },
+          {
+            "criterion": "source_use",
+            "score": 4,
+            "evidence_note_sha256": "0eb8c3710cf2caf4a500b8882b88602f67442d9d961540e64b0b35057dac3a83"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 4,
+            "evidence_note_sha256": "ff5c45a540e7fb0cc8d53a6b303ec1c8249c8445569efe05148f05a37274fc9c"
+          },
+          {
+            "criterion": "completeness",
+            "score": 4,
+            "evidence_note_sha256": "f5766788655b0559ba32c6d98db31ea63c98ead2fde7220b1cb6f446c3e03029"
+          },
+          {
+            "criterion": "clarity",
+            "score": 4,
+            "evidence_note_sha256": "af241933cb8b0b10758e6dd39a9bc8eb37efa24194e0414ab8089102f4b75f32"
+          },
+          {
+            "criterion": "safety",
+            "score": 4,
+            "evidence_note_sha256": "baa04c59e46f283e84bd4ae23e65a320f87c05c77cbee9d879734adaa5535c34"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "8ce4e805d36677cd357df7a8a6091a74b249a0bbafc4d097c0b2c210ba186a0e"
+      },
+      "adjudication": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-004",
+        "primary_review_id": "review-205aec3133bba797af6bd7a8",
+        "secondary_review_id": "review-f20ceab55aa443b8d70bad95",
+        "adjudicator_id_sha256": "28b86fb66a09a3ec0205c58ffd3e3813e7650a5497a82b64c3c281b8568e70b0",
+        "final_criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 4,
+            "evidence_note_sha256": "6bf58f04c7898445a7c6f382dd620387cbce573ae7c29ba6d4c9a303462c5d68"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 4,
+            "evidence_note_sha256": "cbb2793c4ba2acdff905add93dec2bc206dac60b7def8a0aba5946966fc138a6"
+          },
+          {
+            "criterion": "source_use",
+            "score": 4,
+            "evidence_note_sha256": "0eb8c3710cf2caf4a500b8882b88602f67442d9d961540e64b0b35057dac3a83"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 4,
+            "evidence_note_sha256": "ff5c45a540e7fb0cc8d53a6b303ec1c8249c8445569efe05148f05a37274fc9c"
+          },
+          {
+            "criterion": "completeness",
+            "score": 4,
+            "evidence_note_sha256": "f5766788655b0559ba32c6d98db31ea63c98ead2fde7220b1cb6f446c3e03029"
+          },
+          {
+            "criterion": "clarity",
+            "score": 4,
+            "evidence_note_sha256": "af241933cb8b0b10758e6dd39a9bc8eb37efa24194e0414ab8089102f4b75f32"
+          },
+          {
+            "criterion": "safety",
+            "score": 4,
+            "evidence_note_sha256": "baa04c59e46f283e84bd4ae23e65a320f87c05c77cbee9d879734adaa5535c34"
+          }
+        ],
+        "final_failure_labels": [],
+        "final_verdict": "pass",
+        "rationale_sha256": "57b738a0049e439eefc1cb71032eee7fbdd42bb5cf47d1c04ffb8ae617f9a4a8"
+      },
+      "expected_material_disagreement": true,
+      "expected_error_code": null,
+      "negative_control": false
+    },
+    {
+      "case_id": "blind-failure-label-disagreement-adjudicated",
+      "source": {
+        "episode_id": "ep-func-012",
+        "synthetic_conversation": [
+          "Synthetic user context for ep-func-012.",
+          "Synthetic assistant candidate for ep-func-012."
+        ],
+        "terminal_decision_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient"
+        },
+        "citation_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "deterministic_validation_results": {
+          "deterministic_quality_passed": true,
+          "failure_labels": []
+        },
+        "condition_id": "condition-b",
+        "provider": "synthetic-provider",
+        "model": "synthetic-model",
+        "route": "synthetic-route",
+        "cost": 0.0123,
+        "latency": 432,
+        "cache_telemetry": {
+          "status": "plausibly_warm"
+        },
+        "run_order": 2
+      },
+      "assignments": [
+        {
+          "review_id": "review-445ab6c3d5863d173a0d04e1",
+          "episode_id": "ep-func-012",
+          "role": "primary",
+          "assignment_key_sha256": "445ab6c3d5863d173a0d04e11fc0c98e148616ae7499d63fc2553e25dcec6ecb"
+        },
+        {
+          "review_id": "review-0897741b30c67c558ac51178",
+          "episode_id": "ep-func-012",
+          "role": "secondary",
+          "assignment_key_sha256": "0897741b30c67c558ac51178c8a892bc266d46d13a65af7a32f6f030b739c3d7"
+        }
+      ],
+      "primary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-445ab6c3d5863d173a0d04e1",
+        "episode_id": "ep-func-012",
+        "reviewer_id_sha256": "90048af5247115c4859afa7695bfdffb9ae38823944c2dbf9eb41838dde07be5",
+        "role": "primary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 2,
+            "evidence_note_sha256": "b8c58f8734b3d82f1395a15f5eb68e74e7dcfa817b19bf2146a2d81a52b992dc"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 2,
+            "evidence_note_sha256": "60d155edbff02ca8fda6d63c147bb18535cca65a052f800a5540a4646530240b"
+          },
+          {
+            "criterion": "source_use",
+            "score": 2,
+            "evidence_note_sha256": "3f7dbe9a35df259da381a7aceba34bbee70f361b77fc8acc0785f49b7864a9de"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 2,
+            "evidence_note_sha256": "44ca679df7ad0205b042446cf08667760a4b117c40ded5de5b4f5a6209edde18"
+          },
+          {
+            "criterion": "completeness",
+            "score": 2,
+            "evidence_note_sha256": "f57d263117cf1bda41ab92ffc274c183e6689e12e5b748d218d1a0daff8b312d"
+          },
+          {
+            "criterion": "clarity",
+            "score": 2,
+            "evidence_note_sha256": "1b0785e91d6fe5b870c346f22098e47fa44d062ba9364168cbb9b376fdcbff94"
+          },
+          {
+            "criterion": "safety",
+            "score": 2,
+            "evidence_note_sha256": "493c3e9ca559c5e23f801ae2ca0af1f08273ecd1fe961cf1a74823929b339bb2"
+          }
+        ],
+        "failure_labels": [
+          "TASK_INSUFFICIENT"
+        ],
+        "verdict": "fail",
+        "rationale_sha256": "eb8930f0ff6e638303883b0eeeb47de94c3beebdf06a629552e103bc1c7559fe"
+      },
+      "secondary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-0897741b30c67c558ac51178",
+        "episode_id": "ep-func-012",
+        "reviewer_id_sha256": "b996c78ae606b773af91e50870786573cfeea3556e47dc717aa066ad86217f45",
+        "role": "secondary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 2,
+            "evidence_note_sha256": "b8c58f8734b3d82f1395a15f5eb68e74e7dcfa817b19bf2146a2d81a52b992dc"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 2,
+            "evidence_note_sha256": "60d155edbff02ca8fda6d63c147bb18535cca65a052f800a5540a4646530240b"
+          },
+          {
+            "criterion": "source_use",
+            "score": 2,
+            "evidence_note_sha256": "3f7dbe9a35df259da381a7aceba34bbee70f361b77fc8acc0785f49b7864a9de"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 2,
+            "evidence_note_sha256": "44ca679df7ad0205b042446cf08667760a4b117c40ded5de5b4f5a6209edde18"
+          },
+          {
+            "criterion": "completeness",
+            "score": 2,
+            "evidence_note_sha256": "f57d263117cf1bda41ab92ffc274c183e6689e12e5b748d218d1a0daff8b312d"
+          },
+          {
+            "criterion": "clarity",
+            "score": 2,
+            "evidence_note_sha256": "1b0785e91d6fe5b870c346f22098e47fa44d062ba9364168cbb9b376fdcbff94"
+          },
+          {
+            "criterion": "safety",
+            "score": 2,
+            "evidence_note_sha256": "493c3e9ca559c5e23f801ae2ca0af1f08273ecd1fe961cf1a74823929b339bb2"
+          }
+        ],
+        "failure_labels": [
+          "CITATION_UNSUPPORTED"
+        ],
+        "verdict": "fail",
+        "rationale_sha256": "4d7a47e48afe8b65c792ccea9d0484cc0c90fdbe7a998e2b8e981cf322e04b9e"
+      },
+      "adjudication": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-012",
+        "primary_review_id": "review-445ab6c3d5863d173a0d04e1",
+        "secondary_review_id": "review-0897741b30c67c558ac51178",
+        "adjudicator_id_sha256": "db55e19a5c98748f3bd584b7254d0bbb898512ce50d6683e7d88eaeb24e8493b",
+        "final_criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 2,
+            "evidence_note_sha256": "b8c58f8734b3d82f1395a15f5eb68e74e7dcfa817b19bf2146a2d81a52b992dc"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 2,
+            "evidence_note_sha256": "60d155edbff02ca8fda6d63c147bb18535cca65a052f800a5540a4646530240b"
+          },
+          {
+            "criterion": "source_use",
+            "score": 2,
+            "evidence_note_sha256": "3f7dbe9a35df259da381a7aceba34bbee70f361b77fc8acc0785f49b7864a9de"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 2,
+            "evidence_note_sha256": "44ca679df7ad0205b042446cf08667760a4b117c40ded5de5b4f5a6209edde18"
+          },
+          {
+            "criterion": "completeness",
+            "score": 2,
+            "evidence_note_sha256": "f57d263117cf1bda41ab92ffc274c183e6689e12e5b748d218d1a0daff8b312d"
+          },
+          {
+            "criterion": "clarity",
+            "score": 2,
+            "evidence_note_sha256": "1b0785e91d6fe5b870c346f22098e47fa44d062ba9364168cbb9b376fdcbff94"
+          },
+          {
+            "criterion": "safety",
+            "score": 2,
+            "evidence_note_sha256": "493c3e9ca559c5e23f801ae2ca0af1f08273ecd1fe961cf1a74823929b339bb2"
+          }
+        ],
+        "final_failure_labels": [
+          "TASK_INSUFFICIENT"
+        ],
+        "final_verdict": "fail",
+        "rationale_sha256": "3cef06c9fb04a8467d2d052a5d87a5031a63ba1a9be5bb7c4dc1d817b602b493"
+      },
+      "expected_material_disagreement": true,
+      "expected_error_code": null,
+      "negative_control": false
+    },
+    {
+      "case_id": "blind-export-episode-mismatch",
+      "source": {
+        "episode_id": "ep-func-007",
+        "synthetic_conversation": [
+          "Synthetic user context for ep-func-007.",
+          "Synthetic assistant candidate for ep-func-007."
+        ],
+        "terminal_decision_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient"
+        },
+        "citation_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "deterministic_validation_results": {
+          "deterministic_quality_passed": true,
+          "failure_labels": []
+        },
+        "condition_id": "condition-b",
+        "provider": "synthetic-provider",
+        "model": "synthetic-model",
+        "route": "synthetic-route",
+        "cost": 0.0123,
+        "latency": 432,
+        "cache_telemetry": {
+          "status": "plausibly_warm"
+        },
+        "run_order": 2
+      },
+      "assignments": [
+        {
+          "review_id": "review-2027408f1bd76c11b3c00f77",
+          "episode_id": "ep-func-006",
+          "role": "primary",
+          "assignment_key_sha256": "2027408f1bd76c11b3c00f77327d6c3fb1216ea147b36e86ffd31c12cb720e98"
+        }
+      ],
+      "primary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-2027408f1bd76c11b3c00f77",
+        "episode_id": "ep-func-006",
+        "reviewer_id_sha256": "310d8f18822de2103e474850222644627396d3fbf2da997b0007d6be21f83aa9",
+        "role": "primary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "3ee09b28f03151324c1b2f74802625560c6aad06d39d7e981fc256f7dd911618"
+      },
+      "secondary_review": null,
+      "adjudication": null,
+      "expected_material_disagreement": null,
+      "expected_error_code": "REVIEW_EXPORT_EPISODE_MISMATCH",
+      "negative_control": true
+    },
+    {
+      "case_id": "blind-review-assignment-mismatch",
+      "source": {
+        "episode_id": "ep-func-007",
+        "synthetic_conversation": [
+          "Synthetic user context for ep-func-007.",
+          "Synthetic assistant candidate for ep-func-007."
+        ],
+        "terminal_decision_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient"
+        },
+        "citation_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "deterministic_validation_results": {
+          "deterministic_quality_passed": true,
+          "failure_labels": []
+        },
+        "condition_id": "condition-b",
+        "provider": "synthetic-provider",
+        "model": "synthetic-model",
+        "route": "synthetic-route",
+        "cost": 0.0123,
+        "latency": 432,
+        "cache_telemetry": {
+          "status": "plausibly_warm"
+        },
+        "run_order": 2
+      },
+      "assignments": [
+        {
+          "review_id": "review-09d872ef8bf5eeadd4b4eb27",
+          "episode_id": "ep-func-007",
+          "role": "primary",
+          "assignment_key_sha256": "09d872ef8bf5eeadd4b4eb27728395f669660207ce662177c29d3500a6ab34d4"
+        }
+      ],
+      "primary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-09d872ef8bf5eeadd4b4eb27",
+        "episode_id": "ep-func-008",
+        "reviewer_id_sha256": "a3ee2bd197ce5da83def0c527c3a68501f5e6e01a6a757d53c6c80aac68c273b",
+        "role": "primary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "266ffa927891644d750e794d52f0a58b80155bf32c096fcadbbdc8e2e267b879"
+      },
+      "secondary_review": null,
+      "adjudication": null,
+      "expected_material_disagreement": null,
+      "expected_error_code": "REVIEW_ASSIGNMENT_MISMATCH",
+      "negative_control": true
+    },
+    {
+      "case_id": "blind-reviewer-independence-violation",
+      "source": {
+        "episode_id": "ep-func-015",
+        "synthetic_conversation": [
+          "Synthetic user context for ep-func-015.",
+          "Synthetic assistant candidate for ep-func-015."
+        ],
+        "terminal_decision_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient"
+        },
+        "citation_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "deterministic_validation_results": {
+          "deterministic_quality_passed": true,
+          "failure_labels": []
+        },
+        "condition_id": "condition-b",
+        "provider": "synthetic-provider",
+        "model": "synthetic-model",
+        "route": "synthetic-route",
+        "cost": 0.0123,
+        "latency": 432,
+        "cache_telemetry": {
+          "status": "plausibly_warm"
+        },
+        "run_order": 2
+      },
+      "assignments": [
+        {
+          "review_id": "review-00a48e4d1d32ebdba4cf2993",
+          "episode_id": "ep-func-015",
+          "role": "primary",
+          "assignment_key_sha256": "00a48e4d1d32ebdba4cf2993f73fc8132e3535687a9d90f92ccafb68d9fc8abf"
+        },
+        {
+          "review_id": "review-8a384c2014e96874fdbe5750",
+          "episode_id": "ep-func-015",
+          "role": "secondary",
+          "assignment_key_sha256": "8a384c2014e96874fdbe5750503058da69cf8e83d9abb8e7429136529c8199ed"
+        }
+      ],
+      "primary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-00a48e4d1d32ebdba4cf2993",
+        "episode_id": "ep-func-015",
+        "reviewer_id_sha256": "6f8103859c9e5966ec033317e66c6c988d8383ab6c1f24cd29442e0c251cc19f",
+        "role": "primary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "4c0d8486474ab38aabc245d188080a6fb9ef53635931bb8cb77c2ec015a543e0"
+      },
+      "secondary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-8a384c2014e96874fdbe5750",
+        "episode_id": "ep-func-015",
+        "reviewer_id_sha256": "6f8103859c9e5966ec033317e66c6c988d8383ab6c1f24cd29442e0c251cc19f",
+        "role": "secondary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "410e3522dcc43ee7fd24a8e209fcc1dd53e001b8c6cffc207a2e618a5ac7a0fc"
+      },
+      "adjudication": null,
+      "expected_material_disagreement": false,
+      "expected_error_code": "REVIEWER_INDEPENDENCE_VIOLATION",
+      "negative_control": true
+    },
+    {
+      "case_id": "blind-adjudicator-independence-violation",
+      "source": {
+        "episode_id": "ep-func-003",
+        "synthetic_conversation": [
+          "Synthetic user context for ep-func-003.",
+          "Synthetic assistant candidate for ep-func-003."
+        ],
+        "terminal_decision_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient"
+        },
+        "citation_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "deterministic_validation_results": {
+          "deterministic_quality_passed": true,
+          "failure_labels": []
+        },
+        "condition_id": "condition-b",
+        "provider": "synthetic-provider",
+        "model": "synthetic-model",
+        "route": "synthetic-route",
+        "cost": 0.0123,
+        "latency": 432,
+        "cache_telemetry": {
+          "status": "plausibly_warm"
+        },
+        "run_order": 2
+      },
+      "assignments": [
+        {
+          "review_id": "review-10f3e9cfb2d6d1aa8d9266bf",
+          "episode_id": "ep-func-003",
+          "role": "primary",
+          "assignment_key_sha256": "10f3e9cfb2d6d1aa8d9266bf7c345dbed8a4c32a2a82f0500813322c46445cda"
+        },
+        {
+          "review_id": "review-c519297f7fd2348c39616a61",
+          "episode_id": "ep-func-003",
+          "role": "secondary",
+          "assignment_key_sha256": "c519297f7fd2348c39616a6103cfcab69f9a6da3daf33dd96df5a03cf3f25ded"
+        }
+      ],
+      "primary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-10f3e9cfb2d6d1aa8d9266bf",
+        "episode_id": "ep-func-003",
+        "reviewer_id_sha256": "238c1dd547705445c0cb9b2f24bf74bdc19ff532d69b02d3fe9d5d35cfd8b7e6",
+        "role": "primary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "07404d5cd33afcab74e5f56e62d15f6d03cc47aac05be6444c1476a956c8004f"
+      },
+      "secondary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-c519297f7fd2348c39616a61",
+        "episode_id": "ep-func-003",
+        "reviewer_id_sha256": "0cc3b8ba1d9f5f3ce8047bf4e3031864a266bbef3d74fc6702e97e9606580580",
+        "role": "secondary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 1,
+            "evidence_note_sha256": "dd09fb310e041a3c3e0edc1d3ad087d988d5d8deea82bf120dc7ac5537d237de"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 1,
+            "evidence_note_sha256": "92b21f7326fb2532e1ccbc9ac55d65aadd236a33e4239c642176efb5f7fd58ba"
+          },
+          {
+            "criterion": "source_use",
+            "score": 1,
+            "evidence_note_sha256": "a6a5cbb711b37a7357af7dd1ae10fa8278a48dc8259bfdfd1e6aacf79b78b0cc"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 1,
+            "evidence_note_sha256": "4d7e8c13fe5b8b912fe3b0b15072846e310aa16d996054d0db076a19226b9da4"
+          },
+          {
+            "criterion": "completeness",
+            "score": 1,
+            "evidence_note_sha256": "00e4ddd284d91e82b0e44a4edd47b896150ad1653db3058e01245f4d7e20f17e"
+          },
+          {
+            "criterion": "clarity",
+            "score": 1,
+            "evidence_note_sha256": "8fd1b3aadc940c00440d13c3e1fea387f1cf9b9ccbea2f3c38b339c9115ac7e5"
+          },
+          {
+            "criterion": "safety",
+            "score": 1,
+            "evidence_note_sha256": "6f6f91bba771651e18409b59c2c688fcb15ebd4fd8bde2d88870ebb0dac20c80"
+          }
+        ],
+        "failure_labels": [
+          "TASK_INSUFFICIENT"
+        ],
+        "verdict": "fail",
+        "rationale_sha256": "978ca190f82c5cd3708a5279ccda3e3dad697069ccdc46d9f66fa63b18cd207d"
+      },
+      "adjudication": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-003",
+        "primary_review_id": "review-10f3e9cfb2d6d1aa8d9266bf",
+        "secondary_review_id": "review-c519297f7fd2348c39616a61",
+        "adjudicator_id_sha256": "238c1dd547705445c0cb9b2f24bf74bdc19ff532d69b02d3fe9d5d35cfd8b7e6",
+        "final_criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "final_failure_labels": [],
+        "final_verdict": "pass",
+        "rationale_sha256": "5ffa75a4d8faf4994cd37ad7442ea015cf6c65acaebc7845d3823630bcc90ecf"
+      },
+      "expected_material_disagreement": true,
+      "expected_error_code": "ADJUDICATOR_INDEPENDENCE_VIOLATION",
+      "negative_control": true
+    },
+    {
+      "case_id": "blind-unnecessary-adjudication",
+      "source": {
+        "episode_id": "ep-func-002",
+        "synthetic_conversation": [
+          "Synthetic user context for ep-func-002.",
+          "Synthetic assistant candidate for ep-func-002."
+        ],
+        "terminal_decision_output": {
+          "decision": "answer",
+          "reason_code": "evidence_sufficient"
+        },
+        "citation_source_ids": [
+          "NR-AUTH-001"
+        ],
+        "deterministic_validation_results": {
+          "deterministic_quality_passed": true,
+          "failure_labels": []
+        },
+        "condition_id": "condition-b",
+        "provider": "synthetic-provider",
+        "model": "synthetic-model",
+        "route": "synthetic-route",
+        "cost": 0.0123,
+        "latency": 432,
+        "cache_telemetry": {
+          "status": "plausibly_warm"
+        },
+        "run_order": 2
+      },
+      "assignments": [
+        {
+          "review_id": "review-7bd923b14991ab577d40673e",
+          "episode_id": "ep-func-002",
+          "role": "primary",
+          "assignment_key_sha256": "7bd923b14991ab577d40673e4904a5b2922a3ce661061ee9750156a04e23d427"
+        },
+        {
+          "review_id": "review-d3304afe2e0fc6245ca67dbc",
+          "episode_id": "ep-func-002",
+          "role": "secondary",
+          "assignment_key_sha256": "d3304afe2e0fc6245ca67dbc998ef8699e5979fc28394b747109864be7152374"
+        }
+      ],
+      "primary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-7bd923b14991ab577d40673e",
+        "episode_id": "ep-func-002",
+        "reviewer_id_sha256": "bd3dc8df0ed920d77b1ce6132f6aef40e72b2b2513cc12f6bd933ec463c1b3b8",
+        "role": "primary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "6c6295c9434891cc92963bb6090dfd58cfa44cfa9002c4194d1476ff1b928919"
+      },
+      "secondary_review": {
+        "schema_version": "1.0.0",
+        "review_id": "review-d3304afe2e0fc6245ca67dbc",
+        "episode_id": "ep-func-002",
+        "reviewer_id_sha256": "fd3d8e4d592aff6353f5ae4a717571a10d4e10f4943f04ce1072264e9fea87b1",
+        "role": "secondary",
+        "criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "failure_labels": [],
+        "verdict": "pass",
+        "rationale_sha256": "e2cebc0f95903d4f2c354008b4082a732188ab47d2e0e45d4c31484f49a95fdf"
+      },
+      "adjudication": {
+        "schema_version": "1.0.0",
+        "episode_id": "ep-func-002",
+        "primary_review_id": "review-7bd923b14991ab577d40673e",
+        "secondary_review_id": "review-d3304afe2e0fc6245ca67dbc",
+        "adjudicator_id_sha256": "2995acca51639a6841cce4c725341658bb037475ade512a25b04f0a83a0f571a",
+        "final_criterion_scores": [
+          {
+            "criterion": "task_correctness",
+            "score": 3,
+            "evidence_note_sha256": "6ea7f3c03c250009ae0806d664978f00e095f8d5b638094c586c761ec42e743a"
+          },
+          {
+            "criterion": "evidence_grounding",
+            "score": 3,
+            "evidence_note_sha256": "adfc1f2d96823c58f858228ef6bc482b245364e1b17322bba18d6d578b951756"
+          },
+          {
+            "criterion": "source_use",
+            "score": 3,
+            "evidence_note_sha256": "8bd42ead9011df6e7d710da8e5fb3d782183fd6a1a2342cfd078ef305204581e"
+          },
+          {
+            "criterion": "terminal_decision",
+            "score": 3,
+            "evidence_note_sha256": "c94ce87a29ff0c2f85aba1693796a82ced908eda794d12fcb1e965c5fac406ce"
+          },
+          {
+            "criterion": "completeness",
+            "score": 3,
+            "evidence_note_sha256": "c753a9d49733d64d8e0efd850b189e79fd29d9116c513bf8d9b9920fde2678d4"
+          },
+          {
+            "criterion": "clarity",
+            "score": 3,
+            "evidence_note_sha256": "47f881d9f590209d2b2fcf8318d7f7df28d80960523c3e5a873b892492084200"
+          },
+          {
+            "criterion": "safety",
+            "score": 3,
+            "evidence_note_sha256": "0dff0578e4bf9762177a32fcbdcdb0598b27fafaa13995bb61e6104e3060e049"
+          }
+        ],
+        "final_failure_labels": [],
+        "final_verdict": "pass",
+        "rationale_sha256": "7d2954aaab60f899e3eadb5e84d890d2b83f07c32c1df3f555a857ada2c9f624"
+      },
+      "expected_material_disagreement": false,
+      "expected_error_code": "ADJUDICATION_NOT_REQUIRED",
+      "negative_control": true
+    }
+  ]
+}

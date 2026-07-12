@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-gate-6-review-assignments-v1",
+  "protocol_id": "blinded-adjudication-v1",
+  "sampling_seed": 20260712,
+  "episode_count": 18,
+  "primary_assignment_count": 18,
+  "secondary_assignment_count": 5,
+  "double_review_episode_ids": [
+    "ep-func-002",
+    "ep-func-003",
+    "ep-func-004",
+    "ep-func-012",
+    "ep-func-015"
+  ],
+  "assignments": [
+    {
+      "review_id": "review-fbc6fd8b5c9f592872de73f3",
+      "episode_id": "ep-func-001",
+      "role": "primary",
+      "assignment_key_sha256": "fbc6fd8b5c9f592872de73f3d95476bcc75f4730b141d7babcc0363741bdecb2"
+    },
+    {
+      "review_id": "review-7bd923b14991ab577d40673e",
+      "episode_id": "ep-func-002",
+      "role": "primary",
+      "assignment_key_sha256": "7bd923b14991ab577d40673e4904a5b2922a3ce661061ee9750156a04e23d427"
+    },
+    {
+      "review_id": "review-10f3e9cfb2d6d1aa8d9266bf",
+      "episode_id": "ep-func-003",
+      "role": "primary",
+      "assignment_key_sha256": "10f3e9cfb2d6d1aa8d9266bf7c345dbed8a4c32a2a82f0500813322c46445cda"
+    },
+    {
+      "review_id": "review-205aec3133bba797af6bd7a8",
+      "episode_id": "ep-func-004",
+      "role": "primary",
+      "assignment_key_sha256": "205aec3133bba797af6bd7a800d72f6364111ae58a6af4960699a3179bddde49"
+    },
+    {
+      "review_id": "review-9da915caa9be1d49eef82599",
+      "episode_id": "ep-func-005",
+      "role": "primary",
+      "assignment_key_sha256": "9da915caa9be1d49eef82599cd95d7322355a493187fce895505c6515e1bdbfb"
+    },
+    {
+      "review_id": "review-2027408f1bd76c11b3c00f77",
+      "episode_id": "ep-func-006",
+      "role": "primary",
+      "assignment_key_sha256": "2027408f1bd76c11b3c00f77327d6c3fb1216ea147b36e86ffd31c12cb720e98"
+    },
+    {
+      "review_id": "review-09d872ef8bf5eeadd4b4eb27",
+      "episode_id": "ep-func-007",
+      "role": "primary",
+      "assignment_key_sha256": "09d872ef8bf5eeadd4b4eb27728395f669660207ce662177c29d3500a6ab34d4"
+    },
+    {
+      "review_id": "review-44622035dfe05937c9236499",
+      "episode_id": "ep-func-008",
+      "role": "primary",
+      "assignment_key_sha256": "44622035dfe05937c9236499ec0f45dede94f71d1a5b72b77de47e78ae060de7"
+    },
+    {
+      "review_id": "review-25c589ebf6f0aa5203e8e55d",
+      "episode_id": "ep-func-009",
+      "role": "primary",
+      "assignment_key_sha256": "25c589ebf6f0aa5203e8e55d395ada75e3e9a9fbc42390fc1c3ca80ba7a0ec6d"
+    },
+    {
+      "review_id": "review-0862a8b4f5e3b10d2199a751",
+      "episode_id": "ep-func-010",
+      "role": "primary",
+      "assignment_key_sha256": "0862a8b4f5e3b10d2199a751a01b6e693f596bbcba4b4aaa3bce9d8d9e87c1ce"
+    },
+    {
+      "review_id": "review-250dbb47e48d601691d1c3a8",
+      "episode_id": "ep-func-011",
+      "role": "primary",
+      "assignment_key_sha256": "250dbb47e48d601691d1c3a8b8ab3d6c2bb3249cdebd87c75367f7f6f52dd98b"
+    },
+    {
+      "review_id": "review-445ab6c3d5863d173a0d04e1",
+      "episode_id": "ep-func-012",
+      "role": "primary",
+      "assignment_key_sha256": "445ab6c3d5863d173a0d04e11fc0c98e148616ae7499d63fc2553e25dcec6ecb"
+    },
+    {
+      "review_id": "review-c3e534bac01818b77cbb13d9",
+      "episode_id": "ep-func-013",
+      "role": "primary",
+      "assignment_key_sha256": "c3e534bac01818b77cbb13d90880822634b6310866d47a42830d0fc50c446e24"
+    },
+    {
+      "review_id": "review-983fb1d118e3d2f7618ad97a",
+      "episode_id": "ep-func-014",
+      "role": "primary",
+      "assignment_key_sha256": "983fb1d118e3d2f7618ad97a691de6241d800dc37cfd89f3ce3dd62a6a7f199b"
+    },
+    {
+      "review_id": "review-00a48e4d1d32ebdba4cf2993",
+      "episode_id": "ep-func-015",
+      "role": "primary",
+      "assignment_key_sha256": "00a48e4d1d32ebdba4cf2993f73fc8132e3535687a9d90f92ccafb68d9fc8abf"
+    },
+    {
+      "review_id": "review-b5d80cc879a317e1526eee27",
+      "episode_id": "ep-func-016",
+      "role": "primary",
+      "assignment_key_sha256": "b5d80cc879a317e1526eee2753f5578af141148819a7c32300f87da822060c94"
+    },
+    {
+      "review_id": "review-99457e93f5cfb45bd5d78c1e",
+      "episode_id": "ep-func-017",
+      "role": "primary",
+      "assignment_key_sha256": "99457e93f5cfb45bd5d78c1e1c034fd889c0f34f9da896c469a8e609a7678fd9"
+    },
+    {
+      "review_id": "review-84128ce41825a1cac674a44a",
+      "episode_id": "ep-func-018",
+      "role": "primary",
+      "assignment_key_sha256": "84128ce41825a1cac674a44ae11b075abc8bf055f2bd083f054f7f9adc85183c"
+    },
+    {
+      "review_id": "review-d3304afe2e0fc6245ca67dbc",
+      "episode_id": "ep-func-002",
+      "role": "secondary",
+      "assignment_key_sha256": "d3304afe2e0fc6245ca67dbc998ef8699e5979fc28394b747109864be7152374"
+    },
+    {
+      "review_id": "review-c519297f7fd2348c39616a61",
+      "episode_id": "ep-func-003",
+      "role": "secondary",
+      "assignment_key_sha256": "c519297f7fd2348c39616a6103cfcab69f9a6da3daf33dd96df5a03cf3f25ded"
+    },
+    {
+      "review_id": "review-f20ceab55aa443b8d70bad95",
+      "episode_id": "ep-func-004",
+      "role": "secondary",
+      "assignment_key_sha256": "f20ceab55aa443b8d70bad95b5b52667a393a95d52e89e64e76c4c6658daa355"
+    },
+    {
+      "review_id": "review-0897741b30c67c558ac51178",
+      "episode_id": "ep-func-012",
+      "role": "secondary",
+      "assignment_key_sha256": "0897741b30c67c558ac51178c8a892bc266d46d13a65af7a32f6f030b739c3d7"
+    },
+    {
+      "review_id": "review-8a384c2014e96874fdbe5750",
+      "episode_id": "ep-func-015",
+      "role": "secondary",
+      "assignment_key_sha256": "8a384c2014e96874fdbe5750503058da69cf8e83d9abb8e7429136529c8199ed"
+    }
+  ]
+}
