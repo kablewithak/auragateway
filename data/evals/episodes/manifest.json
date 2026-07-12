@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "nimbus-relay-diagnostic-episode-manifest-v1",
+  "status": "frozen",
+  "retrieval_freeze_path": "data/retrieval/frozen-v1/manifest.json",
+  "retrieval_freeze_sha256": "dc74b69b72cb5a392ce86f46d7b4709a5106746d84053ebff09b573b57271492",
+  "retrieval_configuration_fingerprint": "220ce9ac6e19789bedf1aedc2b6253db5ba03a09ebcc6efdac203eb80cd23490",
+  "functional_set_path": "data/evals/episodes/functional-v1/accepted_episodes.json",
+  "functional_set_sha256": "6229df94a6a426f815a2050172a79e115d9554031239043b397140ce13894285",
+  "rejected_set_path": "data/evals/episodes/functional-v1/rejected_proposals.json",
+  "rejected_set_sha256": "80d846fcb2aea4a9e4a0cace81ca9b9875592ddc45c224c658ba87b1243adc5b",
+  "runtime_selection_path": "data/evals/episodes/runtime-v1/selection.json",
+  "runtime_selection_sha256": "5ff912ad317fe09d97518e5b03178ebe3bb565dcf09719182bfffc80b67034e1",
+  "review_protocol_path": "data/evals/episodes/blinded_review_protocol.json",
+  "review_protocol_sha256": "925e614c3a81d7e438299436ddf3619fa462cd861e0b816f26937279506ab3af",
+  "functional_episode_count": 18,
+  "development_episode_count": 12,
+  "held_out_episode_count": 6,
+  "runtime_episode_count": 6,
+  "terminal_decision_counts": {
+    "answer": 10,
+    "clarify": 3,
+    "escalate": 3,
+    "refuse": 2
+  },
+  "case_family_counts": {
+    "contradictory_user_correction": 1,
+    "duplicate_retrieval_evidence": 1,
+    "incomplete_documentation": 2,
+    "missing_required_parameters": 2,
+    "model_capability_edge_cases": 1,
+    "multi_source_grounding": 1,
+    "multi_turn_evidence_correction": 1,
+    "noisy_context_dilution": 1,
+    "provider_failure_mid_session": 1,
+    "repeated_user_information": 1,
+    "sdk_variant": 1,
+    "similar_error_codes": 1,
+    "unsupported_requested_behaviour": 1,
+    "version_conflicting_sources": 3
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "set_id": "nimbus-relay-runtime-episodes-v1",
+  "status": "frozen",
+  "source_functional_set_id": "nimbus-relay-functional-episodes-v1",
+  "episode_count": 6,
+  "entries": [
+    {
+      "episode_id": "ep-func-001",
+      "selection_reason": "Stable two-source version conflict with a final answer and repeatable four-turn context growth.",
+      "expected_terminal_decision": "answer"
+    },
+    {
+      "episode_id": "ep-func-002",
+      "selection_reason": "Stable clarification trajectory that tests missing-state retention without provider fault injection.",
+      "expected_terminal_decision": "clarify"
+    },
+    {
+      "episode_id": "ep-func-005",
+      "selection_reason": "Stable incomplete-documentation trajectory with a deterministic escalation outcome.",
+      "expected_terminal_decision": "escalate"
+    },
+    {
+      "episode_id": "ep-func-006",
+      "selection_reason": "Stable unsupported-capability trajectory with a deterministic refusal and safe alternative.",
+      "expected_terminal_decision": "refuse"
+    },
+    {
+      "episode_id": "ep-func-010",
+      "selection_reason": "Multi-source grounding episode with deterministic permission evidence and moderate context size.",
+      "expected_terminal_decision": "answer"
+    },
+    {
+      "episode_id": "ep-func-012",
+      "selection_reason": "Noisy-context episode that exercises retention while avoiding injected provider failures.",
+      "expected_terminal_decision": "answer"
+    }
+  ]
+}

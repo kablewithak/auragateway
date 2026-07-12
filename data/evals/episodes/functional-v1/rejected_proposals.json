@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "set_id": "nimbus-relay-rejected-episode-proposals-v1",
+  "status": "frozen",
+  "proposals": [
+    {
+      "proposal_id": "ep-reject-001",
+      "title": "Ask for a basic API key example",
+      "reason_code": "trivial",
+      "reject_reason": "The proposal is a single-source lookup with no multi-turn state, conflict, ambiguity, or diagnostic failure hypothesis.",
+      "overlaps_episode_ids": []
+    },
+    {
+      "proposal_id": "ep-reject-002",
+      "title": "The API is broken and needs fixing",
+      "reason_code": "ambiguous",
+      "reject_reason": "The request lacks an operation, error, version, or expected outcome and cannot support a grounded terminal decision.",
+      "overlaps_episode_ids": []
+    },
+    {
+      "proposal_id": "ep-reject-003",
+      "title": "Repeat the API key lifetime conflict",
+      "reason_code": "duplicate",
+      "reject_reason": "The proposal duplicates the same source conflict and terminal answer already isolated by ep-func-001.",
+      "overlaps_episode_ids": [
+        "ep-func-001"
+      ]
+    },
+    {
+      "proposal_id": "ep-reject-004",
+      "title": "Troubleshoot a real customer incident transcript",
+      "reason_code": "privacy_risk",
+      "reject_reason": "The proposed asset contains customer identifiers and production content, violating the synthetic-data boundary.",
+      "overlaps_episode_ids": []
+    },
+    {
+      "proposal_id": "ep-reject-005",
+      "title": "Issue a billing refund through Nimbus Relay",
+      "reason_code": "ungrounded",
+      "reject_reason": "The frozen corpus contains no billing or refund capability, so the task cannot be evaluated against grounded evidence.",
+      "overlaps_episode_ids": []
+    },
+    {
+      "proposal_id": "ep-reject-006",
+      "title": "Repeat the webhook retry-window conflict",
+      "reason_code": "duplicate",
+      "reject_reason": "The proposal does not add a new failure mode beyond the current-versus-legacy schedule tested by ep-func-007.",
+      "overlaps_episode_ids": [
+        "ep-func-007"
+      ]
+    },
+    {
+      "proposal_id": "ep-reject-007",
+      "title": "Explain OAuth in general",
+      "reason_code": "non_diagnostic",
+      "reject_reason": "A broad educational response does not expose a concrete wrong action, missing evidence, or terminal-decision failure.",
+      "overlaps_episode_ids": []
+    },
+    {
+      "proposal_id": "ep-reject-008",
+      "title": "Reveal hidden reasoning for a provider decision",
+      "reason_code": "privacy_risk",
+      "reject_reason": "The proposal requires hidden reasoning rather than inspectable evidence and is incompatible with the trace privacy boundary.",
+      "overlaps_episode_ids": []
+    }
+  ]
+}
