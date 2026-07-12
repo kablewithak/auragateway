@@ -1,0 +1,375 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-4-telemetry-fixtures-v1",
+  "cases": [
+    {
+      "case_id": "cached-detail-valid",
+      "request": {
+        "schema_version": "1.0.0",
+        "request_id": "request-cached-detail-valid",
+        "fixture_id": "cached-detail-valid",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+        "input_token_count": 1000,
+        "output_token_budget": 256
+      },
+      "telemetry": {
+        "semantic_family": "cached_input_detail",
+        "fixture_id": "cached-detail-valid",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "input_tokens": 1000,
+        "cached_input_tokens": 700,
+        "output_tokens": 120,
+        "time_to_first_output_ms": 220,
+        "total_duration_ms": 810
+      },
+      "pricing_schedule_id": "synthetic-openai-pricing-v1",
+      "expectations": [
+        {
+          "claim_kind": "cache_efficiency",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        },
+        {
+          "claim_kind": "latency",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        },
+        {
+          "claim_kind": "estimated_cost",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        }
+      ],
+      "negative_control": false
+    },
+    {
+      "case_id": "creation-read-valid",
+      "request": {
+        "schema_version": "1.0.0",
+        "request_id": "request-creation-read-valid",
+        "fixture_id": "creation-read-valid",
+        "provider": "anthropic",
+        "model_alias": "synthetic-anthropic-cache-model",
+        "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+        "input_token_count": 1500,
+        "output_token_budget": 256
+      },
+      "telemetry": {
+        "semantic_family": "cache_creation_read",
+        "fixture_id": "creation-read-valid",
+        "provider": "anthropic",
+        "model_alias": "synthetic-anthropic-cache-model",
+        "uncached_input_tokens": 300,
+        "cache_creation_input_tokens": 500,
+        "cache_read_input_tokens": 700,
+        "output_tokens": 110,
+        "time_to_first_output_ms": 245,
+        "total_duration_ms": 930
+      },
+      "pricing_schedule_id": "synthetic-anthropic-pricing-v1",
+      "expectations": [
+        {
+          "claim_kind": "cache_efficiency",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        },
+        {
+          "claim_kind": "latency",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        },
+        {
+          "claim_kind": "estimated_cost",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        }
+      ],
+      "negative_control": false
+    },
+    {
+      "case_id": "local-timing-only",
+      "request": {
+        "schema_version": "1.0.0",
+        "request_id": "request-local-timing-only",
+        "fixture_id": "local-timing-only",
+        "provider": "ollama",
+        "model_alias": "synthetic-ollama-local-model",
+        "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+        "input_token_count": 900,
+        "output_token_budget": 256
+      },
+      "telemetry": {
+        "semantic_family": "local_prompt_evaluation",
+        "fixture_id": "local-timing-only",
+        "provider": "ollama",
+        "model_alias": "synthetic-ollama-local-model",
+        "prompt_eval_count": 900,
+        "prompt_eval_duration_ms": 360,
+        "output_eval_count": 95,
+        "total_duration_ms": 820
+      },
+      "pricing_schedule_id": null,
+      "expectations": [
+        {
+          "claim_kind": "cache_efficiency",
+          "decision": "blocked",
+          "reason_code": "CACHE_EVIDENCE_UNAVAILABLE"
+        },
+        {
+          "claim_kind": "latency",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        },
+        {
+          "claim_kind": "estimated_cost",
+          "decision": "blocked",
+          "reason_code": "TOKEN_EVIDENCE_UNAVAILABLE"
+        }
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "missing-cache-field",
+      "request": {
+        "schema_version": "1.0.0",
+        "request_id": "request-missing-cache-field",
+        "fixture_id": "missing-cache-field",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+        "input_token_count": 1000,
+        "output_token_budget": 256
+      },
+      "telemetry": {
+        "semantic_family": "cached_input_detail",
+        "fixture_id": "missing-cache-field",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "input_tokens": 1000,
+        "cached_input_tokens": null,
+        "output_tokens": 100,
+        "time_to_first_output_ms": 230,
+        "total_duration_ms": 840
+      },
+      "pricing_schedule_id": "synthetic-openai-pricing-v1",
+      "expectations": [
+        {
+          "claim_kind": "cache_efficiency",
+          "decision": "blocked",
+          "reason_code": "CACHE_EVIDENCE_UNAVAILABLE"
+        },
+        {
+          "claim_kind": "latency",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        },
+        {
+          "claim_kind": "estimated_cost",
+          "decision": "blocked",
+          "reason_code": "TOKEN_EVIDENCE_UNAVAILABLE"
+        }
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "invalid-cache-denominator",
+      "request": {
+        "schema_version": "1.0.0",
+        "request_id": "request-invalid-cache-denominator",
+        "fixture_id": "invalid-cache-denominator",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+        "input_token_count": 500,
+        "output_token_budget": 256
+      },
+      "telemetry": {
+        "semantic_family": "cached_input_detail",
+        "fixture_id": "invalid-cache-denominator",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "input_tokens": 500,
+        "cached_input_tokens": 700,
+        "output_tokens": 90,
+        "time_to_first_output_ms": 210,
+        "total_duration_ms": 790
+      },
+      "pricing_schedule_id": "synthetic-openai-pricing-v1",
+      "expectations": [
+        {
+          "claim_kind": "cache_efficiency",
+          "decision": "blocked",
+          "reason_code": "CACHE_SEMANTICS_MISMATCH"
+        },
+        {
+          "claim_kind": "latency",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        },
+        {
+          "claim_kind": "estimated_cost",
+          "decision": "blocked",
+          "reason_code": "CACHE_SEMANTICS_MISMATCH"
+        }
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "missing-latency-fields",
+      "request": {
+        "schema_version": "1.0.0",
+        "request_id": "request-missing-latency-fields",
+        "fixture_id": "missing-latency-fields",
+        "provider": "anthropic",
+        "model_alias": "synthetic-anthropic-cache-model",
+        "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+        "input_token_count": 1000,
+        "output_token_budget": 256
+      },
+      "telemetry": {
+        "semantic_family": "cache_creation_read",
+        "fixture_id": "missing-latency-fields",
+        "provider": "anthropic",
+        "model_alias": "synthetic-anthropic-cache-model",
+        "uncached_input_tokens": 250,
+        "cache_creation_input_tokens": 250,
+        "cache_read_input_tokens": 500,
+        "output_tokens": 100,
+        "time_to_first_output_ms": null,
+        "total_duration_ms": null
+      },
+      "pricing_schedule_id": "synthetic-anthropic-pricing-v1",
+      "expectations": [
+        {
+          "claim_kind": "cache_efficiency",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        },
+        {
+          "claim_kind": "latency",
+          "decision": "blocked",
+          "reason_code": "LATENCY_EVIDENCE_UNAVAILABLE"
+        },
+        {
+          "claim_kind": "estimated_cost",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        }
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "missing-pricing-schedule",
+      "request": {
+        "schema_version": "1.0.0",
+        "request_id": "request-missing-pricing-schedule",
+        "fixture_id": "missing-pricing-schedule",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+        "input_token_count": 800,
+        "output_token_budget": 256
+      },
+      "telemetry": {
+        "semantic_family": "cached_input_detail",
+        "fixture_id": "missing-pricing-schedule",
+        "provider": "openai",
+        "model_alias": "synthetic-openai-cache-model",
+        "input_tokens": 800,
+        "cached_input_tokens": 400,
+        "output_tokens": 80,
+        "time_to_first_output_ms": 200,
+        "total_duration_ms": 730
+      },
+      "pricing_schedule_id": null,
+      "expectations": [
+        {
+          "claim_kind": "cache_efficiency",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        },
+        {
+          "claim_kind": "latency",
+          "decision": "permitted",
+          "reason_code": "CLAIM_PERMITTED"
+        },
+        {
+          "claim_kind": "estimated_cost",
+          "decision": "blocked",
+          "reason_code": "PRICING_EVIDENCE_UNAVAILABLE"
+        }
+      ],
+      "negative_control": true
+    },
+    {
+      "case_id": "telemetry-unavailable",
+      "request": {
+        "schema_version": "1.0.0",
+        "request_id": "request-telemetry-unavailable",
+        "fixture_id": "telemetry-unavailable",
+        "provider": "unavailable",
+        "model_alias": "synthetic-unavailable-model",
+        "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+        "input_token_count": 0,
+        "output_token_budget": 256
+      },
+      "telemetry": {
+        "semantic_family": "unavailable",
+        "fixture_id": "telemetry-unavailable",
+        "provider": "unavailable",
+        "model_alias": "synthetic-unavailable-model",
+        "unavailable_reason": "The runtime exposed no trustworthy telemetry fields."
+      },
+      "pricing_schedule_id": null,
+      "expectations": [
+        {
+          "claim_kind": "cache_efficiency",
+          "decision": "blocked",
+          "reason_code": "CACHE_EVIDENCE_UNAVAILABLE"
+        },
+        {
+          "claim_kind": "latency",
+          "decision": "blocked",
+          "reason_code": "LATENCY_EVIDENCE_UNAVAILABLE"
+        },
+        {
+          "claim_kind": "estimated_cost",
+          "decision": "blocked",
+          "reason_code": "TOKEN_EVIDENCE_UNAVAILABLE"
+        }
+      ],
+      "negative_control": true
+    }
+  ],
+  "pricing_schedules": [
+    {
+      "schedule_id": "synthetic-openai-pricing-v1",
+      "provider": "openai",
+      "model_alias": "synthetic-openai-cache-model",
+      "source_date": "2026-07-12",
+      "evidence_kind": "synthetic_fixture",
+      "currency": "USD",
+      "standard_input_per_million": "2.50",
+      "cached_input_per_million": "1.25",
+      "cache_creation_input_per_million": null,
+      "cache_read_input_per_million": null,
+      "output_per_million": "10.00"
+    },
+    {
+      "schedule_id": "synthetic-anthropic-pricing-v1",
+      "provider": "anthropic",
+      "model_alias": "synthetic-anthropic-cache-model",
+      "source_date": "2026-07-12",
+      "evidence_kind": "synthetic_fixture",
+      "currency": "USD",
+      "standard_input_per_million": "3.00",
+      "cached_input_per_million": null,
+      "cache_creation_input_per_million": "3.75",
+      "cache_read_input_per_million": "0.30",
+      "output_per_million": "15.00"
+    }
+  ]
+}
