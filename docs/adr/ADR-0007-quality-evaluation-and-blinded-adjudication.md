@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-07-12
-- **Decision version:** 1.2.0
+- **Decision version:** 1.3.0
 - **Decision owners:** AuraGateway project maintainers
 - **Applies from:** Phase 5
 - **Supersedes:** None
@@ -17,7 +17,7 @@ Residual questions such as whether wording resolves the technical issue or wheth
 
 ## Decision
 
-AuraGateway will evaluate task quality in two ordered layers.
+AuraGateway evaluates task quality in three ordered layers.
 
 ### Layer 1: deterministic quality scoring
 
@@ -58,86 +58,59 @@ The frozen review workflow requires:
 - independent adjudication when material disagreement is present;
 - prohibition of adjudication when no material disagreement exists.
 
-The seven residual-quality criteria are:
+The residual-quality criteria are task correctness, evidence grounding, source use, terminal decision, completeness, clarity, and safety.
 
-1. task correctness;
-2. evidence grounding;
-3. source use;
-4. terminal decision;
-5. completeness;
-6. clarity;
-7. safety.
+### Layer 3: A/B/C quality non-inferiority gate
 
-### Opaque assignment policy
+Measured condition comparison is interpreted only after deterministic scoring and protected review controls are complete.
 
-Review assignments are deterministic and provider-neutral.
+The comparison gate requires exactly one aggregate for each of conditions A, B, and C. Condition A is the frozen baseline. Conditions B and C are evaluated against it.
 
-For each episode and role, AuraGateway derives:
+A comparison is eligible only when:
 
-- an opaque review ID;
-- an assignment-key SHA-256 digest;
-- a primary or secondary role.
+- all conditions use the same retrieval-configuration fingerprint;
+- all conditions use the same frozen episode-manifest digest;
+- every condition meets the minimum sample count;
+- answer and citation-support denominators are non-zero.
 
-The double-review sample is selected by ranking SHA-256 digests of the frozen sampling seed and episode IDs. Input episode ordering must not affect the resulting assignment manifest.
+Eligible conditions must satisfy:
 
-Opaque review IDs do not encode the episode ID, provider, model, condition, route, cost, latency, cache state, or run order.
+- structured-output validity of at least 95 percent;
+- no citation-support-rate regression against condition A;
+- no unsupported-answer-rate increase against condition A;
+- task success no more than five percentage points below condition A.
 
-### Protected review export
+The 95 percent structured-output threshold and the five-percentage-point task-success margin are inclusive. Configuration mismatch produces `ineligible`, weak evidence produces `insufficient_sample`, and neither state is reported as an ordinary quality failure.
 
-The pre-blinding source envelope may contain experimental fields, but the reviewer export contains only:
+The first implementation of this layer is a synthetic dry run. It validates the decision boundary but does not execute providers or authorize measured claims.
 
-- opaque review ID;
-- episode ID;
-- synthetic conversation;
-- terminal decision output;
-- citation source IDs;
-- deterministic validation results.
+## Opaque assignment policy
 
-The following fields are stripped before export:
+Review assignments are deterministic and provider-neutral. Opaque review IDs do not encode episode, provider, model, condition, route, cost, latency, cache state, or run order.
 
-- condition ID;
-- provider;
-- model;
-- route;
-- cost;
-- latency;
-- cache telemetry;
-- run order.
+The double-review sample is selected by ranking SHA-256 digests of the frozen sampling seed and episode IDs. Input episode ordering must not affect the assignment manifest.
+
+## Protected review export
+
+The pre-blinding source envelope may contain experimental fields, but the reviewer export contains only approved review-visible evidence. Condition, provider, model, route, cost, latency, cache telemetry, and run order are stripped before export.
 
 Protected review exports may contain synthetic or private review content. Public reports retain only hashes, IDs, counts, bounded outcomes, and failure codes.
 
-### Material disagreement
+## Material disagreement and adjudication
 
-A primary and secondary review materially disagree when at least one of the following is true:
+A primary and secondary review materially disagree when verdicts differ, any criterion score differs by at least two points, or failure-label sets differ.
 
-- the pass/fail verdict differs;
-- any criterion score differs by at least two points;
-- the failure-label sets differ.
-
-Primary and secondary reviewer identities must be different. Reviewer identities are retained only as SHA-256 digests in the protected workflow record.
-
-### Independent adjudication
-
-Material disagreement requires an adjudication record that:
-
-- references the disputed primary and secondary review IDs;
-- uses an adjudicator identity distinct from both reviewers;
-- records final criterion scores;
-- records final failure labels;
-- records a final verdict consistent with the frozen rubric;
-- retains only a rationale digest in public evidence.
-
-Adjudication is rejected when the two reviews do not materially disagree.
+Primary and secondary reviewers must be independent. Material disagreement requires an independent adjudication record. Adjudication is rejected when the reviews do not materially disagree.
 
 ## Claim-support registry
 
-Natural-language entailment is not treated as deterministic. Answer claims are normalized and hashed. A frozen, human-authored registry maps each accepted semantic claim digest to supporting and contradicting source IDs. The scorer verifies declared claim evidence against that registry.
+Natural-language entailment is not treated as deterministic. Answer claims are normalized and hashed. A frozen human-authored registry maps each accepted semantic claim digest to supporting and contradicting source IDs.
 
 A claim absent from the registry is unsupported for deterministic purposes. This does not prove that every possible paraphrase or fact has been semantically evaluated.
 
 ## Source-age rule
 
-A stale source is not automatically invalid. A frozen episode may require a stale or superseded source to explain a conflict. The deterministic failure is therefore an **unscoped stale source**: a stale source used outside the episode's required or optional source scope.
+A stale source is not automatically invalid. A frozen episode may require a stale or superseded source to explain a conflict. The deterministic failure is an unscoped stale source used outside the episode's required or optional source scope.
 
 ## Consequences
 
@@ -145,90 +118,48 @@ A stale source is not automatically invalid. A frozen episode may require a stal
 
 - Machine-checkable failures are separated from residual qualitative judgment.
 - Frozen episode expectations become executable quality gates.
-- Citation and source-use regressions receive stable labels.
-- Retrieval configuration drift blocks a passing result.
-- Raw candidate content stays outside retained deterministic scorecards.
 - Experimental fields are stripped before review.
-- Every functional episode receives a primary review slot.
-- The double-review sample is deterministic and reproducible.
-- Material disagreements receive stable reasons.
-- Adjudicator independence is machine checked.
-- Later A/B/C quality comparisons can use identical scorer and rubric versions.
+- Review coverage and adjudication completeness are machine checked.
+- Comparison eligibility is separated from comparison outcome.
+- Retrieval or episode drift cannot produce a passing comparison.
+- Insufficient evidence cannot be misreported as non-inferiority.
+- Later measured A/B/C comparisons reuse the exact same thresholds and result taxonomy.
 
 ### Negative
 
 - Human-authored claim registries require controlled maintenance.
 - Deterministic checks cannot establish whether arbitrary prose is clear, complete, or persuasive.
-- Blinded-review preparation does not itself execute human review.
-- Protected exports require stricter storage and access controls than public reports.
-- Rubric interpretation can still vary across reviewers.
-- Passing preparation fixtures is necessary but not sufficient for Gate 6 completion.
+- Rubric interpretation can vary across reviewers.
+- Aggregate-rate gates can hide episode-level failure clusters unless trace review is retained.
+- A synthetic dry run is necessary but not sufficient for Gate 6 completion.
 
 ## Required verification
 
-The deterministic scorer slice must prove that:
+The quality non-inferiority dry run must prove that:
 
-- a grounded answer passes;
-- malformed structured output fails;
-- required clarification is not silently answered;
-- incomplete clarification fails;
-- justified escalation and refusal pass;
-- mismatched escalation reasons fail;
-- forbidden and unscoped stale sources fail;
-- unknown citations fail;
-- unregistered claim digests fail;
-- forbidden claims fail;
-- retrieval fingerprint drift fails;
-- required-source absence fails;
-- source-order changes do not change results;
-- retained scorecards exclude raw candidate output;
-- frozen fixture and report hashes reproduce.
-
-The blinded-review preparation slice must prove that:
-
-- all 18 functional episodes receive primary assignments;
-- exactly five episodes receive secondary assignments;
-- the frozen sample reproduces from seed and episode IDs;
-- assignment results do not depend on input episode ordering;
-- opaque review IDs do not expose episode identities;
-- prohibited experimental fields are absent from reviewer exports;
-- changes to hidden fields do not change reviewer exports;
-- primary and secondary reviewers must be independent;
-- verdict, score-delta, and failure-label disagreements are detected;
-- material disagreements require adjudication;
-- adjudicators must be independent;
-- unnecessary adjudication is rejected;
-- fixture, assignment, report, and manifest hashes reproduce.
+- the exact 95 percent structured-output boundary passes;
+- the exact five-percentage-point task-success margin passes;
+- structured validity below threshold fails;
+- citation-support regression fails;
+- unsupported-answer-rate increase fails;
+- task-success loss beyond the margin fails;
+- multiple regressions retain stable failure codes;
+- retrieval fingerprint drift is ineligible;
+- episode-manifest drift is ineligible;
+- insufficient sample count is explicit;
+- missing rate denominators are explicit;
+- condition input ordering does not change the result;
+- proportional count scaling does not change rates or status;
+- fixture, report, manifest, and upstream hashes reproduce.
 
 ## Gate status
 
-This decision version establishes deterministic quality scoring, blinded-review preparation, and protected synthetic review execution.
+This decision version establishes deterministic quality scoring, blinded-review preparation, protected synthetic review execution, and a synthetic A/B/C quality non-inferiority dry run.
 
-Gate 6 remains open until protected reviews are completed on measured trajectories and A/B/C held-out quality non-inferiority evidence is produced.
-
-## Protected review execution
-
-The prepared blinded workflow is followed by a protected execution boundary that validates complete assignment coverage before producing aggregate quality evidence.
-
-The execution layer must:
-
-- accept exactly one review for every frozen primary and secondary assignment;
-- reject missing, duplicate, or unassigned review submissions;
-- validate every review against its assignment and the frozen rubric;
-- require independent primary and secondary reviewers;
-- detect material disagreement using the accepted verdict, score-delta, and failure-label rules;
-- require exactly one independent adjudication for every material disagreement;
-- prohibit adjudication when no material disagreement exists;
-- calculate reviewer-agreement metrics from the frozen double-review sample;
-- produce metadata-only episode outcomes and held-out aggregates;
-- exclude raw conversations, candidate outputs, reviewer notes, and rationales from public reports.
-
-When double reviews do not materially disagree, the primary review remains the final episode outcome. When a material disagreement is adjudicated, the adjudication becomes the final outcome. This rule is deterministic and versioned.
-
-The first execution evidence is synthetic fixture execution. It validates workflow behavior and aggregate calculations but does not claim that human review or provider-condition comparison has occurred.
+Gate 6 remains open until protected reviews are completed on measured trajectories and an eligible A/B/C held-out comparison passes the frozen quality boundary.
 
 ## Claim boundary
 
-The deterministic scorer, blinded preparation layer, and protected synthetic execution layer prove typed coverage enforcement, assignment matching, reviewer independence, material-disagreement handling, adjudication completeness, agreement metrics, and metadata-only held-out aggregation on frozen synthetic evidence.
+The current Gate 6 layers prove typed deterministic scoring, blinded workflow preparation, protected synthetic execution, and quality-gate decision behavior on frozen synthetic evidence.
 
-They do not prove completed human review, reviewer reliability on real trajectories, A/B/C task-quality non-inferiority, benchmark readiness, latency improvement, cost reduction, deployment safety, or production readiness.
+They do not prove completed human review, reviewer reliability on measured trajectories, measured A/B/C task-quality non-inferiority, benchmark readiness, latency improvement, cost reduction, deployment safety, or production readiness.

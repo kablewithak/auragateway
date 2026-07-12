@@ -1,0 +1,2374 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "auragateway-gate-6-quality-noninferiority-v1",
+  "results": [
+    {
+      "case_id": "quality-gate-boundary-pass",
+      "result": {
+        "schema_version": "1.0.0",
+        "comparison_id": "quality-compare-boundary-pass",
+        "status": "passed",
+        "eligible_for_quality_comparison": true,
+        "rates": [
+          {
+            "condition_id": "condition_a",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.98,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.9
+          },
+          {
+            "condition_id": "condition_b",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.97,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.86
+          },
+          {
+            "condition_id": "condition_c",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.95,
+            "citation_support_rate": 0.96,
+            "unsupported_answer_rate": 0.01,
+            "task_success_rate": 0.85
+          }
+        ],
+        "checks": [
+          {
+            "check_name": "retrieval_configuration_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_fingerprint_count=1"
+            ]
+          },
+          {
+            "check_name": "episode_manifest_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_manifest_count=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": 0.98,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.97,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.95,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.95,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.02,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.86,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.96,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.01,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.85,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          }
+        ],
+        "failure_codes": [],
+        "quality_gate_passed": true,
+        "synthetic_dry_run": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": false
+    },
+    {
+      "case_id": "quality-gate-structured-output-fail",
+      "result": {
+        "schema_version": "1.0.0",
+        "comparison_id": "quality-compare-structured-output-fail",
+        "status": "failed",
+        "eligible_for_quality_comparison": true,
+        "rates": [
+          {
+            "condition_id": "condition_a",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.98,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.9
+          },
+          {
+            "condition_id": "condition_b",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.94,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.86
+          },
+          {
+            "condition_id": "condition_c",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.95,
+            "citation_support_rate": 0.96,
+            "unsupported_answer_rate": 0.01,
+            "task_success_rate": 0.85
+          }
+        ],
+        "checks": [
+          {
+            "check_name": "retrieval_configuration_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_fingerprint_count=1"
+            ]
+          },
+          {
+            "check_name": "episode_manifest_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_manifest_count=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": 0.98,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "failed",
+            "condition_id": "condition_b",
+            "failure_code": "STRUCTURED_OUTPUT_VALIDITY_BELOW_THRESHOLD",
+            "observed_rate": 0.94,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.95,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.95,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.02,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.86,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.96,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.01,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.85,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          }
+        ],
+        "failure_codes": [
+          "STRUCTURED_OUTPUT_VALIDITY_BELOW_THRESHOLD"
+        ],
+        "quality_gate_passed": false,
+        "synthetic_dry_run": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-gate-citation-regression",
+      "result": {
+        "schema_version": "1.0.0",
+        "comparison_id": "quality-compare-citation-regression",
+        "status": "failed",
+        "eligible_for_quality_comparison": true,
+        "rates": [
+          {
+            "condition_id": "condition_a",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.98,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.9
+          },
+          {
+            "condition_id": "condition_b",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.97,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.86
+          },
+          {
+            "condition_id": "condition_c",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.96,
+            "citation_support_rate": 0.94,
+            "unsupported_answer_rate": 0.01,
+            "task_success_rate": 0.86
+          }
+        ],
+        "checks": [
+          {
+            "check_name": "retrieval_configuration_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_fingerprint_count=1"
+            ]
+          },
+          {
+            "check_name": "episode_manifest_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_manifest_count=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": 0.98,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.97,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.96,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.95,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.02,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.86,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "failed",
+            "condition_id": "condition_c",
+            "failure_code": "CITATION_SUPPORT_REGRESSION",
+            "observed_rate": 0.94,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.01,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.86,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          }
+        ],
+        "failure_codes": [
+          "CITATION_SUPPORT_REGRESSION"
+        ],
+        "quality_gate_passed": false,
+        "synthetic_dry_run": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-gate-unsupported-increase",
+      "result": {
+        "schema_version": "1.0.0",
+        "comparison_id": "quality-compare-unsupported-increase",
+        "status": "failed",
+        "eligible_for_quality_comparison": true,
+        "rates": [
+          {
+            "condition_id": "condition_a",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.98,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.9
+          },
+          {
+            "condition_id": "condition_b",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.97,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.03,
+            "task_success_rate": 0.86
+          },
+          {
+            "condition_id": "condition_c",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.95,
+            "citation_support_rate": 0.96,
+            "unsupported_answer_rate": 0.01,
+            "task_success_rate": 0.85
+          }
+        ],
+        "checks": [
+          {
+            "check_name": "retrieval_configuration_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_fingerprint_count=1"
+            ]
+          },
+          {
+            "check_name": "episode_manifest_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_manifest_count=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": 0.98,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.97,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.95,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.95,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "failed",
+            "condition_id": "condition_b",
+            "failure_code": "UNSUPPORTED_ANSWER_RATE_INCREASE",
+            "observed_rate": 0.03,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.86,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.96,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.01,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.85,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          }
+        ],
+        "failure_codes": [
+          "UNSUPPORTED_ANSWER_RATE_INCREASE"
+        ],
+        "quality_gate_passed": false,
+        "synthetic_dry_run": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-gate-task-success-inferior",
+      "result": {
+        "schema_version": "1.0.0",
+        "comparison_id": "quality-compare-task-success-inferior",
+        "status": "failed",
+        "eligible_for_quality_comparison": true,
+        "rates": [
+          {
+            "condition_id": "condition_a",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.98,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.9
+          },
+          {
+            "condition_id": "condition_b",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.97,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.86
+          },
+          {
+            "condition_id": "condition_c",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.96,
+            "citation_support_rate": 0.96,
+            "unsupported_answer_rate": 0.01,
+            "task_success_rate": 0.84
+          }
+        ],
+        "checks": [
+          {
+            "check_name": "retrieval_configuration_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_fingerprint_count=1"
+            ]
+          },
+          {
+            "check_name": "episode_manifest_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_manifest_count=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": 0.98,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.97,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.96,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.95,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.02,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": 0.86,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.96,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.01,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "failed",
+            "condition_id": "condition_c",
+            "failure_code": "TASK_SUCCESS_INFERIOR",
+            "observed_rate": 0.84,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          }
+        ],
+        "failure_codes": [
+          "TASK_SUCCESS_INFERIOR"
+        ],
+        "quality_gate_passed": false,
+        "synthetic_dry_run": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-gate-retrieval-ineligible",
+      "result": {
+        "schema_version": "1.0.0",
+        "comparison_id": "quality-compare-retrieval-ineligible",
+        "status": "ineligible",
+        "eligible_for_quality_comparison": false,
+        "rates": [
+          {
+            "condition_id": "condition_a",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.98,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.9
+          },
+          {
+            "condition_id": "condition_b",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.97,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.86
+          },
+          {
+            "condition_id": "condition_c",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.95,
+            "citation_support_rate": 0.96,
+            "unsupported_answer_rate": 0.01,
+            "task_success_rate": 0.85
+          }
+        ],
+        "checks": [
+          {
+            "check_name": "retrieval_configuration_match",
+            "status": "failed",
+            "condition_id": null,
+            "failure_code": "RETRIEVAL_CONFIGURATION_MISMATCH",
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_fingerprint_count=2"
+            ]
+          },
+          {
+            "check_name": "episode_manifest_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_manifest_count=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          }
+        ],
+        "failure_codes": [
+          "RETRIEVAL_CONFIGURATION_MISMATCH"
+        ],
+        "quality_gate_passed": false,
+        "synthetic_dry_run": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-gate-episode-ineligible",
+      "result": {
+        "schema_version": "1.0.0",
+        "comparison_id": "quality-compare-episode-ineligible",
+        "status": "ineligible",
+        "eligible_for_quality_comparison": false,
+        "rates": [
+          {
+            "condition_id": "condition_a",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.98,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.9
+          },
+          {
+            "condition_id": "condition_b",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.97,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.86
+          },
+          {
+            "condition_id": "condition_c",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.96,
+            "citation_support_rate": 0.96,
+            "unsupported_answer_rate": 0.01,
+            "task_success_rate": 0.86
+          }
+        ],
+        "checks": [
+          {
+            "check_name": "retrieval_configuration_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_fingerprint_count=1"
+            ]
+          },
+          {
+            "check_name": "episode_manifest_match",
+            "status": "failed",
+            "condition_id": null,
+            "failure_code": "EPISODE_MANIFEST_MISMATCH",
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_manifest_count=2"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          }
+        ],
+        "failure_codes": [
+          "EPISODE_MANIFEST_MISMATCH"
+        ],
+        "quality_gate_passed": false,
+        "synthetic_dry_run": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-gate-sample-insufficient",
+      "result": {
+        "schema_version": "1.0.0",
+        "comparison_id": "quality-compare-sample-insufficient",
+        "status": "insufficient_sample",
+        "eligible_for_quality_comparison": false,
+        "rates": [
+          {
+            "condition_id": "condition_a",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.98,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.9
+          },
+          {
+            "condition_id": "condition_b",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.97,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.86
+          },
+          {
+            "condition_id": "condition_c",
+            "sample_count": 29,
+            "structured_output_validity_rate": 1.0,
+            "citation_support_rate": 1.0,
+            "unsupported_answer_rate": 0.0,
+            "task_success_rate": 0.9310344827586207
+          }
+        ],
+        "checks": [
+          {
+            "check_name": "retrieval_configuration_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_fingerprint_count=1"
+            ]
+          },
+          {
+            "check_name": "episode_manifest_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_manifest_count=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "failed",
+            "condition_id": "condition_c",
+            "failure_code": "INSUFFICIENT_SAMPLE",
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=29",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=29",
+              "citation_evaluable_count=29",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          }
+        ],
+        "failure_codes": [
+          "INSUFFICIENT_SAMPLE"
+        ],
+        "quality_gate_passed": false,
+        "synthetic_dry_run": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-gate-denominator-insufficient",
+      "result": {
+        "schema_version": "1.0.0",
+        "comparison_id": "quality-compare-denominator-insufficient",
+        "status": "insufficient_sample",
+        "eligible_for_quality_comparison": false,
+        "rates": [
+          {
+            "condition_id": "condition_a",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.98,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.9
+          },
+          {
+            "condition_id": "condition_b",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.97,
+            "citation_support_rate": null,
+            "unsupported_answer_rate": null,
+            "task_success_rate": 0.86
+          },
+          {
+            "condition_id": "condition_c",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.95,
+            "citation_support_rate": 0.96,
+            "unsupported_answer_rate": 0.01,
+            "task_success_rate": 0.85
+          }
+        ],
+        "checks": [
+          {
+            "check_name": "retrieval_configuration_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_fingerprint_count=1"
+            ]
+          },
+          {
+            "check_name": "episode_manifest_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_manifest_count=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "failed",
+            "condition_id": "condition_b",
+            "failure_code": "INSUFFICIENT_RATE_DENOMINATOR",
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=0",
+              "citation_evaluable_count=0",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "not_applicable",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "not_applicable",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": []
+          }
+        ],
+        "failure_codes": [
+          "INSUFFICIENT_RATE_DENOMINATOR"
+        ],
+        "quality_gate_passed": false,
+        "synthetic_dry_run": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    },
+    {
+      "case_id": "quality-gate-multiple-regressions",
+      "result": {
+        "schema_version": "1.0.0",
+        "comparison_id": "quality-compare-multiple-regressions",
+        "status": "failed",
+        "eligible_for_quality_comparison": true,
+        "rates": [
+          {
+            "condition_id": "condition_a",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.98,
+            "citation_support_rate": 0.95,
+            "unsupported_answer_rate": 0.02,
+            "task_success_rate": 0.9
+          },
+          {
+            "condition_id": "condition_b",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.93,
+            "citation_support_rate": 0.9,
+            "unsupported_answer_rate": 0.05,
+            "task_success_rate": 0.8
+          },
+          {
+            "condition_id": "condition_c",
+            "sample_count": 100,
+            "structured_output_validity_rate": 0.95,
+            "citation_support_rate": 0.96,
+            "unsupported_answer_rate": 0.01,
+            "task_success_rate": 0.85
+          }
+        ],
+        "checks": [
+          {
+            "check_name": "retrieval_configuration_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_fingerprint_count=1"
+            ]
+          },
+          {
+            "check_name": "episode_manifest_match",
+            "status": "passed",
+            "condition_id": null,
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "distinct_manifest_count=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_b",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "sample_count_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "sample_count=100",
+              "minimum_sample_count=30"
+            ]
+          },
+          {
+            "check_name": "rate_denominators_sufficient",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": null,
+            "reference_rate": null,
+            "threshold": null,
+            "details": [
+              "answer_count=100",
+              "citation_evaluable_count=100",
+              "minimum_rate_denominator=1"
+            ]
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_a",
+            "failure_code": null,
+            "observed_rate": 0.98,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "failed",
+            "condition_id": "condition_b",
+            "failure_code": "STRUCTURED_OUTPUT_VALIDITY_BELOW_THRESHOLD",
+            "observed_rate": 0.93,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "structured_output_validity",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.95,
+            "reference_rate": null,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "failed",
+            "condition_id": "condition_b",
+            "failure_code": "CITATION_SUPPORT_REGRESSION",
+            "observed_rate": 0.9,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "failed",
+            "condition_id": "condition_b",
+            "failure_code": "UNSUPPORTED_ANSWER_RATE_INCREASE",
+            "observed_rate": 0.05,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "failed",
+            "condition_id": "condition_b",
+            "failure_code": "TASK_SUCCESS_INFERIOR",
+            "observed_rate": 0.8,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          },
+          {
+            "check_name": "citation_support_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.96,
+            "reference_rate": 0.95,
+            "threshold": 0.95,
+            "details": []
+          },
+          {
+            "check_name": "unsupported_answer_non_regression",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.01,
+            "reference_rate": 0.02,
+            "threshold": 0.02,
+            "details": []
+          },
+          {
+            "check_name": "task_success_non_inferiority",
+            "status": "passed",
+            "condition_id": "condition_c",
+            "failure_code": null,
+            "observed_rate": 0.85,
+            "reference_rate": 0.9,
+            "threshold": 0.85,
+            "details": []
+          }
+        ],
+        "failure_codes": [
+          "STRUCTURED_OUTPUT_VALIDITY_BELOW_THRESHOLD",
+          "CITATION_SUPPORT_REGRESSION",
+          "UNSUPPORTED_ANSWER_RATE_INCREASE",
+          "TASK_SUCCESS_INFERIOR"
+        ],
+        "quality_gate_passed": false,
+        "synthetic_dry_run": true,
+        "measured_execution_permitted": false
+      },
+      "expectation_matched": true,
+      "negative_control": true
+    }
+  ],
+  "fixture_count": 10,
+  "negative_control_count": 9,
+  "passed_fixture_count": 1,
+  "failed_fixture_count": 5,
+  "ineligible_fixture_count": 2,
+  "insufficient_sample_fixture_count": 2,
+  "all_expectations_matched": true,
+  "quality_gate_dry_run_passed": true,
+  "measured_execution_permitted": false
+}

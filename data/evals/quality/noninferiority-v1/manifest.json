@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-gate-6-quality-noninferiority-manifest-v1",
+  "fixture_path": "data/evals/quality/noninferiority-v1/fixtures.json",
+  "fixture_sha256": "b93803c554906aa444d17da3c7f8dcd98bae827553e271a7dd0e839dfd0c5487",
+  "report_path": "data/evals/quality/noninferiority-v1/report.json",
+  "report_sha256": "b6b5a9de3502b0d27a194a5465b24f5fd1560d13f50d21ab571c07c09977ec77",
+  "deterministic_quality_manifest_path": "data/evals/quality/deterministic-v1/manifest.json",
+  "deterministic_quality_manifest_sha256": "369caa981b7d89d4ddb2061d9e1a0a2a1c4a39597ae11d06940492a562f2873a",
+  "protected_review_manifest_path": "data/evals/quality/execution-v1/manifest.json",
+  "protected_review_manifest_sha256": "88773688ca82ab5dd8958c7481d6501e510730d1fbff0f5e1616f8fdb01d728d",
+  "fixture_count": 10,
+  "negative_control_count": 9,
+  "quality_gate_dry_run_passed": true,
+  "synthetic_dry_run": true,
+  "measured_execution_permitted": false
+}
