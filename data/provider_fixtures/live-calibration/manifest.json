@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-provider-calibration-manifest-v1",
+  "config_id": "auragateway-groq-ollama-calibration-v1",
+  "config_path": "data/provider_fixtures/live-calibration/config.json",
+  "config_sha256": "bfb87cfb26c78e4f57117015bb3e931f1f6acd79363edf3d733b3795c27027f6",
+  "groq_snapshots_path": "data/provider_fixtures/live-calibration/groq_snapshots.json",
+  "groq_snapshots_sha256": "c0f79d044d672779c3978ddc151687f9f9c54a84938aba2efaed0f3f4005d2ab",
+  "ollama_snapshots_path": "data/provider_fixtures/live-calibration/ollama_snapshots.json",
+  "ollama_snapshots_sha256": "877636a49c5255d3089311b40a8751dc208da68ea36468ffe6dc2de283bcca7f",
+  "static_prefix_path": "data/provider_fixtures/live-calibration/stable_prefix.txt",
+  "static_prefix_sha256": "370c3e5efe10497e7556832ea78585158a5ffa610ade8e6020a547453e4047a5",
+  "groq_adapter_version": "groq-chat-completions-v1",
+  "ollama_adapter_version": "ollama-generate-v1",
+  "measured_execution_permitted": false
+}

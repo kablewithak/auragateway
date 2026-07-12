@@ -1,4 +1,4 @@
-"""Provider-neutral request and result contracts for AuraGateway runtime adapters."""
+"""Provider-neutral request, result, and safe prompt-summary contracts."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ class ProviderName(StrEnum):
 
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
+    GROQ = "groq"
     OLLAMA = "ollama"
     UNAVAILABLE = "unavailable"
 
@@ -28,12 +29,19 @@ class ProviderInvocationStatus(StrEnum):
 
 
 class ProviderErrorCode(StrEnum):
-    """Safe provider-boundary failures available to later retry and routing policy."""
+    """Safe provider-boundary failures available to retry and routing policy."""
 
     FIXTURE_NOT_FOUND = "PROVIDER_FIXTURE_NOT_FOUND"
     REQUEST_MISMATCH = "PROVIDER_REQUEST_MISMATCH"
     TIMEOUT = "PROVIDER_TIMEOUT"
     UNAVAILABLE = "PROVIDER_UNAVAILABLE"
+    CONNECTION_FAILED = "PROVIDER_CONNECTION_FAILED"
+    AUTHENTICATION_FAILED = "PROVIDER_AUTHENTICATION_FAILED"
+    PERMISSION_DENIED = "PROVIDER_PERMISSION_DENIED"
+    RATE_LIMITED = "PROVIDER_RATE_LIMITED"
+    MODEL_NOT_AVAILABLE = "PROVIDER_MODEL_NOT_AVAILABLE"
+    SDK_UNAVAILABLE = "PROVIDER_SDK_UNAVAILABLE"
+    CONFIGURATION_MISMATCH = "PROVIDER_CONFIGURATION_MISMATCH"
     AMBIGUOUS_RESPONSE = "PROVIDER_RESPONSE_AMBIGUOUS"
     INVALID_RESPONSE = "PROVIDER_RESPONSE_INVALID"
 
@@ -64,6 +72,24 @@ class ProviderInvocationRequest(BaseModel):
     def validate_prefix_fingerprint(cls, value: str) -> str:
         if _SHA256_PATTERN.fullmatch(value) is None:
             raise ValueError("static_prefix_fingerprint must be lowercase SHA-256")
+        return value
+
+
+class ProtectedPromptSummary(BaseModel):
+    """Safe prompt metadata that contains digests and byte counts only."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = "1.0.0"
+    system_sha256: str
+    user_sha256: str
+    total_bytes: int = Field(gt=0, le=200_000)
+
+    @field_validator("system_sha256", "user_sha256")
+    @classmethod
+    def validate_sha256(cls, value: str) -> str:
+        if _SHA256_PATTERN.fullmatch(value) is None:
+            raise ValueError("prompt summaries require lowercase SHA-256 digests")
         return value
 
 

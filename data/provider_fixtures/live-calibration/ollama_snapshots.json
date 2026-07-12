@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "model_id": "llama3.2:3b",
+  "snapshots": [
+    {
+      "fixture_id": "ollama-deterministic-turn-1",
+      "output_text": "READY-1",
+      "total_duration_ns": 4100000000,
+      "prompt_eval_count": 2294,
+      "prompt_eval_duration_ns": 2900000000,
+      "eval_count": 5
+    },
+    {
+      "fixture_id": "ollama-deterministic-turn-2",
+      "output_text": "READY-2",
+      "total_duration_ns": 3950000000,
+      "prompt_eval_count": 2296,
+      "prompt_eval_duration_ns": 2760000000,
+      "eval_count": 5
+    }
+  ]
+}

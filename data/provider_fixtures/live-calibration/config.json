@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "config_id": "auragateway-groq-ollama-calibration-v1",
+  "documentation_date": "2026-07-12",
+  "static_prefix_path": "data/provider_fixtures/live-calibration/stable_prefix.txt",
+  "static_prefix_fingerprint": "6b7c72729eca9480ef7a0cf734b957dd6c10fa9ff88adc33e322af54d50f4d63",
+  "groq_model_id": "openai/gpt-oss-20b",
+  "groq_model_alias": "groq-gpt-oss-20b",
+  "groq_input_token_estimate": 2300,
+  "groq_output_token_budget": 64,
+  "groq_call_count": 2,
+  "groq_timeout_seconds": 60,
+  "ollama_model_id": "llama3.2:3b",
+  "ollama_model_alias": "ollama-llama3.2-3b",
+  "ollama_endpoint": "http://localhost:11434/api/generate",
+  "ollama_input_token_estimate": 2300,
+  "ollama_output_token_budget": 32,
+  "ollama_call_count": 2,
+  "ollama_timeout_seconds": 300,
+  "free_plan_only": true,
+  "raw_payload_persistence_permitted": false,
+  "measured_execution_permitted": false
+}

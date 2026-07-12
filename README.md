@@ -10,9 +10,9 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
-- **Delivery ledger after this slice:** 111 / 200 planned hours (55.5%)
+- **Delivery ledger after this slice:** 121 / 200 planned hours (60.5%)
 - **Current phase:** Phase 3 — Provider Adapters and Telemetry Calibration
-- **Active proof gate:** Gate 4 passed on deterministic fixtures; live-provider calibration is next
+- **Active proof gate:** Gate 4 passed; Groq and Ollama live calibration is the next execution checkpoint
 - **Gate 0 status:** Passed
 - **Gate 1 status:** Passed — retrieval configuration frozen
 - **Gate 2 status:** Passed — functional and runtime diagnostic episode assets frozen
@@ -21,9 +21,9 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** deterministic telemetry fixtures locally validated; no live provider claim exists
+- **Maturity:** Groq and Ollama adapters locally validated on deterministic snapshots; live calibration reports pending
 
-The accepted continuity ledger was 95 / 200 before this slice. This slice allocates 16 planned hours to the fake provider, provider-semantic fixture normalization, telemetry and sufficiency contracts, provider errors, and the Gate 4 mapping report.
+The accepted continuity ledger was 111 / 200 before this slice. This slice allocates 10 planned hours to the protected live-provider boundary, Groq cached-token adapter, Ollama prompt-timing adapter, deterministic calibration runner, tests, and runbook.
 
 ## Governing Documents
 
@@ -43,6 +43,7 @@ The accepted continuity ledger was 95 / 200 before this slice. This slice alloca
 - [Gate 3 Prefix Determinism Report](docs/benchmark/AuraGateway_Gate_3_Prefix_Determinism_Report.md)
 - [Telemetry Semantics](docs/benchmark/AuraGateway_Telemetry_Semantics.md)
 - [Gate 4 Telemetry Report](docs/benchmark/AuraGateway_Gate_4_Telemetry_Report.md)
+- [Groq and Ollama Calibration](docs/benchmark/AuraGateway_Groq_Ollama_Calibration.md)
 
 ## Frozen Retrieval Configuration
 
@@ -84,6 +85,22 @@ Measured execution: prohibited
 
 Provider cached-input details, provider cache-creation/read accounting, and local prompt-evaluation timing remain distinct. Unknown values remain `None`. Local timing cannot authorize a provider cached-token claim. Synthetic pricing schedules test cost-claim sufficiency only; they are not current provider pricing.
 
+## Selected Calibration Runtimes
+
+```text
+Hosted provider: Groq
+Model: openai/gpt-oss-20b
+Evidence: observed prompt, cached-input, completion-token, and provider total-time fields
+Execution policy: two calls, free-plan only, no retries, no paid fallback
+
+Local runtime: Ollama
+Model: llama3.2:3b
+Evidence: prompt-evaluation count and duration, output count, and total duration
+Execution policy: two local calls; timing remains inferred-local evidence
+```
+
+The tracked deterministic snapshots validate extraction and sufficiency behavior. Live reports are sanitized and written only under ignored `.local/provider-calibration/`.
+
 Raw static content, raw volatile content, prompts, user messages, retrieved documents, outputs, provider payloads, PII, secrets, and HMAC key material remain outside public traces.
 
 ## Freeze Model
@@ -97,7 +114,7 @@ AuraGateway uses separate controls:
 5. **Telemetry Semantics and Sufficiency** — frozen at Gate 4.
 6. **Execution Manifest** — frozen only after all required downstream assets exist.
 
-Passing Gate 4 does not permit measured execution.
+Passing Gate 4 and calibrating live adapters do not permit measured A/B/C execution.
 
 ## Current Benchmark Conditions
 
@@ -119,13 +136,31 @@ It is a standalone advanced AI reliability systems lab and a Week 3 companion pr
 
 ## Local Development
 
-AuraGateway uses Python 3.11 or later with Pydantic v2 contracts.
+AuraGateway uses Python 3.11 or later with Pydantic v2 contracts and the pinned Groq SDK range.
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
+```
+
+Deterministic provider calibration requires no credentials or local runtime:
+
+```powershell
+python -m auragateway.providers.calibration_runner validate --repo-root .
+```
+
+Load the Groq credential into the current PowerShell process, then run the bounded hosted smoke:
+
+```powershell
+python -m auragateway.providers.calibration_runner groq-smoke --repo-root .
+```
+
+Run the local smoke while the Ollama application is serving `llama3.2:3b`:
+
+```powershell
+python -m auragateway.providers.calibration_runner ollama-smoke --repo-root .
 ```
 
 Gate 3 verification requires an environment-loaded synthetic fixture key for reproducibility:
@@ -151,6 +186,7 @@ python -m auragateway.evals.episode_runner verify --repo-root .
 python -m auragateway.context.runner verify --repo-root .
 python -m auragateway.context.prefix_runner verify --repo-root .
 python -m auragateway.telemetry.runner verify --repo-root .
+python -m auragateway.providers.calibration_runner validate --repo-root .
 ```
 
 Run release gates:
@@ -164,4 +200,4 @@ python -m mypy src tests
 
 ## Phase 3 Boundary
 
-Gate 4 is complete on deterministic synthetic fixtures. The next slice selects one primary live provider, implements its adapter behind the provider protocol, calibrates documented telemetry against the frozen semantic contracts, and runs a bounded smoke test without persisting raw payloads. Routing remains prohibited until that calibration passes.
+Gate 4 remains complete and unchanged. The Groq and Ollama adapter boundaries are deterministic-snapshot validated. The next checkpoint is to run the two bounded live smoke commands, inspect only their sanitized reports, and record whether current runtime fields remain compatible with the frozen telemetry contracts. Gate 5 routing remains prohibited until that review passes.
