@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "auragateway-static-anchor-registry-v1",
+  "status": "candidate",
+  "partition": "static",
+  "ordering_policy": "explicit-contiguous-order-v1",
+  "mutation_policy": "reject-after-run-start-v1",
+  "anchors": [
+    {
+      "anchor_id": "benchmark-policy-v1",
+      "order": 0,
+      "kind": "benchmark_policy",
+      "artifact_path": "docs/benchmark/Nimbus_Relay_Gate_1_Freeze_Report.md",
+      "artifact_sha256": "6f032a080b01143da1f31a0b48a92ae410ba3a9a1d52a9e048772681c192f241",
+      "required": true,
+      "data_classification": "synthetic_public",
+      "content_in_public_trace": false
+    },
+    {
+      "anchor_id": "retrieval-configuration-v1",
+      "order": 1,
+      "kind": "retrieval_configuration",
+      "artifact_path": "data/retrieval/frozen-v1/manifest.json",
+      "artifact_sha256": "dc74b69b72cb5a392ce86f46d7b4709a5106746d84053ebff09b573b57271492",
+      "required": true,
+      "data_classification": "synthetic_public",
+      "content_in_public_trace": false
+    },
+    {
+      "anchor_id": "episode-manifest-v1",
+      "order": 2,
+      "kind": "episode_manifest",
+      "artifact_path": "data/evals/episodes/manifest.json",
+      "artifact_sha256": "3a77c6fa037c62a1a548c2e5dc13e9668ebd3114cb58903df538bf7fa239ea6b",
+      "required": true,
+      "data_classification": "synthetic_protected",
+      "content_in_public_trace": false
+    },
+    {
+      "anchor_id": "review-protocol-v1",
+      "order": 3,
+      "kind": "review_protocol",
+      "artifact_path": "data/evals/episodes/blinded_review_protocol.json",
+      "artifact_sha256": "925e614c3a81d7e438299436ddf3619fa462cd861e0b816f26937279506ab3af",
+      "required": true,
+      "data_classification": "synthetic_protected",
+      "content_in_public_trace": false
+    },
+    {
+      "anchor_id": "terminal-decision-constitution-v1",
+      "order": 4,
+      "kind": "terminal_decision_constitution",
+      "artifact_path": "docs/benchmark/Nimbus_Relay_Diagnostic_Episode_Constitution.md",
+      "artifact_sha256": "1637dc4ad7c1b3fe6f3810f376abc86844a6776bda8cfc4917d37dcc38f87bed",
+      "required": true,
+      "data_classification": "synthetic_public",
+      "content_in_public_trace": false
+    },
+    {
+      "anchor_id": "gate-two-evidence-v1",
+      "order": 5,
+      "kind": "gate_evidence",
+      "artifact_path": "docs/benchmark/Nimbus_Relay_Gate_2_Readiness_Report.md",
+      "artifact_sha256": "0cb4947b79f354fdf16c26c2db5be57d257e24563ff70e41bceeef95e37797fb",
+      "required": true,
+      "data_classification": "synthetic_public",
+      "content_in_public_trace": false
+    }
+  ]
+}

@@ -31,6 +31,7 @@ auragateway-validate-gate-one = "auragateway.evals.heldout_runner:main"
 auragateway-remediate-retrieval = "auragateway.evals.remediation_runner:main"
 auragateway-validate-gate-one-v2 = "auragateway.evals.heldout_v2_runner:main"
 auragateway-validate-episodes = "auragateway.evals.episode_runner:main"
+auragateway-validate-context-boundary = "auragateway.context.runner:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
