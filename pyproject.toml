@@ -45,6 +45,7 @@ auragateway-calibrate-providers = "auragateway.providers.calibration_runner:main
 auragateway-validate-route-regulation = "auragateway.routing.regulation_runner:main"
 auragateway-benchmark-preflight = "auragateway.benchmark.preflight_runner:main"
 auragateway-freeze-execution-manifest = "auragateway.benchmark.manifest_freeze_runner:main"
+auragateway-benchmark-controlled-smoke = "auragateway.benchmark.smoke_runner:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
