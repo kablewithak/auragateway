@@ -3,9 +3,10 @@
 ## Status
 
 ```text
-Document version: 1.0.0
+Document version: 1.1.0
 Constitution dependency: AuraGateway Benchmark Constitution 1.0.0
-Execution manifest status: Not yet created
+Execution manifest status: Draft created; not frozen
+Benchmark planning status: Deterministic A/B/C ledger implemented
 Measured execution permitted: No
 ```
 
@@ -13,15 +14,17 @@ Measured execution permitted: No
 
 The frozen Benchmark Constitution defines how AuraGateway evidence must be generated and interpreted.
 
-The execution manifest will later pin the exact assets and implementation versions used for a measured run.
+The execution manifest pins the exact assets and implementation versions used for a measured run. This separation allows Phases 1–6 to create and validate the corpus, retrieval configuration, context compiler, provider adapters, route policy, evaluation assets, fault controls, and comparison-eligibility rules without reopening Gate 0.
 
-This separation allows Phases 1–6 to create and validate the corpus, retrieval configuration, context compiler, provider adapters, route policy, evaluation assets, and fault controls without reopening Gate 0.
+The current draft and run ledger are planning artifacts. They do not authorize Groq, Ollama, or any A/B/C provider execution.
 
 ## Execution manifest freeze point
 
 The execution manifest may be frozen only after Gates 1–8 have supplied the required validated assets.
 
 No functional A/B/C or runtime microbenchmark execution may begin before that freeze.
+
+The freeze procedure must additionally resolve every field that is explicitly `null` in the current draft, complete a bounded provider live probe, declare a versioned cost ceiling when cost remains in scope, and update the Git commit to the commit containing the frozen manifest.
 
 ## Required identity fields
 
@@ -150,18 +153,39 @@ quality_non_inferiority_policy_id
 
 The values must match Constitution 1.0.0.
 
+## Planning ledger
+
+The deterministic planner expands the frozen constitution into:
+
+```text
+functional trajectories: 162
+runtime trajectories: 180
+total trajectories: 342
+turns per trajectory: 4
+total turns: 1,368
+maximum attempts per turn: 2
+maximum request attempts: 2,736
+```
+
+The ledger records a unique run ID, comparison-pair ID, workload, episode, replication, condition, condition-order index, cache namespace, turn count, and maximum request-attempt count for every planned trajectory.
+
+Planning is non-executing. The planner has no provider-call command and emits `execution_enabled=false`.
+
 ## Freeze procedure
 
 1. Validate every required field.
-2. Verify every referenced artifact exists.
-3. Verify every referenced artifact hash.
-4. Confirm all required proof gates pass.
-5. Confirm no protected or private artifact is referenced.
-6. Serialize the manifest canonically.
-7. calculate SHA-256.
-8. record the repository commit.
-9. mark the manifest frozen.
-10. prohibit changes during measured execution.
+2. Resolve every explicit unknown or absent field.
+3. Verify every referenced artifact exists.
+4. Verify every referenced artifact hash.
+5. Confirm all required proof gates pass.
+6. Confirm no protected or private artifact is referenced.
+7. Complete the bounded provider-readiness probe.
+8. Declare the approved request and cost budgets.
+9. Serialize the manifest canonically.
+10. Calculate SHA-256.
+11. Record the repository commit containing the frozen manifest.
+12. Mark the manifest frozen.
+13. Prohibit changes during measured execution.
 
 A changed field creates a new execution-manifest version and requires all affected measured comparisons to be rerun.
 
@@ -170,3 +194,24 @@ A changed field creates a new execution-manifest version and requires all affect
 Runs with different execution-manifest hashes are not comparison-eligible unless a versioned compatibility rule explicitly permits a metric family.
 
 The default is ineligible.
+
+## Current authorization boundary
+
+The current implementation authorizes only:
+
+```text
+validate-config
+plan
+verify
+```
+
+It does not authorize:
+
+```text
+run
+resume
+rerun
+report measured provider results
+```
+
+Measured execution remains blocked until a later change freezes the manifest, resolves all blockers, and adds an explicitly reviewed execution command.
