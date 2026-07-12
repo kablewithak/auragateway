@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "blinded-adjudication-v1",
+  "status": "prepared",
+  "primary_review_fraction": 1.0,
+  "double_review_fraction": 0.25,
+  "double_review_episode_count": 5,
+  "sampling_seed": 20260712,
+  "reviewer_hidden_fields": [
+    "condition_id",
+    "provider",
+    "model",
+    "route",
+    "cost",
+    "latency",
+    "cache_telemetry",
+    "run_order"
+  ],
+  "reviewer_visible_fields": [
+    "episode_id",
+    "synthetic_conversation",
+    "terminal_decision_output",
+    "citation_source_ids",
+    "deterministic_validation_results"
+  ],
+  "adjudication_required_for_material_disagreement": true,
+  "adjudicator_must_be_independent": true,
+  "protected_review_export_required": true,
+  "public_trace_contains_raw_content": false
+}

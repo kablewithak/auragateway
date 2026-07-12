@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "freeze_id": "nimbus-relay-diagnostic-episode-freeze-v1",
+  "status": "frozen",
+  "manifest_path": "data/evals/episodes/manifest.json",
+  "manifest_sha256": "3a77c6fa037c62a1a548c2e5dc13e9668ebd3114cb58903df538bf7fa239ea6b",
+  "gate_2_passed": true,
+  "functional_set_frozen": true,
+  "runtime_set_frozen": true,
+  "development_held_out_separation_enforced": true,
+  "blinded_review_protocol_prepared": true,
+  "measured_execution_permitted": false,
+  "required_next_gate": "prefix_determinism"
+}
