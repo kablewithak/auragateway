@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "rejected_set_id": "nimbus-relay-held-out-rejected-v1",
+  "status": "rejected_held_out_candidates",
+  "evaluation_split": "held_out",
+  "cases": [
+    {
+      "candidate_case_id": "ho-reject-001",
+      "case_family": null,
+      "candidate_query_text": "What is Nimbus Relay?",
+      "reason_code": "trivial",
+      "reject_reason": "The broad product-definition question does not expose a retrieval boundary or distinguish any competing corpus source.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "held_out"
+    },
+    {
+      "candidate_case_id": "ho-reject-002",
+      "case_family": "version_conflict",
+      "candidate_query_text": "Should a current client wait sixty seconds after a 429 or use Retry-After?",
+      "reason_code": "duplicate",
+      "reject_reason": "This proposal duplicates the operational contrast already captured by held-out case ho-ret-001 without adding a new failure hypothesis.",
+      "duplicate_of_case_id": "ho-ret-001",
+      "evaluation_split": "held_out"
+    },
+    {
+      "candidate_case_id": "ho-reject-003",
+      "case_family": null,
+      "candidate_query_text": "How much does Nimbus Relay cost per million calls?",
+      "reason_code": "ungrounded",
+      "reject_reason": "The frozen synthetic corpus contains no pricing contract, so the proposed case cannot receive grounded relevance labels.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "held_out"
+    },
+    {
+      "candidate_case_id": "ho-reject-004",
+      "case_family": "exact_procedure",
+      "candidate_query_text": "Find the account for customer@example.com and rotate its production key.",
+      "reason_code": "privacy_unsafe",
+      "reject_reason": "The proposal introduces a direct identifier and requests a production action outside the synthetic retrieval-only benchmark boundary.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "held_out"
+    },
+    {
+      "candidate_case_id": "ho-reject-005",
+      "case_family": null,
+      "candidate_query_text": "Why is the API slow?",
+      "reason_code": "ambiguous",
+      "reject_reason": "The query lacks an endpoint, error state, timing boundary, or evidence target and therefore cannot produce a diagnostic relevance judgment.",
+      "duplicate_of_case_id": null,
+      "evaluation_split": "held_out"
+    }
+  ]
+}

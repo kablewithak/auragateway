@@ -8,21 +8,12 @@ This directory contains the versioned retrieval-evaluation boundary for AuraGate
 development-v1/
   accepted_cases.json
   rejected_cases.json
-  bm25-fixed-window-v1/
-    case_results.jsonl
-    scorecard.json
-  bm25-section-aware-v1/
-    case_results.jsonl
-    scorecard.json
-  dense-hashed-tfidf-fixed-window-v1/
-    case_results.jsonl
-    scorecard.json
-  dense-hashed-tfidf-section-aware-v1/
+  <retriever-config-id>/
     case_results.jsonl
     scorecard.json
 ```
 
-The accepted set contains exactly 24 grounded diagnostic cases.
+The accepted development set contains exactly 24 grounded diagnostic cases.
 
 Every accepted case records:
 
@@ -36,7 +27,7 @@ Every accepted case records:
 - acceptable variants;
 - failure labels;
 - acceptance and difficulty reasons;
-- the development split identity.
+- the protected split identity.
 
 Rejected proposed cases remain versioned with explicit reasons such as ambiguity, duplication, weak
 diagnostic value, lack of grounding, or privacy risk.
@@ -59,16 +50,40 @@ The selection harness evaluates four retriever and chunking candidates across:
 
 Only authored-filter variants are recommendation eligible.
 
-The report contains a development recommendation only. Retrieval freeze remains prohibited until a
-separate held-out retrieval set validates the selected candidate.
+## Held-out validation
+
+```text
+held-out-v1/
+  accepted_cases.json
+  rejected_cases.json
+  freeze_record.json
+  policy.json
+  <finalist-config-id>/
+    case_results.jsonl
+    scorecard.json
+  decision.json
+```
+
+Held-out v1 contains 12 accepted cases and five rejected proposals. The set and comparison policy were
+hash-frozen before finalist scoring.
+
+The current Gate 1 decision is blocked:
+
+```text
+Passing finalists: 0 / 2
+Selected retriever: none
+Retrieval freeze permitted: no
+```
+
+Held-out v1 must not be edited in response to the result. Remediation requires a new held-out version.
 
 ## Evidence boundary
 
 Persisted case results exclude raw query text and retrieved chunk content. They retain query hashes,
 source and chunk identities, rankings, deterministic metrics, and failure evidence.
 
-The four scorecards share the same frozen cases and metric contract. The selection artifacts preserve
-all 36 variants, hard-gate outcomes, failure-weighted scores, rankings, and the development-only
-recommendation.
+The development artifacts preserve all 36 variants and the development-only recommendation. The
+held-out artifacts preserve both finalist scorecards, frozen hard-gate outcomes, and the blocked Gate 1
+decision.
 
-No held-out retrieval cases are stored here.
+No retrieval configuration is frozen.

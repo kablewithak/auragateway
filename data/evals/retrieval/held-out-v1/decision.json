@@ -1,0 +1,272 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "nimbus-relay-held-out-retrieval-decision-v1",
+  "status": "gate_1_decision",
+  "held_out_policy_path": "data/evals/retrieval/held-out-v1/policy.json",
+  "held_out_policy_sha256": "72efa809bc544dc19bda1a089da26b834949e15e303bd181f8de81ae6757787b",
+  "held_out_set_path": "data/evals/retrieval/held-out-v1/accepted_cases.json",
+  "held_out_set_sha256": "50f6b85d283598491708040f418e0b794736b551f3c2fd50a5b7531733c73477",
+  "rejected_set_path": "data/evals/retrieval/held-out-v1/rejected_cases.json",
+  "rejected_set_sha256": "1375774d4886c8b50fb391edbc930aef22f9ef82647b574cd2baea4408dd7faa",
+  "freeze_record_path": "data/evals/retrieval/held-out-v1/freeze_record.json",
+  "freeze_record_sha256": "a6cce149d51411200255b681ab9ae90c33fdd5aed386489bc1fd35f990ccb79a",
+  "development_selection_report_path": "data/evals/retrieval/selection-v1/report.json",
+  "development_selection_report_sha256": "3401519ef6ac55276cea3092e333fa014ad5a272734e1aa6ccd9b4dce22ecd76",
+  "candidate_evidence": [
+    {
+      "development_rank": 1,
+      "scorecard": {
+        "retriever_config_id": "dense-hashed-tfidf-section-aware-v1",
+        "scorecard_path": "data/evals/retrieval/held-out-v1/dense-hashed-tfidf-section-aware-v1/scorecard.json",
+        "scorecard_sha256": "6a2bb26e04b650b4f104688b93cbf75016b99c936b98ce3fa3ce8a3abd6ccf94",
+        "case_results_path": "data/evals/retrieval/held-out-v1/dense-hashed-tfidf-section-aware-v1/case_results.jsonl",
+        "case_results_sha256": "b6b910c4117da13a750e62a83bc35ac1c1e8d2af7bbd16ffeaa2a64f0ebd5379"
+      },
+      "variant": {
+        "schema_version": "1.0.0",
+        "variant_id": "dense-hashed-tfidf-section-aware-v1--top-5--authored-case-filters-v1",
+        "retriever_config_id": "dense-hashed-tfidf-section-aware-v1",
+        "retriever_config_sha256": "2741ca603cf7a2a009e6d4143a882eefee119544376f1c2d4272b64400064f0f",
+        "chunking_config_id": "section-aware-v1",
+        "top_k": 5,
+        "metadata_policy": "authored-case-filters-v1",
+        "eligible_for_recommendation": true,
+        "aggregate": {
+          "case_count": 12,
+          "mean_recall_at_k": 1.0,
+          "mean_precision_at_k": 0.316666666667,
+          "mean_reciprocal_rank": 0.944444444444,
+          "mean_ndcg_at_k": 0.924370716649,
+          "correct_source_in_top_k_rate": 1.0,
+          "all_required_sources_in_top_k_rate": 1.0,
+          "citation_support_readiness_rate": 0.833333333333,
+          "unsupported_source_retrieval_rate": 0.266666666667,
+          "stale_source_retrieval_rate": 0.0,
+          "metadata_filter_violation_rate": 0.0,
+          "near_duplicate_case_count": 2,
+          "near_duplicate_displacement_rate": 0.5
+        },
+        "weighted_case_pass_rate": 0.875,
+        "weighted_case_failure_rate": 0.125,
+        "failed_case_ids": [
+          "ho-ret-002",
+          "ho-ret-011"
+        ],
+        "gate_results": [
+          {
+            "gate_id": "minimum_mean_recall_at_k",
+            "passed": true,
+            "observed": 1.0,
+            "threshold": 0.98,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "minimum_correct_source_in_top_k_rate",
+            "passed": true,
+            "observed": 1.0,
+            "threshold": 1.0,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "minimum_all_required_sources_in_top_k_rate",
+            "passed": true,
+            "observed": 1.0,
+            "threshold": 0.95,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "minimum_citation_support_readiness_rate",
+            "passed": false,
+            "observed": 0.833333333333,
+            "threshold": 0.9,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "minimum_mean_reciprocal_rank",
+            "passed": false,
+            "observed": 0.944444444444,
+            "threshold": 0.95,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "minimum_weighted_case_pass_rate",
+            "passed": false,
+            "observed": 0.875,
+            "threshold": 0.9,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "maximum_unsupported_source_retrieval_rate",
+            "passed": false,
+            "observed": 0.266666666667,
+            "threshold": 0.11,
+            "comparator": "<="
+          },
+          {
+            "gate_id": "maximum_stale_source_retrieval_rate",
+            "passed": true,
+            "observed": 0.0,
+            "threshold": 0.0,
+            "comparator": "<="
+          },
+          {
+            "gate_id": "maximum_metadata_filter_violation_rate",
+            "passed": true,
+            "observed": 0.0,
+            "threshold": 0.0,
+            "comparator": "<="
+          },
+          {
+            "gate_id": "maximum_near_duplicate_displacement_rate",
+            "passed": false,
+            "observed": 0.5,
+            "threshold": 0.0,
+            "comparator": "<="
+          }
+        ],
+        "hard_gate_passed": false,
+        "benefit_score": 0.894381516109,
+        "penalty_score": 0.153333333333,
+        "top_k_penalty": 0.02,
+        "final_score": 72.1048182776
+      }
+    },
+    {
+      "development_rank": 2,
+      "scorecard": {
+        "retriever_config_id": "bm25-fixed-window-v1",
+        "scorecard_path": "data/evals/retrieval/held-out-v1/bm25-fixed-window-v1/scorecard.json",
+        "scorecard_sha256": "b91785d6a13019e181ff47d79abce9a5bfd196f59f5438fb22e5d0bdb58c0bca",
+        "case_results_path": "data/evals/retrieval/held-out-v1/bm25-fixed-window-v1/case_results.jsonl",
+        "case_results_sha256": "e01eba6e9acfe1cd4cd5540ef6c0ad2140ea1089aa94237be6da0d4a5f2ec659"
+      },
+      "variant": {
+        "schema_version": "1.0.0",
+        "variant_id": "bm25-fixed-window-v1--top-5--authored-case-filters-v1",
+        "retriever_config_id": "bm25-fixed-window-v1",
+        "retriever_config_sha256": "14fe9392cca07a37ba9c754558ee03dc9120d36c35d87776bcb79a5a54bde0e0",
+        "chunking_config_id": "fixed-window-v1",
+        "top_k": 5,
+        "metadata_policy": "authored-case-filters-v1",
+        "eligible_for_recommendation": true,
+        "aggregate": {
+          "case_count": 12,
+          "mean_recall_at_k": 1.0,
+          "mean_precision_at_k": 0.316666666667,
+          "mean_reciprocal_rank": 0.944444444444,
+          "mean_ndcg_at_k": 0.926319958257,
+          "correct_source_in_top_k_rate": 1.0,
+          "all_required_sources_in_top_k_rate": 1.0,
+          "citation_support_readiness_rate": 0.833333333333,
+          "unsupported_source_retrieval_rate": 0.266666666667,
+          "stale_source_retrieval_rate": 0.0,
+          "metadata_filter_violation_rate": 0.0,
+          "near_duplicate_case_count": 2,
+          "near_duplicate_displacement_rate": 0.0
+        },
+        "weighted_case_pass_rate": 0.875,
+        "weighted_case_failure_rate": 0.125,
+        "failed_case_ids": [
+          "ho-ret-002",
+          "ho-ret-011"
+        ],
+        "gate_results": [
+          {
+            "gate_id": "minimum_mean_recall_at_k",
+            "passed": true,
+            "observed": 1.0,
+            "threshold": 0.98,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "minimum_correct_source_in_top_k_rate",
+            "passed": true,
+            "observed": 1.0,
+            "threshold": 1.0,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "minimum_all_required_sources_in_top_k_rate",
+            "passed": true,
+            "observed": 1.0,
+            "threshold": 0.95,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "minimum_citation_support_readiness_rate",
+            "passed": false,
+            "observed": 0.833333333333,
+            "threshold": 0.9,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "minimum_mean_reciprocal_rank",
+            "passed": false,
+            "observed": 0.944444444444,
+            "threshold": 0.95,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "minimum_weighted_case_pass_rate",
+            "passed": false,
+            "observed": 0.875,
+            "threshold": 0.9,
+            "comparator": ">="
+          },
+          {
+            "gate_id": "maximum_unsupported_source_retrieval_rate",
+            "passed": false,
+            "observed": 0.266666666667,
+            "threshold": 0.11,
+            "comparator": "<="
+          },
+          {
+            "gate_id": "maximum_stale_source_retrieval_rate",
+            "passed": true,
+            "observed": 0.0,
+            "threshold": 0.0,
+            "comparator": "<="
+          },
+          {
+            "gate_id": "maximum_metadata_filter_violation_rate",
+            "passed": true,
+            "observed": 0.0,
+            "threshold": 0.0,
+            "comparator": "<="
+          },
+          {
+            "gate_id": "maximum_near_duplicate_displacement_rate",
+            "passed": true,
+            "observed": 0.0,
+            "threshold": 0.0,
+            "comparator": "<="
+          }
+        ],
+        "hard_gate_passed": false,
+        "benefit_score": 0.89457644027,
+        "penalty_score": 0.053333333333,
+        "top_k_penalty": 0.02,
+        "final_score": 82.1243106937
+      }
+    }
+  ],
+  "decision": {
+    "status": "gate_1_blocked",
+    "development_recommended_retriever_config_id": "dense-hashed-tfidf-section-aware-v1",
+    "selected_retriever_config_id": null,
+    "selected_chunking_config_id": null,
+    "selected_top_k": null,
+    "selected_metadata_policy": null,
+    "selected_final_score": null,
+    "development_recommendation_confirmed": false,
+    "rationale": [
+      "No finalist passed every frozen held-out hard gate.",
+      "Retrieval remains unfrozen and Gate 1 requires remediation plus a new held-out version.",
+      "Failed finalists: dense-hashed-tfidf-section-aware-v1, bm25-fixed-window-v1"
+    ],
+    "gate_1_passed": false,
+    "retrieval_freeze_permitted": false,
+    "measured_execution_permitted": false,
+    "required_next_gate": "held_out_retrieval_remediation"
+  }
+}
