@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "retrieval-development-selection-v1",
+  "status": "development_only",
+  "top_k_values": [
+    3,
+    5,
+    7
+  ],
+  "metadata_policies": [
+    "authored-case-filters-v1",
+    "api-area-only-negative-control-v1",
+    "no-metadata-negative-control-v1"
+  ],
+  "eligible_metadata_policy": "authored-case-filters-v1",
+  "minimum_top_k": 3,
+  "top_k_penalty_per_extra_hit": 0.01,
+  "benefit_weights": {
+    "mean_recall_at_k": 0.2,
+    "all_required_sources_in_top_k_rate": 0.15,
+    "citation_support_readiness_rate": 0.2,
+    "mean_reciprocal_rank": 0.1,
+    "mean_ndcg_at_k": 0.1,
+    "mean_precision_at_k": 0.05,
+    "weighted_case_pass_rate": 0.2
+  },
+  "penalty_weights": {
+    "unsupported_source_retrieval_rate": 0.2,
+    "stale_source_retrieval_rate": 0.25,
+    "metadata_filter_violation_rate": 0.3,
+    "near_duplicate_displacement_rate": 0.2
+  },
+  "thresholds": {
+    "minimum_mean_recall_at_k": 0.98,
+    "minimum_correct_source_in_top_k_rate": 1.0,
+    "minimum_all_required_sources_in_top_k_rate": 0.95,
+    "minimum_citation_support_readiness_rate": 0.9,
+    "minimum_mean_reciprocal_rank": 0.95,
+    "minimum_weighted_case_pass_rate": 0.9,
+    "maximum_unsupported_source_retrieval_rate": 0.11,
+    "maximum_stale_source_retrieval_rate": 0.0,
+    "maximum_metadata_filter_violation_rate": 0.0,
+    "maximum_near_duplicate_displacement_rate": 0.0
+  },
+  "case_family_weights": {
+    "version_conflict": 3.0,
+    "similar_error_codes": 2.0,
+    "missing_required_parameters": 3.0,
+    "incomplete_documentation": 3.0,
+    "near_duplicate_displacement": 2.0,
+    "multi_source_grounding": 3.0,
+    "metadata_filtering": 3.0,
+    "unsupported_behavior": 3.0,
+    "exact_procedure": 2.0,
+    "sdk_variant": 2.0
+  },
+  "held_out_validation_required": true,
+  "measured_execution_permitted": false
+}

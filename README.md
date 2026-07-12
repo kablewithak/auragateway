@@ -10,15 +10,15 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 
 - **Design baseline:** AuraGateway v2 PRD 2.1.0
 - **Execution allocation:** 200 hours
-- **Delivery ledger after this slice:** 48 / 200 planned hours (24%)
+- **Delivery ledger after this slice:** 52 / 200 planned hours (26%)
 - **Current phase:** Phase 1 — Corpus, Retrieval, and Eval Asset Construction
 - **Active proof gate:** Gate 1 — Retrieval Readiness
 - **Gate 0 status:** Passed
-- **Gate 1 status:** In progress — sparse and local dense candidates scored on the frozen development set
+- **Gate 1 status:** In progress — development recommendation selected; held-out validation outstanding
 - **Constitution:** Version 1.0.0 — frozen
 - **Measured execution:** Prohibited until the execution manifest and downstream proof gates are frozen
 - **Architecture posture:** local-first, provider-neutral, typed, eval-driven, and privacy-safe
-- **Maturity:** benchmark-constitution validated; synthetic corpus, chunking, sparse retrieval, local dense retrieval, and development scorecards locally validated
+- **Maturity:** benchmark-constitution validated; corpus, retrieval candidates, development scorecards, and development selection locally validated
 
 ## Governing Documents
 
@@ -38,6 +38,8 @@ AuraGateway tests whether deterministic context construction and cache-affinity 
 - [BM25 Development Scorecard](docs/benchmark/Nimbus_Relay_BM25_Development_Scorecard.md)
 - [Dense Retrieval Design](docs/benchmark/Nimbus_Relay_Dense_Retrieval_Design.md)
 - [Dense Retrieval Development Report](docs/benchmark/Nimbus_Relay_Dense_Retrieval_Development_Report.md)
+- [Retrieval Selection Policy](docs/benchmark/Nimbus_Relay_Retrieval_Selection_Policy.md)
+- [Development Retrieval Recommendation](docs/benchmark/Nimbus_Relay_Development_Retrieval_Recommendation.md)
 
 ## Freeze Model
 
@@ -105,6 +107,7 @@ python -m auragateway.chunking.runner verify --repo-root .
 python -m auragateway.retrieval.runner verify --repo-root .
 python -m auragateway.retrieval.dense_runner verify --repo-root .
 python -m auragateway.evals.runner verify --repo-root .
+python -m auragateway.evals.selection_runner verify --repo-root .
 ```
 
 Run release gates for the current slice:
@@ -116,6 +119,20 @@ python -m ruff format --check .
 python -m mypy src tests
 ```
 
+## Development Retrieval Recommendation
+
+```text
+Retriever: dense-hashed-tfidf-section-aware-v1
+Chunking: section-aware-v1
+Top-k: 5
+Metadata policy: authored-case-filters-v1
+Status: development recommendation only
+Retrieval freeze permitted: no
+```
+
+The development margin over BM25 fixed-window top-5 is 0.2941502906 points. Held-out
+validation may confirm or reverse this recommendation.
+
 ## Phase 1 Boundary
 
-The 30-document corpus, both chunking candidates, BM25 and deterministic local dense retrieval over both candidates, the 24 accepted development cases, eight rejected proposals, and all four development scorecards are deterministically verified. No chunking or retrieval candidate is selected. Cross-retriever selection, top-k and filter-policy selection, held-out validation, and the retrieval freeze decision remain outstanding.
+The 30-document corpus, both chunking candidates, BM25 and deterministic local dense retrieval, four development scorecards, and the 36-variant cross-retriever selection sweep are deterministically verified. Dense section-aware retrieval at top-5 with authored metadata filters is the development recommendation. Held-out validation and the retrieval freeze decision remain outstanding.

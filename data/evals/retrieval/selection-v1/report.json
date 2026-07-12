@@ -1,0 +1,165 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "nimbus-relay-retrieval-development-selection-v1",
+  "status": "development_recommendation_only",
+  "selection_policy_path": "data/evals/retrieval/selection-v1/policy.json",
+  "selection_policy_sha256": "9959710183212b57047da8a39af9ef8afbcc8c0af7f7b6b5f56e00a5831044e2",
+  "retrieval_set_path": "data/evals/retrieval/development-v1/accepted_cases.json",
+  "retrieval_set_sha256": "49d5e9055b7b00bcfdf5f9dc932c836a844c37f835709d0d376d38285934e342",
+  "source_scorecards": [
+    {
+      "retriever_config_id": "bm25-fixed-window-v1",
+      "scorecard_path": "data/evals/retrieval/development-v1/bm25-fixed-window-v1/scorecard.json",
+      "scorecard_sha256": "ee317bc35a6dad34ab092a5819217a6c1f84b95add75a751bf51068b0e332291"
+    },
+    {
+      "retriever_config_id": "bm25-section-aware-v1",
+      "scorecard_path": "data/evals/retrieval/development-v1/bm25-section-aware-v1/scorecard.json",
+      "scorecard_sha256": "2eb0e4439ae954ec6c7aa977caf291b2e5cd1fe301b0f9d601f56c8e20dc06b2"
+    },
+    {
+      "retriever_config_id": "dense-hashed-tfidf-fixed-window-v1",
+      "scorecard_path": "data/evals/retrieval/development-v1/dense-hashed-tfidf-fixed-window-v1/scorecard.json",
+      "scorecard_sha256": "d69c1122690575108a42c4eff1c7e50fa623525f9062bfcdb41a252d5042031e"
+    },
+    {
+      "retriever_config_id": "dense-hashed-tfidf-section-aware-v1",
+      "scorecard_path": "data/evals/retrieval/development-v1/dense-hashed-tfidf-section-aware-v1/scorecard.json",
+      "scorecard_sha256": "5de666b3f1170b1523a15bb10039b557b11a5768183d458d97afa8a987cd5e89"
+    }
+  ],
+  "variants_path": "data/evals/retrieval/selection-v1/variants.jsonl",
+  "variants_sha256": "8b8b9b8585292398ae89265e1e365ff19c832f1ba77c743450919b4742511e09",
+  "variant_count": 36,
+  "eligible_variant_count": 12,
+  "negative_control_variant_count": 24,
+  "rankings": [
+    {
+      "rank": 1,
+      "variant_id": "dense-hashed-tfidf-section-aware-v1--top-5--authored-case-filters-v1",
+      "retriever_config_id": "dense-hashed-tfidf-section-aware-v1",
+      "chunking_config_id": "section-aware-v1",
+      "top_k": 5,
+      "hard_gate_passed": true,
+      "final_score": 89.2954431949
+    },
+    {
+      "rank": 2,
+      "variant_id": "bm25-fixed-window-v1--top-5--authored-case-filters-v1",
+      "retriever_config_id": "bm25-fixed-window-v1",
+      "chunking_config_id": "fixed-window-v1",
+      "top_k": 5,
+      "hard_gate_passed": true,
+      "final_score": 89.0012929043
+    },
+    {
+      "rank": 3,
+      "variant_id": "dense-hashed-tfidf-section-aware-v1--top-7--authored-case-filters-v1",
+      "retriever_config_id": "dense-hashed-tfidf-section-aware-v1",
+      "chunking_config_id": "section-aware-v1",
+      "top_k": 7,
+      "hard_gate_passed": true,
+      "final_score": 86.8019080042
+    },
+    {
+      "rank": 4,
+      "variant_id": "bm25-section-aware-v1--top-7--authored-case-filters-v1",
+      "retriever_config_id": "bm25-section-aware-v1",
+      "chunking_config_id": "section-aware-v1",
+      "top_k": 7,
+      "hard_gate_passed": true,
+      "final_score": 86.739955123
+    },
+    {
+      "rank": 5,
+      "variant_id": "dense-hashed-tfidf-fixed-window-v1--top-3--authored-case-filters-v1",
+      "retriever_config_id": "dense-hashed-tfidf-fixed-window-v1",
+      "chunking_config_id": "fixed-window-v1",
+      "top_k": 3,
+      "hard_gate_passed": false,
+      "final_score": 89.5091062403
+    },
+    {
+      "rank": 6,
+      "variant_id": "bm25-section-aware-v1--top-3--authored-case-filters-v1",
+      "retriever_config_id": "bm25-section-aware-v1",
+      "chunking_config_id": "section-aware-v1",
+      "top_k": 3,
+      "hard_gate_passed": false,
+      "final_score": 89.413752071
+    },
+    {
+      "rank": 7,
+      "variant_id": "bm25-fixed-window-v1--top-3--authored-case-filters-v1",
+      "retriever_config_id": "bm25-fixed-window-v1",
+      "chunking_config_id": "fixed-window-v1",
+      "top_k": 3,
+      "hard_gate_passed": false,
+      "final_score": 89.1390175873
+    },
+    {
+      "rank": 8,
+      "variant_id": "dense-hashed-tfidf-fixed-window-v1--top-7--authored-case-filters-v1",
+      "retriever_config_id": "dense-hashed-tfidf-fixed-window-v1",
+      "chunking_config_id": "fixed-window-v1",
+      "top_k": 7,
+      "hard_gate_passed": false,
+      "final_score": 86.3868633994
+    },
+    {
+      "rank": 9,
+      "variant_id": "bm25-fixed-window-v1--top-7--authored-case-filters-v1",
+      "retriever_config_id": "bm25-fixed-window-v1",
+      "chunking_config_id": "fixed-window-v1",
+      "top_k": 7,
+      "hard_gate_passed": false,
+      "final_score": 86.2989119519
+    },
+    {
+      "rank": 10,
+      "variant_id": "bm25-section-aware-v1--top-5--authored-case-filters-v1",
+      "retriever_config_id": "bm25-section-aware-v1",
+      "chunking_config_id": "section-aware-v1",
+      "top_k": 5,
+      "hard_gate_passed": false,
+      "final_score": 86.2748631822
+    },
+    {
+      "rank": 11,
+      "variant_id": "dense-hashed-tfidf-fixed-window-v1--top-5--authored-case-filters-v1",
+      "retriever_config_id": "dense-hashed-tfidf-fixed-window-v1",
+      "chunking_config_id": "fixed-window-v1",
+      "top_k": 5,
+      "hard_gate_passed": false,
+      "final_score": 86.0924517947
+    },
+    {
+      "rank": 12,
+      "variant_id": "dense-hashed-tfidf-section-aware-v1--top-3--authored-case-filters-v1",
+      "retriever_config_id": "dense-hashed-tfidf-section-aware-v1",
+      "chunking_config_id": "section-aware-v1",
+      "top_k": 3,
+      "hard_gate_passed": false,
+      "final_score": 85.9244895293
+    }
+  ],
+  "recommendation": {
+    "status": "development_recommended",
+    "variant_id": "dense-hashed-tfidf-section-aware-v1--top-5--authored-case-filters-v1",
+    "retriever_config_id": "dense-hashed-tfidf-section-aware-v1",
+    "chunking_config_id": "section-aware-v1",
+    "top_k": 5,
+    "metadata_policy": "authored-case-filters-v1",
+    "final_score": 89.2954431949,
+    "rationale": [
+      "Highest failure-weighted final score among authored-policy variants that pass every hard gate.",
+      "Top-k includes an explicit context-expansion penalty, so additional hits must earn their cost.",
+      "Recommendation is development-only and cannot freeze retrieval before held-out validation.",
+      "Development final-score margin over the next passing variant is 0.2941502906."
+    ],
+    "blocked_from_freeze": true,
+    "required_next_gate": "held_out_retrieval_validation"
+  },
+  "held_out_validation_required": true,
+  "retrieval_freeze_permitted": false
+}
