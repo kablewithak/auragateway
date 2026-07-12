@@ -26,6 +26,7 @@ auragateway-chunk-corpus = "auragateway.chunking.runner:main"
 auragateway-retrieve-bm25 = "auragateway.retrieval.runner:main"
 auragateway-retrieve-dense = "auragateway.retrieval.dense_runner:main"
 auragateway-evaluate-retrieval = "auragateway.evals.runner:main"
+auragateway-select-retrieval = "auragateway.evals.selection_runner:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -324,7 +324,9 @@ def _dense_context(repo_root: Path, config_id: str) -> EvaluationIndexContext | 
     )
 
 
-def _index_context(repo_root: Path, config_id: str) -> EvaluationIndexContext:
+def load_index_context(repo_root: Path, config_id: str) -> EvaluationIndexContext:
+    """Return one verified retrieval candidate for downstream evaluation harnesses."""
+
     context = _bm25_context(repo_root, config_id) or _dense_context(repo_root, config_id)
     if context is None:
         raise RetrievalEvaluationError(
@@ -335,10 +337,18 @@ def _index_context(repo_root: Path, config_id: str) -> EvaluationIndexContext:
     return context
 
 
+def load_development_assets(
+    repo_root: Path,
+) -> tuple[DevelopmentRetrievalSet, RejectedRetrievalSet, CorpusInventory]:
+    """Load and validate the development evaluation assets."""
+
+    return _load_assets(repo_root)
+
+
 def build_scorecard(repo_root: Path, config_id: str) -> tuple[RetrievalDevelopmentScorecard, bytes]:
     """Build one development scorecard in memory."""
 
-    context = _index_context(repo_root, config_id)
+    context = load_index_context(repo_root, config_id)
     development_set, _, _ = _load_assets(repo_root)
     results = evaluate_cases(context.chunks, context.index, development_set.cases)
     results_bytes = _case_results_jsonl(results)
