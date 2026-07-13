@@ -17,8 +17,10 @@ from auragateway.contracts.provider import (
     ProviderName,
 )
 from auragateway.contracts.provider_diagnostics import (
+    AssistantContentState,
     ProviderFailureDiagnostic,
     ProviderFailureFamily,
+    ProviderFinishReason,
 )
 from auragateway.contracts.telemetry import CachedInputDetailTelemetry
 from auragateway.providers.base import (
@@ -49,7 +51,6 @@ _ALLOWED_EXCEPTION_CLASSES = frozenset(
         "ValidationError",
     }
 )
-
 _ALLOWED_PROVIDER_ERROR_TYPES = frozenset(
     {
         "api_error",
@@ -90,6 +91,7 @@ _ALLOWED_PROVIDER_ERROR_PARAMS = frozenset(
         "tools",
     }
 )
+_ALLOWED_FINISH_REASONS = frozenset(item.value for item in ProviderFinishReason)
 
 
 class _ModelDumpable(Protocol):
@@ -131,17 +133,22 @@ class _GroqMessage(BaseModel):
     model_config = ConfigDict(extra="ignore", frozen=True)
 
     content: str | None = None
+    reasoning: str | None = None
+    refusal: str | None = None
+    tool_calls: tuple[object, ...] = ()
 
 
 class _GroqChoice(BaseModel):
     model_config = ConfigDict(extra="ignore", frozen=True)
 
+    finish_reason: str | None = None
     message: _GroqMessage
 
 
 class _GroqResponse(BaseModel):
     model_config = ConfigDict(extra="ignore", frozen=True)
 
+    id: str | None = None
     model: str
     choices: tuple[_GroqChoice, ...] = Field(min_length=1)
     usage: _GroqUsage | None = None
@@ -332,6 +339,32 @@ def _duration_ms(total_time_seconds: float | None) -> int | None:
     return round(total_time_seconds * 1_000)
 
 
+def _optional_sha256(value: str | None) -> str | None:
+    if value is None or not value:
+        return None
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _assistant_content_state(content: str | None) -> AssistantContentState:
+    if content is None:
+        return AssistantContentState.NULL
+    if content == "":
+        return AssistantContentState.EMPTY
+    return AssistantContentState.WHITESPACE
+
+
+def _text_shape(value: str | None) -> tuple[bool, int]:
+    if value is None:
+        return False, 0
+    return bool(value.strip()), len(value.encode("utf-8"))
+
+
+def _allowlisted_finish_reason(value: str | None) -> ProviderFinishReason | None:
+    if value not in _ALLOWED_FINISH_REASONS:
+        return None
+    return ProviderFinishReason(value)
+
+
 class GroqProviderAdapter:
     """Map Groq calls into typed telemetry and protected local failure evidence."""
 
@@ -361,33 +394,56 @@ class GroqProviderAdapter:
                 retryable=False,
             ) from exc
 
+    def _response_shape(self, response: _GroqResponse) -> dict[str, object]:
+        choice = response.choices[0]
+        reasoning_present, reasoning_byte_count = _text_shape(choice.message.reasoning)
+        refusal_present, refusal_byte_count = _text_shape(choice.message.refusal)
+        usage = response.usage
+        return {
+            "response_id_sha256": _optional_sha256(response.id),
+            "response_choice_count": len(response.choices),
+            "response_finish_reason_allowlisted": _allowlisted_finish_reason(choice.finish_reason),
+            "assistant_content_state": _assistant_content_state(choice.message.content),
+            "response_usage_present": usage is not None,
+            "response_completion_tokens": (usage.completion_tokens if usage is not None else None),
+            "reasoning_present": reasoning_present,
+            "reasoning_byte_count": reasoning_byte_count,
+            "tool_call_count": len(choice.message.tool_calls),
+            "refusal_present": refusal_present,
+            "refusal_byte_count": refusal_byte_count,
+        }
+
     def _retain_failure(
         self,
         invocation: LiveProviderInvocation,
         family: ProviderFailureFamily,
         error: LiveProviderError,
         exc: Exception | None = None,
+        response: _GroqResponse | None = None,
     ) -> None:
         error_type, error_code, error_param = (
             _provider_error_fields(exc) if exc is not None else (None, None, None)
         )
-        diagnostic = ProviderFailureDiagnostic(
-            model_alias=invocation.request.model_alias,
-            request_id_sha256=hashlib.sha256(
+        payload: dict[str, object] = {
+            "model_alias": invocation.request.model_alias,
+            "request_id_sha256": hashlib.sha256(
                 invocation.request.request_id.encode("utf-8")
             ).hexdigest(),
-            family=family,
-            exception_class_allowlisted=_allowlisted_exception_class(exc),
-            http_status_code=_safe_status_code(exc) if exc is not None else None,
-            provider_error_type_allowlisted=error_type,
-            provider_error_code_allowlisted=error_code,
-            provider_error_param_allowlisted=error_param,
-            provider_request_id_sha256=(
+            "family": family,
+            "exception_class_allowlisted": _allowlisted_exception_class(exc),
+            "http_status_code": _safe_status_code(exc) if exc is not None else None,
+            "provider_error_type_allowlisted": error_type,
+            "provider_error_code_allowlisted": error_code,
+            "provider_error_param_allowlisted": error_param,
+            "provider_request_id_sha256": (
                 _provider_request_id_sha256(exc) if exc is not None else None
             ),
-            retryable=error.retryable,
-            mapped_provider_error_code=error.error_code,
-        )
+            "retryable": error.retryable,
+            "mapped_provider_error_code": error.error_code,
+        }
+        if response is not None:
+            payload.update(self._response_shape(response))
+        diagnostic = ProviderFailureDiagnostic.model_validate(payload)
         self._append_failure_diagnostic(diagnostic)
 
     def invoke(self, invocation: LiveProviderInvocation) -> ProviderCall:
@@ -459,6 +515,7 @@ class GroqProviderAdapter:
                 invocation,
                 ProviderFailureFamily.ASSISTANT_CONTENT_MISSING,
                 error,
+                response=response,
             )
             raise error
 

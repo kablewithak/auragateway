@@ -5,8 +5,10 @@ from pydantic import ValidationError
 
 from auragateway.contracts.provider import ProviderErrorCode
 from auragateway.contracts.provider_diagnostics import (
+    AssistantContentState,
     ProviderFailureDiagnostic,
     ProviderFailureFamily,
+    ProviderFinishReason,
 )
 
 
@@ -28,12 +30,44 @@ def _diagnostic(**overrides: object) -> ProviderFailureDiagnostic:
     return ProviderFailureDiagnostic.model_validate(payload)
 
 
+def _missing_content_diagnostic(**overrides: object) -> ProviderFailureDiagnostic:
+    payload: dict[str, object] = {
+        "model_alias": "groq-gpt-oss-20b",
+        "request_id_sha256": "a" * 64,
+        "family": ProviderFailureFamily.ASSISTANT_CONTENT_MISSING,
+        "retryable": False,
+        "mapped_provider_error_code": ProviderErrorCode.AMBIGUOUS_RESPONSE,
+        "response_id_sha256": "c" * 64,
+        "response_choice_count": 1,
+        "response_finish_reason_allowlisted": ProviderFinishReason.STOP,
+        "assistant_content_state": AssistantContentState.NULL,
+        "response_usage_present": True,
+        "response_completion_tokens": 20,
+        "reasoning_present": True,
+        "reasoning_byte_count": 32,
+        "tool_call_count": 0,
+        "refusal_present": False,
+        "refusal_byte_count": 0,
+    }
+    payload.update(overrides)
+    return ProviderFailureDiagnostic.model_validate(payload)
+
+
 def test_provider_failure_diagnostic_accepts_only_bounded_metadata() -> None:
     diagnostic = _diagnostic()
 
     assert diagnostic.family is ProviderFailureFamily.REQUEST_REJECTED
     assert diagnostic.http_status_code == 400
     assert diagnostic.provider_error_param_allowlisted == "messages"
+
+
+def test_missing_content_diagnostic_requires_complete_response_shape() -> None:
+    diagnostic = _missing_content_diagnostic()
+
+    assert diagnostic.assistant_content_state is AssistantContentState.NULL
+    assert diagnostic.response_finish_reason_allowlisted is ProviderFinishReason.STOP
+    assert diagnostic.reasoning_present is True
+    assert diagnostic.reasoning_byte_count == 32
 
 
 @pytest.mark.parametrize(
@@ -53,6 +87,44 @@ def test_provider_failure_diagnostic_rejects_unbounded_tokens(
         _diagnostic(**{field: value})
 
 
-def test_provider_failure_diagnostic_rejects_raw_extra_fields() -> None:
+@pytest.mark.parametrize(
+    "unsafe_field",
+    [
+        "raw_error_body",
+        "raw_exception_message",
+        "reasoning_text",
+        "refusal_text",
+        "tool_call_arguments",
+        "raw_response",
+    ],
+)
+def test_provider_failure_diagnostic_rejects_raw_extra_fields(
+    unsafe_field: str,
+) -> None:
     with pytest.raises(ValidationError):
-        _diagnostic(raw_error_body={"message": "do not retain"})
+        _diagnostic(**{unsafe_field: "do not retain"})
+
+
+def test_non_response_failure_rejects_response_shape_metadata() -> None:
+    with pytest.raises(ValidationError, match="reserved for assistant-content-missing"):
+        _diagnostic(response_choice_count=1)
+
+
+def test_missing_content_failure_rejects_incomplete_response_shape() -> None:
+    with pytest.raises(ValidationError, match="complete response-shape metadata"):
+        _missing_content_diagnostic(reasoning_byte_count=None)
+
+
+def test_completion_tokens_require_usage_metadata() -> None:
+    with pytest.raises(ValidationError, match="completion tokens require"):
+        _missing_content_diagnostic(response_usage_present=False)
+
+
+def test_present_reasoning_requires_positive_byte_count() -> None:
+    with pytest.raises(ValidationError, match="positive byte count"):
+        _missing_content_diagnostic(reasoning_present=True, reasoning_byte_count=0)
+
+
+def test_present_refusal_requires_positive_byte_count() -> None:
+    with pytest.raises(ValidationError, match="positive byte count"):
+        _missing_content_diagnostic(refusal_present=True, refusal_byte_count=0)

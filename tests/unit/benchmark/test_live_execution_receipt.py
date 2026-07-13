@@ -104,6 +104,20 @@ def test_missing_receipt_artifacts_are_reported_before_verification(
     assert exc_info.value.details == missing
 
 
+def test_batch_04_receipt_uses_isolated_public_artifact_root(tmp_path: Path) -> None:
+    paths = _paths_for_authorization("live-development-batch-04-auth-v1")
+
+    missing = _missing_receipt_public_artifacts(tmp_path, paths)
+
+    assert missing == (
+        "data/evals/benchmark/live-development-v4/authorization.json",
+        "data/evals/benchmark/live-development-v4/journal.jsonl",
+        "data/evals/benchmark/live-development-v4/run_records.json",
+        "data/evals/benchmark/live-development-v4/report.json",
+        "data/evals/benchmark/live-development-v4/manifest.json",
+    )
+
+
 def test_missing_receipt_artifacts_clear_only_when_all_five_exist(
     tmp_path: Path,
 ) -> None:
