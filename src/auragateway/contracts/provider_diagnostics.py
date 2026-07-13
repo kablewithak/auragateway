@@ -31,6 +31,25 @@ class ProviderFailureFamily(StrEnum):
     UNKNOWN_PROVIDER_EXCEPTION = "unknown_provider_exception"
 
 
+class RequestRejectionReason(StrEnum):
+    """Allowlisted reason inferred without retaining provider message content."""
+
+    CONTEXT_LENGTH = "context_length"
+    INVALID_PARAMETER = "invalid_parameter"
+    UNSUPPORTED_PARAMETER = "unsupported_parameter"
+    JSON_VALIDATION = "json_validation"
+    TOOL_USE = "tool_use"
+    UNKNOWN = "unknown"
+
+
+class ProviderReasoningEffort(StrEnum):
+    """Allowlisted reasoning-effort values used by the Groq request profile."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
 class AssistantContentState(StrEnum):
     """Observed visible assistant-content state without retaining the content."""
 
@@ -53,9 +72,14 @@ class ProviderFailureDiagnostic(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.2.0"] = "1.2.0"
+    schema_version: Literal["1.2.0", "1.3.0"] = "1.3.0"
     provider: Literal[ProviderName.GROQ] = ProviderName.GROQ
     model_alias: str = Field(min_length=3, max_length=96)
+    adapter_version: str = Field(
+        default="groq-chat-completions-v1",
+        min_length=3,
+        max_length=96,
+    )
     request_id_sha256: str
     family: ProviderFailureFamily
     exception_class_allowlisted: str | None = None
@@ -66,6 +90,17 @@ class ProviderFailureDiagnostic(BaseModel):
     provider_request_id_sha256: str | None = None
     retryable: bool
     mapped_provider_error_code: ProviderErrorCode
+    request_rejection_reason: RequestRejectionReason | None = None
+    request_message_count: int | None = Field(default=None, ge=1, le=16)
+    request_system_prompt_byte_count: int | None = Field(default=None, ge=1, le=200_000)
+    request_user_prompt_byte_count: int | None = Field(default=None, ge=1, le=200_000)
+    request_total_prompt_byte_count: int | None = Field(default=None, ge=1, le=200_000)
+    request_input_token_estimate: int | None = Field(default=None, ge=1)
+    request_output_token_budget: int | None = Field(default=None, ge=1)
+    request_temperature_milli: int | None = Field(default=None, ge=0, le=2_000)
+    request_streaming: bool | None = None
+    request_store_enabled: bool | None = None
+    request_reasoning_effort_allowlisted: ProviderReasoningEffort | None = None
     response_id_sha256: str | None = None
     response_choice_count: int | None = Field(default=None, ge=0, le=16)
     response_finish_reason_allowlisted: ProviderFinishReason | None = None
@@ -95,6 +130,7 @@ class ProviderFailureDiagnostic(BaseModel):
         return value
 
     @field_validator(
+        "adapter_version",
         "exception_class_allowlisted",
         "provider_error_type_allowlisted",
         "provider_error_code_allowlisted",
@@ -136,6 +172,57 @@ class ProviderFailureDiagnostic(BaseModel):
 
     @model_validator(mode="after")
     def validate_failure_specific_metadata(self) -> ProviderFailureDiagnostic:
+        request_metadata_values = (
+            self.request_rejection_reason,
+            self.request_message_count,
+            self.request_system_prompt_byte_count,
+            self.request_user_prompt_byte_count,
+            self.request_total_prompt_byte_count,
+            self.request_input_token_estimate,
+            self.request_output_token_budget,
+            self.request_temperature_milli,
+            self.request_streaming,
+            self.request_store_enabled,
+            self.request_reasoning_effort_allowlisted,
+        )
+        has_request_metadata = any(value is not None for value in request_metadata_values)
+
+        if self.schema_version == "1.2.0":
+            if has_request_metadata:
+                raise ValueError("schema 1.2.0 cannot contain request-rejection shape metadata")
+            if self.mapped_provider_error_code is ProviderErrorCode.REQUEST_REJECTED:
+                raise ValueError("schema 1.2.0 cannot use the request-rejected public error code")
+            if (
+                self.family is ProviderFailureFamily.REQUEST_REJECTED
+                and self.mapped_provider_error_code is not ProviderErrorCode.INVALID_RESPONSE
+            ):
+                raise ValueError("schema 1.2.0 request rejection requires the historic mapping")
+        elif self.family is ProviderFailureFamily.REQUEST_REJECTED:
+            if any(value is None for value in request_metadata_values):
+                raise ValueError(
+                    "schema 1.3.0 request rejection requires complete request-shape metadata"
+                )
+            if self.mapped_provider_error_code is not ProviderErrorCode.REQUEST_REJECTED:
+                raise ValueError("request rejection requires PROVIDER_REQUEST_REJECTED")
+            if self.retryable:
+                raise ValueError("request rejection must remain non-retryable")
+            if self.http_status_code is not None and not 400 <= self.http_status_code < 500:
+                raise ValueError(
+                    "request rejection requires a 4xx HTTP status when status is present"
+                )
+            expected_total = (self.request_system_prompt_byte_count or 0) + (
+                self.request_user_prompt_byte_count or 0
+            )
+            if self.request_total_prompt_byte_count != expected_total:
+                raise ValueError("request total bytes must equal system plus user bytes")
+        else:
+            if has_request_metadata:
+                raise ValueError("request-shape metadata is reserved for request-rejected failures")
+            if self.mapped_provider_error_code is ProviderErrorCode.REQUEST_REJECTED:
+                raise ValueError(
+                    "PROVIDER_REQUEST_REJECTED is reserved for request-rejected failures"
+                )
+
         response_shape_values = (
             self.response_id_sha256,
             self.response_choice_count,

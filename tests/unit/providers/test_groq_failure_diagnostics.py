@@ -16,6 +16,8 @@ from auragateway.contracts.provider_diagnostics import (
     AssistantContentState,
     ProviderFailureFamily,
     ProviderFinishReason,
+    ProviderReasoningEffort,
+    RequestRejectionReason,
 )
 from auragateway.providers.base import (
     LiveProviderError,
@@ -164,14 +166,29 @@ def test_http_400_is_retained_as_request_rejected_without_raw_message(
     with pytest.raises(LiveProviderError) as exc_info:
         adapter.invoke(_invocation())
 
-    assert exc_info.value.error_code is ProviderErrorCode.INVALID_RESPONSE
+    assert exc_info.value.error_code is ProviderErrorCode.REQUEST_REJECTED
     record = _read_one(diagnostic_path)
+    assert record["schema_version"] == "1.3.0"
     assert record["family"] == ProviderFailureFamily.REQUEST_REJECTED
     assert record["exception_class_allowlisted"] == "BadRequestError"
     assert record["http_status_code"] == 400
     assert record["provider_error_type_allowlisted"] == "invalid_request_error"
     assert record["provider_error_code_allowlisted"] == "context_length_exceeded"
     assert record["provider_error_param_allowlisted"] == "messages"
+    assert record["mapped_provider_error_code"] == ProviderErrorCode.REQUEST_REJECTED
+    assert record["request_rejection_reason"] == RequestRejectionReason.CONTEXT_LENGTH
+    assert record["request_message_count"] == 2
+    assert record["request_system_prompt_byte_count"] == len(b"synthetic system prompt")
+    assert record["request_user_prompt_byte_count"] == len(b"synthetic user prompt")
+    assert record["request_total_prompt_byte_count"] == len(b"synthetic system prompt") + len(
+        b"synthetic user prompt"
+    )
+    assert record["request_input_token_estimate"] == 100
+    assert record["request_output_token_budget"] == 64
+    assert record["request_temperature_milli"] == 0
+    assert record["request_streaming"] is False
+    assert record["request_store_enabled"] is False
+    assert record["request_reasoning_effort_allowlisted"] == ProviderReasoningEffort.LOW
     assert (
         record["provider_request_id_sha256"]
         == hashlib.sha256(BadRequestError.request_id.encode("utf-8")).hexdigest()

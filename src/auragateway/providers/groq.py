@@ -21,6 +21,8 @@ from auragateway.contracts.provider_diagnostics import (
     ProviderFailureDiagnostic,
     ProviderFailureFamily,
     ProviderFinishReason,
+    ProviderReasoningEffort,
+    RequestRejectionReason,
 )
 from auragateway.contracts.telemetry import CachedInputDetailTelemetry
 from auragateway.providers.base import (
@@ -33,6 +35,12 @@ from auragateway.providers.base import (
 GROQ_MODEL_ID = "openai/gpt-oss-20b"
 GROQ_MODEL_ALIAS = "groq-gpt-oss-20b"
 GROQ_ADAPTER_VERSION = "groq-chat-completions-v1"
+
+_GROQ_REQUEST_MESSAGE_COUNT = 2
+_GROQ_REQUEST_TEMPERATURE = 0.0
+_GROQ_REQUEST_STREAMING = False
+_GROQ_REQUEST_STORE_ENABLED = False
+_GROQ_REQUEST_REASONING_EFFORT = ProviderReasoningEffort.LOW
 
 _ALLOWED_EXCEPTION_CLASSES = frozenset(
     {
@@ -288,7 +296,7 @@ def _classify_groq_exception(
         return (
             ProviderFailureFamily.REQUEST_REJECTED,
             LiveProviderError(
-                ProviderErrorCode.INVALID_RESPONSE,
+                ProviderErrorCode.REQUEST_REJECTED,
                 "Groq rejected the request before returning usable assistant content.",
                 retryable=False,
             ),
@@ -333,19 +341,107 @@ def _allowlisted_provider_value(
     return token
 
 
-def _provider_error_fields(exc: Exception) -> tuple[str | None, str | None, str | None]:
+def _provider_error_payloads(exc: Exception) -> tuple[Mapping[object, object], ...]:
     body = getattr(exc, "body", None)
     if not isinstance(body, Mapping):
-        return None, None, None
-    payload: Mapping[object, object] = body
-    nested = body.get("error")
-    if isinstance(nested, Mapping):
-        payload = nested
+        return ()
+    payloads: list[Mapping[object, object]] = []
+    for key in ("error", "details"):
+        nested = body.get(key)
+        if isinstance(nested, Mapping):
+            payloads.append(nested)
+    payloads.append(body)
+    return tuple(payloads)
+
+
+def _first_allowlisted_provider_value(
+    payloads: tuple[Mapping[object, object], ...],
+    field: str,
+    allowed_values: frozenset[str],
+) -> str | None:
+    for payload in payloads:
+        value = _allowlisted_provider_value(payload.get(field), allowed_values)
+        if value is not None:
+            return value
+    return None
+
+
+def _provider_error_fields(exc: Exception) -> tuple[str | None, str | None, str | None]:
+    payloads = _provider_error_payloads(exc)
     return (
-        _allowlisted_provider_value(payload.get("type"), _ALLOWED_PROVIDER_ERROR_TYPES),
-        _allowlisted_provider_value(payload.get("code"), _ALLOWED_PROVIDER_ERROR_CODES),
-        _allowlisted_provider_value(payload.get("param"), _ALLOWED_PROVIDER_ERROR_PARAMS),
+        _first_allowlisted_provider_value(payloads, "type", _ALLOWED_PROVIDER_ERROR_TYPES),
+        _first_allowlisted_provider_value(payloads, "code", _ALLOWED_PROVIDER_ERROR_CODES),
+        _first_allowlisted_provider_value(payloads, "param", _ALLOWED_PROVIDER_ERROR_PARAMS),
     )
+
+
+def _provider_error_message(exc: Exception) -> str:
+    for payload in _provider_error_payloads(exc):
+        value = payload.get("message")
+        if isinstance(value, str):
+            return value.casefold()[:2_000]
+    return ""
+
+
+def _request_rejection_reason(
+    provider_error_code: str | None,
+    provider_error_param: str | None,
+    provider_error_message: str,
+) -> RequestRejectionReason:
+    if provider_error_code == "context_length_exceeded":
+        return RequestRejectionReason.CONTEXT_LENGTH
+    if provider_error_code == "unsupported_value":
+        return RequestRejectionReason.UNSUPPORTED_PARAMETER
+    if provider_error_code == "json_validate_failed":
+        return RequestRejectionReason.JSON_VALIDATION
+    if provider_error_code == "tool_use_failed":
+        return RequestRejectionReason.TOOL_USE
+    if provider_error_code == "invalid_value":
+        return RequestRejectionReason.INVALID_PARAMETER
+
+    if any(
+        marker in provider_error_message
+        for marker in ("context length", "maximum context", "too many tokens")
+    ):
+        return RequestRejectionReason.CONTEXT_LENGTH
+    if "unsupported" in provider_error_message:
+        return RequestRejectionReason.UNSUPPORTED_PARAMETER
+    if "json" in provider_error_message and "valid" in provider_error_message:
+        return RequestRejectionReason.JSON_VALIDATION
+    if "tool" in provider_error_message and any(
+        marker in provider_error_message for marker in ("call", "use")
+    ):
+        return RequestRejectionReason.TOOL_USE
+    if provider_error_param is not None or "invalid" in provider_error_message:
+        return RequestRejectionReason.INVALID_PARAMETER
+    return RequestRejectionReason.UNKNOWN
+
+
+def _request_rejection_metadata(
+    invocation: LiveProviderInvocation,
+    provider_error_code: str | None,
+    provider_error_param: str | None,
+    provider_error_message: str,
+) -> dict[str, object]:
+    system_bytes = len(invocation.prompt.system_prompt.encode("utf-8"))
+    user_bytes = len(invocation.prompt.user_prompt.encode("utf-8"))
+    return {
+        "request_rejection_reason": _request_rejection_reason(
+            provider_error_code,
+            provider_error_param,
+            provider_error_message,
+        ),
+        "request_message_count": _GROQ_REQUEST_MESSAGE_COUNT,
+        "request_system_prompt_byte_count": system_bytes,
+        "request_user_prompt_byte_count": user_bytes,
+        "request_total_prompt_byte_count": system_bytes + user_bytes,
+        "request_input_token_estimate": invocation.request.input_token_count,
+        "request_output_token_budget": invocation.request.output_token_budget,
+        "request_temperature_milli": round(_GROQ_REQUEST_TEMPERATURE * 1_000),
+        "request_streaming": _GROQ_REQUEST_STREAMING,
+        "request_store_enabled": _GROQ_REQUEST_STORE_ENABLED,
+        "request_reasoning_effort_allowlisted": _GROQ_REQUEST_REASONING_EFFORT,
+    }
 
 
 def _provider_request_id_sha256(exc: Exception) -> str | None:
@@ -492,6 +588,7 @@ class GroqProviderAdapter:
         )
         payload: dict[str, object] = {
             "model_alias": invocation.request.model_alias,
+            "adapter_version": GROQ_ADAPTER_VERSION,
             "request_id_sha256": hashlib.sha256(
                 invocation.request.request_id.encode("utf-8")
             ).hexdigest(),
@@ -507,6 +604,15 @@ class GroqProviderAdapter:
             "retryable": error.retryable,
             "mapped_provider_error_code": error.error_code,
         }
+        if family is ProviderFailureFamily.REQUEST_REJECTED and exc is not None:
+            payload.update(
+                _request_rejection_metadata(
+                    invocation,
+                    error_code,
+                    error_param,
+                    _provider_error_message(exc),
+                )
+            )
         if response is not None:
             payload.update(self._response_shape(response))
         if validation_metadata is not None:
@@ -533,10 +639,10 @@ class GroqProviderAdapter:
                 ),
                 model=GROQ_MODEL_ID,
                 max_completion_tokens=request.output_token_budget,
-                temperature=0.0,
-                stream=False,
-                store=False,
-                reasoning_effort="low",
+                temperature=_GROQ_REQUEST_TEMPERATURE,
+                stream=_GROQ_REQUEST_STREAMING,
+                store=_GROQ_REQUEST_STORE_ENABLED,
+                reasoning_effort=_GROQ_REQUEST_REASONING_EFFORT.value,
             )
         except LiveProviderError:
             raise
