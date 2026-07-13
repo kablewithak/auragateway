@@ -1,10 +1,10 @@
 # AuraGateway Diagnostic Execution Authorization Review
 
-**Review ID:** `batch-06-diagnostic-execution-review-v1`  
-**Status:** `review_ready`  
-**Activation:** `inactive`  
-**Provider calls permitted:** No  
-**Execution command available:** No  
+**Review ID:** `batch-06-diagnostic-execution-review-v1`
+**Status:** `review_ready`
+**Activation:** `inactive`
+**Provider calls permitted:** No
+**Execution command available:** No
 **Next gate:** `active_authorization_review`
 
 ## Purpose
