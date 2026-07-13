@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "cache-telemetry-sufficiency-review-v1",
+  "review_path": "data/evals/benchmark/cache-telemetry-review-v1/review.json",
+  "review_sha256": "b3f42c76435222ae6f52173e9d1bf3d46fd8abb9a1f91ce8dfd8a6b6b56f0f0f",
+  "report_path": "docs/benchmark/AuraGateway_Cache_Telemetry_Sufficiency_Review.md",
+  "report_sha256": "1ac8b0697b7e0225908ee66b3af350574c583612be63fef0ca4b4c506ac0170f",
+  "provider_call_authorized": false,
+  "next_gate": "groq_cache_telemetry_capture_hardening"
+}

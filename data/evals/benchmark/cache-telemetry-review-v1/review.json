@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "cache-telemetry-sufficiency-review-v1",
+  "status": "blocked_provider_observation_gap",
+  "source_closeout_id": "batch-06-diagnostic-closeout-v1",
+  "source_commit": "247d611657bed874bcefdc58dbc7db1f3a014f7b",
+  "source_bindings": [
+    {
+      "path": "data/evals/benchmark/diagnostic-closeout-v1/closeout.json",
+      "git_blob_sha1": "b69b8339c23e2154b50b865e771a5dfe25612691"
+    },
+    {
+      "path": "data/evals/benchmark/diagnostic-closeout-v1/manifest.json",
+      "git_blob_sha1": "d8d658b1d4b545782be09b3a209be15238312e64"
+    },
+    {
+      "path": "src/auragateway/providers/groq.py",
+      "git_blob_sha1": "c0fb39c622270852379cb349d96973724fe1afb2"
+    },
+    {
+      "path": "src/auragateway/contracts/telemetry.py",
+      "git_blob_sha1": "41294c9122d5d132656fb8df384bf97e8d78cc79"
+    },
+    {
+      "path": "pyproject.toml",
+      "git_blob_sha1": "fa887e14e579df858b842f324034d9c86b9cc917"
+    }
+  ],
+  "external_sources": [
+    {
+      "source_id": "groq-prompt-caching-docs-2026-07-13",
+      "kind": "official_provider_documentation",
+      "url": "https://console.groq.com/docs/prompt-caching",
+      "retrieved_on": "2026-07-13",
+      "assertions": [
+        "prompt caching is automatic for supported API requests",
+        "openai/gpt-oss-20b is listed as supported",
+        "cache eligibility depends on exact prefix matching",
+        "cached data expires after two hours without use",
+        "cached input portions receive a fifty percent discount",
+        "successful cache hits are expected to expose cached_tokens usage"
+      ]
+    },
+    {
+      "source_id": "groq-python-schema-2026-07-13",
+      "kind": "official_provider_sdk_schema",
+      "url": "https://github.com/groq/groq-python",
+      "retrieved_on": "2026-07-13",
+      "assertions": [
+        "CompletionUsage exposes prompt_tokens_details.cached_tokens",
+        "ChatCompletion exposes x_groq usage with DRAM and SRAM hardware cache statistics",
+        "hardware cache statistics are named separately from prompt billing cache tokens"
+      ]
+    }
+  ],
+  "observed_provider_call_count": 24,
+  "observed_successful_call_count": 24,
+  "observed_input_token_sample_count": 24,
+  "observed_duration_sample_count": 24,
+  "observed_cached_input_token_sample_count": 0,
+  "observed_total_cached_input_tokens": null,
+  "unknown_interpreted_as_zero": false,
+  "exact_installed_groq_sdk_version_observed": false,
+  "raw_success_response_retained": false,
+  "billing_cache_field_path": "usage.prompt_tokens_details.cached_tokens",
+  "hardware_cache_field_paths": [
+    "x_groq.usage.dram_cached_tokens",
+    "x_groq.usage.sram_cached_tokens"
+  ],
+  "signals": [
+    {
+      "signal_kind": "billing_prompt_cache_tokens",
+      "current_adapter_parses_signal": true,
+      "observed_sample_count": 0,
+      "semantically_equivalent_to_billing_cache_tokens": true,
+      "claim_use_permitted": false,
+      "reason": "the documented field is parsed but was absent or null for all twenty-four observed calls"
+    },
+    {
+      "signal_kind": "hardware_dram_cache_tokens",
+      "current_adapter_parses_signal": false,
+      "observed_sample_count": 0,
+      "semantically_equivalent_to_billing_cache_tokens": false,
+      "claim_use_permitted": false,
+      "reason": "the current adapter does not retain this provider-specific hardware diagnostic and its billing equivalence is unproven"
+    },
+    {
+      "signal_kind": "hardware_sram_cache_tokens",
+      "current_adapter_parses_signal": false,
+      "observed_sample_count": 0,
+      "semantically_equivalent_to_billing_cache_tokens": false,
+      "claim_use_permitted": false,
+      "reason": "the current adapter does not retain this provider-specific hardware diagnostic and its billing equivalence is unproven"
+    }
+  ],
+  "claims": [
+    {
+      "claim_kind": "provider_cache_usage",
+      "decision": "blocked",
+      "reason_code": "BILLING_CACHE_FIELD_UNOBSERVED"
+    },
+    {
+      "claim_kind": "provider_cache_savings",
+      "decision": "blocked",
+      "reason_code": "BILLING_CACHE_FIELD_UNOBSERVED"
+    },
+    {
+      "claim_kind": "latency_improvement",
+      "decision": "blocked",
+      "reason_code": "DIAGNOSTIC_NOT_POWERED_FOR_LATENCY"
+    },
+    {
+      "claim_kind": "accepted_a_b_c_comparison",
+      "decision": "blocked",
+      "reason_code": "COMPARISON_NOT_AUTHORIZED"
+    }
+  ],
+  "required_actions": [
+    {
+      "action_id": "capture-installed-groq-sdk-version",
+      "description": "retain the exact installed Groq SDK version in metadata-safe runtime evidence",
+      "provider_call_required": false,
+      "acceptance_evidence": [
+        "unit test for version capture",
+        "version value excluded from secret-bearing fields"
+      ]
+    },
+    {
+      "action_id": "capture-success-response-presence-bits",
+      "description": "retain presence indicators for usage, prompt token details, cached token, x_groq, and x_groq usage fields",
+      "provider_call_required": false,
+      "acceptance_evidence": [
+        "synthetic payload with every field present",
+        "synthetic payload with every field absent"
+      ]
+    },
+    {
+      "action_id": "separate-billing-and-hardware-cache-semantics",
+      "description": "model billing prompt-cache tokens separately from DRAM and SRAM hardware cache diagnostics",
+      "provider_call_required": false,
+      "acceptance_evidence": [
+        "typed signal source enum",
+        "negative test preventing hardware-to-billing promotion"
+      ]
+    },
+    {
+      "action_id": "retain-safe-success-telemetry-shape",
+      "description": "retain content-free successful response telemetry shape without raw prompts, outputs, headers, or provider payloads",
+      "provider_call_required": false,
+      "acceptance_evidence": [
+        "public schema allowlist",
+        "privacy negative tests"
+      ]
+    },
+    {
+      "action_id": "add-cache-telemetry-sufficiency-gate",
+      "description": "block cache and cost claims unless provider billing cache tokens are observed with a valid denominator",
+      "provider_call_required": false,
+      "acceptance_evidence": [
+        "zero is accepted only when field presence is explicit",
+        "null remains unavailable evidence"
+      ]
+    },
+    {
+      "action_id": "prepare-three-call-calibration-review",
+      "description": "prepare but do not authorize a bounded cold-warm-repeat three-call calibration after adapter hardening",
+      "provider_call_required": false,
+      "acceptance_evidence": [
+        "separate authorization review",
+        "three-call ceiling",
+        "no retry or resume"
+      ]
+    }
+  ],
+  "current_provider_cache_claim_sufficient": false,
+  "provider_call_authorized": false,
+  "calibration_authorized": false,
+  "full_benchmark_authorized": false,
+  "next_gate": "groq_cache_telemetry_capture_hardening"
+}
