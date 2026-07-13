@@ -92,6 +92,37 @@ _ALLOWED_PROVIDER_ERROR_PARAMS = frozenset(
     }
 )
 _ALLOWED_FINISH_REASONS = frozenset(item.value for item in ProviderFinishReason)
+_ALLOWED_RESPONSE_VALIDATION_LOCATIONS = frozenset(
+    {
+        "model",
+        "choices",
+        "choices.*.finish_reason",
+        "choices.*.message",
+        "choices.*.message.content",
+        "choices.*.message.reasoning",
+        "choices.*.message.refusal",
+        "choices.*.message.tool_calls",
+        "usage",
+        "usage.prompt_tokens",
+        "usage.completion_tokens",
+        "usage.total_time",
+        "usage.prompt_tokens_details",
+        "usage.prompt_tokens_details.cached_tokens",
+    }
+)
+_ALLOWED_RESPONSE_VALIDATION_TYPES = frozenset(
+    {
+        "float_type",
+        "greater_than_equal",
+        "int_type",
+        "list_type",
+        "missing",
+        "model_type",
+        "string_type",
+        "too_short",
+        "tuple_type",
+    }
+)
 
 
 class _ModelDumpable(Protocol):
@@ -135,7 +166,7 @@ class _GroqMessage(BaseModel):
     content: str | None = None
     reasoning: str | None = None
     refusal: str | None = None
-    tool_calls: tuple[object, ...] = ()
+    tool_calls: tuple[object, ...] | None = None
 
 
 class _GroqChoice(BaseModel):
@@ -365,6 +396,40 @@ def _allowlisted_finish_reason(value: str | None) -> ProviderFinishReason | None
     return ProviderFinishReason(value)
 
 
+def _normalize_validation_location(location: tuple[object, ...]) -> str | None:
+    normalized = ".".join("*" if isinstance(part, int) else str(part) for part in location)
+    if normalized not in _ALLOWED_RESPONSE_VALIDATION_LOCATIONS:
+        return None
+    return normalized
+
+
+def _validation_error_metadata(exc: ValidationError) -> dict[str, object]:
+    errors = exc.errors(include_url=False, include_input=False)
+    locations: list[str] = []
+    error_types: list[str] = []
+
+    for item in errors[:32]:
+        location = item.get("loc")
+        if isinstance(location, tuple):
+            normalized = _normalize_validation_location(location)
+            if normalized is not None and normalized not in locations:
+                locations.append(normalized)
+
+        error_type = item.get("type")
+        if (
+            isinstance(error_type, str)
+            and error_type in _ALLOWED_RESPONSE_VALIDATION_TYPES
+            and error_type not in error_types
+        ):
+            error_types.append(error_type)
+
+    return {
+        "response_validation_error_count": min(len(errors), 32),
+        "response_validation_locations_allowlisted": tuple(locations),
+        "response_validation_types_allowlisted": tuple(error_types),
+    }
+
+
 class GroqProviderAdapter:
     """Map Groq calls into typed telemetry and protected local failure evidence."""
 
@@ -408,7 +473,7 @@ class GroqProviderAdapter:
             "response_completion_tokens": (usage.completion_tokens if usage is not None else None),
             "reasoning_present": reasoning_present,
             "reasoning_byte_count": reasoning_byte_count,
-            "tool_call_count": len(choice.message.tool_calls),
+            "tool_call_count": len(choice.message.tool_calls or ()),
             "refusal_present": refusal_present,
             "refusal_byte_count": refusal_byte_count,
         }
@@ -420,6 +485,7 @@ class GroqProviderAdapter:
         error: LiveProviderError,
         exc: Exception | None = None,
         response: _GroqResponse | None = None,
+        validation_metadata: dict[str, object] | None = None,
     ) -> None:
         error_type, error_code, error_param = (
             _provider_error_fields(exc) if exc is not None else (None, None, None)
@@ -443,6 +509,8 @@ class GroqProviderAdapter:
         }
         if response is not None:
             payload.update(self._response_shape(response))
+        if validation_metadata is not None:
+            payload.update(validation_metadata)
         diagnostic = ProviderFailureDiagnostic.model_validate(payload)
         self._append_failure_diagnostic(diagnostic)
 
@@ -490,6 +558,9 @@ class GroqProviderAdapter:
                 ProviderFailureFamily.RESPONSE_SCHEMA_INVALID,
                 error,
                 exc,
+                validation_metadata=(
+                    _validation_error_metadata(exc) if isinstance(exc, ValidationError) else None
+                ),
             )
             raise error from exc
         if response.model != GROQ_MODEL_ID:

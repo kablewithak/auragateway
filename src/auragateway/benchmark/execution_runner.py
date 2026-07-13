@@ -46,15 +46,22 @@ _PROTECTED_OUTPUT_PATH = Path(".local/benchmark/live-development-v1/protected_ou
 _V2_AUTHORIZATION_ID = "live-development-batch-02-auth-v1"
 _V3_AUTHORIZATION_ID = "live-development-batch-03-auth-v1"
 _V4_AUTHORIZATION_ID = "live-development-batch-04-auth-v1"
+_V5_AUTHORIZATION_ID = "live-development-batch-05-auth-v1"
 _PACED_AUTHORIZATION_IDS = frozenset(
-    {_V2_AUTHORIZATION_ID, _V3_AUTHORIZATION_ID, _V4_AUTHORIZATION_ID}
+    {
+        _V2_AUTHORIZATION_ID,
+        _V3_AUTHORIZATION_ID,
+        _V4_AUTHORIZATION_ID,
+        _V5_AUTHORIZATION_ID,
+    }
 )
-_DIAGNOSTIC_AUTHORIZATION_IDS = frozenset({_V4_AUTHORIZATION_ID})
+_DIAGNOSTIC_AUTHORIZATION_IDS = frozenset({_V4_AUTHORIZATION_ID, _V5_AUTHORIZATION_ID})
 _BATCH_ASSET_ROOTS = {
     "live-development-batch-01-auth-v1": _ASSET_ROOT,
     _V2_AUTHORIZATION_ID: Path("data/evals/benchmark/live-development-v2"),
     _V3_AUTHORIZATION_ID: Path("data/evals/benchmark/live-development-v3"),
     _V4_AUTHORIZATION_ID: Path("data/evals/benchmark/live-development-v4"),
+    _V5_AUTHORIZATION_ID: Path("data/evals/benchmark/live-development-v5"),
 }
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
 

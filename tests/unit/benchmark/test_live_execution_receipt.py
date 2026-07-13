@@ -104,17 +104,28 @@ def test_missing_receipt_artifacts_are_reported_before_verification(
     assert exc_info.value.details == missing
 
 
-def test_batch_04_receipt_uses_isolated_public_artifact_root(tmp_path: Path) -> None:
-    paths = _paths_for_authorization("live-development-batch-04-auth-v1")
+@pytest.mark.parametrize(
+    ("authorization_id", "asset_version"),
+    (
+        ("live-development-batch-04-auth-v1", "v4"),
+        ("live-development-batch-05-auth-v1", "v5"),
+    ),
+)
+def test_diagnostic_batch_receipt_uses_isolated_public_artifact_root(
+    tmp_path: Path,
+    authorization_id: str,
+    asset_version: str,
+) -> None:
+    paths = _paths_for_authorization(authorization_id)
 
     missing = _missing_receipt_public_artifacts(tmp_path, paths)
 
     assert missing == (
-        "data/evals/benchmark/live-development-v4/authorization.json",
-        "data/evals/benchmark/live-development-v4/journal.jsonl",
-        "data/evals/benchmark/live-development-v4/run_records.json",
-        "data/evals/benchmark/live-development-v4/report.json",
-        "data/evals/benchmark/live-development-v4/manifest.json",
+        f"data/evals/benchmark/live-development-{asset_version}/authorization.json",
+        f"data/evals/benchmark/live-development-{asset_version}/journal.jsonl",
+        f"data/evals/benchmark/live-development-{asset_version}/run_records.json",
+        f"data/evals/benchmark/live-development-{asset_version}/report.json",
+        f"data/evals/benchmark/live-development-{asset_version}/manifest.json",
     )
 
 

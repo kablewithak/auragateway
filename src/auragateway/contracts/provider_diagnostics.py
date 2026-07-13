@@ -12,6 +12,7 @@ from auragateway.contracts.provider import ProviderErrorCode, ProviderName
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 _SAFE_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9._:/-]{1,96}$")
+_SAFE_VALIDATION_LOCATION_PATTERN = re.compile(r"^[a-z0-9_.*]{1,160}$")
 
 
 class ProviderFailureFamily(StrEnum):
@@ -52,7 +53,7 @@ class ProviderFailureDiagnostic(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.1.0"] = "1.1.0"
+    schema_version: Literal["1.2.0"] = "1.2.0"
     provider: Literal[ProviderName.GROQ] = ProviderName.GROQ
     model_alias: str = Field(min_length=3, max_length=96)
     request_id_sha256: str
@@ -76,6 +77,15 @@ class ProviderFailureDiagnostic(BaseModel):
     tool_call_count: int | None = Field(default=None, ge=0, le=128)
     refusal_present: bool | None = None
     refusal_byte_count: int | None = Field(default=None, ge=0, le=200_000)
+    response_validation_error_count: int | None = Field(default=None, ge=1, le=32)
+    response_validation_locations_allowlisted: tuple[str, ...] | None = Field(
+        default=None,
+        max_length=16,
+    )
+    response_validation_types_allowlisted: tuple[str, ...] | None = Field(
+        default=None,
+        max_length=16,
+    )
 
     @field_validator("request_id_sha256", "provider_request_id_sha256", "response_id_sha256")
     @classmethod
@@ -96,8 +106,36 @@ class ProviderFailureDiagnostic(BaseModel):
             raise ValueError("provider failure metadata must use bounded safe tokens")
         return value
 
+    @field_validator("response_validation_locations_allowlisted")
+    @classmethod
+    def validate_response_validation_locations(
+        cls,
+        value: tuple[str, ...] | None,
+    ) -> tuple[str, ...] | None:
+        if value is None:
+            return None
+        if any(_SAFE_VALIDATION_LOCATION_PATTERN.fullmatch(item) is None for item in value):
+            raise ValueError("response validation locations must use bounded safe paths")
+        if len(set(value)) != len(value):
+            raise ValueError("response validation locations must not contain duplicates")
+        return value
+
+    @field_validator("response_validation_types_allowlisted")
+    @classmethod
+    def validate_response_validation_types(
+        cls,
+        value: tuple[str, ...] | None,
+    ) -> tuple[str, ...] | None:
+        if value is None:
+            return None
+        if any(_SAFE_TOKEN_PATTERN.fullmatch(item) is None for item in value):
+            raise ValueError("response validation types must use bounded safe tokens")
+        if len(set(value)) != len(value):
+            raise ValueError("response validation types must not contain duplicates")
+        return value
+
     @model_validator(mode="after")
-    def validate_response_shape(self) -> ProviderFailureDiagnostic:
+    def validate_failure_specific_metadata(self) -> ProviderFailureDiagnostic:
         response_shape_values = (
             self.response_id_sha256,
             self.response_choice_count,
@@ -117,28 +155,55 @@ class ProviderFailureDiagnostic(BaseModel):
                 raise ValueError(
                     "response-shape metadata is reserved for assistant-content-missing failures"
                 )
+        else:
+            required_values = (
+                self.response_choice_count,
+                self.assistant_content_state,
+                self.response_usage_present,
+                self.reasoning_present,
+                self.reasoning_byte_count,
+                self.tool_call_count,
+                self.refusal_present,
+                self.refusal_byte_count,
+            )
+            if any(value is None for value in required_values):
+                raise ValueError(
+                    "assistant-content-missing failures require complete response-shape metadata"
+                )
+            if self.response_choice_count is not None and self.response_choice_count < 1:
+                raise ValueError("assistant-content-missing failures require at least one choice")
+            if self.response_usage_present is False and self.response_completion_tokens is not None:
+                raise ValueError("completion tokens require provider usage metadata")
+            if self.reasoning_present is True and self.reasoning_byte_count == 0:
+                raise ValueError("present reasoning requires a positive byte count")
+            if self.refusal_present is True and self.refusal_byte_count == 0:
+                raise ValueError("present refusal metadata requires a positive byte count")
+
+        validation_values = (
+            self.response_validation_error_count,
+            self.response_validation_locations_allowlisted,
+            self.response_validation_types_allowlisted,
+        )
+        has_validation_metadata = any(value is not None for value in validation_values)
+        if self.family is not ProviderFailureFamily.RESPONSE_SCHEMA_INVALID:
+            if has_validation_metadata:
+                raise ValueError(
+                    "response validation metadata is reserved for response-schema-invalid failures"
+                )
             return self
 
-        required_values = (
-            self.response_choice_count,
-            self.assistant_content_state,
-            self.response_usage_present,
-            self.reasoning_present,
-            self.reasoning_byte_count,
-            self.tool_call_count,
-            self.refusal_present,
-            self.refusal_byte_count,
-        )
-        if any(value is None for value in required_values):
+        if self.response_validation_error_count is None:
+            if (
+                self.response_validation_locations_allowlisted is not None
+                or self.response_validation_types_allowlisted is not None
+            ):
+                raise ValueError("response validation locations and types require an error count")
+            return self
+
+        if self.response_validation_locations_allowlisted is None:
             raise ValueError(
-                "assistant-content-missing failures require complete response-shape metadata"
+                "response validation error counts require an allowlisted location tuple"
             )
-        if self.response_choice_count is not None and self.response_choice_count < 1:
-            raise ValueError("assistant-content-missing failures require at least one choice")
-        if self.response_usage_present is False and self.response_completion_tokens is not None:
-            raise ValueError("completion tokens require provider usage metadata")
-        if self.reasoning_present is True and self.reasoning_byte_count == 0:
-            raise ValueError("present reasoning requires a positive byte count")
-        if self.refusal_present is True and self.refusal_byte_count == 0:
-            raise ValueError("present refusal metadata requires a positive byte count")
+        if self.response_validation_types_allowlisted is None:
+            raise ValueError("response validation error counts require an allowlisted type tuple")
         return self
