@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "groq-cache-telemetry-calibration-auth-v1",
+  "status": "active",
+  "review_id": "groq-cache-telemetry-calibration-review-v1",
+  "calibration_id": "groq-cache-telemetry-calibration-v1",
+  "source_commit": "75a5ebae3a2fe1d40ac7cc01137744bb05c7e3ec",
+  "bindings": [
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-review-v1/prompt_recipe.json",
+      "sha256": "8f9a1d34bce04f4d4176c1a26a61d88b52f459ea5e58e9d5ab628e01c46c4321",
+      "protected_local": false
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-review-v1/review.json",
+      "sha256": "35e78efb93c3843335b166398fd6851ea640b14ae00e299b7e076c8c20eb3c61",
+      "protected_local": false
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-review-v1/dry_run_report.json",
+      "sha256": "57dd5ccd2a244ad847344151da8f51ea607ca2e74c581d27afdf2b21ae994586",
+      "protected_local": false
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-review-v1/manifest.json",
+      "sha256": "0139e3e2574974f2c2c47f60941389485908da823799a20486f93d5130c4515f",
+      "protected_local": false
+    },
+    {
+      "path": ".local/benchmark/cache-telemetry-calibration-v1/prompt_bundle.json",
+      "sha256": "7fbf0a9d5ef02aece3159f1654b3f2a8fa2e306e9e7147aae12a4ca2f4312033",
+      "protected_local": true
+    }
+  ],
+  "provider": "groq",
+  "model_alias": "groq-gpt-oss-20b",
+  "exact_model_identifier": "openai/gpt-oss-20b",
+  "adapter_version": "groq-chat-completions-v1",
+  "telemetry_capture_version": "groq-cache-telemetry-capture-v1",
+  "timeout_seconds": 30,
+  "maximum_completion_tokens": 32,
+  "maximum_provider_calls": 3,
+  "maximum_total_cost_microusd": 1000,
+  "planned_maximum_cost_microusd": 600,
+  "minimum_planned_elapsed_seconds": 20,
+  "planned_attempt_count": 3,
+  "confirmation_phrase": "EXECUTE_GROQ_CACHE_TELEMETRY_CALIBRATION_ONCE",
+  "evidence_paths": {
+    "authorization_path": "data/evals/benchmark/cache-telemetry-calibration-v1/authorization.json",
+    "runtime_policy_path": "data/evals/benchmark/cache-telemetry-calibration-v1/runtime_policy.json",
+    "journal_path": "data/evals/benchmark/cache-telemetry-calibration-v1/journal.jsonl",
+    "run_records_path": "data/evals/benchmark/cache-telemetry-calibration-v1/run_records.json",
+    "report_path": "data/evals/benchmark/cache-telemetry-calibration-v1/report.json",
+    "manifest_path": "data/evals/benchmark/cache-telemetry-calibration-v1/manifest.json",
+    "protected_outputs_path": ".local/benchmark/cache-telemetry-calibration-v1/provider_outputs.jsonl",
+    "protected_prompt_bundle_path": ".local/benchmark/cache-telemetry-calibration-v1/prompt_bundle.json"
+  },
+  "one_time_execution": true,
+  "retry_permitted": false,
+  "resume_permitted": false,
+  "provider_calls_permitted": true,
+  "credential_required": true,
+  "execution_command_available": true,
+  "calibration_execution_authorized": true,
+  "benchmark_execution_authorized": false,
+  "benchmark_claims_permitted": false,
+  "comparison_eligible": false,
+  "execution_completed": false,
+  "next_gate": "live_calibration_preflight"
+}
