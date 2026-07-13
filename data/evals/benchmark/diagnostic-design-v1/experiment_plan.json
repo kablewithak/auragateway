@@ -1,0 +1,310 @@
+{
+  "schema_version": "1.0.0",
+  "design_id": "batch-06-request-rejection-diagnostic-design-v1",
+  "status": "design_only",
+  "source_anchor": {
+    "source_batch_id": "auragateway-live-development-batch-06",
+    "source_authorization_id": "live-development-batch-06-auth-v1",
+    "failed_run_id": "run-functional-ep-func-001-r03-condition-c",
+    "failed_condition": "condition_c",
+    "failed_turn_index": 3,
+    "matched_success_run_id": "run-functional-ep-func-001-r03-condition-b",
+    "matched_success_condition": "condition_b",
+    "matched_success_turn_index": 3,
+    "system_prompt_sha256": "920108586c416aa130404de114d144aca3586a212fb87966db5ec01a2ed3bbcd",
+    "user_prompt_sha256": "0afb78b0bdec5243e8f3cf15a9166cb670827e04df6a34ccf97700991a1e0155",
+    "prompt_byte_count": 8109,
+    "matched_success_input_tokens": 1884,
+    "failed_public_error_code": "PROVIDER_RESPONSE_INVALID",
+    "failed_diagnostic_family": "request_rejected",
+    "failed_http_status_code": 400
+  },
+  "hypotheses": [
+    {
+      "hypothesis_id": "h1_deterministic_request_defect",
+      "statement": "A provider-visible request shape remains invalid regardless of local condition label, sequence position, or request spacing.",
+      "supporting_pattern": "The same turn index is rejected consistently across matched cohorts, both local labels, both sequence positions, and both spacing cells.",
+      "weakening_pattern": "Matched provider-visible requests succeed in one or more cohorts or the rejection moves between turns without a stable request-shape pattern."
+    },
+    {
+      "hypothesis_id": "h2_first_sequence_state_effect",
+      "statement": "The first sequence using a previously unseen stable prefix encounters a provider-side state transition that later sequences using that prefix do not encounter.",
+      "supporting_pattern": "The first sequence in both order-reversal cohorts is rejected at the same turn regardless of whether condition B or condition C executes first, while the second sequence succeeds.",
+      "weakening_pattern": "Rejections follow the local condition label rather than first position, occur in both positions, or do not reproduce across the two reversed cohorts."
+    },
+    {
+      "hypothesis_id": "h3_spacing_sensitive_state",
+      "statement": "Rapid repeated-prefix requests trigger a provider-side admission or prefix-state anomaly that is reduced when bounded spacing is introduced.",
+      "supporting_pattern": "Zero-second spacing cells produce request rejection while matched thirty-second spacing cells for both local labels complete without request rejection.",
+      "weakening_pattern": "Thirty-second cells fail at the same rate or location as zero-second cells, or failures track label or cohort identity instead of spacing."
+    },
+    {
+      "hypothesis_id": "h4_condition_specific_harness_difference",
+      "statement": "A hidden local condition-specific difference reaches the provider boundary despite the current evidence that conditions B and C are provider-visible equivalent.",
+      "supporting_pattern": "Condition C sequences are rejected across first and second positions and across zero and thirty-second spacing, while matched condition B sequences succeed.",
+      "weakening_pattern": "Failures follow first position, spacing, or random cohort identity rather than the local condition label."
+    },
+    {
+      "hypothesis_id": "h5_transient_provider_backend",
+      "statement": "The Batch 06 rejection was a transient provider, transport, or backend-routing event with no stable relationship to request shape, local condition, sequence position, or spacing.",
+      "supporting_pattern": "Failures are isolated, non-repeating, or inconsistent across matched cells and do not form the predeclared deterministic, position, spacing, or condition-specific patterns.",
+      "weakening_pattern": "A stable rejection pattern repeats across cohorts and aligns with one of the other predeclared explanatory variables."
+    }
+  ],
+  "materialization_contract": {
+    "required_turn_count": 3,
+    "source_turn_prompt_byte_counts": [
+      7365,
+      7737,
+      8109
+    ],
+    "source_input_token_estimates": [
+      1732,
+      1809,
+      1884
+    ],
+    "exact_byte_count_match_required": true,
+    "maximum_input_token_estimate_delta": 25,
+    "unique_stable_prefix_per_cohort_required": true,
+    "provider_visible_b_c_equivalence_required": true,
+    "synthetic_content_only": true,
+    "pii_or_secret_content_permitted": false,
+    "raw_prompt_commit_permitted": false
+  },
+  "cohorts": [
+    {
+      "cohort_id": "cohort-alpha",
+      "status": "pending",
+      "stable_prefix_sha256": null,
+      "user_prompt_sha256_by_turn": null,
+      "total_prompt_bytes_by_turn": null,
+      "input_token_estimate_by_turn": null
+    },
+    {
+      "cohort_id": "cohort-beta",
+      "status": "pending",
+      "stable_prefix_sha256": null,
+      "user_prompt_sha256_by_turn": null,
+      "total_prompt_bytes_by_turn": null,
+      "input_token_estimate_by_turn": null
+    },
+    {
+      "cohort_id": "cohort-gamma",
+      "status": "pending",
+      "stable_prefix_sha256": null,
+      "user_prompt_sha256_by_turn": null,
+      "total_prompt_bytes_by_turn": null,
+      "input_token_estimate_by_turn": null
+    },
+    {
+      "cohort_id": "cohort-delta",
+      "status": "pending",
+      "stable_prefix_sha256": null,
+      "user_prompt_sha256_by_turn": null,
+      "total_prompt_bytes_by_turn": null,
+      "input_token_estimate_by_turn": null
+    },
+    {
+      "cohort_id": "cohort-epsilon",
+      "status": "pending",
+      "stable_prefix_sha256": null,
+      "user_prompt_sha256_by_turn": null,
+      "total_prompt_bytes_by_turn": null,
+      "input_token_estimate_by_turn": null
+    },
+    {
+      "cohort_id": "cohort-zeta",
+      "status": "pending",
+      "stable_prefix_sha256": null,
+      "user_prompt_sha256_by_turn": null,
+      "total_prompt_bytes_by_turn": null,
+      "input_token_estimate_by_turn": null
+    }
+  ],
+  "sequences": [
+    {
+      "sequence_id": "order-alpha-b-first",
+      "schedule_index": 0,
+      "stage": "order_reversal",
+      "cohort_id": "cohort-alpha",
+      "condition_label": "condition_b",
+      "cohort_sequence_position": 1,
+      "matched_sequence_id": "order-alpha-c-second",
+      "turn_count": 3,
+      "inter_turn_delay_seconds": 0,
+      "minimum_delay_after_previous_sequence_seconds": 0,
+      "maximum_request_attempts": 3,
+      "retry_permitted": false
+    },
+    {
+      "sequence_id": "order-alpha-c-second",
+      "schedule_index": 1,
+      "stage": "order_reversal",
+      "cohort_id": "cohort-alpha",
+      "condition_label": "condition_c",
+      "cohort_sequence_position": 2,
+      "matched_sequence_id": "order-alpha-b-first",
+      "turn_count": 3,
+      "inter_turn_delay_seconds": 0,
+      "minimum_delay_after_previous_sequence_seconds": 300,
+      "maximum_request_attempts": 3,
+      "retry_permitted": false
+    },
+    {
+      "sequence_id": "order-beta-c-first",
+      "schedule_index": 2,
+      "stage": "order_reversal",
+      "cohort_id": "cohort-beta",
+      "condition_label": "condition_c",
+      "cohort_sequence_position": 1,
+      "matched_sequence_id": "order-beta-b-second",
+      "turn_count": 3,
+      "inter_turn_delay_seconds": 0,
+      "minimum_delay_after_previous_sequence_seconds": 300,
+      "maximum_request_attempts": 3,
+      "retry_permitted": false
+    },
+    {
+      "sequence_id": "order-beta-b-second",
+      "schedule_index": 3,
+      "stage": "order_reversal",
+      "cohort_id": "cohort-beta",
+      "condition_label": "condition_b",
+      "cohort_sequence_position": 2,
+      "matched_sequence_id": "order-beta-c-first",
+      "turn_count": 3,
+      "inter_turn_delay_seconds": 0,
+      "minimum_delay_after_previous_sequence_seconds": 300,
+      "maximum_request_attempts": 3,
+      "retry_permitted": false
+    },
+    {
+      "sequence_id": "spacing-gamma-b-zero",
+      "schedule_index": 4,
+      "stage": "spacing_matrix",
+      "cohort_id": "cohort-gamma",
+      "condition_label": "condition_b",
+      "cohort_sequence_position": 1,
+      "matched_sequence_id": null,
+      "turn_count": 3,
+      "inter_turn_delay_seconds": 0,
+      "minimum_delay_after_previous_sequence_seconds": 300,
+      "maximum_request_attempts": 3,
+      "retry_permitted": false
+    },
+    {
+      "sequence_id": "spacing-delta-b-thirty",
+      "schedule_index": 5,
+      "stage": "spacing_matrix",
+      "cohort_id": "cohort-delta",
+      "condition_label": "condition_b",
+      "cohort_sequence_position": 1,
+      "matched_sequence_id": null,
+      "turn_count": 3,
+      "inter_turn_delay_seconds": 30,
+      "minimum_delay_after_previous_sequence_seconds": 300,
+      "maximum_request_attempts": 3,
+      "retry_permitted": false
+    },
+    {
+      "sequence_id": "spacing-epsilon-c-zero",
+      "schedule_index": 6,
+      "stage": "spacing_matrix",
+      "cohort_id": "cohort-epsilon",
+      "condition_label": "condition_c",
+      "cohort_sequence_position": 1,
+      "matched_sequence_id": null,
+      "turn_count": 3,
+      "inter_turn_delay_seconds": 0,
+      "minimum_delay_after_previous_sequence_seconds": 300,
+      "maximum_request_attempts": 3,
+      "retry_permitted": false
+    },
+    {
+      "sequence_id": "spacing-zeta-c-thirty",
+      "schedule_index": 7,
+      "stage": "spacing_matrix",
+      "cohort_id": "cohort-zeta",
+      "condition_label": "condition_c",
+      "cohort_sequence_position": 1,
+      "matched_sequence_id": null,
+      "turn_count": 3,
+      "inter_turn_delay_seconds": 30,
+      "minimum_delay_after_previous_sequence_seconds": 300,
+      "maximum_request_attempts": 3,
+      "retry_permitted": false
+    }
+  ],
+  "stop_rules": [
+    {
+      "rule_id": "request-rejected-observation",
+      "trigger_codes": [
+        "PROVIDER_REQUEST_REJECTED"
+      ],
+      "disposition": "stop_sequence_continue_plan",
+      "safe_rationale": "A safely retained request rejection is an expected diagnostic observation. The current sequence stops without retry, while the next predeclared sequence may continue."
+    },
+    {
+      "rule_id": "unsafe-or-systemic-provider-failure",
+      "trigger_codes": [
+        "PROVIDER_RESPONSE_AMBIGUOUS",
+        "PROVIDER_AUTHENTICATION_FAILED",
+        "PROVIDER_PERMISSION_DENIED",
+        "PROVIDER_MODEL_NOT_AVAILABLE",
+        "PROVIDER_SDK_UNAVAILABLE",
+        "PROVIDER_CONFIGURATION_MISMATCH",
+        "PROTECTED_DIAGNOSTIC_RETENTION_FAILED"
+      ],
+      "disposition": "stop_experiment",
+      "safe_rationale": "Ambiguous, systemic, configuration, or evidence-retention failures invalidate continued diagnostic execution and require a new reviewed authorization."
+    },
+    {
+      "rule_id": "budget-or-integrity-failure",
+      "trigger_codes": [
+        "ATTEMPT_BUDGET_EXHAUSTED",
+        "COST_BUDGET_EXHAUSTED",
+        "REQUEST_SHAPE_MISMATCH",
+        "UNPLANNED_SEQUENCE",
+        "RAW_SENSITIVE_DATA_BOUNDARY_VIOLATION"
+      ],
+      "disposition": "stop_experiment",
+      "safe_rationale": "Budget, plan-integrity, request-equivalence, or privacy-boundary failures terminate the experiment immediately without resume or replacement calls."
+    }
+  ],
+  "required_trace_fields": [
+    "design_id",
+    "sequence_id",
+    "stage",
+    "cohort_id",
+    "condition_label",
+    "schedule_index",
+    "cohort_sequence_position",
+    "turn_index",
+    "planned_inter_turn_delay_seconds",
+    "observed_inter_turn_delay_ms",
+    "system_prompt_sha256",
+    "user_prompt_sha256",
+    "prompt_byte_count",
+    "input_token_estimate",
+    "provider_status",
+    "provider_error_code",
+    "request_rejection_reason",
+    "provider_request_id_sha256",
+    "adapter_version",
+    "estimated_cost_microusd",
+    "protected_diagnostic_retained"
+  ],
+  "maximum_provider_calls": 24,
+  "maximum_total_cost_microusd": 5000,
+  "execution_authorization_required": true,
+  "execution_authorization_id": null,
+  "provider_calls_permitted": false,
+  "retries_permitted": false,
+  "resume_permitted": false,
+  "development_only": true,
+  "held_out_execution_permitted": false,
+  "full_benchmark_execution_permitted": false,
+  "benchmark_claims_permitted": false,
+  "comparison_eligible": false,
+  "next_gate": "fixture_materialization_review"
+}
