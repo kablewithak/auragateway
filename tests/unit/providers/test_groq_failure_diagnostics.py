@@ -138,7 +138,7 @@ def _valid_response(
                         "content": content,
                         "reasoning": reasoning,
                         "refusal": refusal,
-                        "tool_calls": tool_calls or [],
+                        "tool_calls": tool_calls,
                     },
                 }
             ],
@@ -259,6 +259,55 @@ def test_malformed_sdk_response_is_separate_from_request_rejection(
     assert record["exception_class_allowlisted"] == "ValidationError"
     assert record["http_status_code"] is None
     assert record["response_choice_count"] is None
+    assert record["response_validation_error_count"] == 1
+    assert record["response_validation_locations_allowlisted"] == ["choices"]
+    assert record["response_validation_types_allowlisted"] == ["too_short"]
+
+
+def test_explicit_null_optional_sdk_fields_do_not_fail_typed_validation(
+    tmp_path: Path,
+) -> None:
+    diagnostic_path = tmp_path / "provider_failure_diagnostics.jsonl"
+    adapter = GroqProviderAdapter(
+        _Client(response=_valid_response('{"decision":"answer"}')),
+        failure_diagnostic_path=diagnostic_path,
+    )
+
+    call = adapter.invoke(_invocation())
+
+    assert call.result.status.value == "succeeded"
+    assert call.protected_output is not None
+    assert not diagnostic_path.exists()
+
+
+def test_schema_invalid_diagnostic_retains_only_allowlisted_error_shape(
+    tmp_path: Path,
+) -> None:
+    diagnostic_path = tmp_path / "provider_failure_diagnostics.jsonl"
+    response = _valid_response('{"decision":"answer"}')
+    response._payload["choices"][0]["message"]["tool_calls"] = 7  # type: ignore[index]
+    adapter = GroqProviderAdapter(
+        _Client(response=response),
+        failure_diagnostic_path=diagnostic_path,
+    )
+
+    with pytest.raises(LiveProviderError) as exc_info:
+        adapter.invoke(_invocation())
+
+    assert exc_info.value.error_code is ProviderErrorCode.INVALID_RESPONSE
+    record = _read_one(diagnostic_path)
+    assert record["family"] == ProviderFailureFamily.RESPONSE_SCHEMA_INVALID
+    assert record["response_validation_error_count"] == 2
+    assert record["response_validation_locations_allowlisted"] == [
+        "choices.*.message.tool_calls",
+        "choices",
+    ]
+    assert record["response_validation_types_allowlisted"] == [
+        "tuple_type",
+        "too_short",
+    ]
+    retained = diagnostic_path.read_text(encoding="utf-8")
+    assert '"tool_calls":7' not in retained
 
 
 @pytest.mark.parametrize(

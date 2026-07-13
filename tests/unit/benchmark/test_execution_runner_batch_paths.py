@@ -14,17 +14,24 @@ from auragateway.benchmark.live_output_adapter import (
 )
 from auragateway.providers.groq import GroqProviderAdapter
 
+_DIAGNOSTIC_AUTHORIZATION_IDS = (
+    "live-development-batch-04-auth-v1",
+    "live-development-batch-05-auth-v1",
+)
+
 
 def test_live_batches_use_separate_evidence_roots() -> None:
     batch_01 = _paths_for_authorization("live-development-batch-01-auth-v1")
     batch_02 = _paths_for_authorization("live-development-batch-02-auth-v1")
     batch_03 = _paths_for_authorization("live-development-batch-03-auth-v1")
     batch_04 = _paths_for_authorization("live-development-batch-04-auth-v1")
+    batch_05 = _paths_for_authorization("live-development-batch-05-auth-v1")
 
     assert batch_01.asset_root == Path("data/evals/benchmark/live-development-v1")
     assert batch_02.asset_root == Path("data/evals/benchmark/live-development-v2")
     assert batch_03.asset_root == Path("data/evals/benchmark/live-development-v3")
     assert batch_04.asset_root == Path("data/evals/benchmark/live-development-v4")
+    assert batch_05.asset_root == Path("data/evals/benchmark/live-development-v5")
     assert (
         len(
             {
@@ -32,9 +39,10 @@ def test_live_batches_use_separate_evidence_roots() -> None:
                 batch_02.journal_path,
                 batch_03.journal_path,
                 batch_04.journal_path,
+                batch_05.journal_path,
             }
         )
-        == 4
+        == 5
     )
     assert (
         len(
@@ -43,15 +51,19 @@ def test_live_batches_use_separate_evidence_roots() -> None:
                 batch_02.protected_output_path,
                 batch_03.protected_output_path,
                 batch_04.protected_output_path,
+                batch_05.protected_output_path,
             }
         )
-        == 4
+        == 5
     )
     assert batch_03.raw_provider_output_path == Path(
         ".local/benchmark/live-development-v3/provider_raw_outputs.jsonl"
     )
     assert batch_04.provider_failure_diagnostic_path == Path(
         ".local/benchmark/live-development-v4/provider_failure_diagnostics.jsonl"
+    )
+    assert batch_05.provider_failure_diagnostic_path == Path(
+        ".local/benchmark/live-development-v5/provider_failure_diagnostics.jsonl"
     )
 
 
@@ -77,6 +89,10 @@ def test_unknown_authorization_fails_closed() -> None:
             "live-development-batch-04-auth-v1",
             "live-development-batch-04-runtime-policy-v1",
         ),
+        (
+            "live-development-batch-05-auth-v1",
+            "live-development-batch-05-runtime-policy-v1",
+        ),
     ),
 )
 def test_corrective_runtime_policy_is_bound_to_its_authorization(
@@ -93,28 +109,30 @@ def test_corrective_runtime_policy_is_bound_to_its_authorization(
     assert policy.output_normalization_profile == "compiler-to-terminal-v1"
 
 
-def test_batch_04_wires_failure_diagnostics_inside_paced_adapter() -> None:
+def test_diagnostic_batches_wire_failure_diagnostics_inside_paced_adapter() -> None:
     batch_03_id = "live-development-batch-03-auth-v1"
     batch_03_paths = _paths_for_authorization(batch_03_id)
-    batch_04_id = "live-development-batch-04-auth-v1"
-    batch_04_paths = _paths_for_authorization(batch_04_id)
-
     batch_03_adapter = _adapter_for_authorization(Path("."), batch_03_id, batch_03_paths)
-    batch_04_adapter = _adapter_for_authorization(Path("."), batch_04_id, batch_04_paths)
 
     assert isinstance(batch_03_adapter, ContractAlignedPacedAdapter)
     assert isinstance(batch_03_adapter._inner, GroqProviderAdapter)
     assert batch_03_adapter._inner._failure_diagnostic_path is None
-    assert isinstance(batch_04_adapter, ContractAlignedPacedAdapter)
-    assert isinstance(batch_04_adapter._inner, GroqProviderAdapter)
-    assert (
-        batch_04_adapter._inner._failure_diagnostic_path
-        == batch_04_paths.provider_failure_diagnostic_path
-    )
+
+    for authorization_id in _DIAGNOSTIC_AUTHORIZATION_IDS:
+        paths = _paths_for_authorization(authorization_id)
+        adapter = _adapter_for_authorization(Path("."), authorization_id, paths)
+
+        assert isinstance(adapter, ContractAlignedPacedAdapter)
+        assert isinstance(adapter._inner, GroqProviderAdapter)
+        assert adapter._inner._failure_diagnostic_path == paths.provider_failure_diagnostic_path
 
 
-def test_batch_04_diagnostic_preflight_leaves_no_probe(tmp_path: Path) -> None:
-    paths = _paths_for_authorization("live-development-batch-04-auth-v1")
+@pytest.mark.parametrize("authorization_id", _DIAGNOSTIC_AUTHORIZATION_IDS)
+def test_diagnostic_preflight_leaves_no_probe(
+    tmp_path: Path,
+    authorization_id: str,
+) -> None:
+    paths = _paths_for_authorization(authorization_id)
 
     _validate_provider_failure_diagnostic_sink(tmp_path, paths, require_absent=True)
 
@@ -125,8 +143,12 @@ def test_batch_04_diagnostic_preflight_leaves_no_probe(tmp_path: Path) -> None:
     assert not probe_path.exists()
 
 
-def test_batch_04_fresh_preflight_rejects_existing_diagnostics(tmp_path: Path) -> None:
-    paths = _paths_for_authorization("live-development-batch-04-auth-v1")
+@pytest.mark.parametrize("authorization_id", _DIAGNOSTIC_AUTHORIZATION_IDS)
+def test_fresh_preflight_rejects_existing_diagnostics(
+    tmp_path: Path,
+    authorization_id: str,
+) -> None:
+    paths = _paths_for_authorization(authorization_id)
     diagnostic_path = tmp_path / paths.provider_failure_diagnostic_path
     diagnostic_path.parent.mkdir(parents=True)
     diagnostic_path.write_text("{}\n", encoding="utf-8")
@@ -138,8 +160,12 @@ def test_batch_04_fresh_preflight_rejects_existing_diagnostics(tmp_path: Path) -
     assert diagnostic_path.read_text(encoding="utf-8") == "{}\n"
 
 
-def test_batch_04_resume_preflight_preserves_existing_diagnostics(tmp_path: Path) -> None:
-    paths = _paths_for_authorization("live-development-batch-04-auth-v1")
+@pytest.mark.parametrize("authorization_id", _DIAGNOSTIC_AUTHORIZATION_IDS)
+def test_resume_preflight_preserves_existing_diagnostics(
+    tmp_path: Path,
+    authorization_id: str,
+) -> None:
+    paths = _paths_for_authorization(authorization_id)
     diagnostic_path = tmp_path / paths.provider_failure_diagnostic_path
     diagnostic_path.parent.mkdir(parents=True)
     diagnostic_path.write_text("{}\n", encoding="utf-8")
@@ -152,8 +178,8 @@ def test_batch_04_resume_preflight_preserves_existing_diagnostics(tmp_path: Path
 def test_runtime_policy_rejects_cross_batch_binding() -> None:
     with pytest.raises(ValueError, match="matching authorization"):
         LiveBatchRuntimePolicy(
-            policy_id="live-development-batch-03-runtime-policy-v1",
-            authorization_id="live-development-batch-02-auth-v1",
+            policy_id="live-development-batch-05-runtime-policy-v1",
+            authorization_id="live-development-batch-04-auth-v1",
             minimum_call_interval_seconds=20.0,
             rate_limit_cooldown_seconds=65.0,
             maximum_cumulative_sleep_seconds=900.0,

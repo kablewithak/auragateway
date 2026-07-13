@@ -53,12 +53,29 @@ def _missing_content_diagnostic(**overrides: object) -> ProviderFailureDiagnosti
     return ProviderFailureDiagnostic.model_validate(payload)
 
 
+def _schema_invalid_diagnostic(**overrides: object) -> ProviderFailureDiagnostic:
+    payload: dict[str, object] = {
+        "model_alias": "groq-gpt-oss-20b",
+        "request_id_sha256": "a" * 64,
+        "family": ProviderFailureFamily.RESPONSE_SCHEMA_INVALID,
+        "exception_class_allowlisted": "ValidationError",
+        "retryable": False,
+        "mapped_provider_error_code": ProviderErrorCode.INVALID_RESPONSE,
+        "response_validation_error_count": 1,
+        "response_validation_locations_allowlisted": ("choices.*.message.tool_calls",),
+        "response_validation_types_allowlisted": ("tuple_type",),
+    }
+    payload.update(overrides)
+    return ProviderFailureDiagnostic.model_validate(payload)
+
+
 def test_provider_failure_diagnostic_accepts_only_bounded_metadata() -> None:
     diagnostic = _diagnostic()
 
     assert diagnostic.family is ProviderFailureFamily.REQUEST_REJECTED
     assert diagnostic.http_status_code == 400
     assert diagnostic.provider_error_param_allowlisted == "messages"
+    assert diagnostic.schema_version == "1.2.0"
 
 
 def test_missing_content_diagnostic_requires_complete_response_shape() -> None:
@@ -128,3 +145,42 @@ def test_present_reasoning_requires_positive_byte_count() -> None:
 def test_present_refusal_requires_positive_byte_count() -> None:
     with pytest.raises(ValidationError, match="positive byte count"):
         _missing_content_diagnostic(refusal_present=True, refusal_byte_count=0)
+
+
+def test_schema_invalid_diagnostic_accepts_bounded_validation_metadata() -> None:
+    diagnostic = _schema_invalid_diagnostic()
+
+    assert diagnostic.response_validation_error_count == 1
+    assert diagnostic.response_validation_locations_allowlisted == ("choices.*.message.tool_calls",)
+    assert diagnostic.response_validation_types_allowlisted == ("tuple_type",)
+
+
+def test_non_schema_failure_rejects_response_validation_metadata() -> None:
+    with pytest.raises(ValidationError, match="reserved for response-schema-invalid"):
+        _diagnostic(
+            response_validation_error_count=1,
+            response_validation_locations_allowlisted=("choices",),
+            response_validation_types_allowlisted=("too_short",),
+        )
+
+
+def test_validation_error_count_requires_locations_and_types() -> None:
+    with pytest.raises(ValidationError, match="require an allowlisted location tuple"):
+        _schema_invalid_diagnostic(response_validation_locations_allowlisted=None)
+
+    with pytest.raises(ValidationError, match="require an allowlisted type tuple"):
+        _schema_invalid_diagnostic(response_validation_types_allowlisted=None)
+
+
+def test_validation_locations_reject_unbounded_provider_paths() -> None:
+    with pytest.raises(ValidationError, match="bounded safe paths"):
+        _schema_invalid_diagnostic(
+            response_validation_locations_allowlisted=("choices.0.message.tool_calls[secret]",)
+        )
+
+
+def test_validation_metadata_rejects_duplicates() -> None:
+    with pytest.raises(ValidationError, match="must not contain duplicates"):
+        _schema_invalid_diagnostic(
+            response_validation_types_allowlisted=("tuple_type", "tuple_type")
+        )

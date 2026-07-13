@@ -49,10 +49,13 @@ _BATCH_03_POLICY_ID = "live-development-batch-03-runtime-policy-v1"
 _BATCH_03_AUTHORIZATION_ID = "live-development-batch-03-auth-v1"
 _BATCH_04_POLICY_ID = "live-development-batch-04-runtime-policy-v1"
 _BATCH_04_AUTHORIZATION_ID = "live-development-batch-04-auth-v1"
+_BATCH_05_POLICY_ID = "live-development-batch-05-runtime-policy-v1"
+_BATCH_05_AUTHORIZATION_ID = "live-development-batch-05-auth-v1"
 _POLICY_AUTHORIZATION_PAIRS = {
     _BATCH_02_POLICY_ID: _BATCH_02_AUTHORIZATION_ID,
     _BATCH_03_POLICY_ID: _BATCH_03_AUTHORIZATION_ID,
     _BATCH_04_POLICY_ID: _BATCH_04_AUTHORIZATION_ID,
+    _BATCH_05_POLICY_ID: _BATCH_05_AUTHORIZATION_ID,
 }
 
 
@@ -124,11 +127,13 @@ class LiveBatchRuntimePolicy(BaseModel):
         "live-development-batch-02-runtime-policy-v1",
         "live-development-batch-03-runtime-policy-v1",
         "live-development-batch-04-runtime-policy-v1",
+        "live-development-batch-05-runtime-policy-v1",
     ] = "live-development-batch-02-runtime-policy-v1"
     authorization_id: Literal[
         "live-development-batch-02-auth-v1",
         "live-development-batch-03-auth-v1",
         "live-development-batch-04-auth-v1",
+        "live-development-batch-05-auth-v1",
     ] = "live-development-batch-02-auth-v1"
     output_normalization_profile: Literal["compiler-to-terminal-v1"] = "compiler-to-terminal-v1"
     minimum_call_interval_seconds: float = Field(ge=0, le=120)
