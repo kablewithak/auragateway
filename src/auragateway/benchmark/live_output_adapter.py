@@ -12,7 +12,14 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    TypeAdapter,
+    ValidationError,
+    model_validator,
+)
 
 from auragateway.contracts.episodes import (
     AnswerDecisionOutput,
@@ -36,6 +43,14 @@ from auragateway.providers.base import (
 
 _FIELD_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9_]{1,63}$")
 _TERMINAL_OUTPUT_ADAPTER: TypeAdapter[TerminalDecisionOutput] = TypeAdapter(TerminalDecisionOutput)
+_BATCH_02_POLICY_ID = "live-development-batch-02-runtime-policy-v1"
+_BATCH_02_AUTHORIZATION_ID = "live-development-batch-02-auth-v1"
+_BATCH_03_POLICY_ID = "live-development-batch-03-runtime-policy-v1"
+_BATCH_03_AUTHORIZATION_ID = "live-development-batch-03-auth-v1"
+_POLICY_AUTHORIZATION_PAIRS = {
+    _BATCH_02_POLICY_ID: _BATCH_02_AUTHORIZATION_ID,
+    _BATCH_03_POLICY_ID: _BATCH_03_AUTHORIZATION_ID,
+}
 
 
 class CompilerConfidenceBand(StrEnum):
@@ -98,20 +113,29 @@ class NormalizedProtectedOutput(BaseModel):
 
 
 class LiveBatchRuntimePolicy(BaseModel):
-    """Bounded runtime policy for one corrective live-development batch."""
+    """Bounded runtime policy for corrective live-development batches."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    policy_id: Literal["live-development-batch-02-runtime-policy-v1"] = (
-        "live-development-batch-02-runtime-policy-v1"
-    )
-    authorization_id: Literal["live-development-batch-02-auth-v1"] = (
-        "live-development-batch-02-auth-v1"
-    )
+    policy_id: Literal[
+        "live-development-batch-02-runtime-policy-v1",
+        "live-development-batch-03-runtime-policy-v1",
+    ] = "live-development-batch-02-runtime-policy-v1"
+    authorization_id: Literal[
+        "live-development-batch-02-auth-v1",
+        "live-development-batch-03-auth-v1",
+    ] = "live-development-batch-02-auth-v1"
     output_normalization_profile: Literal["compiler-to-terminal-v1"] = "compiler-to-terminal-v1"
     minimum_call_interval_seconds: float = Field(ge=0, le=120)
     rate_limit_cooldown_seconds: float = Field(ge=0, le=300)
     maximum_cumulative_sleep_seconds: float = Field(gt=0, le=1800)
+
+    @model_validator(mode="after")
+    def validate_policy_authorization_pair(self) -> LiveBatchRuntimePolicy:
+        expected_authorization = _POLICY_AUTHORIZATION_PAIRS[self.policy_id]
+        if self.authorization_id != expected_authorization:
+            raise ValueError("runtime policy must be bound to its matching authorization")
+        return self
 
 
 class _ProtectedRawOutputRecord(BaseModel):
@@ -149,7 +173,9 @@ def _clarify_reason(items: tuple[str, ...]) -> TerminalReasonCode:
     return TerminalReasonCode.AMBIGUOUS_USER_STATE
 
 
-def _normalize_compiler_output(output: CompilerTerminalDecision) -> TerminalDecisionOutput:
+def _normalize_compiler_output(
+    output: CompilerTerminalDecision,
+) -> TerminalDecisionOutput:
     if output.decision == "answer":
         return AnswerDecisionOutput(
             decision="answer",
