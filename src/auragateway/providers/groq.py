@@ -1,4 +1,4 @@
-"""Groq live adapter with typed cached-token telemetry and safe error mapping."""
+"""Groq live adapter with typed cached-token telemetry and protected output handling."""
 
 from __future__ import annotations
 
@@ -16,7 +16,12 @@ from auragateway.contracts.provider import (
     ProviderName,
 )
 from auragateway.contracts.telemetry import CachedInputDetailTelemetry
-from auragateway.providers.base import LiveProviderError, LiveProviderInvocation, ProviderCall
+from auragateway.providers.base import (
+    LiveProviderError,
+    LiveProviderInvocation,
+    ProtectedProviderOutput,
+    ProviderCall,
+)
 
 GROQ_MODEL_ID = "openai/gpt-oss-20b"
 GROQ_MODEL_ALIAS = "groq-gpt-oss-20b"
@@ -163,7 +168,7 @@ class GroqProviderAdapter:
         self._completion_client = completion_client
 
     def invoke(self, invocation: LiveProviderInvocation) -> ProviderCall:
-        """Execute one bounded Groq request without persisting raw content or payloads."""
+        """Execute one bounded Groq request without exposing raw content publicly."""
 
         request = invocation.request
         if request.provider is not ProviderName.GROQ or request.model_alias != GROQ_MODEL_ALIAS:
@@ -224,6 +229,7 @@ class GroqProviderAdapter:
             output_tokens=usage.completion_tokens if usage is not None else None,
             total_duration_ms=_duration_ms(usage.total_time) if usage is not None else None,
         )
+        protected_output = ProtectedProviderOutput(output_text)
         result = ProviderInvocationResult(
             request_id=request.request_id,
             provider=ProviderName.GROQ,
@@ -231,4 +237,8 @@ class GroqProviderAdapter:
             status=ProviderInvocationStatus.SUCCEEDED,
             output_sha256=hashlib.sha256(output_text.encode("utf-8")).hexdigest(),
         )
-        return ProviderCall(result=result, telemetry=telemetry)
+        return ProviderCall(
+            result=result,
+            telemetry=telemetry,
+            protected_output=protected_output,
+        )

@@ -1,4 +1,4 @@
-"""Provider adapter protocols, protected prompts, and metadata-safe call containers."""
+"""Provider adapter protocols and protected in-memory content containers."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from auragateway.contracts.provider import (
 from auragateway.contracts.telemetry import ProviderTelemetryPayload
 
 _MAX_PROTECTED_PROMPT_BYTES = 200_000
+_MAX_PROTECTED_OUTPUT_BYTES = 200_000
 
 
 @dataclass(frozen=True, slots=True, repr=False)
@@ -38,13 +39,38 @@ class ProtectedProviderPrompt:
         return len(self.system_prompt.encode("utf-8")) + len(self.user_prompt.encode("utf-8"))
 
     def summary(self) -> ProtectedPromptSummary:
-        """Return the only prompt representation permitted in reports and traces."""
+        """Return the only prompt representation permitted in public evidence."""
 
         return ProtectedPromptSummary(
             system_sha256=hashlib.sha256(self.system_prompt.encode("utf-8")).hexdigest(),
             user_sha256=hashlib.sha256(self.user_prompt.encode("utf-8")).hexdigest(),
             total_bytes=self.total_bytes,
         )
+
+
+@dataclass(frozen=True, slots=True, repr=False)
+class ProtectedProviderOutput:
+    """Raw provider output retained only by an explicitly protected local sink."""
+
+    text: str = field(repr=False)
+
+    def __post_init__(self) -> None:
+        if not self.text.strip():
+            raise ValueError("protected provider output requires non-empty text")
+        if self.byte_count > _MAX_PROTECTED_OUTPUT_BYTES:
+            raise ValueError("protected provider output exceeds the bounded byte limit")
+
+    @property
+    def byte_count(self) -> int:
+        """Return output size without exposing content."""
+
+        return len(self.text.encode("utf-8"))
+
+    @property
+    def sha256(self) -> str:
+        """Return the public-safe output digest."""
+
+        return hashlib.sha256(self.text.encode("utf-8")).hexdigest()
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,6 +98,7 @@ class ProviderCall:
 
     result: ProviderInvocationResult
     telemetry: ProviderTelemetryPayload
+    protected_output: ProtectedProviderOutput | None = field(default=None, repr=False)
 
 
 class ProviderAdapter(Protocol):
@@ -85,7 +112,7 @@ class LiveProviderAdapter(Protocol):
     """Live provider boundary; only implementations may inspect raw payloads."""
 
     def invoke(self, invocation: LiveProviderInvocation) -> ProviderCall:
-        """Execute one bounded live request and return typed metadata only."""
+        """Execute one bounded live request and return typed metadata plus protected output."""
 
 
 class LiveProviderError(Exception):
