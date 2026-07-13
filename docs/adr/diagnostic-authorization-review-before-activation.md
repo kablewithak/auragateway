@@ -1,6 +1,6 @@
 # ADR: Separate Diagnostic Authorization Review from Live Activation
 
-**Status:** Accepted  
+**Status:** Accepted
 **Decision ID:** `diagnostic-authorization-review-before-activation-v1`
 
 ## Context
