@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import sys
+from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, TypeVar
@@ -44,11 +45,16 @@ _MANIFEST_PATH = _ASSET_ROOT / "manifest.json"
 _PROTECTED_OUTPUT_PATH = Path(".local/benchmark/live-development-v1/protected_outputs.jsonl")
 _V2_AUTHORIZATION_ID = "live-development-batch-02-auth-v1"
 _V3_AUTHORIZATION_ID = "live-development-batch-03-auth-v1"
-_PACED_AUTHORIZATION_IDS = frozenset({_V2_AUTHORIZATION_ID, _V3_AUTHORIZATION_ID})
+_V4_AUTHORIZATION_ID = "live-development-batch-04-auth-v1"
+_PACED_AUTHORIZATION_IDS = frozenset(
+    {_V2_AUTHORIZATION_ID, _V3_AUTHORIZATION_ID, _V4_AUTHORIZATION_ID}
+)
+_DIAGNOSTIC_AUTHORIZATION_IDS = frozenset({_V4_AUTHORIZATION_ID})
 _BATCH_ASSET_ROOTS = {
     "live-development-batch-01-auth-v1": _ASSET_ROOT,
     _V2_AUTHORIZATION_ID: Path("data/evals/benchmark/live-development-v2"),
     _V3_AUTHORIZATION_ID: Path("data/evals/benchmark/live-development-v3"),
+    _V4_AUTHORIZATION_ID: Path("data/evals/benchmark/live-development-v4"),
 }
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
 
@@ -63,6 +69,7 @@ class _BatchPaths:
     manifest_path: Path
     protected_output_path: Path
     raw_provider_output_path: Path
+    provider_failure_diagnostic_path: Path
     runtime_policy_path: Path
 
 
@@ -139,6 +146,7 @@ def _paths_for_authorization(authorization_id: str) -> _BatchPaths:
         manifest_path=asset_root / "manifest.json",
         protected_output_path=local_root / "protected_outputs.jsonl",
         raw_provider_output_path=local_root / "provider_raw_outputs.jsonl",
+        provider_failure_diagnostic_path=(local_root / "provider_failure_diagnostics.jsonl"),
         runtime_policy_path=asset_root / "runtime_policy.json",
     )
 
@@ -265,12 +273,65 @@ def _load_runtime_policy(
     return policy
 
 
+def _validate_provider_failure_diagnostic_sink(
+    repo_root: Path,
+    paths: _BatchPaths,
+    *,
+    require_absent: bool,
+) -> None:
+    """Prove the protected diagnostic parent is writable without retaining probe data."""
+
+    diagnostic_path = repo_root / paths.provider_failure_diagnostic_path
+    if diagnostic_path.exists():
+        if not diagnostic_path.is_file():
+            raise LiveExecutionError(
+                "LIVE_DEVELOPMENT_PROVIDER_DIAGNOSTIC_PATH_INVALID",
+                "The provider failure diagnostic path must be a regular file when present.",
+                str(diagnostic_path),
+            )
+        if require_absent:
+            raise LiveExecutionError(
+                "LIVE_DEVELOPMENT_PROVIDER_DIAGNOSTIC_ALREADY_EXISTS",
+                "Fresh live execution requires an empty provider failure diagnostic boundary.",
+                str(diagnostic_path),
+            )
+
+    probe_path = diagnostic_path.with_name(f".{diagnostic_path.name}.preflight")
+    if probe_path.exists():
+        raise LiveExecutionError(
+            "LIVE_DEVELOPMENT_PROVIDER_DIAGNOSTIC_PROBE_EXISTS",
+            "A stale provider diagnostic preflight probe must be investigated before execution.",
+            str(probe_path),
+        )
+
+    try:
+        diagnostic_path.parent.mkdir(parents=True, exist_ok=True)
+        with probe_path.open("x", encoding="utf-8", newline="\n") as handle:
+            handle.write('{"schema_version":"1.0.0","probe":"provider-failure-diagnostic-sink"}\n')
+            handle.flush()
+            os.fsync(handle.fileno())
+        probe_path.unlink()
+    except OSError as exc:
+        with suppress(OSError):
+            probe_path.unlink(missing_ok=True)
+        raise LiveExecutionError(
+            "LIVE_DEVELOPMENT_PROVIDER_DIAGNOSTIC_SINK_UNAVAILABLE",
+            "The protected provider failure diagnostic sink is not safely writable.",
+            str(diagnostic_path),
+        ) from exc
+
+
 def _adapter_for_authorization(
     repo_root: Path,
     authorization_id: str,
     paths: _BatchPaths,
 ) -> LiveProviderAdapter:
-    adapter: LiveProviderAdapter = GroqProviderAdapter()
+    diagnostic_path = (
+        repo_root / paths.provider_failure_diagnostic_path
+        if authorization_id in _DIAGNOSTIC_AUTHORIZATION_IDS
+        else None
+    )
+    adapter: LiveProviderAdapter = GroqProviderAdapter(failure_diagnostic_path=diagnostic_path)
     if authorization_id not in _PACED_AUTHORIZATION_IDS:
         return adapter
     policy = _load_runtime_policy(repo_root, authorization_id, paths)
@@ -289,6 +350,8 @@ def validate_assets(repo_root: Path, authorization_id: str) -> LiveDevelopmentSu
     validate_live_upstream(repo_root, authorization)
     if authorization_id in _PACED_AUTHORIZATION_IDS:
         _load_runtime_policy(repo_root, authorization_id, paths)
+    if authorization_id in _DIAGNOSTIC_AUTHORIZATION_IDS:
+        _validate_provider_failure_diagnostic_sink(repo_root, paths, require_absent=True)
     return _summary("validate", authorization, None, None, 0)
 
 
@@ -300,6 +363,8 @@ def _execute(
 ) -> LiveDevelopmentSummary:
     paths = _paths_for_authorization(authorization_id)
     authorization = _load_authorization(repo_root, authorization_id, paths)
+    if authorization_id in _DIAGNOSTIC_AUTHORIZATION_IDS:
+        _validate_provider_failure_diagnostic_sink(repo_root, paths, require_absent=not resume)
     api_key = os.environ.get("GROQ_API_KEY")
     if api_key is None or not api_key.strip():
         raise LiveExecutionError(
