@@ -401,10 +401,15 @@ def validate_live_upstream(
                 "Each authorized episode must use one frozen comparison pair.",
                 details=(episode_id,),
             )
-        if {item.replication_id for item in runs} != {"replication-01"}:
+        replication_ids = {item.replication_id for item in runs}
+        if len(replication_ids) != 1 or not replication_ids <= {
+            "replication-01",
+            "replication-02",
+            "replication-03",
+        }:
             raise LiveExecutionError(
                 "LIVE_DEVELOPMENT_REPLICATION_SCOPE_INVALID",
-                "The first live development batch is restricted to replication-01.",
+                "A live development triplet must select exactly one predeclared replication.",
                 details=(episode_id,),
             )
 
