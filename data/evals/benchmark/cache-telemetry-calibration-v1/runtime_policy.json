@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "groq-cache-telemetry-calibration-auth-v1",
+  "schedule_offsets_seconds": [
+    0,
+    10,
+    20
+  ],
+  "request_roles": [
+    "cold",
+    "warm_repeat_one",
+    "warm_repeat_two"
+  ],
+  "planned_cost_microusd_per_call": 200,
+  "planned_maximum_cost_microusd": 600,
+  "authorization_cost_ceiling_microusd": 1000,
+  "exact_provider_request_required": true,
+  "provider_error_stops_calibration": true,
+  "telemetry_shape_missing_stops_calibration": true,
+  "evidence_write_failure_stops_calibration": true,
+  "retry_permitted": false,
+  "resume_permitted": false,
+  "absolute_schedule_enforced": true,
+  "write_through_journal_required": true,
+  "protected_output_retention_required": true
+}
