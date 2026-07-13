@@ -1,4 +1,4 @@
-"""Validate, run, resume, and verify the bounded live development benchmark batch."""
+"""Validate, run, resume, and verify bounded live development benchmark batches."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TypeVar
 
@@ -17,6 +18,10 @@ from auragateway.benchmark.execution import (
     load_journal,
     validate_live_upstream,
 )
+from auragateway.benchmark.live_output_adapter import (
+    ContractAlignedPacedAdapter,
+    LiveBatchRuntimePolicy,
+)
 from auragateway.benchmark.smoke import model_json_bytes, sha256_bytes, sha256_file
 from auragateway.contracts.benchmark_execution import (
     LiveDevelopmentAuthorization,
@@ -27,6 +32,7 @@ from auragateway.contracts.benchmark_execution import (
     LiveJournalTerminalEvent,
     LiveRunRecordSet,
 )
+from auragateway.providers.base import LiveProviderAdapter
 from auragateway.providers.groq import GroqProviderAdapter
 
 _ASSET_ROOT = Path("data/evals/benchmark/live-development-v1")
@@ -36,7 +42,25 @@ _RUN_RECORDS_PATH = _ASSET_ROOT / "run_records.json"
 _REPORT_PATH = _ASSET_ROOT / "report.json"
 _MANIFEST_PATH = _ASSET_ROOT / "manifest.json"
 _PROTECTED_OUTPUT_PATH = Path(".local/benchmark/live-development-v1/protected_outputs.jsonl")
+_V2_AUTHORIZATION_ID = "live-development-batch-02-auth-v1"
+_BATCH_ASSET_ROOTS = {
+    "live-development-batch-01-auth-v1": _ASSET_ROOT,
+    _V2_AUTHORIZATION_ID: Path("data/evals/benchmark/live-development-v2"),
+}
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
+
+
+@dataclass(frozen=True, slots=True)
+class _BatchPaths:
+    asset_root: Path
+    authorization_path: Path
+    journal_path: Path
+    run_records_path: Path
+    report_path: Path
+    manifest_path: Path
+    protected_output_path: Path
+    raw_provider_output_path: Path
+    runtime_policy_path: Path
 
 
 class LiveExecutionErrorEnvelope(BaseModel):
@@ -48,6 +72,28 @@ class LiveExecutionErrorEnvelope(BaseModel):
     safe_message: str
     path: str | None = None
     details: tuple[str, ...] = ()
+
+
+def _paths_for_authorization(authorization_id: str) -> _BatchPaths:
+    asset_root = _BATCH_ASSET_ROOTS.get(authorization_id)
+    if asset_root is None:
+        raise LiveExecutionError(
+            "LIVE_DEVELOPMENT_AUTHORIZATION_UNKNOWN",
+            "The supplied live-development authorization ID is not registered.",
+            details=(authorization_id,),
+        )
+    local_root = Path(".local/benchmark") / asset_root.name
+    return _BatchPaths(
+        asset_root=asset_root,
+        authorization_path=asset_root / "authorization.json",
+        journal_path=asset_root / "journal.jsonl",
+        run_records_path=asset_root / "run_records.json",
+        report_path=asset_root / "report.json",
+        manifest_path=asset_root / "manifest.json",
+        protected_output_path=local_root / "protected_outputs.jsonl",
+        raw_provider_output_path=local_root / "provider_raw_outputs.jsonl",
+        runtime_policy_path=asset_root / "runtime_policy.json",
+    )
 
 
 def _load_json(path: Path) -> object:
@@ -86,9 +132,11 @@ def _load_model(path: Path, model_type: type[_ModelT]) -> _ModelT:
 def _load_authorization(
     repo_root: Path,
     authorization_id: str,
+    paths: _BatchPaths | None = None,
 ) -> LiveDevelopmentAuthorization:
+    resolved_paths = paths or _paths_for_authorization(authorization_id)
     authorization = _load_model(
-        repo_root / _AUTHORIZATION_PATH,
+        repo_root / resolved_paths.authorization_path,
         LiveDevelopmentAuthorization,
     )
     if authorization.authorization_id != authorization_id:
@@ -109,15 +157,16 @@ def _manifest(
     authorization: LiveDevelopmentAuthorization,
     records: LiveRunRecordSet,
     report: LiveDevelopmentReport,
+    paths: _BatchPaths,
 ) -> LiveDevelopmentManifest:
     return LiveDevelopmentManifest(
-        authorization_path=_AUTHORIZATION_PATH.as_posix(),
-        authorization_sha256=sha256_file(repo_root / _AUTHORIZATION_PATH),
-        journal_path=_JOURNAL_PATH.as_posix(),
-        journal_sha256=sha256_file(repo_root / _JOURNAL_PATH),
-        run_records_path=_RUN_RECORDS_PATH.as_posix(),
+        authorization_path=paths.authorization_path.as_posix(),
+        authorization_sha256=sha256_file(repo_root / paths.authorization_path),
+        journal_path=paths.journal_path.as_posix(),
+        journal_sha256=sha256_file(repo_root / paths.journal_path),
+        run_records_path=paths.run_records_path.as_posix(),
         run_records_sha256=sha256_bytes(model_json_bytes(records)),
-        report_path=_REPORT_PATH.as_posix(),
+        report_path=paths.report_path.as_posix(),
         report_sha256=sha256_bytes(model_json_bytes(report)),
         execution_manifest_sha256=authorization.execution_manifest_sha256,
         planned_run_ledger_sha256=authorization.planned_run_ledger_sha256,
@@ -153,10 +202,30 @@ def _summary(
     )
 
 
+def _adapter_for_authorization(
+    repo_root: Path,
+    authorization_id: str,
+    paths: _BatchPaths,
+) -> LiveProviderAdapter:
+    adapter: LiveProviderAdapter = GroqProviderAdapter()
+    if authorization_id != _V2_AUTHORIZATION_ID:
+        return adapter
+    policy = _load_model(
+        repo_root / paths.runtime_policy_path,
+        LiveBatchRuntimePolicy,
+    )
+    return ContractAlignedPacedAdapter(
+        adapter,
+        policy,
+        repo_root / paths.raw_provider_output_path,
+    )
+
+
 def validate_assets(repo_root: Path, authorization_id: str) -> LiveDevelopmentSummary:
     """Validate authorization and frozen run scope without reading live credentials."""
 
-    authorization = _load_authorization(repo_root, authorization_id)
+    paths = _paths_for_authorization(authorization_id)
+    authorization = _load_authorization(repo_root, authorization_id, paths)
     validate_live_upstream(repo_root, authorization)
     return _summary("validate", authorization, None, None, 0)
 
@@ -167,34 +236,34 @@ def _execute(
     *,
     resume: bool,
 ) -> LiveDevelopmentSummary:
-    authorization = _load_authorization(repo_root, authorization_id)
+    paths = _paths_for_authorization(authorization_id)
+    authorization = _load_authorization(repo_root, authorization_id, paths)
     api_key = os.environ.get("GROQ_API_KEY")
     if api_key is None or not api_key.strip():
         raise LiveExecutionError(
             "LIVE_DEVELOPMENT_GROQ_API_KEY_MISSING",
             "GROQ_API_KEY must be loaded deliberately before live execution.",
         )
-    journal_path = repo_root / _JOURNAL_PATH
-    protected_path = repo_root / _PROTECTED_OUTPUT_PATH
     records, report, reused = execute_live_development(
         repo_root=repo_root,
         authorization=authorization,
-        adapter=GroqProviderAdapter(),
-        journal_path=journal_path,
-        protected_output_path=protected_path,
+        adapter=_adapter_for_authorization(repo_root, authorization_id, paths),
+        journal_path=repo_root / paths.journal_path,
+        protected_output_path=repo_root / paths.protected_output_path,
         resume=resume,
     )
-    _write_model(repo_root / _RUN_RECORDS_PATH, records)
-    _write_model(repo_root / _REPORT_PATH, report)
-    manifest = _manifest(repo_root, authorization, records, report)
-    _write_model(repo_root / _MANIFEST_PATH, manifest)
+    _write_model(repo_root / paths.run_records_path, records)
+    _write_model(repo_root / paths.report_path, report)
+    manifest = _manifest(repo_root, authorization, records, report, paths)
+    _write_model(repo_root / paths.manifest_path, manifest)
     return _summary("resume" if resume else "run", authorization, records, report, reused)
 
 
 def write_assets(repo_root: Path, authorization_id: str) -> LiveDevelopmentSummary:
     """Run a fresh bounded live development batch."""
 
-    journal_path = repo_root / _JOURNAL_PATH
+    paths = _paths_for_authorization(authorization_id)
+    journal_path = repo_root / paths.journal_path
     if journal_path.exists() and journal_path.stat().st_size:
         raise LiveExecutionError(
             "LIVE_DEVELOPMENT_JOURNAL_ALREADY_EXISTS",
@@ -213,12 +282,13 @@ def resume_assets(repo_root: Path, authorization_id: str) -> LiveDevelopmentSumm
 def verify_assets(repo_root: Path, authorization_id: str) -> LiveDevelopmentSummary:
     """Verify persisted public evidence without calling a provider."""
 
-    authorization = _load_authorization(repo_root, authorization_id)
+    paths = _paths_for_authorization(authorization_id)
+    authorization = _load_authorization(repo_root, authorization_id, paths)
     validate_live_upstream(repo_root, authorization)
-    records = _load_model(repo_root / _RUN_RECORDS_PATH, LiveRunRecordSet)
-    report = _load_model(repo_root / _REPORT_PATH, LiveDevelopmentReport)
-    manifest = _load_model(repo_root / _MANIFEST_PATH, LiveDevelopmentManifest)
-    events = load_journal(repo_root / _JOURNAL_PATH)
+    records = _load_model(repo_root / paths.run_records_path, LiveRunRecordSet)
+    report = _load_model(repo_root / paths.report_path, LiveDevelopmentReport)
+    manifest = _load_model(repo_root / paths.manifest_path, LiveDevelopmentManifest)
+    events = load_journal(repo_root / paths.journal_path)
     terminal_count = sum(isinstance(item, LiveJournalTerminalEvent) for item in events)
     attempt_count = sum(isinstance(item, LiveJournalAttemptEvent) for item in events)
     if terminal_count != len(records.terminal_records) or attempt_count != len(
@@ -228,12 +298,12 @@ def verify_assets(repo_root: Path, authorization_id: str) -> LiveDevelopmentSumm
             "LIVE_DEVELOPMENT_JOURNAL_RECONCILIATION_FAILED",
             "Persisted journal and reconciled run records do not agree.",
         )
-    expected_manifest = _manifest(repo_root, authorization, records, report)
+    expected_manifest = _manifest(repo_root, authorization, records, report, paths)
     if manifest != expected_manifest:
         raise LiveExecutionError(
             "LIVE_DEVELOPMENT_MANIFEST_MISMATCH",
             "Persisted live-development manifest does not reproduce.",
-            str(repo_root / _MANIFEST_PATH),
+            str(repo_root / paths.manifest_path),
         )
     if report.authorization_id != authorization.authorization_id:
         raise LiveExecutionError(
