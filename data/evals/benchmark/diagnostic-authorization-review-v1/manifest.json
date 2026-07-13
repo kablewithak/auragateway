@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "batch-06-diagnostic-execution-review-v1",
+  "review_package_path": "data/evals/benchmark/diagnostic-authorization-review-v1/review_package.json",
+  "review_package_sha256": "711c65d0a4667f33bf6b7eceadce59fad8ec396924ca4a4d02b1db5f59aaa881",
+  "dry_run_report_path": "data/evals/benchmark/diagnostic-authorization-review-v1/dry_run_report.json",
+  "dry_run_report_sha256": "4553cdde51541c6389471029a93c0d4166bc8b7a0da60f0da65a68a32e562dcc",
+  "activation_state": "inactive",
+  "active_authorization_present": false,
+  "provider_calls_permitted": false,
+  "execution_command_available": false
+}
