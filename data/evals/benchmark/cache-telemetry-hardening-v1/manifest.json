@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "hardening_id": "groq-cache-telemetry-hardening-v1",
+  "acceptance_path": "data/evals/benchmark/cache-telemetry-hardening-v1/acceptance.json",
+  "acceptance_sha256": "1690b70f8b0b0fad7ca5a64e958d16f380d2104726c2a56e376a11667ca5ce2b",
+  "calibration_draft_path": "data/evals/benchmark/cache-telemetry-hardening-v1/calibration_draft.json",
+  "calibration_draft_sha256": "592e364db7ab3930e21ffe7517330a37568a6b3422c0325697d6d918e0059564",
+  "synthetic_cases_path": "data/evals/benchmark/cache-telemetry-hardening-v1/synthetic_cases.json",
+  "synthetic_cases_sha256": "41cb5de9a7ccbdaac39b2f3fabe9fa8be6b8f2f854cf0c6d68077f423dfdf7d7",
+  "report_path": "docs/benchmark/AuraGateway_Groq_Cache_Telemetry_Capture_Hardening.md",
+  "report_sha256": "a668a531961083d9f0954c790b2f699a4d3a788fc65d27853b4e426fa5023253",
+  "provider_call_performed": false,
+  "calibration_authorized": false,
+  "benchmark_execution_authorized": false,
+  "next_gate": "cache_telemetry_calibration_authorization_review"
+}
