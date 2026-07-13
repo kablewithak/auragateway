@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "design_id": "batch-06-request-rejection-diagnostic-design-v1",
+  "plan_path": "data/evals/benchmark/diagnostic-design-v1/experiment_plan.json",
+  "plan_sha256": "ca80925006b2655a208b9782181dc21037c726e72769bc38105dac101ca3833f",
+  "source_batch_manifest_path": "data/evals/benchmark/live-development-v6/manifest.json",
+  "source_batch_id": "auragateway-live-development-batch-06",
+  "source_authorization_id": "live-development-batch-06-auth-v1",
+  "source_journal_sha256": "73e5414a98fd075fe0a58f4db2d0f739d93ed748a7545411cbb492aea1067a76",
+  "source_run_records_sha256": "fbd1e64d10b317a18475d6dccb922bf4e7c41ce40c491c7654bac664c7347f84",
+  "source_report_sha256": "670d233cb53c78523d036ec4ea2dc8f16f787b988d033e0a811105a63a503edd",
+  "source_batch_verification_required": true,
+  "execution_authorized": false
+}
