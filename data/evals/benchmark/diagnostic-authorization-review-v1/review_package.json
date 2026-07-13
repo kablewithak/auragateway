@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "batch-06-diagnostic-execution-review-v1",
+  "status": "review_ready",
+  "activation_state": "inactive",
+  "design_id": "batch-06-request-rejection-diagnostic-design-v1",
+  "fixture_id": "batch-06-diagnostic-prompt-fixtures-v1",
+  "bindings": [
+    {
+      "path": "data/evals/benchmark/diagnostic-design-v1/experiment_plan.json",
+      "sha256": "ca80925006b2655a208b9782181dc21037c726e72769bc38105dac101ca3833f",
+      "protected_local": false
+    },
+    {
+      "path": "data/evals/benchmark/diagnostic-design-v1/manifest.json",
+      "sha256": "231d659184c01b0d0a5c062f67f276a31902d58cd783152e95161345e0544afc",
+      "protected_local": false
+    },
+    {
+      "path": "data/evals/benchmark/diagnostic-fixtures-v1/fixture_recipe.json",
+      "sha256": "bb51e1ed4218884a88dbfd2ba115d6aac4f22210f5be45bf9c16569ddcc13913",
+      "protected_local": false
+    },
+    {
+      "path": "data/evals/benchmark/diagnostic-fixtures-v1/fixture_manifest.json",
+      "sha256": "00fce9532502b80dcc4b749f0d1c8cf1b4e31f936140a2b79fcc9ba524e2fd51",
+      "protected_local": false
+    },
+    {
+      "path": ".local/benchmark/diagnostic-fixtures-v1/prompt_cohorts.json",
+      "sha256": "1c791f199dc5eb5b56c2d841839efe2947cd08acfde97a82bebd91ee89777bb1",
+      "protected_local": true
+    }
+  ],
+  "provider_profile": {
+    "provider": "groq",
+    "provider_model_alias": "groq-gpt-oss-20b",
+    "exact_model_identifier": "openai/gpt-oss-20b",
+    "adapter_version": "groq-chat-completions-v1",
+    "maximum_completion_tokens": 256,
+    "temperature_milli": 0,
+    "streaming": false,
+    "store_enabled": false,
+    "reasoning_effort": "low",
+    "timeout_seconds": 30
+  },
+  "evidence_policy": {
+    "public_journal_path": "data/evals/benchmark/diagnostic-execution-v1/journal.jsonl",
+    "public_run_records_path": "data/evals/benchmark/diagnostic-execution-v1/run_records.json",
+    "public_report_path": "data/evals/benchmark/diagnostic-execution-v1/report.json",
+    "protected_raw_outputs_path": ".local/benchmark/diagnostic-execution-v1/provider_raw_outputs.jsonl",
+    "protected_failure_diagnostics_path": ".local/benchmark/diagnostic-execution-v1/provider_failure_diagnostics.jsonl",
+    "raw_prompts_in_public_evidence_permitted": false,
+    "raw_outputs_in_public_evidence_permitted": false,
+    "provider_error_messages_in_public_evidence_permitted": false,
+    "credentials_in_logs_permitted": false
+  },
+  "sequence_ids_in_order": [
+    "order-alpha-b-first",
+    "order-alpha-c-second",
+    "order-beta-c-first",
+    "order-beta-b-second",
+    "spacing-gamma-b-zero",
+    "spacing-delta-b-thirty",
+    "spacing-epsilon-c-zero",
+    "spacing-zeta-c-thirty"
+  ],
+  "maximum_provider_calls": 24,
+  "maximum_total_cost_microusd": 5000,
+  "minimum_planned_elapsed_seconds": 2220,
+  "retry_permitted": false,
+  "resume_permitted": false,
+  "held_out_execution_permitted": false,
+  "full_benchmark_execution_permitted": false,
+  "benchmark_claims_permitted": false,
+  "comparison_eligible": false,
+  "dry_run_only": true,
+  "credential_required": false,
+  "provider_calls_permitted": false,
+  "execution_command_available": false,
+  "active_authorization_id": null,
+  "activation_review_required": true,
+  "next_gate": "active_authorization_review"
+}
