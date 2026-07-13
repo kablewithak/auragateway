@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "groq-cache-telemetry-calibration-review-v1",
+  "calibration_id": "groq-cache-telemetry-calibration-v1",
+  "status": "passed_inactive",
+  "planned_attempt_count": 3,
+  "unique_provider_request_count": 1,
+  "repeated_provider_request_count": 2,
+  "minimum_planned_elapsed_seconds": 20,
+  "estimated_max_cost_microusd": 600,
+  "authorization_cost_ceiling_microusd": 1000,
+  "attempts": [
+    {
+      "attempt_index": 0,
+      "request_role": "cold",
+      "planned_offset_seconds": 0,
+      "provider_request_sha256": "23cac23a165812ae8e9908e9d0609fb533359a30ed4386d76bcfb82e6a9d17c9",
+      "system_prompt_sha256": "3cb392670620eb1983b012821d3677c8868f28696d141fff051ab82ec22a2022",
+      "user_prompt_sha256": "3fdd7a739791328b87c7fd51cc6482bbf2fbfd0b1976819b7df4ac547e302073",
+      "total_prompt_byte_count": 8448,
+      "conservative_input_token_estimate": 2112,
+      "max_completion_tokens": 32,
+      "provider_call_permitted": false
+    },
+    {
+      "attempt_index": 1,
+      "request_role": "warm_repeat_one",
+      "planned_offset_seconds": 10,
+      "provider_request_sha256": "23cac23a165812ae8e9908e9d0609fb533359a30ed4386d76bcfb82e6a9d17c9",
+      "system_prompt_sha256": "3cb392670620eb1983b012821d3677c8868f28696d141fff051ab82ec22a2022",
+      "user_prompt_sha256": "3fdd7a739791328b87c7fd51cc6482bbf2fbfd0b1976819b7df4ac547e302073",
+      "total_prompt_byte_count": 8448,
+      "conservative_input_token_estimate": 2112,
+      "max_completion_tokens": 32,
+      "provider_call_permitted": false
+    },
+    {
+      "attempt_index": 2,
+      "request_role": "warm_repeat_two",
+      "planned_offset_seconds": 20,
+      "provider_request_sha256": "23cac23a165812ae8e9908e9d0609fb533359a30ed4386d76bcfb82e6a9d17c9",
+      "system_prompt_sha256": "3cb392670620eb1983b012821d3677c8868f28696d141fff051ab82ec22a2022",
+      "user_prompt_sha256": "3fdd7a739791328b87c7fd51cc6482bbf2fbfd0b1976819b7df4ac547e302073",
+      "total_prompt_byte_count": 8448,
+      "conservative_input_token_estimate": 2112,
+      "max_completion_tokens": 32,
+      "provider_call_permitted": false
+    }
+  ],
+  "all_provider_request_hashes_identical": true,
+  "provider_call_performed": false,
+  "credential_accessed": false,
+  "execution_command_available": false,
+  "calibration_execution_authorized": false,
+  "benchmark_execution_authorized": false
+}

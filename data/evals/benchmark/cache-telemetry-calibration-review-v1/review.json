@@ -1,0 +1,172 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "groq-cache-telemetry-calibration-review-v1",
+  "status": "review_ready_inactive",
+  "source_commit": "2de6767d02fa309849f5583d7dd67963618a00a1",
+  "source_hardening_id": "groq-cache-telemetry-hardening-v1",
+  "calibration_id": "groq-cache-telemetry-calibration-v1",
+  "source_bindings": [
+    {
+      "path": "data/evals/benchmark/cache-telemetry-hardening-v1/acceptance.json",
+      "git_blob_sha1": "39e710ddec6049e5be04390f86dfc2f0511bf909"
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-hardening-v1/calibration_draft.json",
+      "git_blob_sha1": "4d3767a76081dff5de2999d6292f9e1234cf56ad"
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-hardening-v1/manifest.json",
+      "git_blob_sha1": "e981581af70f3f0dd752d16f4fc91611783e3cef"
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-hardening-v1/synthetic_cases.json",
+      "git_blob_sha1": "e804f9ae635aa1a647d7301e0d77a131a9f846ed"
+    },
+    {
+      "path": "src/auragateway/contracts/cache_telemetry_capture.py",
+      "git_blob_sha1": "98888f57a32dc71e528c520554304a202bef2201"
+    },
+    {
+      "path": "src/auragateway/providers/base.py",
+      "git_blob_sha1": "e625165e3a01aa7223e503b82b6e6cec5403f47a"
+    },
+    {
+      "path": "src/auragateway/providers/groq.py",
+      "git_blob_sha1": "1f2fa011d666d38eb0fa25714b06933e31bdc7f1"
+    },
+    {
+      "path": "src/auragateway/benchmark/cache_telemetry_hardening_runner.py",
+      "git_blob_sha1": "197f766cce7af35d0c809be4d3e0083ead0cc575"
+    }
+  ],
+  "external_provider_boundary": {
+    "documentation_url": "https://console.groq.com/docs/prompt-caching",
+    "retrieved_on": "2026-07-14",
+    "supported_model": "openai/gpt-oss-20b",
+    "automatic_caching": true,
+    "exact_prefix_required": true,
+    "minimum_cacheable_token_range": [
+      128,
+      1024
+    ],
+    "cache_hit_guaranteed": false,
+    "cache_expiry_without_use_hours": 2,
+    "billing_cached_tokens_path": "usage.prompt_tokens_details.cached_tokens",
+    "cached_input_discount_percent": 50
+  },
+  "provider_profile": {
+    "provider": "groq",
+    "model_alias": "groq-gpt-oss-20b",
+    "exact_model_identifier": "openai/gpt-oss-20b",
+    "adapter_version": "groq-chat-completions-v1",
+    "telemetry_capture_version": "groq-cache-telemetry-capture-v1",
+    "max_completion_tokens": 32,
+    "temperature": 0.0,
+    "stream": false,
+    "store": false,
+    "reasoning_effort": "low",
+    "timeout_seconds": 30.0
+  },
+  "prompt_binding": {
+    "recipe_id": "groq-cache-telemetry-calibration-prompt-v1",
+    "system_prompt_byte_count": 8192,
+    "user_prompt_byte_count": 256,
+    "total_prompt_byte_count": 8448,
+    "conservative_input_token_estimate": 2112,
+    "minimum_cacheable_token_upper_bound": 1024,
+    "minimum_length_margin_tokens": 1088,
+    "system_prompt_sha256": "3cb392670620eb1983b012821d3677c8868f28696d141fff051ab82ec22a2022",
+    "user_prompt_sha256": "3fdd7a739791328b87c7fd51cc6482bbf2fbfd0b1976819b7df4ac547e302073",
+    "provider_request_sha256": "23cac23a165812ae8e9908e9d0609fb533359a30ed4386d76bcfb82e6a9d17c9",
+    "protected_bundle_path": ".local/benchmark/cache-telemetry-calibration-v1/prompt_bundle.json",
+    "protected_bundle_sha256": "7fbf0a9d5ef02aece3159f1654b3f2a8fa2e306e9e7147aae12a4ca2f4312033",
+    "exact_provider_request_required": true
+  },
+  "schedule": {
+    "planned_attempt_count": 3,
+    "maximum_provider_calls": 3,
+    "attempt_offsets_seconds": [
+      0,
+      10,
+      20
+    ],
+    "minimum_planned_elapsed_seconds": 20,
+    "request_roles": [
+      "cold",
+      "warm_repeat_one",
+      "warm_repeat_two"
+    ],
+    "all_provider_request_hashes_identical": true,
+    "retry_permitted": false,
+    "resume_permitted": false,
+    "estimated_max_cost_microusd": 600,
+    "authorization_cost_ceiling_microusd": 1000
+  },
+  "evidence_paths": {
+    "public_journal_path": "data/evals/benchmark/cache-telemetry-calibration-v1/journal.jsonl",
+    "public_run_records_path": "data/evals/benchmark/cache-telemetry-calibration-v1/run_records.json",
+    "public_report_path": "data/evals/benchmark/cache-telemetry-calibration-v1/report.json",
+    "public_manifest_path": "data/evals/benchmark/cache-telemetry-calibration-v1/manifest.json",
+    "protected_output_path": ".local/benchmark/cache-telemetry-calibration-v1/provider_outputs.jsonl",
+    "protected_prompt_bundle_path": ".local/benchmark/cache-telemetry-calibration-v1/prompt_bundle.json"
+  },
+  "stop_policy": {
+    "provider_error_stops_calibration": true,
+    "request_identity_mismatch_stops_before_call": true,
+    "telemetry_shape_missing_stops_calibration": true,
+    "public_evidence_write_failure_stops_calibration": true,
+    "protected_output_write_failure_stops_calibration": true,
+    "budget_exhaustion_stops_calibration": true,
+    "privacy_violation_stops_calibration": true,
+    "retry_permitted": false,
+    "resume_permitted": false
+  },
+  "outcome_taxonomy": [
+    {
+      "outcome": "telemetry_observed_with_cache_hit",
+      "requirements": [
+        "three successful provider calls",
+        "billing cache field numeric on all three calls",
+        "at least one warm repeat has cached tokens greater than zero"
+      ],
+      "provider_cache_usage_claim_permitted_for_calibration": true,
+      "benchmark_claims_permitted": false
+    },
+    {
+      "outcome": "telemetry_observed_without_cache_hit",
+      "requirements": [
+        "three successful provider calls",
+        "billing cache field numeric on all three calls",
+        "both warm repeats report zero cached tokens"
+      ],
+      "provider_cache_usage_claim_permitted_for_calibration": true,
+      "benchmark_claims_permitted": false
+    },
+    {
+      "outcome": "billing_cache_field_unavailable",
+      "requirements": [
+        "at least one successful call has an absent or null billing cache field"
+      ],
+      "provider_cache_usage_claim_permitted_for_calibration": false,
+      "benchmark_claims_permitted": false
+    },
+    {
+      "outcome": "calibration_execution_failed",
+      "requirements": [
+        "provider error, integrity failure, budget failure, or evidence-retention failure"
+      ],
+      "provider_cache_usage_claim_permitted_for_calibration": false,
+      "benchmark_claims_permitted": false
+    }
+  ],
+  "provider_call_authorized": false,
+  "active_authorization_created": false,
+  "execution_command_available": false,
+  "credential_required_for_review": false,
+  "credential_accessed": false,
+  "calibration_execution_authorized": false,
+  "benchmark_execution_authorized": false,
+  "benchmark_claims_permitted": false,
+  "comparison_eligible": false,
+  "next_gate": "cache_telemetry_calibration_activation"
+}
