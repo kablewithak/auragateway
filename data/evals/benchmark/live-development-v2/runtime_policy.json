@@ -1,0 +1,8 @@
+{
+  "policy_id": "live-development-batch-02-runtime-policy-v1",
+  "authorization_id": "live-development-batch-02-auth-v1",
+  "output_normalization_profile": "compiler-to-terminal-v1",
+  "minimum_call_interval_seconds": 20.0,
+  "rate_limit_cooldown_seconds": 65.0,
+  "maximum_cumulative_sleep_seconds": 900.0
+}
