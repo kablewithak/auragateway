@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "auragateway-live-development-batch-01-manifest-v1",
+  "authorization_path": "data/evals/benchmark/live-development-v1/authorization.json",
+  "authorization_sha256": "6248d41500a9392b9ddcef7746ba75cc1398c97f65f6a7a6f839af88e4ba767d",
+  "journal_path": "data/evals/benchmark/live-development-v1/journal.jsonl",
+  "journal_sha256": "1e1ea90f5fa395591f858d90c28ef4ebad7a5ac15b1aa6371e66f72762602d67",
+  "run_records_path": "data/evals/benchmark/live-development-v1/run_records.json",
+  "run_records_sha256": "affc12bd27e28c2da5dc5a0b0a1320b9d876c71afa828ca51658e8d3de759730",
+  "report_path": "data/evals/benchmark/live-development-v1/report.json",
+  "report_sha256": "97767c3f1d70caa8e14961c6b29cc0339c6730331479abf6d0bf42eac2c68731",
+  "execution_manifest_sha256": "ce6e6174f33d50d66d4a54f0a3b80bfd6dfbeb865076e6851dca15395a4f5862",
+  "planned_run_ledger_sha256": "bc7767f35822ecc6b61ce351cc29e0695f677eab34e2ca0bc13d1109d8b9ac50",
+  "functional_episode_set_sha256": "6229df94a6a426f815a2050172a79e115d9554031239043b397140ce13894285",
+  "live_provider_called": true,
+  "held_out_executed": false,
+  "full_benchmark_executed": false,
+  "benchmark_claims_permitted": false,
+  "measured_execution_permitted": false,
+  "comparison_eligible": false
+}

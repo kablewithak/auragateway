@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "batch_id": "auragateway-live-development-batch-01",
+  "authorization_id": "live-development-batch-01-auth-v1",
+  "execution_manifest_sha256": "ce6e6174f33d50d66d4a54f0a3b80bfd6dfbeb865076e6851dca15395a4f5862",
+  "gate10_manifest_sha256": "9aca4dffc78a30a8af2d258dd990b7f1a71e76ae424f42ba42d5cebe250d2b9e",
+  "gate9_manifest_sha256": "9645e3b2a39107fe0bf1ec11725af3ceae90ee2cf2899796a1d79214c6fa80da",
+  "planned_run_ledger_sha256": "bc7767f35822ecc6b61ce351cc29e0695f677eab34e2ca0bc13d1109d8b9ac50",
+  "functional_episode_set_sha256": "6229df94a6a426f815a2050172a79e115d9554031239043b397140ce13894285",
+  "compiler_spec_sha256": "b424353becc50f35356cb8795405e42d819e4e94492f57bcf6354dba7af05f9c",
+  "source_manifest_sha256": "c68212afd5381dec8bce49d0d5fee231a3b5589bf5460c0f72297e0c84422f55",
+  "pricing_schedule_sha256": "51627c25b668d8c3387aa924fa9d5c31c0375be2dba36897ae0701f3e457f877",
+  "allowed_episode_ids": [
+    "ep-func-001"
+  ],
+  "allowed_run_ids": [
+    "run-functional-ep-func-001-r01-condition-a",
+    "run-functional-ep-func-001-r01-condition-b",
+    "run-functional-ep-func-001-r01-condition-c"
+  ],
+  "allowed_conditions": [
+    "condition_a",
+    "condition_b",
+    "condition_c"
+  ],
+  "maximum_run_count": 3,
+  "maximum_total_attempt_count": 15,
+  "maximum_total_cost_microusd": 5000,
+  "maximum_input_tokens_per_attempt": 3000,
+  "output_token_budget": 256,
+  "timeout_seconds": 120.0,
+  "turns_per_run": 4,
+  "provider": "groq",
+  "provider_model_alias": "groq-gpt-oss-20b",
+  "provider_adapter_version": "groq-chat-completions-v1",
+  "runtime_prompt_profile": "development-live-compact-v1",
+  "retrieval_execution_mode": "frozen-required-source-injection-v1",
+  "development_only": true,
+  "live_provider_execution_permitted": true,
+  "held_out_execution_permitted": false,
+  "full_benchmark_execution_permitted": false,
+  "benchmark_claims_permitted": false,
+  "measured_execution_permitted": false
+}
