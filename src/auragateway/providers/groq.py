@@ -1,10 +1,11 @@
-"""Groq live adapter with typed cached-token telemetry and protected output handling."""
+"""Groq live adapter with typed telemetry and metadata-safe failure diagnostics."""
 
 from __future__ import annotations
 
 import hashlib
 import os
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 from typing import Protocol, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -14,6 +15,10 @@ from auragateway.contracts.provider import (
     ProviderInvocationResult,
     ProviderInvocationStatus,
     ProviderName,
+)
+from auragateway.contracts.provider_diagnostics import (
+    ProviderFailureDiagnostic,
+    ProviderFailureFamily,
 )
 from auragateway.contracts.telemetry import CachedInputDetailTelemetry
 from auragateway.providers.base import (
@@ -26,6 +31,65 @@ from auragateway.providers.base import (
 GROQ_MODEL_ID = "openai/gpt-oss-20b"
 GROQ_MODEL_ALIAS = "groq-gpt-oss-20b"
 GROQ_ADAPTER_VERSION = "groq-chat-completions-v1"
+
+_ALLOWED_EXCEPTION_CLASSES = frozenset(
+    {
+        "APIConnectionError",
+        "APIStatusError",
+        "APITimeoutError",
+        "AuthenticationError",
+        "BadRequestError",
+        "ConflictError",
+        "InternalServerError",
+        "NotFoundError",
+        "PermissionDeniedError",
+        "RateLimitError",
+        "UnprocessableEntityError",
+        "AttributeError",
+        "ValidationError",
+    }
+)
+
+_ALLOWED_PROVIDER_ERROR_TYPES = frozenset(
+    {
+        "api_error",
+        "authentication_error",
+        "invalid_request_error",
+        "not_found_error",
+        "permission_error",
+        "rate_limit_error",
+        "server_error",
+    }
+)
+_ALLOWED_PROVIDER_ERROR_CODES = frozenset(
+    {
+        "context_length_exceeded",
+        "invalid_api_key",
+        "invalid_value",
+        "json_validate_failed",
+        "model_not_found",
+        "quota_exceeded",
+        "rate_limit_exceeded",
+        "requests_per_minute",
+        "tokens_per_minute",
+        "tool_use_failed",
+        "unsupported_value",
+    }
+)
+_ALLOWED_PROVIDER_ERROR_PARAMS = frozenset(
+    {
+        "max_completion_tokens",
+        "messages",
+        "model",
+        "reasoning_effort",
+        "response_format",
+        "store",
+        "stream",
+        "temperature",
+        "tool_choice",
+        "tools",
+    }
+)
 
 
 class _ModelDumpable(Protocol):
@@ -103,56 +167,163 @@ def _build_completion_client(timeout_seconds: float) -> _GroqCompletionClient:
     return cast(_GroqCompletionClient, client.chat.completions)
 
 
-def _map_groq_exception(exc: Exception) -> LiveProviderError:
+def _safe_status_code(exc: Exception) -> int | None:
+    value = getattr(exc, "status_code", None)
+    if isinstance(value, bool) or not isinstance(value, int):
+        return None
+    if not 100 <= value <= 599:
+        return None
+    return value
+
+
+def _classify_groq_exception(
+    exc: Exception,
+) -> tuple[ProviderFailureFamily, LiveProviderError]:
     name = type(exc).__name__
-    status_code = getattr(exc, "status_code", None)
+    status_code = _safe_status_code(exc)
     if name == "APITimeoutError":
-        return LiveProviderError(
-            ProviderErrorCode.TIMEOUT,
-            "The Groq request exceeded the configured timeout.",
-            retryable=True,
+        return (
+            ProviderFailureFamily.TIMEOUT,
+            LiveProviderError(
+                ProviderErrorCode.TIMEOUT,
+                "The Groq request exceeded the configured timeout.",
+                retryable=True,
+            ),
         )
     if name == "RateLimitError" or status_code == 429:
-        return LiveProviderError(
-            ProviderErrorCode.RATE_LIMITED,
-            "Groq rejected the request because a rate or quota limit was reached.",
-            retryable=True,
+        return (
+            ProviderFailureFamily.RATE_LIMITED,
+            LiveProviderError(
+                ProviderErrorCode.RATE_LIMITED,
+                "Groq rejected the request because a rate or quota limit was reached.",
+                retryable=True,
+            ),
         )
     if name == "AuthenticationError" or status_code == 401:
-        return LiveProviderError(
-            ProviderErrorCode.AUTHENTICATION_FAILED,
-            "Groq rejected the supplied process credential.",
-            retryable=False,
+        return (
+            ProviderFailureFamily.AUTHENTICATION_FAILED,
+            LiveProviderError(
+                ProviderErrorCode.AUTHENTICATION_FAILED,
+                "Groq rejected the supplied process credential.",
+                retryable=False,
+            ),
         )
     if name == "PermissionDeniedError" or status_code == 403:
-        return LiveProviderError(
-            ProviderErrorCode.PERMISSION_DENIED,
-            "Groq denied access to the requested model or operation.",
-            retryable=False,
+        return (
+            ProviderFailureFamily.PERMISSION_DENIED,
+            LiveProviderError(
+                ProviderErrorCode.PERMISSION_DENIED,
+                "Groq denied access to the requested model or operation.",
+                retryable=False,
+            ),
         )
     if name == "NotFoundError" or status_code == 404:
-        return LiveProviderError(
-            ProviderErrorCode.MODEL_NOT_AVAILABLE,
-            "The configured Groq model was not available.",
-            retryable=False,
+        return (
+            ProviderFailureFamily.MODEL_UNAVAILABLE,
+            LiveProviderError(
+                ProviderErrorCode.MODEL_NOT_AVAILABLE,
+                "The configured Groq model was not available.",
+                retryable=False,
+            ),
         )
     if name == "APIConnectionError":
-        return LiveProviderError(
-            ProviderErrorCode.CONNECTION_FAILED,
-            "The Groq API could not be reached.",
-            retryable=True,
+        return (
+            ProviderFailureFamily.CONNECTION_FAILED,
+            LiveProviderError(
+                ProviderErrorCode.CONNECTION_FAILED,
+                "The Groq API could not be reached.",
+                retryable=True,
+            ),
         )
-    if isinstance(status_code, int) and status_code >= 500:
-        return LiveProviderError(
-            ProviderErrorCode.UNAVAILABLE,
-            "Groq returned a provider-side availability failure.",
-            retryable=True,
+    if name == "InternalServerError" or (isinstance(status_code, int) and status_code >= 500):
+        return (
+            ProviderFailureFamily.PROVIDER_UNAVAILABLE,
+            LiveProviderError(
+                ProviderErrorCode.UNAVAILABLE,
+                "Groq returned a provider-side availability failure.",
+                retryable=True,
+            ),
         )
-    return LiveProviderError(
-        ProviderErrorCode.INVALID_RESPONSE,
-        "The Groq request failed with an unsupported provider response.",
-        retryable=False,
+    if name in {"BadRequestError", "ConflictError", "UnprocessableEntityError"} or (
+        isinstance(status_code, int) and 400 <= status_code < 500
+    ):
+        return (
+            ProviderFailureFamily.REQUEST_REJECTED,
+            LiveProviderError(
+                ProviderErrorCode.INVALID_RESPONSE,
+                "Groq rejected the request before returning usable assistant content.",
+                retryable=False,
+            ),
+        )
+    return (
+        ProviderFailureFamily.UNKNOWN_PROVIDER_EXCEPTION,
+        LiveProviderError(
+            ProviderErrorCode.INVALID_RESPONSE,
+            "The Groq request failed with an unsupported provider response.",
+            retryable=False,
+        ),
     )
+
+
+def _map_groq_exception(exc: Exception) -> LiveProviderError:
+    """Preserve the existing bounded public error mapping."""
+
+    return _classify_groq_exception(exc)[1]
+
+
+def _safe_token(value: object) -> str | None:
+    if isinstance(value, bool):
+        return None
+    if not isinstance(value, (str, int)):
+        return None
+    candidate = str(value)
+    if not candidate or len(candidate) > 96:
+        return None
+    allowed = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._:/-")
+    if any(character not in allowed for character in candidate):
+        return None
+    return candidate
+
+
+def _allowlisted_provider_value(
+    value: object,
+    allowed_values: frozenset[str],
+) -> str | None:
+    token = _safe_token(value)
+    if token not in allowed_values:
+        return None
+    return token
+
+
+def _provider_error_fields(exc: Exception) -> tuple[str | None, str | None, str | None]:
+    body = getattr(exc, "body", None)
+    if not isinstance(body, Mapping):
+        return None, None, None
+    payload: Mapping[object, object] = body
+    nested = body.get("error")
+    if isinstance(nested, Mapping):
+        payload = nested
+    return (
+        _allowlisted_provider_value(payload.get("type"), _ALLOWED_PROVIDER_ERROR_TYPES),
+        _allowlisted_provider_value(payload.get("code"), _ALLOWED_PROVIDER_ERROR_CODES),
+        _allowlisted_provider_value(payload.get("param"), _ALLOWED_PROVIDER_ERROR_PARAMS),
+    )
+
+
+def _provider_request_id_sha256(exc: Exception) -> str | None:
+    request_id = getattr(exc, "request_id", None)
+    if not isinstance(request_id, str) or not request_id:
+        return None
+    return hashlib.sha256(request_id.encode("utf-8")).hexdigest()
+
+
+def _allowlisted_exception_class(exc: Exception | None) -> str | None:
+    if exc is None:
+        return None
+    name = type(exc).__name__
+    if name not in _ALLOWED_EXCEPTION_CLASSES:
+        return None
+    return name
 
 
 def _duration_ms(total_time_seconds: float | None) -> int | None:
@@ -162,10 +333,62 @@ def _duration_ms(total_time_seconds: float | None) -> int | None:
 
 
 class GroqProviderAdapter:
-    """Map Groq chat completions into frozen cached-input telemetry semantics."""
+    """Map Groq calls into typed telemetry and protected local failure evidence."""
 
-    def __init__(self, completion_client: _GroqCompletionClient | None = None) -> None:
+    def __init__(
+        self,
+        completion_client: _GroqCompletionClient | None = None,
+        *,
+        failure_diagnostic_path: Path | None = None,
+    ) -> None:
         self._completion_client = completion_client
+        self._failure_diagnostic_path = failure_diagnostic_path
+
+    def _append_failure_diagnostic(self, diagnostic: ProviderFailureDiagnostic) -> None:
+        path = self._failure_diagnostic_path
+        if path is None:
+            return
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open("a", encoding="utf-8", newline="\n") as handle:
+                handle.write(diagnostic.model_dump_json() + "\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+        except OSError as exc:
+            raise LiveProviderError(
+                ProviderErrorCode.AMBIGUOUS_RESPONSE,
+                "Provider failure diagnostic evidence could not be retained safely.",
+                retryable=False,
+            ) from exc
+
+    def _retain_failure(
+        self,
+        invocation: LiveProviderInvocation,
+        family: ProviderFailureFamily,
+        error: LiveProviderError,
+        exc: Exception | None = None,
+    ) -> None:
+        error_type, error_code, error_param = (
+            _provider_error_fields(exc) if exc is not None else (None, None, None)
+        )
+        diagnostic = ProviderFailureDiagnostic(
+            model_alias=invocation.request.model_alias,
+            request_id_sha256=hashlib.sha256(
+                invocation.request.request_id.encode("utf-8")
+            ).hexdigest(),
+            family=family,
+            exception_class_allowlisted=_allowlisted_exception_class(exc),
+            http_status_code=_safe_status_code(exc) if exc is not None else None,
+            provider_error_type_allowlisted=error_type,
+            provider_error_code_allowlisted=error_code,
+            provider_error_param_allowlisted=error_param,
+            provider_request_id_sha256=(
+                _provider_request_id_sha256(exc) if exc is not None else None
+            ),
+            retryable=error.retryable,
+            mapped_provider_error_code=error.error_code,
+        )
+        self._append_failure_diagnostic(diagnostic)
 
     def invoke(self, invocation: LiveProviderInvocation) -> ProviderCall:
         """Execute one bounded Groq request without exposing raw content publicly."""
@@ -194,29 +417,50 @@ class GroqProviderAdapter:
         except LiveProviderError:
             raise
         except Exception as exc:
-            raise _map_groq_exception(exc) from exc
+            family, error = _classify_groq_exception(exc)
+            self._retain_failure(invocation, family, error, exc)
+            raise error from exc
 
         try:
             response = _GroqResponse.model_validate(raw_response.model_dump())
         except (AttributeError, ValidationError) as exc:
-            raise LiveProviderError(
+            error = LiveProviderError(
                 ProviderErrorCode.INVALID_RESPONSE,
                 "Groq returned a response that failed typed adapter validation.",
                 retryable=False,
-            ) from exc
+            )
+            self._retain_failure(
+                invocation,
+                ProviderFailureFamily.RESPONSE_SCHEMA_INVALID,
+                error,
+                exc,
+            )
+            raise error from exc
         if response.model != GROQ_MODEL_ID:
-            raise LiveProviderError(
+            error = LiveProviderError(
                 ProviderErrorCode.CONFIGURATION_MISMATCH,
                 "Groq returned a model identity that differs from the configured model.",
                 retryable=False,
             )
+            self._retain_failure(
+                invocation,
+                ProviderFailureFamily.RESPONSE_SCHEMA_INVALID,
+                error,
+            )
+            raise error
         output_text = response.choices[0].message.content
         if output_text is None or not output_text.strip():
-            raise LiveProviderError(
+            error = LiveProviderError(
                 ProviderErrorCode.AMBIGUOUS_RESPONSE,
                 "Groq returned no usable assistant content.",
                 retryable=False,
             )
+            self._retain_failure(
+                invocation,
+                ProviderFailureFamily.ASSISTANT_CONTENT_MISSING,
+                error,
+            )
+            raise error
 
         usage = response.usage
         details = usage.prompt_tokens_details if usage is not None else None
