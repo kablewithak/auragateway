@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "groq-cache-telemetry-calibration-review-v1",
+  "prompt_recipe_path": "data/evals/benchmark/cache-telemetry-calibration-review-v1/prompt_recipe.json",
+  "prompt_recipe_sha256": "8f9a1d34bce04f4d4176c1a26a61d88b52f459ea5e58e9d5ab628e01c46c4321",
+  "review_path": "data/evals/benchmark/cache-telemetry-calibration-review-v1/review.json",
+  "review_sha256": "35e78efb93c3843335b166398fd6851ea640b14ae00e299b7e076c8c20eb3c61",
+  "dry_run_report_path": "data/evals/benchmark/cache-telemetry-calibration-review-v1/dry_run_report.json",
+  "dry_run_report_sha256": "57dd5ccd2a244ad847344151da8f51ea607ca2e74c581d27afdf2b21ae994586",
+  "report_path": "docs/benchmark/AuraGateway_Cache_Telemetry_Calibration_Authorization_Review.md",
+  "report_sha256": "e3743c83937040d27b847a0037835cb58532afd5fa0b9982c519534f2ec13ae5",
+  "protected_bundle_sha256": "7fbf0a9d5ef02aece3159f1654b3f2a8fa2e306e9e7147aae12a4ca2f4312033",
+  "provider_call_authorized": false,
+  "execution_command_available": false,
+  "calibration_execution_authorized": false,
+  "benchmark_execution_authorized": false,
+  "next_gate": "cache_telemetry_calibration_activation"
+}
