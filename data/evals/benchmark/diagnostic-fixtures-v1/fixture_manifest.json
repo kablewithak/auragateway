@@ -1,0 +1,255 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_id": "batch-06-diagnostic-prompt-fixtures-v1",
+  "status": "fixture_ready",
+  "design_id": "batch-06-request-rejection-diagnostic-design-v1",
+  "design_plan_path": "data/evals/benchmark/diagnostic-design-v1/experiment_plan.json",
+  "design_plan_sha256": "ca80925006b2655a208b9782181dc21037c726e72769bc38105dac101ca3833f",
+  "design_manifest_path": "data/evals/benchmark/diagnostic-design-v1/manifest.json",
+  "design_manifest_sha256": "231d659184c01b0d0a5c062f67f276a31902d58cd783152e95161345e0544afc",
+  "recipe_path": "data/evals/benchmark/diagnostic-fixtures-v1/fixture_recipe.json",
+  "recipe_sha256": "bb51e1ed4218884a88dbfd2ba115d6aac4f22210f5be45bf9c16569ddcc13913",
+  "materializer_version": "diagnostic-prompt-materializer-v1",
+  "protected_prompt_bundle_path": ".local/benchmark/diagnostic-fixtures-v1/prompt_cohorts.json",
+  "protected_prompt_bundle_sha256": "1c791f199dc5eb5b56c2d841839efe2947cd08acfde97a82bebd91ee89777bb1",
+  "cohorts": [
+    {
+      "cohort_id": "cohort-alpha",
+      "system_prompt_sha256": "9a86250af46559ab2c52de47fc78db90b55cc5b4cbcc677eb83f37aad1b4a936",
+      "system_prompt_byte_count": 6000,
+      "user_prompt_sha256_by_turn": [
+        "c5c0a773b31ccf4e27ceee884894e096bc31994e936b5577693194c13d3cad99",
+        "01fe499ad9c2cf5ed411d61dff7fa43909de40629cac89f71a28b4a1d72166c7",
+        "f45a8aba438610e32b4ad48cab87ec6cdcc694b6508fe2ff0d6eb812f0a3754a"
+      ],
+      "user_prompt_byte_counts_by_turn": [
+        1365,
+        1737,
+        2109
+      ],
+      "total_prompt_byte_counts_by_turn": [
+        7365,
+        7737,
+        8109
+      ],
+      "input_token_estimates_by_turn": [
+        1732,
+        1809,
+        1884
+      ],
+      "condition_b_request_sha256_by_turn": [
+        "a2def172ddc3270f6942104095464ed08bf67e571c7302c9f9b01041b8ef0101",
+        "ccd1e897d148e94b4ce7d2f29e3b95a531c8f2a324dc3602c2ee7871984ce324",
+        "8ee2974556a330aa7c74b4a69134e9d0793c98ca08366b26b89d687b23132b7c"
+      ],
+      "condition_c_request_sha256_by_turn": [
+        "a2def172ddc3270f6942104095464ed08bf67e571c7302c9f9b01041b8ef0101",
+        "ccd1e897d148e94b4ce7d2f29e3b95a531c8f2a324dc3602c2ee7871984ce324",
+        "8ee2974556a330aa7c74b4a69134e9d0793c98ca08366b26b89d687b23132b7c"
+      ],
+      "provider_visible_b_c_equivalence_verified": true,
+      "synthetic_content_only": true,
+      "pii_or_secret_content_present": false
+    },
+    {
+      "cohort_id": "cohort-beta",
+      "system_prompt_sha256": "9d555e2a8ed4a23e421002a06dd49332e004068553c1eed9c4b0770f1711d3cc",
+      "system_prompt_byte_count": 6000,
+      "user_prompt_sha256_by_turn": [
+        "b3b8fa176173227eb48c9b28371fe6b24416b00048654d52dbec5092845a183e",
+        "cda9603bd9cb93d3b92f770653e9e28772a222fd99fd1d15ec873c17bee88443",
+        "54e70790920f01bdb340eb8efca17ee6c1dee97124b229b67f0a566ea6b22dd1"
+      ],
+      "user_prompt_byte_counts_by_turn": [
+        1365,
+        1737,
+        2109
+      ],
+      "total_prompt_byte_counts_by_turn": [
+        7365,
+        7737,
+        8109
+      ],
+      "input_token_estimates_by_turn": [
+        1732,
+        1809,
+        1884
+      ],
+      "condition_b_request_sha256_by_turn": [
+        "48a95b438c43147058dddb72546016cfa1259a63cdde37845cb3c573e537790d",
+        "7f867b5d306ac5104173eead0625db2f55fa37312244a08402d503b60d83ad5e",
+        "651e8e41b8b6e77e3e2194c5ec44ccd593f7f5a109b743c62c1c240e0d78f0aa"
+      ],
+      "condition_c_request_sha256_by_turn": [
+        "48a95b438c43147058dddb72546016cfa1259a63cdde37845cb3c573e537790d",
+        "7f867b5d306ac5104173eead0625db2f55fa37312244a08402d503b60d83ad5e",
+        "651e8e41b8b6e77e3e2194c5ec44ccd593f7f5a109b743c62c1c240e0d78f0aa"
+      ],
+      "provider_visible_b_c_equivalence_verified": true,
+      "synthetic_content_only": true,
+      "pii_or_secret_content_present": false
+    },
+    {
+      "cohort_id": "cohort-gamma",
+      "system_prompt_sha256": "3ec63c16e272ce9b8248108673a52b6abe56ef91ab1bbba09e2a7aecfd8b0805",
+      "system_prompt_byte_count": 6000,
+      "user_prompt_sha256_by_turn": [
+        "aa956196cd94b9c5142e88d113e59b25da57d289eec7bd5744a249f98385c5a9",
+        "423b40756287ce979e9d07f70a0db54e4de8de334bb3b570884645d01355de5e",
+        "f03b4ec15304d364a3b4533497014b2940ab4094a45892dcc5fc72a27e9cc073"
+      ],
+      "user_prompt_byte_counts_by_turn": [
+        1365,
+        1737,
+        2109
+      ],
+      "total_prompt_byte_counts_by_turn": [
+        7365,
+        7737,
+        8109
+      ],
+      "input_token_estimates_by_turn": [
+        1732,
+        1809,
+        1884
+      ],
+      "condition_b_request_sha256_by_turn": [
+        "1eba03e9b0cf41277b4b95ccbc648523c2a88c24b44644de3f686f46fca5031c",
+        "bc044299bf5248d342acebb3226234cfc07427624e8e463daca4305b4da3ecef",
+        "74b9ed057cb05c02dacec6304dfbdc828c74ed459972dcfceb034b68b7da145a"
+      ],
+      "condition_c_request_sha256_by_turn": [
+        "1eba03e9b0cf41277b4b95ccbc648523c2a88c24b44644de3f686f46fca5031c",
+        "bc044299bf5248d342acebb3226234cfc07427624e8e463daca4305b4da3ecef",
+        "74b9ed057cb05c02dacec6304dfbdc828c74ed459972dcfceb034b68b7da145a"
+      ],
+      "provider_visible_b_c_equivalence_verified": true,
+      "synthetic_content_only": true,
+      "pii_or_secret_content_present": false
+    },
+    {
+      "cohort_id": "cohort-delta",
+      "system_prompt_sha256": "4862cff7ce3ff2cbd002f8cf29936372dd5f7427389656c69fc9267b376b269d",
+      "system_prompt_byte_count": 6000,
+      "user_prompt_sha256_by_turn": [
+        "1ebd4be46e57b8aa2f21544cca832550a97bb0c97e2c7416dec52e0b2828b3d6",
+        "8f5a86f9fb4d564748746a14c9874e87d95743169d015ab4b042b11676c2f94a",
+        "d81e35cd7e12861d823b5ec6d029c28adbceac6747f3669da38c8288ea07d525"
+      ],
+      "user_prompt_byte_counts_by_turn": [
+        1365,
+        1737,
+        2109
+      ],
+      "total_prompt_byte_counts_by_turn": [
+        7365,
+        7737,
+        8109
+      ],
+      "input_token_estimates_by_turn": [
+        1732,
+        1809,
+        1884
+      ],
+      "condition_b_request_sha256_by_turn": [
+        "2554f4b819b86f158fc96caeff0dc1d72fb1c528cdb25aa299673bc068a9d3e1",
+        "1138b15898530c59139937c428636cc9cb31ab20eb1d1e523d7fd0ffff73a2ee",
+        "4fd51a9ef2e38297314ed4f01b7fc1e5db0a78834181b7df306a8467eefab096"
+      ],
+      "condition_c_request_sha256_by_turn": [
+        "2554f4b819b86f158fc96caeff0dc1d72fb1c528cdb25aa299673bc068a9d3e1",
+        "1138b15898530c59139937c428636cc9cb31ab20eb1d1e523d7fd0ffff73a2ee",
+        "4fd51a9ef2e38297314ed4f01b7fc1e5db0a78834181b7df306a8467eefab096"
+      ],
+      "provider_visible_b_c_equivalence_verified": true,
+      "synthetic_content_only": true,
+      "pii_or_secret_content_present": false
+    },
+    {
+      "cohort_id": "cohort-epsilon",
+      "system_prompt_sha256": "cec84085002fb8056e3eedca26e042795f4100950596707c6abafdba65e4e9d6",
+      "system_prompt_byte_count": 6000,
+      "user_prompt_sha256_by_turn": [
+        "3a3e75ce7fdf024f9c585cf78b292dc82d295d8361bc269f0418ef60743588ba",
+        "dcc2f603f7ed9f2ea7c434fcfe9f641ff3533ca9e3383cf11c8e616de38d50a3",
+        "50edd7c9e95e764ca32512a765be26d96084946e272e96d14e0e21ece7086e89"
+      ],
+      "user_prompt_byte_counts_by_turn": [
+        1365,
+        1737,
+        2109
+      ],
+      "total_prompt_byte_counts_by_turn": [
+        7365,
+        7737,
+        8109
+      ],
+      "input_token_estimates_by_turn": [
+        1732,
+        1809,
+        1884
+      ],
+      "condition_b_request_sha256_by_turn": [
+        "ad7dd7bb824b37f9cb8e8a9b85d3224f99d08a7aa97964bc2ecf3ebf76445463",
+        "fefbad68308b39445656e772d4c04a8cdd38297cf04f4860023156409233c38d",
+        "7897edf5e0eb0ee8eccf9dbb05184ecfd0bb21390a5871ccf017d4f752cf3ddc"
+      ],
+      "condition_c_request_sha256_by_turn": [
+        "ad7dd7bb824b37f9cb8e8a9b85d3224f99d08a7aa97964bc2ecf3ebf76445463",
+        "fefbad68308b39445656e772d4c04a8cdd38297cf04f4860023156409233c38d",
+        "7897edf5e0eb0ee8eccf9dbb05184ecfd0bb21390a5871ccf017d4f752cf3ddc"
+      ],
+      "provider_visible_b_c_equivalence_verified": true,
+      "synthetic_content_only": true,
+      "pii_or_secret_content_present": false
+    },
+    {
+      "cohort_id": "cohort-zeta",
+      "system_prompt_sha256": "a75d58ba70642e958a35b5a1490c0bad70228efa726e10bf87b4746ef38609f3",
+      "system_prompt_byte_count": 6000,
+      "user_prompt_sha256_by_turn": [
+        "75c701e2705312b99a93cc7f4fb0b14abbab0667d084efec82deb6865aa9eaa0",
+        "b3db7fb07e52b5f7ecd56184c1d9350c41cc929c9886a39d9ee4bc2a42394a74",
+        "194981d5f97773ca5f4aca13cd28b64a73da922041d78fe88cc0c7052f518de7"
+      ],
+      "user_prompt_byte_counts_by_turn": [
+        1365,
+        1737,
+        2109
+      ],
+      "total_prompt_byte_counts_by_turn": [
+        7365,
+        7737,
+        8109
+      ],
+      "input_token_estimates_by_turn": [
+        1732,
+        1809,
+        1884
+      ],
+      "condition_b_request_sha256_by_turn": [
+        "ab172e9020a773c24334b5bab9e0fdcb6c1811b9bdc5e3e1482a4485d70a05d9",
+        "48b99a9dffad99119dc0f44bde0c7bc3052dab1a2727cbe99bce255357d70e77",
+        "16c6fa18cfb865cf328256c7a5eefc015aac7ea6bce4117562d83dade42de31e"
+      ],
+      "condition_c_request_sha256_by_turn": [
+        "ab172e9020a773c24334b5bab9e0fdcb6c1811b9bdc5e3e1482a4485d70a05d9",
+        "48b99a9dffad99119dc0f44bde0c7bc3052dab1a2727cbe99bce255357d70e77",
+        "16c6fa18cfb865cf328256c7a5eefc015aac7ea6bce4117562d83dade42de31e"
+      ],
+      "provider_visible_b_c_equivalence_verified": true,
+      "synthetic_content_only": true,
+      "pii_or_secret_content_present": false
+    }
+  ],
+  "unique_stable_prefixes_verified": true,
+  "exact_byte_counts_verified": true,
+  "bounded_token_estimates_verified": true,
+  "provider_visible_b_c_equivalence_verified": true,
+  "synthetic_content_only": true,
+  "pii_or_secret_content_present": false,
+  "raw_prompt_committed": false,
+  "provider_calls_permitted": false,
+  "execution_authorization_created": false,
+  "next_gate": "execution_authorization_review"
+}
