@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "hardening_id": "groq-cache-telemetry-hardening-v1",
+  "status": "implementation_ready",
+  "source_review_id": "cache-telemetry-sufficiency-review-v1",
+  "source_commit": "e508655e33acbf544b040f2b6fdea1e2a4fe7a25",
+  "source_bindings": [
+    {
+      "path": "data/evals/benchmark/cache-telemetry-review-v1/review.json",
+      "git_blob_sha1": "100dfef73584d2b985a6bbb3ff21a8af0000c120"
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-review-v1/manifest.json",
+      "git_blob_sha1": "7bccf400dad9d2987ddee9d3413ef8dff4d2883f"
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "capture-installed-groq-sdk-version",
+      "completed": true,
+      "provider_call_required": false
+    },
+    {
+      "action_id": "capture-success-response-presence-bits",
+      "completed": true,
+      "provider_call_required": false
+    },
+    {
+      "action_id": "separate-billing-and-hardware-cache-semantics",
+      "completed": true,
+      "provider_call_required": false
+    },
+    {
+      "action_id": "retain-safe-success-telemetry-shape",
+      "completed": true,
+      "provider_call_required": false
+    },
+    {
+      "action_id": "add-cache-telemetry-sufficiency-gate",
+      "completed": true,
+      "provider_call_required": false
+    },
+    {
+      "action_id": "prepare-three-call-calibration-review",
+      "completed": true,
+      "provider_call_required": false
+    }
+  ],
+  "provider_call_performed": false,
+  "credential_accessed": false,
+  "calibration_authorized": false,
+  "benchmark_execution_authorized": false,
+  "next_gate": "cache_telemetry_calibration_authorization_review"
+}

@@ -5,11 +5,15 @@ from __future__ import annotations
 import hashlib
 import os
 from collections.abc import Mapping, Sequence
+from importlib import metadata
 from pathlib import Path
 from typing import Protocol, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from auragateway.contracts.cache_telemetry_capture import (
+    GroqCacheTelemetryCapture,
+)
 from auragateway.contracts.provider import (
     ProviderErrorCode,
     ProviderInvocationResult,
@@ -35,6 +39,7 @@ from auragateway.providers.base import (
 GROQ_MODEL_ID = "openai/gpt-oss-20b"
 GROQ_MODEL_ALIAS = "groq-gpt-oss-20b"
 GROQ_ADAPTER_VERSION = "groq-chat-completions-v1"
+GROQ_SUCCESS_TELEMETRY_CAPTURE_VERSION = "groq-cache-telemetry-capture-v1"
 
 _GROQ_REQUEST_MESSAGE_COUNT = 2
 _GROQ_REQUEST_TEMPERATURE = 0.0
@@ -116,6 +121,10 @@ _ALLOWED_RESPONSE_VALIDATION_LOCATIONS = frozenset(
         "usage.total_time",
         "usage.prompt_tokens_details",
         "usage.prompt_tokens_details.cached_tokens",
+        "x_groq",
+        "x_groq.usage",
+        "x_groq.usage.dram_cached_tokens",
+        "x_groq.usage.sram_cached_tokens",
     }
 )
 _ALLOWED_RESPONSE_VALIDATION_TYPES = frozenset(
@@ -168,6 +177,19 @@ class _GroqUsage(BaseModel):
     prompt_tokens_details: _GroqPromptTokenDetails | None = None
 
 
+class _GroqHardwareUsage(BaseModel):
+    model_config = ConfigDict(extra="ignore", frozen=True)
+
+    dram_cached_tokens: int | None = Field(default=None, ge=0)
+    sram_cached_tokens: int | None = Field(default=None, ge=0)
+
+
+class _GroqExtension(BaseModel):
+    model_config = ConfigDict(extra="ignore", frozen=True)
+
+    usage: _GroqHardwareUsage | None = None
+
+
 class _GroqMessage(BaseModel):
     model_config = ConfigDict(extra="ignore", frozen=True)
 
@@ -191,6 +213,7 @@ class _GroqResponse(BaseModel):
     model: str
     choices: tuple[_GroqChoice, ...] = Field(min_length=1)
     usage: _GroqUsage | None = None
+    x_groq: _GroqExtension | None = None
 
 
 def _build_completion_client(timeout_seconds: float) -> _GroqCompletionClient:
@@ -466,6 +489,123 @@ def _duration_ms(total_time_seconds: float | None) -> int | None:
     return round(total_time_seconds * 1_000)
 
 
+def _mapping_child(
+    value: Mapping[str, object] | None,
+    key: str,
+) -> Mapping[str, object] | None:
+    if value is None:
+        return None
+    child = value.get(key)
+    if not isinstance(child, Mapping):
+        return None
+    return cast(Mapping[str, object], child)
+
+
+def _field_present(
+    value: Mapping[str, object] | None,
+    key: str,
+) -> bool:
+    return value is not None and key in value
+
+
+def _sdk_field_present(
+    sdk_model: object,
+    fallback: Mapping[str, object] | None,
+    key: str,
+) -> bool:
+    for attribute in ("model_fields_set", "__fields_set__"):
+        fields_set = getattr(sdk_model, attribute, None)
+        if isinstance(fields_set, (set, frozenset)):
+            return key in fields_set
+    return _field_present(fallback, key)
+
+
+def _installed_groq_sdk_version(
+    explicit_version: str | None,
+) -> str:
+    if explicit_version is not None:
+        return explicit_version
+    try:
+        return metadata.version("groq")
+    except metadata.PackageNotFoundError as exc:
+        raise LiveProviderError(
+            ProviderErrorCode.SDK_UNAVAILABLE,
+            "The installed Groq SDK version could not be resolved.",
+            retryable=False,
+        ) from exc
+
+
+def _success_telemetry_shape(
+    invocation: LiveProviderInvocation,
+    raw_response: _ModelDumpable,
+    raw_payload: Mapping[str, object],
+    response: _GroqResponse,
+    installed_sdk_version: str,
+) -> GroqCacheTelemetryCapture:
+    raw_usage = _mapping_child(raw_payload, "usage")
+    raw_details = _mapping_child(
+        raw_usage,
+        "prompt_tokens_details",
+    )
+    raw_x_groq = _mapping_child(raw_payload, "x_groq")
+    raw_x_groq_usage = _mapping_child(raw_x_groq, "usage")
+    sdk_usage = getattr(raw_response, "usage", None)
+    sdk_details = getattr(sdk_usage, "prompt_tokens_details", None)
+    sdk_x_groq = getattr(raw_response, "x_groq", None)
+    sdk_x_groq_usage = getattr(sdk_x_groq, "usage", None)
+
+    usage = response.usage
+    details = usage.prompt_tokens_details if usage is not None else None
+    extension_usage = response.x_groq.usage if response.x_groq is not None else None
+    return GroqCacheTelemetryCapture(
+        fixture_id=invocation.request.fixture_id,
+        model_alias=invocation.request.model_alias,
+        installed_sdk_version=installed_sdk_version,
+        usage_present=_sdk_field_present(
+            raw_response,
+            raw_payload,
+            "usage",
+        ),
+        prompt_tokens_details_present=_sdk_field_present(
+            sdk_usage,
+            raw_usage,
+            "prompt_tokens_details",
+        ),
+        billing_cached_tokens_field_present=_sdk_field_present(
+            sdk_details,
+            raw_details,
+            "cached_tokens",
+        ),
+        billing_cached_input_tokens=(details.cached_tokens if details is not None else None),
+        x_groq_present=_sdk_field_present(
+            raw_response,
+            raw_payload,
+            "x_groq",
+        ),
+        x_groq_usage_present=_sdk_field_present(
+            sdk_x_groq,
+            raw_x_groq,
+            "usage",
+        ),
+        dram_cached_tokens_field_present=_sdk_field_present(
+            sdk_x_groq_usage,
+            raw_x_groq_usage,
+            "dram_cached_tokens",
+        ),
+        dram_cached_tokens=(
+            extension_usage.dram_cached_tokens if extension_usage is not None else None
+        ),
+        sram_cached_tokens_field_present=_sdk_field_present(
+            sdk_x_groq_usage,
+            raw_x_groq_usage,
+            "sram_cached_tokens",
+        ),
+        sram_cached_tokens=(
+            extension_usage.sram_cached_tokens if extension_usage is not None else None
+        ),
+    )
+
+
 def _optional_sha256(value: str | None) -> str | None:
     if value is None or not value:
         return None
@@ -534,9 +674,11 @@ class GroqProviderAdapter:
         completion_client: _GroqCompletionClient | None = None,
         *,
         failure_diagnostic_path: Path | None = None,
+        installed_sdk_version: str | None = None,
     ) -> None:
         self._completion_client = completion_client
         self._failure_diagnostic_path = failure_diagnostic_path
+        self._installed_sdk_version = installed_sdk_version
 
     def _append_failure_diagnostic(self, diagnostic: ProviderFailureDiagnostic) -> None:
         path = self._failure_diagnostic_path
@@ -652,7 +794,8 @@ class GroqProviderAdapter:
             raise error from exc
 
         try:
-            response = _GroqResponse.model_validate(raw_response.model_dump())
+            raw_payload = raw_response.model_dump()
+            response = _GroqResponse.model_validate(raw_payload)
         except (AttributeError, ValidationError) as exc:
             error = LiveProviderError(
                 ProviderErrorCode.INVALID_RESPONSE,
@@ -707,6 +850,29 @@ class GroqProviderAdapter:
             output_tokens=usage.completion_tokens if usage is not None else None,
             total_duration_ms=_duration_ms(usage.total_time) if usage is not None else None,
         )
+        try:
+            success_telemetry_shape = _success_telemetry_shape(
+                invocation,
+                raw_response,
+                raw_payload,
+                response,
+                _installed_groq_sdk_version(self._installed_sdk_version),
+            )
+        except ValidationError as exc:
+            error = LiveProviderError(
+                ProviderErrorCode.INVALID_RESPONSE,
+                ("Groq successful-response telemetry failed typed validation."),
+                retryable=False,
+            )
+            self._retain_failure(
+                invocation,
+                ProviderFailureFamily.RESPONSE_SCHEMA_INVALID,
+                error,
+                exc,
+                response=response,
+                validation_metadata=_validation_error_metadata(exc),
+            )
+            raise error from exc
         protected_output = ProtectedProviderOutput(output_text)
         result = ProviderInvocationResult(
             request_id=request.request_id,
@@ -718,5 +884,6 @@ class GroqProviderAdapter:
         return ProviderCall(
             result=result,
             telemetry=telemetry,
+            success_telemetry_shape=success_telemetry_shape,
             protected_output=protected_output,
         )

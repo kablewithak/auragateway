@@ -6,6 +6,9 @@ import hashlib
 from dataclasses import dataclass, field
 from typing import Protocol
 
+from auragateway.contracts.cache_telemetry_capture import (
+    ProviderSuccessTelemetryShape,
+)
 from auragateway.contracts.provider import (
     ProtectedPromptSummary,
     ProviderErrorCode,
@@ -99,6 +102,7 @@ class ProviderCall:
     result: ProviderInvocationResult
     telemetry: ProviderTelemetryPayload
     protected_output: ProtectedProviderOutput | None = field(default=None, repr=False)
+    success_telemetry_shape: ProviderSuccessTelemetryShape | None = None
 
 
 class ProviderAdapter(Protocol):

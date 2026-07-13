@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "calibration_id": "groq-cache-telemetry-calibration-v1",
+  "status": "draft_inactive",
+  "provider": "groq",
+  "model_alias": "groq-gpt-oss-20b",
+  "exact_model_identifier": "openai/gpt-oss-20b",
+  "steps": [
+    {
+      "sequence_index": 0,
+      "request_role": "cold",
+      "exact_provider_request_required": true
+    },
+    {
+      "sequence_index": 1,
+      "request_role": "warm_repeat_one",
+      "exact_provider_request_required": true
+    },
+    {
+      "sequence_index": 2,
+      "request_role": "warm_repeat_two",
+      "exact_provider_request_required": true
+    }
+  ],
+  "maximum_provider_calls": 3,
+  "retry_permitted": false,
+  "resume_permitted": false,
+  "provider_call_authorized": false,
+  "calibration_authorized": false,
+  "benchmark_execution_authorized": false,
+  "next_gate": "cache_telemetry_calibration_authorization_review"
+}
