@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "closeout_id": "batch-06-diagnostic-closeout-v1",
+  "closeout_path": "data/evals/benchmark/diagnostic-closeout-v1/closeout.json",
+  "closeout_sha256": "ffacd09e9d74ae176086afe362440efa3416e366f6f0075188bad50cd9734a88",
+  "report_path": "docs/benchmark/AuraGateway_Batch_06_Diagnostic_Closeout.md",
+  "report_sha256": "b2fe97dfd61a66683eb1287077edc651961c184a44f36a1a0f605a62ca7c339a",
+  "execution_manifest_path": "data/evals/benchmark/diagnostic-execution-v1/manifest.json",
+  "execution_manifest_sha256": "0715d0e64188a3a55909b1fd8a048a06d1f4a32a3351bdfb3b01c0167ad6e97f",
+  "source_evidence_locked": true,
+  "authorization_consumed": true,
+  "rerun_permitted": false,
+  "next_gate": "cache_telemetry_sufficiency_review"
+}
