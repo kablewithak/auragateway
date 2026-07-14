@@ -4,14 +4,14 @@
 
 | Field | Value |
 |---|---|
-| **Document version** | 2.1.0 |
-| **Status** | Expanded 200-hour design baseline for implementation |
+| **Document version** | 2.2.0 |
+| **Status** | Terminal evidence amendment; core runtime closed with negative provider telemetry |
 | **Project type** | Standalone advanced AI reliability systems lab |
 | **Execution allocation** | 200 hours |
 | **Primary relationship to roadmap** | Week 3 companion project only; not part of the roadmap, not a core capstone, and not a dependency for consultancy progress |
 | **Primary technical focus** | Retrieval-aware context construction, prompt/KV-cache evidence, cache-affinity routing, telemetry normalization, hard diagnostic evaluation, and EFC-style trajectory evidence |
 | **Architecture posture** | Local-first, provider-neutral, typed, eval-driven, privacy-safe, production-shaped but not production-ready |
-| **Primary output** | A reproducible, paired A/B/C benchmark report showing whether deterministic context and cache-affinity routing reduce avoidable prefill work, latency, or estimated cost without reducing task quality |
+| **Primary output** | A reproducible terminal evidence review showing whether the measured A/B/C benchmark was evidence-eligible, including an accepted negative result when required provider telemetry is unavailable |
 | **Author role** | AI Reliability Lead |
 
 ---
@@ -55,6 +55,29 @@ The 200-hour version adds the controls needed to make the evidence difficult to 
 - immutable evidence bundles with configuration fingerprints and hashes.
 
 AuraGateway succeeds when it produces a reproducible and inspectable conclusion. A positive saving is desirable, but not required. A negative or mixed result is valid when the benchmark remains controlled, all failed runs are accounted for, quality is measured honestly, and the report explains why the expected improvement did or did not appear.
+
+## 1.1 Version 2.2.0 Terminal Evidence Amendment
+
+Version 2.1.0 remains the historical 200-hour design baseline. Version 2.2.0 records the achieved
+evidence state after implementation and controlled provider testing.
+
+```text
+core runtime and evaluation harness: implemented
+telemetry contract integrity: passed
+controlled provider execution: completed
+required live numeric provider cache evidence: unavailable
+Gate 4 for measured benchmark eligibility: did not pass
+measured A/B/C comparison: not completed
+negative telemetry result: accepted
+core scope: closed
+```
+
+The original A/B/C benchmark remains design intent, not completed evidence. The project did not
+substitute latency for provider cache telemetry, interpret a missing field as zero, or rerun a
+consumed authorization until an attractive result appeared.
+
+The next phase is a separate Hugging Face publication layer. It is not part of the core runtime and
+must consume only sanitized, precomputed artifacts.
 
 ---
 
@@ -2171,13 +2194,36 @@ Negative-control calibration is reportable.
 
 ## Gate 4 — Telemetry Integrity
 
+Gate 4 has two evidence layers:
+
 ```text
+4A — Telemetry contract integrity
 Provider fixtures map into typed contracts.
 Unknown values remain None.
 Provider-specific semantics remain distinct.
 Local timing remains separate from cached-token evidence.
 Telemetry sufficiency decisions are enforced.
+
+4B — Live evidence sufficiency for measured benchmark execution
+Trustworthy numeric provider cache evidence is available.
+The provider/model/date boundary is frozen.
+The observed field supports the intended cache claim.
 ```
+
+Terminal v2.2.0 status:
+
+```text
+4A contract integrity: passed
+4B live numeric evidence: closed unavailable
+overall Gate 4 for measured benchmark eligibility: did not pass
+negative result accepted: true
+benchmark execution permitted: false
+comparison eligible: false
+```
+
+Both authorized raw-wire calls succeeded, but
+`usage.prompt_tokens_details.cached_tokens` was absent from both raw responses. Missing telemetry
+remains unknown and cannot authorize a cache hit, cache miss, zero-token, savings, or A/B/C claim.
 
 ## Gate 5 — Route Policy
 
@@ -2384,44 +2430,46 @@ Exit criteria:
 - invalid comparisons are blocked;
 - evidence bundles are reproducible and append-only.
 
-## Phase 7 — Benchmark Execution and Statistical Analysis: 26 Hours
+## Phase 7 — Benchmark Execution and Statistical Analysis: Historical Allocation
 
-| Allocation | Deliverable |
-|---:|---|
-| 3h | Dry run and constitution validation |
-| 4h | Prefix negative-control calibration |
-| 7h | Functional A/B/C execution |
-| 6h | Runtime microbenchmark execution |
-| 3h | Failed-run and exclusion review |
-| 3h | Paired analysis and uncertainty tables |
+The version 2.1.0 plan allocated 26 hours to dry run, calibration, functional A/B/C execution,
+runtime microbenchmarking, exclusion review, and paired analysis.
 
-Cumulative project hours: **186 / 200**.
+Terminal v2.2.0 disposition:
+
+```text
+dry-run and evidence controls: implemented
+live telemetry calibration: completed
+raw-wire reauthorization: completed
+functional A/B/C execution: not authorized
+runtime A/B/C microbenchmark: not authorized
+paired analysis: not produced
+reason: Gate 4 required numeric provider cache evidence was unavailable
+```
+
+No hours were spent forcing an ineligible comparison after the evidence gate closed.
+
+## Phase 8 — Terminal Reporting, Case Study, and Handover
+
+Terminal deliverables:
+
+```text
+machine-readable terminal evidence review
+hash-bound source lineage
+negative provider-telemetry case study
+claim and non-claim matrix
+updated PRD and continuity state
+separate Hugging Face publication-layer PRD
+```
 
 Exit criteria:
 
-- Gate 9 passes;
-- no hidden exclusions;
-- cold and warm turns separated;
-- paired results available.
-
-## Phase 8 — Reporting, Case Study, Demo, and Handover: 14 Hours
-
-| Allocation | Deliverable |
-|---:|---|
-| 5h | Final benchmark report and machine-readable bundle |
-| 3h | Technical case study |
-| 2h | Skeptical-reviewer guide |
-| 2h | Ten-minute demo script and runbook |
-| 2h | Final evidence audit and formal handover |
-
-Cumulative project hours: **200 / 200**.
-
-Exit criteria:
-
-- Gate 10 passes;
-- result is reproducible;
+- terminal evidence review validates;
+- the negative result is reproducible from public metadata;
 - claims match evidence;
-- repository is handover-ready.
+- historical A/B/C intent is not presented as completed work;
+- core scope is handover-ready;
+- publication work remains a separate phase.
 
 ## 30.1 Authoritative Hours Ledger
 
@@ -2437,6 +2485,10 @@ Exit criteria:
 | Phase 7 | 26 | 186 |
 | Phase 8 | 14 | 200 |
 | **Total** | **200** | **200** |
+
+The hours table is the historical design allocation. Version 2.2.0 closes work by evidence boundary,
+not by claiming every planned measured activity occurred. Phase 7 measured comparison work was not
+authorized after Gate 4 closed.
 
 ---
 
@@ -2526,7 +2578,7 @@ Explicitly defer:
 
 ```text
 third live provider
-frontend dashboard
+runtime or operational frontend dashboard
 billing
 authentication
 generic proxy compatibility
@@ -2539,26 +2591,30 @@ arbitrary Jinja execution
 universal EFC dashboard
 unsupervised memory system
 customer-data ingestion
+live-inference publication surface
 ```
+
+A static Hugging Face evidence viewer is permitted only as a separate publication adapter using
+sanitized, precomputed artifacts. It is not a runtime dashboard.
 
 ---
 
 # 34. Maturity and Claim Boundaries
 
-## 34.1 Target Maturity at Completion
+## 34.1 Achieved Maturity at Core Closure
 
 ```text
 Production-shaped
 Locally validated
 Synthetic-corpus validated
 Fixed-eval validated
-Controlled-provider validated where credentials permit
+Controlled-provider tested
 Not customer-data tested
 Not deployed
 Not production-ready
 ```
 
-## 34.2 Permitted Claims After Successful Completion
+## 34.2 Permitted Claims at Core Closure
 
 AuraGateway may claim:
 
@@ -2567,14 +2623,15 @@ AuraGateway may claim:
 - prefix mutation and volatile-leak detection;
 - provider-aware telemetry normalization;
 - machine-enforced telemetry sufficiency;
-- fixed retrieval and task-quality evaluation;
-- cache-affinity routing under explicit policy;
-- blinded quality adjudication;
-- paired A/B/C results under named conditions;
-- practical uncertainty reporting;
-- feedback-evidence trace review;
+- fixed retrieval and task-quality evaluation assets;
+- cache-affinity routing under explicit policy and fixed-fixture validation;
+- feedback-evidence trace controls;
 - privacy-safe metadata traces;
-- one-command report reproduction.
+- immutable terminal evidence validation;
+- provider wire-field omission for the two observed reauthorization calls.
+
+AuraGateway may not claim paired A/B/C results, provider cache usage, or provider cache savings because
+the measured comparison was not evidence-eligible.
 
 ## 34.3 Forbidden Claims
 
@@ -2696,11 +2753,16 @@ The skeptical-reviewer guide must explain:
 
 # 37. Final Acceptance Statement
 
-AuraGateway v2 is complete when a skeptical senior AI engineer can inspect the repository and conclude:
+AuraGateway v2 core scope is complete when a skeptical senior AI engineer can inspect the repository
+and conclude:
 
-> “This project does not merely claim that prompt caching and cache-aware routing are useful. It fixes a retrieval-agent workload, freezes the benchmark before measured runs, separates stable from volatile context, validates prefix determinism with negative controls, preserves provider telemetry semantics, tests cache-affinity routing through paired A/B/C comparisons, protects task quality with blinded evaluation, retains failed runs, rejects invalid comparisons, and reproduces its conclusions from immutable evidence.”
+> “This project implemented a typed cache-aware runtime and evidence harness, froze its benchmark
+> requirements, preserved unknown telemetry semantics, traced the provider field to the raw wire,
+> accepted a negative result, and blocked an A/B/C comparison when the required numeric evidence was
+> unavailable. It does not present historical design intent as completed measurement.”
 
-That is the standard.
+The original paired A/B/C benchmark remains an uncompleted target. The reliable outcome is the
+fail-closed decision, not a fabricated savings number.
 
 ---
 
@@ -2712,6 +2774,9 @@ The project takes direct architectural inspiration from Mark Landgrebe’s descr
 
 Effective Feedback Compute is used as a trace-level evaluation doctrine. Value comes from feedback that is valid, non-redundant, retained, action-changing, and sufficient for the task—not from raw token volume, retries, tool calls, or agent steps.
 
-The benchmark’s strongest claim is conditional and local:
+The completed provider-evidence path’s strongest claim is conditional and local:
 
-> Under the named workload, provider/model, frozen configuration, and benchmark constitution, the tested runtime policy produced the reported cost, latency, quality, routing, and feedback-evidence outcomes.
+> For the two authorized raw-wire calls under the named provider, model, request, SDK, and observation
+> boundary, the billing cached-token field was absent from both raw responses.
+
+The repository does not contain an accepted measured A/B/C cost, latency, or cache-savings outcome.

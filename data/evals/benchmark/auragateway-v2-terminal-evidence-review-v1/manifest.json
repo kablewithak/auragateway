@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "auragateway-v2-terminal-evidence-review-v1",
+  "source_commit": "eae1209f125529926e1ee453a4d180912783214b",
+  "review_path": "data/evals/benchmark/auragateway-v2-terminal-evidence-review-v1/review.json",
+  "review_sha256": "57ceff75d32e39e78a0c1ea47f25a76c83af26977887f03919b9dfaa2de4c3d7",
+  "report_path": "docs/benchmark/AuraGateway_v2_Terminal_Evidence_Review.md",
+  "report_sha256": "abf97ceed3d8a6f3292e12f26660dff9a46f98a2646af46214827971f4e34677",
+  "adr_path": "docs/adr/auragateway-v2-terminal-evidence-review.md",
+  "adr_sha256": "688dba64ad62f6006b7ee46dc7a9dcf53bd4f4def0cea5f8189b35ca4d10c499",
+  "prd_path": "docs/product/AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md",
+  "prd_sha256": "86acfc9bed13767a2869090d64fcabbfdf3da3b4bd156708afbd8f3919586409",
+  "session_brief_path": "docs/session/AuraGateway_SESSION_BRIEF.md",
+  "session_brief_sha256": "1a98bf300cd5c9712f7a318b2dd2de92d17049aa41f8ca881751902e1906f880",
+  "readme_path": "README.md",
+  "readme_sha256": "c12e03409e70bb3539466694c5d20785ab5de7d1579700f2c11f7bbd84e4525f",
+  "publication_prd_path": "docs/product/AuraGateway_Hugging_Face_Publication_Layer_PRD.md",
+  "publication_prd_sha256": "bc820278e90f3021839fa83247048435575c768f184244e4b5f3822ad5299f12",
+  "source_evidence_locked": true,
+  "protected_evidence_read": false,
+  "core_scope_closed": true,
+  "next_phase": "hugging_face_publication_layer_design"
+}

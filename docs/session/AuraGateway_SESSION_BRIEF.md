@@ -5,9 +5,57 @@
 >
 > This is a **session-specific** document. Update only the sections relevant to the current session, active proof gate, and frozen experiment state.
 >
-> This brief is aligned to `AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md` version `2.1.0`, the expanded 200-hour design baseline.
+> This brief is aligned to `AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md` version `2.2.0`, the terminal evidence amendment to the 200-hour design baseline.
 >
 > AuraGateway is a standalone advanced AI reliability systems lab. It is a Week 3 companion project only. It is **not** part of the AI consultancy roadmap’s core capstones, does not replace Week 3 requirements, and must not become a hidden dependency of the consultancy proof repository.
+
+---
+
+# Terminal Continuity State — PRD 2.2.0
+
+This state is fixed unless a new, separately authorized project phase changes it.
+
+```text
+core runtime and evaluation harness: implemented
+terminal evidence review: complete
+Gate 4 telemetry contract integrity: passed
+Gate 4 live numeric evidence sufficiency: closed unavailable
+measured A/B/C comparison: not completed
+provider cache usage measured: false
+provider cache savings measured: false
+core scope: closed
+maturity: production-shaped, locally validated, synthetic-corpus validated,
+          fixed-eval validated, controlled-provider tested
+deployed: false
+customer-data tested: false
+production-ready: false
+```
+
+Permitted terminal claim:
+
+```text
+For the two authorized raw-wire calls, Groq omitted
+usage.prompt_tokens_details.cached_tokens from both raw responses.
+```
+
+Permanent blocked claims:
+
+```text
+provider cache hit or miss
+cached tokens equal zero
+measured provider cache usage
+measured provider cache savings
+completed A/B/C benchmark result
+universal cost or latency savings
+production readiness
+```
+
+No identical provider rerun, resume, additional provider execution, or execution-evidence mutation is
+permitted on the closed evidence path.
+
+The next phase is `hugging_face_publication_layer_design`. It is a separate static publication
+adapter and must not introduce live inference, credentials, customer data, or protected provider
+payloads.
 
 ---
 
@@ -83,7 +131,14 @@ Production-ready
 Selected label:
 
 ```text
-
+Production-shaped
+Locally validated
+Synthetic-corpus validated
+Fixed-eval validated
+Controlled-provider tested
+Not customer-data tested
+Not deployed
+Not production-ready
 ```
 
 ## Permanent Claim Boundary
@@ -97,11 +152,14 @@ AuraGateway may measure:
 - locally inferred prompt-evaluation timing where available;
 - cache-affinity route decisions and route preservation;
 - retrieval and task-quality outcomes;
-- paired A/B/C runtime differences;
+- paired A/B/C runtime differences only when comparison eligibility passes;
+- terminal negative results when required evidence is unavailable;
 - trace-level feedback validity, novelty, retention, action change, and sufficiency;
 - comparison eligibility under frozen configuration fingerprints;
 - estimated cost only under a named, versioned pricing schedule.
 ```
+
+For the closed v2 provider path, paired A/B/C measurement and cache-savings claims are not permitted.
 
 AuraGateway must not claim:
 
@@ -137,13 +195,13 @@ Choose the main mode for this session:
 Selected mode:
 
 ```text
-
+Documentation
 ```
 
 Secondary mode, if any:
 
 ```text
-
+Handover
 ```
 
 ---
@@ -170,15 +228,15 @@ Post-implementation — Maintenance, Revalidation, or Commercial Translation
 Selected phase:
 
 ```text
-
+Post-implementation — Maintenance, Revalidation, or Commercial Translation
 ```
 
 ## Hours Completed
 
 ```text
-Completed: ___ / 200 hours
-Current session budget: ___ hours
-Remaining project budget: ___ hours
+Historical design allocation: 200 hours
+Core evidence scope: closed
+Hours are no longer the release gate; evidence and publication acceptance criteria govern next work
 ```
 
 ## Current Active Proof Gate
@@ -202,7 +260,7 @@ Gate 10 — Final Evidence Report
 Selected proof gate:
 
 ```text
-
+Gate 10 — Final Evidence Report: closed by terminal evidence review
 ```
 
 ## Current Experiment State
@@ -240,19 +298,21 @@ Handover-ready
 Selected state:
 
 ```text
-
+Handover-ready
 ```
 
 ## Why This Session Matters
 
 ```text
-
+Preserve the terminal negative result, prevent future A/B/C or cache-savings overclaims, and keep
+the Hugging Face publication layer separate from the closed runtime.
 ```
 
 ## Current Benchmark Objective
 
 ```text
-
+No benchmark execution is active. The evidence path is terminal because required numeric provider
+cache telemetry was unavailable.
 ```
 
 ## Current Causal Contrast
@@ -272,7 +332,7 @@ Runtime microbenchmark — cache, prefill, TTFO, and cost evidence
 Selected contrast:
 
 ```text
-
+None — terminal reporting, handover, or static publication work only
 ```
 
 ---
@@ -282,7 +342,8 @@ Selected contrast:
 ## Primary Objective
 
 ```text
-
+Maintain the closed core evidence state and implement the separate, sanitized Hugging Face
+publication layer without changing runtime evidence or claims.
 ```
 
 ## Expected Output From the Assistant
@@ -925,7 +986,7 @@ Files uploaded or pasted for this session:
 Files that are source of truth:
 
 ```text
-1. AuraGateway v2 PRD version 2.1.0
+1. AuraGateway v2 PRD version 2.2.0
 2. Relevant AuraGateway ADRs
 3. Frozen benchmark constitution
 4. Corpus, retrieval, and evaluation manifests
@@ -1376,7 +1437,7 @@ Acceptance criteria a future buyer could understand:
 Use the following source hierarchy.
 
 ```text
-1. AuraGateway v2 PRD version 2.1.0
+1. AuraGateway v2 PRD version 2.2.0
 2. Relevant AuraGateway ADRs
 3. Frozen benchmark constitution
 4. Corpus, retrieval, evaluation, negative-control, and fault-injection manifests
