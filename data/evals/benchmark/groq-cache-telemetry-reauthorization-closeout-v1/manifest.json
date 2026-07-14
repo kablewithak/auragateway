@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "closeout_id": "groq-cache-telemetry-reauthorization-closeout-v1",
+  "source_commit": "80e97a64b65bbfa32e8dd9fe0c452bdcc416762d",
+  "closeout_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-closeout-v1/closeout.json",
+  "closeout_sha256": "62e35c3c171f34e9126e0f851ad00801d9b6ff23c8f93052e893cf2299d59ba6",
+  "report_path": "docs/benchmark/AuraGateway_Groq_Cache_Telemetry_Reauthorization_Closeout.md",
+  "report_sha256": "007b953b38cf77a3972ac44a9e8b8f1cd60e4042234445d9a80f5d22de4a94b0",
+  "execution_report_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/report.json",
+  "execution_report_sha256": "c51e9fa9c2ee8ea6b0be7667fc68219c6cbc59694f5f0d2a5b57c4ad27ad1527",
+  "execution_manifest_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/manifest.json",
+  "execution_manifest_sha256": "0cd773660968af34b926926ade245ac2f329ba721d81668ad81c96cce629f88a",
+  "source_evidence_locked": true,
+  "protected_evidence_read": false,
+  "authorization_consumed": true,
+  "provider_calls_permitted": false,
+  "rerun_permitted": false,
+  "next_gate": "auragateway_v2_terminal_evidence_review"
+}
