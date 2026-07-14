@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | 1.0.0 |
-| Status | Planned experimental extension |
+| Document version | 1.1.0 |
+| Status | Terminally closed at the capability gate after pre-inference authentication failure |
 | Project | AuraGateway v2 |
 | Time budget | 40–50 hours; planned baseline 48 hours |
 | Model under test | Tencent Hy3 |
@@ -14,7 +14,55 @@
 | Data posture | Synthetic public-safe inputs only |
 | Relationship to closed Groq work | New provider lineage; Groq evidence remains immutable |
 | Paid usage | Not required for completion |
-| Publication target | Sanitized Hugging Face Dataset and static Space after terminal review |
+| Publication target | Optional sanitized Hugging Face Dataset and static Space after terminal review |
+
+---
+
+## 0. Terminal Disposition — Version 1.1.0
+
+The extension reached a valid terminal stop before successful Hy3 inference.
+
+```text
+identifiability review: complete
+generic OpenRouter adapter: complete and fixture-validated
+capability authorization review: complete
+protected prompt preparation: complete
+metadata-only key/model preflight: passed
+one-time execution runner: merged before live execution
+live cold attempts: 1
+successful completions: 0
+HTTP status: 401
+safe failure code: PROVIDER_AUTHENTICATION_FAILED
+provider error message: Missing Authentication header
+generation metadata requested: false
+warm call attempted: false
+numeric cache telemetry observed: false
+controlled cache use observed: false
+route identity observed: false
+pilot authorized: false
+retained benchmark authorized: false
+authorization consumed: true
+resume permitted: false
+rerun permitted: false
+```
+
+The terminal result is a **pre-inference authentication failure**. It does not establish:
+
+- whether the Hy3 free route would have returned a successful completion;
+- whether privacy-compatible inference routing was available;
+- whether OpenRouter would have exposed numeric cache telemetry;
+- whether a cache hit, miss, read, write, discount, latency, or cost result would have occurred;
+- whether the cause was credential validity, credential entry, surrounding whitespace, header
+  delivery, or another authentication factor.
+
+A post hoc zero-network diagnostic proved that the merged urllib backend can construct an
+`Authorization: Bearer ...` header and that no configured system proxy was detected. That diagnostic
+does not prove what OpenRouter received during the closed live attempt.
+
+The extension is complete under the following terminal rule:
+
+> The capability path must close when the one-time execution reaches a non-retryable terminal
+> provider failure. It must not be resumed or rerun to obtain a more attractive result.
 
 ---
 
@@ -425,7 +473,17 @@ stop immediately
 
 **Budget: 2 hours**
 
-Run one controlled cold/warm pair:
+Terminal disposition:
+
+```text
+cold call attempted: true
+cold attempt count: 1
+successful cold response: false
+warm call attempted: false
+terminal outcome: closed_terminal_provider_failure
+```
+
+The planned protocol was one controlled cold/warm pair:
 
 ```text
 Call 1:
@@ -461,7 +519,30 @@ No pilot is permitted before this probe closes.
 
 **Budget: 2 hours**
 
-This is the main decision point at approximately hour 20.
+This was the main decision point at approximately hour 20.
+
+### Achieved outcome — Terminal provider failure before successful inference
+
+```text
+HTTP status: 401
+safe error: PROVIDER_AUTHENTICATION_FAILED
+retry permitted: false
+provider success count: 0
+numeric telemetry available: false
+cache-use decision available: false
+pilot eligibility: blocked
+authorization consumed: true
+```
+
+Decision:
+
+```text
+close capability path
+publish sanitized terminal closeout
+do not run A/B/C
+```
+
+The remaining planned outcomes below describe the predeclared decision tree. They were not reached.
 
 ### Outcome A — Telemetry unavailable
 
@@ -525,7 +606,15 @@ Condition C claim remains blocked
 
 **Budget: 6 hours**
 
-Run one cold/warm pair per condition:
+Terminal disposition:
+
+```text
+not activated
+reason: capability path closed before successful inference
+successful calls: 0
+```
+
+The planned pilot would have run one cold/warm pair per condition:
 
 ```text
 A: 2 successful calls
@@ -560,7 +649,15 @@ no hidden retry contamination
 
 **Budget: 8 hours**
 
-Target:
+Terminal disposition:
+
+```text
+not activated
+reason: capability and pilot gates did not pass
+successful retained calls: 0
+```
+
+Planned target:
 
 ```text
 4 valid cold/warm pairs per condition
@@ -615,7 +712,15 @@ Invalid pairs remain in the evidence archive with explicit failure labels.
 
 **Budget: 5 hours**
 
-Produce:
+Terminal disposition:
+
+```text
+A/B/C evaluation: not produced
+capability closeout: produced
+failure taxonomy and claims boundary: produced
+```
+
+A full eligible benchmark would have produced:
 
 - fixed-case dataset;
 - baseline and intervention definitions;
@@ -652,16 +757,22 @@ Update:
 - maturity labels;
 - claims and non-claims.
 
-Possible terminal states:
+Achieved terminal state:
 
 ```text
-openrouter_hy3_free_comparison_completed
-openrouter_hy3_free_telemetry_available_benchmark_inconclusive
-openrouter_hy3_free_cache_telemetry_unavailable
-openrouter_hy3_free_condition_c_not_identifiable
+openrouter_hy3_free_pre_inference_authentication_failure
+execution terminal outcome: closed_terminal_provider_failure
 ```
 
-The closed Groq lineage must remain immutable and independently valid.
+The terminal review must preserve:
+
+- one cold attempt;
+- zero provider successes;
+- HTTP `401` and safe error metadata;
+- no generation metadata, cache telemetry, warm call, pilot, or benchmark;
+- consumed authorization with no resume or rerun;
+- unresolved credential/header root cause;
+- the immutable and independently valid Groq lineage.
 
 ---
 
@@ -669,7 +780,15 @@ The closed Groq lineage must remain immutable and independently valid.
 
 **Budget: 5 hours**
 
-Publish sanitized, precomputed evidence for:
+Terminal disposition:
+
+```text
+optional
+not started by this extension closeout
+must remain static and provider-call-free
+```
+
+When authorized, publish sanitized, precomputed evidence for:
 
 - Groq negative telemetry result;
 - Hy3 capability result;
@@ -704,9 +823,10 @@ layer.
 | Hugging Face integration | 5 |
 | **Total** | **48** |
 
-Only the first 20 hours are initially authorized.
+Only the first 20 hours were initially authorized.
 
-The remaining 28 hours are activated only when the capability gate passes.
+The remaining 28 hours were not activated because the capability path closed before successful
+inference. The planned budget remains a design record, not a claim that all 48 hours were spent.
 
 ---
 
@@ -732,7 +852,19 @@ Absolute inference ceiling:
 
 The ceiling includes explicitly authorized transient-capacity replacement attempts.
 
-The harness must stop before the ceiling and must not silently extend it.
+Actual terminal accounting:
+
+```text
+total attempts: 1
+provider successes: 0
+transient replacements: 0
+warm calls: 0
+pilot calls: 0
+retained benchmark calls: 0
+```
+
+The harness stopped after the first non-retryable provider failure and did not silently extend the
+ceiling.
 
 ---
 
@@ -761,6 +893,14 @@ The harness must stop before the ceiling and must not silently extend it.
 - bounded A versus B results under the exact tested OpenRouter Hy3 free conditions;
 - bounded B versus C results under the exact tested OpenRouter Hy3 free conditions;
 - directional differences supported by multiple valid pairs.
+
+### Permitted after this terminal closeout
+
+- the one-time cold attempt reached OpenRouter and returned HTTP `401`;
+- the safe failure class was `PROVIDER_AUTHENTICATION_FAILED`;
+- no successful completion, generation metadata, route identity, or cache telemetry was obtained;
+- the authorization was consumed without retry, resume, or rerun;
+- the precise credential/header root cause remains unresolved.
 
 ### Always blocked unless separately proven
 
@@ -817,14 +957,22 @@ staging evidence.
 
 ## 13. Maturity and Non-Claims
 
-This extension may become:
+This extension achieved:
 
 ```text
 Production-shaped
 Locally validated
 Synthetic-data validated
-Controlled-provider tested
-Provider-specific benchmark validated, only if all gates pass
+Controlled-provider tested at the bounded execution boundary
+Terminal capability closeout validated
+```
+
+It did not achieve:
+
+```text
+Successful Hy3 inference
+Numeric cache telemetry validation
+Provider-specific benchmark validation
 ```
 
 It will remain:
@@ -876,13 +1024,17 @@ The mini-project is complete when one terminal outcome is reached and frozen.
 ### Capability-only completion
 
 ```text
-adapter validated
-bounded live probe completed
-telemetry availability classified
-authorization consumed
-terminal closeout produced
-claims and non-claims frozen
+adapter validated: yes
+bounded live execution reached a terminal result: yes
+successful inference obtained: no
+telemetry availability classified from a successful response: no
+authorization consumed: yes
+terminal closeout produced: yes
+claims and non-claims frozen: yes
 ```
+
+The capability-only extension is complete because the predeclared authentication stop condition was
+reached and frozen. Completion does not imply that telemetry availability was measured.
 
 ### Full benchmark completion
 
@@ -901,5 +1053,6 @@ sanitized publication artifacts generated
 ### Final principle
 
 ```text
-Do not spend the remaining benchmark hours until Hy3 proves that the measurement channel is usable.
+The Hy3 measurement channel was not proven usable because execution ended before a successful model
+response. Do not activate the remaining benchmark hours and do not reopen the consumed authorization.
 ```
