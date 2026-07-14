@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "groq-cache-telemetry-calibration-auth-v1",
+  "authorization_sha256": "21e4bf346611108f7bd9e12a87950e4a8a51e032cd4de46e737b755b28da8246",
+  "runtime_policy_sha256": "00d7e1acff5c3af911897615727f5005d695ff083da781fef6b1a0bd7d53e80e",
+  "journal_sha256": "0d41d2d852328975ffd8dc15aed7a069d71c8d63e65214d9f82b2b51bfeffb18",
+  "run_records_sha256": "a88a4593a2130dcf2af0814561d0b8b90da8de6ea55e9caa118988b68eb7f6cf",
+  "report_sha256": "382ce03cfdd52cc2479d2f2779119196d904f43c103389663e9b1842bf24a60f",
+  "live_provider_called": true,
+  "execution_completed": true
+}
