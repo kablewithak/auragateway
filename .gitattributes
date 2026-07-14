@@ -1,0 +1,5 @@
+# Preserve captured calibration evidence byte-for-byte.
+data/evals/benchmark/cache-telemetry-calibration-v1/journal.jsonl -text
+data/evals/benchmark/cache-telemetry-calibration-v1/run_records.json -text
+data/evals/benchmark/cache-telemetry-calibration-v1/report.json -text
+data/evals/benchmark/cache-telemetry-calibration-v1/manifest.json -text
