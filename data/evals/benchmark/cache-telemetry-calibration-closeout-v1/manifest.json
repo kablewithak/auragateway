@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "closeout_id": "groq-cache-telemetry-calibration-closeout-v1",
+  "closeout_path": "data/evals/benchmark/cache-telemetry-calibration-closeout-v1/closeout.json",
+  "closeout_sha256": "2361c3507cc69318fd46567ebebde636a1cfcfefe2f838b7b25faf61f7395c24",
+  "report_path": "docs/benchmark/AuraGateway_Cache_Telemetry_Calibration_Closeout.md",
+  "report_sha256": "9e5f6b5cc1665ba7f20e714f6973bc8770906abe637ef8581110422519a1287f",
+  "execution_manifest_path": "data/evals/benchmark/cache-telemetry-calibration-v1/manifest.json",
+  "execution_manifest_sha256": "39d4918549ca340c79efe2184db2b0700be18d7b4c4dc09934a94a7a847c05c4",
+  "source_evidence_locked": true,
+  "authorization_consumed": true,
+  "rerun_permitted": false,
+  "next_gate": "groq_sdk_cache_schema_compatibility_review"
+}
