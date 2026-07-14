@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "openrouter-hy3-capability-probe-execution-policy-v1",
+  "execution_command_available": true,
+  "live_provider_call_performed": false,
+  "historical_hash_bound_files_modified": false,
+  "recording_transport_added": true,
+  "interruption_closeout_added": true,
+  "exact_output_validation_added": true,
+  "stricter_promotion_rule_added": true,
+  "committed_authorization_remains_immutable": true,
+  "protected_terminal_receipt_required": true,
+  "sanitized_closeout_requires_separate_review": true,
+  "next_gate": "merge_execution_runner_then_execute_once"
+}

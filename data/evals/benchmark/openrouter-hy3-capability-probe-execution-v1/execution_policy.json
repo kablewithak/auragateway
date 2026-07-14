@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "openrouter-hy3-capability-probe-execution-policy-v1",
+  "authorization_id": "openrouter-hy3-capability-probe-auth-v1",
+  "execution_id": "openrouter-hy3-capability-probe-v1",
+  "confirmation_phrase": "EXECUTE_OPENROUTER_HY3_CAPABILITY_PROBE_ONCE",
+  "logical_call_roles": [
+    "cold_probe",
+    "warm_probe"
+  ],
+  "expected_outputs": [
+    "COLD-PROBE-ACK",
+    "WARM-PROBE-ACK"
+  ],
+  "maximum_total_inference_attempts": 4,
+  "maximum_attempts_per_logical_call": 2,
+  "maximum_transient_replacements_per_logical_call": 1,
+  "transient_http_statuses": [
+    429,
+    502,
+    524,
+    529
+  ],
+  "exact_trimmed_output_required": true,
+  "one_raw_record_per_http_response": true,
+  "completion_must_be_retained_before_generation_lookup": true,
+  "successful_completion_retry_permitted": false,
+  "resume_permitted": false,
+  "rerun_permitted": false,
+  "incomplete_journal_closes_without_network": true,
+  "interruption_terminal_outcome": "closed_interrupted_execution",
+  "numeric_measurement_channel_fields": [
+    "cached_tokens",
+    "cache_write_tokens",
+    "native_tokens_cached"
+  ],
+  "cold_positive_read_classification": "cold_state_contamination",
+  "cold_positive_read_alone_permits_promotion": false,
+  "controlled_positive_cache_use_requires": [
+    "cold_cache_write_positive",
+    "warm_cache_read_positive"
+  ],
+  "committed_authorization_mutation_permitted": false,
+  "authorization_consumption_location": "protected_local_terminal_receipt",
+  "public_raw_payload_permitted": false,
+  "paths": {
+    "execution_policy_path": "data/evals/benchmark/openrouter-hy3-capability-probe-execution-v1/execution_policy.json",
+    "execution_report_path": "data/evals/benchmark/openrouter-hy3-capability-probe-execution-v1/execution_report.json",
+    "execution_manifest_path": "data/evals/benchmark/openrouter-hy3-capability-probe-execution-v1/execution_manifest.json",
+    "terminal_receipt_path": ".local/benchmark/openrouter-hy3-capability-probe-v1/terminal_receipt.json"
+  }
+}

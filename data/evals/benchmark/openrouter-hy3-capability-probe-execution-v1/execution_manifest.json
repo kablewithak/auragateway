@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "openrouter-hy3-capability-probe-execution-policy-v1",
+  "execution_policy_sha256": "1b85494883ae4244fdcc204eeaca937d483fd9a4e4f76617c9f0e20bbeefee40",
+  "execution_report_sha256": "aa26685e39fabd9f88e314502159d03f4c11261860f04781a10fb21e6bf6bb99",
+  "contract_sha256": "d88b780663194b2402fbf3b8922a1ad304109c734dddaf46e8648c6c5c6ffe89",
+  "recording_transport_sha256": "2a5f857b4d83e9715582b72ce1d2d8ffa2c7fc096c2678843c17796bb7adf91c",
+  "execution_runner_sha256": "d1d36f18347f00d3a4f5b6e1636cb7c263243d272913e767fad4b410e26165ef",
+  "adr_sha256": "dcd004d542d76895750a5b3b7b48bd2510c5b57188c7f52545e96b660f0efb62",
+  "benchmark_report_sha256": "bb1b1207f2e5de3d5f82cef596b929c74cd180ff19a150d2be3a0f6a6e029f8b",
+  "live_provider_call_performed": false
+}
