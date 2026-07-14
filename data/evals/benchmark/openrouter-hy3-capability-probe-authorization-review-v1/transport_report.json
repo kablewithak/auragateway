@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "openrouter-hy3-http-transport-dry-run-v1",
+  "case_count": 11,
+  "successful_json_cases": 3,
+  "rejected_status_cases": 7,
+  "invalid_json_cases": 1,
+  "exact_base_url_enforced": true,
+  "explicit_api_key_required": true,
+  "environment_lookup_present": false,
+  "automatic_retry_present": false,
+  "authorization_header_verified": true,
+  "credential_value_persisted": false,
+  "generation_query_id_encoded": true,
+  "transient_statuses": [
+    429,
+    502,
+    524,
+    529
+  ],
+  "nonretryable_statuses": [
+    401,
+    402,
+    500
+  ],
+  "network_request_performed": false
+}

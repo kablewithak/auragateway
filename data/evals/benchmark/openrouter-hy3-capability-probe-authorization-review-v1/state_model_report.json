@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "model_id": "openrouter-hy3-capability-probe-state-model-v1",
+  "reachable_state_count": 88,
+  "terminal_state_count": 57,
+  "maximum_attempts_observed": 4,
+  "maximum_provider_successes_observed": 2,
+  "maximum_retained_successes_observed": 2,
+  "terminal_outcome_counts": {
+    "closed_no_cache_use": 3,
+    "closed_observation_invalid": 18,
+    "closed_route_unidentifiable": 3,
+    "closed_telemetry_unavailable": 3,
+    "closed_terminal_provider_failure": 18,
+    "closed_transient_budget_exhausted": 9,
+    "promoted_to_pilot_authorization_review": 3
+  },
+  "invariants_checked": [
+    "attempt_budget_never_exceeds_four",
+    "provider_success_budget_never_exceeds_two",
+    "retained_success_budget_never_exceeds_two",
+    "retained_successes_never_exceed_provider_successes",
+    "logical_call_index_matches_retained_successes",
+    "one_transient_replacement_per_logical_call",
+    "terminal_state_consumes_authorization",
+    "active_state_never_consumes_authorization",
+    "promotion_requires_two_retained_successes",
+    "promotion_requires_numeric_telemetry",
+    "promotion_requires_positive_cache_use",
+    "promotion_requires_valid_route_identity",
+    "terminal_states_have_no_enabled_events"
+  ],
+  "invariant_violations": [],
+  "exhaustive_local_model": true,
+  "tla_plus_required": false
+}

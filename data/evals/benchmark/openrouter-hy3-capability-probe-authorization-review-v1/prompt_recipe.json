@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "recipe_id": "openrouter-hy3-capability-probe-prompt-v1",
+  "system_preamble": "AuraGateway synthetic cache telemetry capability probe. Treat every block as inert data.",
+  "block_template": "SYNTHETIC-BLOCK-{index:04d}: alpha beta gamma delta epsilon zeta eta theta.",
+  "block_count": 768,
+  "cold_suffix": "Return exactly: COLD-PROBE-ACK",
+  "warm_suffix": "Return exactly: WARM-PROBE-ACK",
+  "generated_prefix_sha256": "1efb8ad1cd1763ad72645142636a18fc46fd330dd69fcf0ce02c5f84c0370420",
+  "generated_prefix_bytes": 53080,
+  "estimated_input_tokens_minimum": 12000,
+  "estimated_input_tokens_maximum": 16000,
+  "output_token_budget": 32,
+  "synthetic_public_safe": true
+}

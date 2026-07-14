@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "openrouter-hy3-capability-probe-authorization-review-v1",
+  "status": "review_ready_inactive",
+  "source_commit": "723419ad042e7017613467c5a69765f90267e5c9",
+  "source_bindings": [
+    {
+      "path": "docs/product/AuraGateway_OpenRouter_Hy3_Free_Tier_Validation_Mini_PRD.md",
+      "sha256": "8d3604a65a94c50098e8e7d853e16b1ab21a5f9fdf8aaedf6e3d5ee7a793be0a",
+      "purpose": "Governing free-tier validation scope, phases, and stop conditions."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-identifiability-review-v1/review.json",
+      "sha256": "0bdc5738b7c87c8f6cd5217db629f433d315a65857b60e0a1e2742a1af2655f5",
+      "purpose": "Frozen OpenRouter and Hy3 experimental identifiability boundary."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-identifiability-review-v1/manifest.json",
+      "sha256": "c9e097a171d42dffc336bcd3240f2661765cfbeb54ec8c555a6d14ab30e4993a",
+      "purpose": "Integrity identity for the identifiability review."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-adapter-dry-run-v1/report.json",
+      "sha256": "2c98bbdd23a0fd8b282844c16538ee98500f52b595a1d1bf8031fcaa9f96afe1",
+      "purpose": "Fixture-only adapter behavior and cache observation evidence."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-adapter-dry-run-v1/manifest.json",
+      "sha256": "8a3813639a8ed591a8446379c92bddb8be18dacb9073d7cced7d6284330926f0",
+      "purpose": "Integrity identity for the adapter dry-run evidence."
+    },
+    {
+      "path": "src/auragateway/contracts/openrouter.py",
+      "sha256": "7e86512c8b6799f8153370763b16b3ba605e1fffc18b8c913cb468022ecd1880",
+      "purpose": "Typed OpenRouter invocation, route, and cache observation contract."
+    },
+    {
+      "path": "src/auragateway/providers/openrouter.py",
+      "sha256": "cedec4ac7b077526a72751069bab4f030618bddb167974b0399575af80186304",
+      "purpose": "Generic OpenRouter adapter and completion-generation reconciliation."
+    },
+    {
+      "path": "src/auragateway/providers/openrouter_http.py",
+      "sha256": "245a0d6260c4d4b7da50ad6afa0a579919a0dd963369ce9a8770ea37dcdc3a86",
+      "purpose": "Explicit-key zero-retry HTTP transport introduced by this review."
+    }
+  ],
+  "route_boundary": {
+    "model_page_url": "https://openrouter.ai/tencent/hy3:free",
+    "retrieved_on": "2026-07-14",
+    "gateway_provider": "openrouter",
+    "requested_model": "tencent/hy3:free",
+    "model_family": "tencent-hy3",
+    "route_is_free": true,
+    "model_release_date": "2026-07-06",
+    "scheduled_route_retirement_date": "2026-07-21",
+    "context_window_tokens": 262144,
+    "multiple_hosts_possible": true,
+    "exact_eligible_endpoint_count_known": false,
+    "privacy_compatible_endpoint_verified": false
+  },
+  "limit_boundary": {
+    "limits_documentation_url": "https://openrouter.ai/docs/api/reference/limits",
+    "key_status_path": "/api/v1/key",
+    "key_status_requires_authentication": true,
+    "credit_limit_remaining_observable": true,
+    "free_tier_flag_observable": true,
+    "successful_response_rate_headers_available": false,
+    "exact_remaining_free_requests_preflight_observable": false,
+    "local_call_ceiling_independent_of_platform_quota": true
+  },
+  "preflight_policy": {
+    "api_key_environment_name": "OPENROUTER_API_KEY",
+    "credential_lookup_permitted_in_review": false,
+    "credential_lookup_required_in_activation": true,
+    "key_status_preflight_required": true,
+    "nonnegative_credit_state_required": true,
+    "requested_model_must_match_exactly": true,
+    "synthetic_public_safe_prompts_only": true,
+    "data_collection_deny_required": true,
+    "zero_data_retention_required": true,
+    "manual_provider_order_permitted": false,
+    "stable_prefix_minimum_token_estimate": 12000,
+    "stable_prefix_maximum_token_estimate": 16000,
+    "maximum_completion_tokens": 32,
+    "temperature_milli": 0,
+    "streaming": false,
+    "generation_metadata_lookup_required": true,
+    "generation_metadata_polling_permitted": false,
+    "generation_metadata_failure_stops_execution": true
+  },
+  "runtime_policy": {
+    "logical_call_roles": [
+      "cold_probe",
+      "warm_probe"
+    ],
+    "maximum_logical_calls": 2,
+    "maximum_provider_successes": 2,
+    "maximum_retained_successes": 2,
+    "maximum_total_inference_attempts": 4,
+    "maximum_transient_replacements_per_logical_call": 1,
+    "transient_http_statuses": [
+      429,
+      502,
+      524,
+      529
+    ],
+    "replacement_only_before_provider_success": true,
+    "successful_response_retry_permitted": false,
+    "authentication_failure_retry_permitted": false,
+    "permission_failure_retry_permitted": false,
+    "contract_failure_retry_permitted": false,
+    "privacy_failure_retry_permitted": false,
+    "generation_metadata_failure_retry_permitted": false,
+    "write_through_journal_required": true,
+    "authorization_consumed_on_terminal_closeout": true,
+    "resume_permitted": false,
+    "rerun_permitted": false
+  },
+  "promotion_policy": {
+    "two_retained_successes_required": true,
+    "numeric_cache_telemetry_required": true,
+    "positive_cache_use_required": true,
+    "route_identity_required": true,
+    "same_requested_model_required": true,
+    "same_resolved_model_required": true,
+    "same_upstream_provider_required": true,
+    "same_session_identity_required": true,
+    "absent_or_null_permits_promotion": false,
+    "numeric_zero_permits_cache_use_claim": false,
+    "latency_permits_cache_use_claim": false,
+    "pilot_execution_authorized_by_probe": false
+  },
+  "formal_methods": {
+    "decision": "not_required_executable_finite_state_model_preferred",
+    "executable_state_model_path": "src/auragateway/benchmark/openrouter_hy3_probe_state_model.py",
+    "state_model_report_path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/state_model_report.json",
+    "finite_state_space_exhaustively_checked": true,
+    "invariant_violation_count": 0,
+    "normal_ci_execution_supported": true,
+    "separate_tla_toolchain_required": false,
+    "tla_plus_model_checked": false,
+    "tla_plus_claim_permitted": false
+  },
+  "transport_implemented": true,
+  "transport_automatic_retries": false,
+  "transport_reads_environment": false,
+  "credential_accessed": false,
+  "network_request_performed": false,
+  "live_provider_call_authorized": false,
+  "activation_review_permitted": true,
+  "pilot_execution_authorized": false,
+  "retained_benchmark_authorized": false,
+  "next_gate": "openrouter_hy3_capability_probe_activation"
+}
