@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "openrouter-hy3-capability-probe-auth-v1",
+  "execution_id": "openrouter-hy3-capability-probe-v1",
+  "status": "active",
+  "active_authorization_created": true,
+  "local_preparation_command_available": true,
+  "live_preflight_command_available": true,
+  "execution_command_available": false,
+  "credential_accessed": false,
+  "network_request_performed": false,
+  "provider_call_performed": false,
+  "capability_probe_execution_authorized": true,
+  "execution_confirmation_required": true,
+  "authorization_consumed": false,
+  "pilot_execution_authorized": false,
+  "retained_benchmark_authorized": false,
+  "comparison_eligible": false,
+  "next_gate": "protected_local_preparation_and_live_preflight"
+}
