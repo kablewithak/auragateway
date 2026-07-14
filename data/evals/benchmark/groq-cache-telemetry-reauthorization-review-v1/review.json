@@ -1,0 +1,167 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "groq-cache-telemetry-reauthorization-review-v1",
+  "status": "review_ready_inactive",
+  "decision": "reauthorization_review_ready_inactive",
+  "source_commit": "e639fca938e7d0309a185eff5c7fac533015d9ec",
+  "prior_authorization_id": "groq-cache-telemetry-calibration-auth-v1",
+  "prior_calibration_id": "groq-cache-telemetry-calibration-v1",
+  "prior_closeout_id": "groq-cache-telemetry-calibration-closeout-v1",
+  "compatibility_review_id": "groq-sdk-cache-schema-compatibility-v1",
+  "source_bindings": [
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-review-v1/prompt_recipe.json",
+      "sha256": "8f9a1d34bce04f4d4176c1a26a61d88b52f459ea5e58e9d5ab628e01c46c4321",
+      "purpose": "Freeze the exact synthetic prompt recipe used by the prior calibration."
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-v1/authorization.json",
+      "sha256": "21e4bf346611108f7bd9e12a87950e4a8a51e032cd4de46e737b755b28da8246",
+      "purpose": "Bind the consumed one-time authorization lineage."
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-v1/runtime_policy.json",
+      "sha256": "00d7e1acff5c3af911897615727f5005d695ff083da781fef6b1a0bd7d53e80e",
+      "purpose": "Bind the prior three-call schedule and stop policy."
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-v1/journal.jsonl",
+      "sha256": "0d41d2d852328975ffd8dc15aed7a069d71c8d63e65214d9f82b2b51bfeffb18",
+      "purpose": "Bind every terminal attempt record from the completed calibration."
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-v1/run_records.json",
+      "sha256": "a88a4593a2130dcf2af0814561d0b8b90da8de6ea55e9caa118988b68eb7f6cf",
+      "purpose": "Bind the typed public run records from the completed calibration."
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-v1/report.json",
+      "sha256": "382ce03cfdd52cc2479d2f2779119196d904f43c103389663e9b1842bf24a60f",
+      "purpose": "Bind the prior execution result with zero numeric billing-cache samples."
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-v1/manifest.json",
+      "sha256": "39d4918549ca340c79efe2184db2b0700be18d7b4c4dc09934a94a7a847c05c4",
+      "purpose": "Bind the immutable execution evidence bundle."
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-closeout-v1/closeout.json",
+      "sha256": "2361c3507cc69318fd46567ebebde636a1cfcfefe2f838b7b25faf61f7395c24",
+      "purpose": "Prove the prior authorization is consumed and terminal."
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-closeout-v1/manifest.json",
+      "sha256": "8055ed6334eb2127b26637faa686e00a11a25b75ba7941485f2dbe3392eca760",
+      "purpose": "Bind the immutable closeout evidence."
+    },
+    {
+      "path": "data/evals/benchmark/groq-sdk-cache-schema-compatibility-v1/review.json",
+      "sha256": "9fbe7ef29eb7064e62f0774305c56a299eeeac47f7a6611f12cbb267f67ec807",
+      "purpose": "Bind the closed SDK and adapter compatibility classification."
+    },
+    {
+      "path": "data/evals/benchmark/groq-sdk-cache-schema-compatibility-v1/manifest.json",
+      "sha256": "694479925e2cd4896203eff517ed5628097b82431713a9283890c7bbd277ce1d",
+      "purpose": "Bind the immutable compatibility-review evidence."
+    }
+  ],
+  "external_provider_boundary": {
+    "documentation_url": "https://console.groq.com/docs/prompt-caching",
+    "retrieved_on": "2026-07-14",
+    "supported_model": "openai/gpt-oss-20b",
+    "automatic_caching": true,
+    "exact_prefix_required": true,
+    "cache_hit_guaranteed": false,
+    "cache_expiry_without_use_hours": 2,
+    "minimum_cacheable_token_lower_bound": 128,
+    "minimum_cacheable_token_upper_bound": 1024,
+    "billing_cached_tokens_path": "usage.prompt_tokens_details.cached_tokens",
+    "cached_input_discount_percent": 50
+  },
+  "sdk_boundary": {
+    "installed_sdk_version": "1.5.0",
+    "resource_path": "client.chat.completions.with_raw_response.create",
+    "raw_and_parsed_same_http_response": true,
+    "raw_body_public_persistence_permitted": false,
+    "raw_body_protected_local_required": true,
+    "parsed_object_public_persistence_permitted": false,
+    "parsed_object_protected_local_required": true
+  },
+  "material_difference": {
+    "prior_observation_boundary": "parsed_sdk_object",
+    "proposed_observation_boundary": "sdk_raw_and_parsed_same_response",
+    "provider_unchanged": true,
+    "model_unchanged": true,
+    "prompt_unchanged": true,
+    "request_parameters_unchanged": true,
+    "only_observation_boundary_changes": true,
+    "materially_different": true,
+    "information_gain_questions": [
+      "Does the provider wire response contain usage.prompt_tokens_details.cached_tokens?",
+      "Does Groq SDK 1.5.0 preserve the wire field in the parsed ChatCompletion from the same response?",
+      "Do cold and warm identical requests produce numeric cache evidence without changing the request?"
+    ]
+  },
+  "observation_plan_id": "groq-cache-telemetry-reauthorization-observation-v1",
+  "observation_plan_sha256": "b70c629e87c155c5e662869cf6748b186285c538f56f8dce1ac8211340feb513",
+  "outcome_taxonomy": [
+    {
+      "outcome": "wire_field_present_and_parsed",
+      "requirements": [
+        "the raw response contains a numeric billing cached-token field",
+        "the parsed ChatCompletion preserves the same numeric value",
+        "raw and parsed values are linked to the same HTTP response"
+      ],
+      "exact_provider_wire_omission_claim_permitted": false,
+      "sdk_live_parse_defect_claim_permitted": false,
+      "provider_cache_usage_claim_permitted": true,
+      "benchmark_claims_permitted": false
+    },
+    {
+      "outcome": "wire_field_present_but_parsed_absent",
+      "requirements": [
+        "the raw response contains a numeric billing cached-token field",
+        "the parsed ChatCompletion omits that field for the same response"
+      ],
+      "exact_provider_wire_omission_claim_permitted": false,
+      "sdk_live_parse_defect_claim_permitted": true,
+      "provider_cache_usage_claim_permitted": true,
+      "benchmark_claims_permitted": false
+    },
+    {
+      "outcome": "wire_field_absent",
+      "requirements": [
+        "the raw response omits usage.prompt_tokens_details.cached_tokens",
+        "the raw response is retained only in protected local storage"
+      ],
+      "exact_provider_wire_omission_claim_permitted": true,
+      "sdk_live_parse_defect_claim_permitted": false,
+      "provider_cache_usage_claim_permitted": false,
+      "benchmark_claims_permitted": false
+    },
+    {
+      "outcome": "reauthorization_execution_failed",
+      "requirements": [
+        "provider error, integrity failure, privacy failure, evidence-write failure, or budget failure"
+      ],
+      "exact_provider_wire_omission_claim_permitted": false,
+      "sdk_live_parse_defect_claim_permitted": false,
+      "provider_cache_usage_claim_permitted": false,
+      "benchmark_claims_permitted": false
+    }
+  ],
+  "prior_authorization_consumed": true,
+  "prior_rerun_permitted": false,
+  "prior_resume_permitted": false,
+  "provider_call_performed": false,
+  "credential_required_for_review": false,
+  "credential_accessed": false,
+  "provider_call_authorized": false,
+  "active_authorization_created": false,
+  "execution_command_available": false,
+  "reauthorization_execution_authorized": false,
+  "benchmark_execution_authorized": false,
+  "benchmark_claims_permitted": false,
+  "comparison_eligible": false,
+  "next_gate": "groq_cache_telemetry_reauthorization_activation"
+}
