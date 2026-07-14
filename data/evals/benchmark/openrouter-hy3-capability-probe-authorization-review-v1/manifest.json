@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "openrouter-hy3-capability-probe-authorization-review-v1",
+  "source_commit": "723419ad042e7017613467c5a69765f90267e5c9",
+  "bindings": [
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/review.json",
+      "sha256": "4bdaa340216a99d30bfe9cbdececf4498f1f12240afb4505e87a550d59f37f76",
+      "purpose": "Inactive capability-probe authorization decision and policies."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/prompt_recipe.json",
+      "sha256": "e71ff9f09cdeb4c34bc63462e6a3ddd62b4f0054c59bf502608caa5467200773",
+      "purpose": "Deterministic synthetic stable-prefix recipe."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/state_model_report.json",
+      "sha256": "5ff85e744c22a655c280dafc7fd91231236cc8fc68b7a65f2659056d0334a59b",
+      "purpose": "Exhaustive reachable-state and invariant report."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/transport_report.json",
+      "sha256": "2f088ff128d6aea3cf11c49dd3d5a67a4da5f89a4d6c5467ea30b7938ac7e679",
+      "purpose": "Fixture-only explicit-key HTTP transport report."
+    },
+    {
+      "path": "src/auragateway/contracts/openrouter_hy3_capability_probe_authorization.py",
+      "sha256": "4bd5eebb182e6d6f39e78b967c50218ecedb2a17b2bb5387c86a6bd45c3db528",
+      "purpose": "Typed review, policy, prompt, report, and manifest contracts."
+    },
+    {
+      "path": "src/auragateway/providers/openrouter_http.py",
+      "sha256": "245a0d6260c4d4b7da50ad6afa0a579919a0dd963369ce9a8770ea37dcdc3a86",
+      "purpose": "Explicit-key OpenRouter HTTP transport with zero automatic retries."
+    },
+    {
+      "path": "src/auragateway/benchmark/openrouter_hy3_probe_prompt.py",
+      "sha256": "1c784131d75df4671ea79b6dc7b30e7cd5bbfd354829e4ed04afe61d4b81bff4",
+      "purpose": "Deterministic synthetic prefix builder and identity validation."
+    },
+    {
+      "path": "src/auragateway/benchmark/openrouter_hy3_probe_state_model.py",
+      "sha256": "df6035f41fc66d2b4e46949aad289c2706f6eca2c89c998344be8cd9ac796c83",
+      "purpose": "Executable exhaustive capability-probe state model."
+    },
+    {
+      "path": "src/auragateway/benchmark/openrouter_hy3_capability_probe_authorization_runner.py",
+      "sha256": "a409c28bb13ad70e51831007486995781b0708c191dc7dc5df582fe9c138d9a6",
+      "purpose": "Validation CLI for review, transport, prompt, state model, and manifest."
+    },
+    {
+      "path": "docs/adr/openrouter-hy3-capability-probe-authorization-review.md",
+      "sha256": "bf3e4e29bc54c7441bc1816f86f7ba629a8c5792fc305b663bc14d2f0ee36ed6",
+      "purpose": "Architecture decision for activation boundaries and TLA+ disposition."
+    },
+    {
+      "path": "docs/benchmark/AuraGateway_OpenRouter_Hy3_Capability_Probe_Authorization_Review.md",
+      "sha256": "ab16a747b37b2d905c66fa0cd9098a29af1e095ea3135f964a273fdfad1e09cd",
+      "purpose": "Human-readable authorization review and claim boundary."
+    }
+  ],
+  "source_evidence_locked": true,
+  "credential_accessed": false,
+  "network_request_performed": false,
+  "provider_call_performed": false,
+  "live_provider_call_authorized": false,
+  "next_gate": "openrouter_hy3_capability_probe_activation"
+}
