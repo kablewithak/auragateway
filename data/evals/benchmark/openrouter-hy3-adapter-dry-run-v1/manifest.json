@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "report_id": "openrouter-hy3-adapter-dry-run-v1",
+  "source_commit": "d0ddb7d08b7b4e25b2018794f0fedce9cb7aa7a1",
+  "bindings": [
+    {
+      "path": "data/provider_fixtures/openrouter-hy3-adapter-v1/fixtures.json",
+      "sha256": "9ee641914cabccab5c32bbaff614b715c25f2250c5b4020358fa44a55d1460ef"
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-adapter-dry-run-v1/report.json",
+      "sha256": "2c98bbdd23a0fd8b282844c16538ee98500f52b595a1d1bf8031fcaa9f96afe1"
+    },
+    {
+      "path": "src/auragateway/contracts/openrouter.py",
+      "sha256": "7e86512c8b6799f8153370763b16b3ba605e1fffc18b8c913cb468022ecd1880"
+    },
+    {
+      "path": "src/auragateway/providers/openrouter.py",
+      "sha256": "cedec4ac7b077526a72751069bab4f030618bddb167974b0399575af80186304"
+    },
+    {
+      "path": "src/auragateway/providers/base.py",
+      "sha256": "ea3f2fc0968b5d6a6c7f323928dea7859d38341e96057c5d6cab4e42d1246de6"
+    },
+    {
+      "path": "docs/adr/openrouter-hy3-adapter-dry-run.md",
+      "sha256": "a9640fa1ec820713d05ed4797456e899685f13dd88449ca153adf42876bd1410"
+    },
+    {
+      "path": "docs/benchmark/AuraGateway_OpenRouter_Hy3_Adapter_Dry_Run.md",
+      "sha256": "d435a89ef983b9949b2a24998dbce0c3d8d79031651b095723972a8ffacd61aa"
+    }
+  ],
+  "source_evidence_locked": true,
+  "provider_call_performed": false,
+  "credential_accessed": false,
+  "next_gate": "openrouter_hy3_capability_probe_authorization_review"
+}
