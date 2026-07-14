@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "openrouter-hy3-capability-probe-auth-v1",
+  "authorization_sha256": "e2bae6823176d1da4fb0a1cb870b15a70a3c50bd14b2cc9f617482814b54e0ea",
+  "runtime_policy_sha256": "1c83f8c6cd115290dbd8c4dcc3ac20f22ffd8e9fdbf586e3ab70693ed8c05a87",
+  "activation_report_sha256": "86564955c6801c775ab4e63bfa02f9249c461b3bfc16ce0bb3ac4059577fb553",
+  "contract_sha256": "db52971d21d08511cdb699ca8ea5483614883bb33c2aba9e0e7b6d3ac1588974",
+  "runner_sha256": "9a50f0ab233c3786d6ff2bbc664ff7b224dec02245e373c9d04b7b36209436d3",
+  "adr_sha256": "06b87b5fb696f69f5276e181f1bc8bb62ccd33a6547dd78537856b7862d9f5b9",
+  "report_sha256": "6aa0c67af73708453d7f71463805e3c2709ecd4188cb0ad905065bc73e304aa1",
+  "active_authorization_created": true,
+  "provider_call_performed": false
+}

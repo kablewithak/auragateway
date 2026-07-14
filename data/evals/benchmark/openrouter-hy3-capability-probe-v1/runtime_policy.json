@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "openrouter-hy3-capability-probe-auth-v1",
+  "logical_call_roles": [
+    "cold_probe",
+    "warm_probe"
+  ],
+  "stable_session_required": true,
+  "sequential_execution_required": true,
+  "warm_call_requires_retained_cold_success": true,
+  "maximum_total_inference_attempts": 4,
+  "maximum_transient_replacements_per_logical_call": 1,
+  "transient_http_statuses": [
+    429,
+    502,
+    524,
+    529
+  ],
+  "automatic_transport_retry_permitted": false,
+  "successful_response_retry_permitted": false,
+  "generation_metadata_polling_permitted": false,
+  "successful_completion_requires_generation_metadata": true,
+  "write_through_journal_required": true,
+  "protected_raw_retention_required": true,
+  "protected_parsed_retention_required": true,
+  "public_raw_payload_permitted": false,
+  "authorization_consumed_on_terminal_closeout": true,
+  "resume_permitted": false,
+  "rerun_permitted": false
+}

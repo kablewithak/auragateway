@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "openrouter-hy3-capability-probe-auth-v1",
+  "execution_id": "openrouter-hy3-capability-probe-v1",
+  "review_id": "openrouter-hy3-capability-probe-authorization-review-v1",
+  "status": "active",
+  "source_commit": "c2b3f3ca67c5b9b40f47f6482e4ccc76ec3aac64",
+  "bindings": [
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/review.json",
+      "sha256": "4bdaa340216a99d30bfe9cbdececf4498f1f12240afb4505e87a550d59f37f76",
+      "purpose": "Inactive authorization decision and frozen runtime policies."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/manifest.json",
+      "sha256": "0d53cd56cbbfdafcc5d4adefaaf5de57cc8c336712579a0468ca65891c1c45cb",
+      "purpose": "Integrity identity for the inactive authorization review."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/prompt_recipe.json",
+      "sha256": "e71ff9f09cdeb4c34bc63462e6a3ddd62b4f0054c59bf502608caa5467200773",
+      "purpose": "Deterministic synthetic stable-prefix recipe."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/state_model_report.json",
+      "sha256": "5ff85e744c22a655c280dafc7fd91231236cc8fc68b7a65f2659056d0334a59b",
+      "purpose": "Exhaustive execution-state and invariant evidence."
+    },
+    {
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/transport_report.json",
+      "sha256": "2f088ff128d6aea3cf11c49dd3d5a67a4da5f89a4d6c5467ea30b7938ac7e679",
+      "purpose": "Fixture-only explicit-key transport evidence."
+    },
+    {
+      "path": "src/auragateway/contracts/openrouter.py",
+      "sha256": "7e86512c8b6799f8153370763b16b3ba605e1fffc18b8c913cb468022ecd1880",
+      "purpose": "Typed OpenRouter route and cache observation boundary."
+    },
+    {
+      "path": "src/auragateway/providers/openrouter.py",
+      "sha256": "cedec4ac7b077526a72751069bab4f030618bddb167974b0399575af80186304",
+      "purpose": "Generic OpenRouter adapter and metadata reconciliation."
+    },
+    {
+      "path": "src/auragateway/providers/openrouter_http.py",
+      "sha256": "245a0d6260c4d4b7da50ad6afa0a579919a0dd963369ce9a8770ea37dcdc3a86",
+      "purpose": "Explicit-key zero-retry OpenRouter HTTP transport."
+    }
+  ],
+  "provider": "openrouter",
+  "model_alias": "openrouter-hy3-free",
+  "exact_model_identifier": "tencent/hy3:free",
+  "adapter_version": "openrouter-chat-completions-v1",
+  "transport_version": "openrouter-http-explicit-key-v1",
+  "telemetry_authority": "openrouter_normalized_usage",
+  "api_key_environment_name": "OPENROUTER_API_KEY",
+  "prompt_recipe_id": "openrouter-hy3-capability-probe-prompt-v1",
+  "protected_prompt_bundle_sha256": "016b1f201d158487d1e2fd3b329fac9e0a9ce83578692eb6640644f0c545d122",
+  "protected_prompt_bundle_bytes": 55182,
+  "confirmation_phrase": "EXECUTE_OPENROUTER_HY3_CAPABILITY_PROBE_ONCE",
+  "preflight_confirmation_phrase": "PREFLIGHT_OPENROUTER_HY3_CAPABILITY_PROBE_ONCE",
+  "maximum_logical_calls": 2,
+  "maximum_provider_successes": 2,
+  "maximum_retained_successes": 2,
+  "maximum_total_inference_attempts": 4,
+  "timeout_seconds": 60,
+  "maximum_completion_tokens": 32,
+  "evidence_paths": {
+    "authorization_path": "data/evals/benchmark/openrouter-hy3-capability-probe-v1/authorization.json",
+    "runtime_policy_path": "data/evals/benchmark/openrouter-hy3-capability-probe-v1/runtime_policy.json",
+    "activation_report_path": "data/evals/benchmark/openrouter-hy3-capability-probe-v1/activation_report.json",
+    "activation_manifest_path": "data/evals/benchmark/openrouter-hy3-capability-probe-v1/activation_manifest.json",
+    "protected_prompt_bundle_path": ".local/benchmark/openrouter-hy3-capability-probe-v1/prompt_bundle.json",
+    "protected_preparation_receipt_path": ".local/benchmark/openrouter-hy3-capability-probe-v1/preparation_receipt.json",
+    "protected_preflight_receipt_path": ".local/benchmark/openrouter-hy3-capability-probe-v1/preflight_receipt.json",
+    "protected_journal_path": ".local/benchmark/openrouter-hy3-capability-probe-v1/journal.jsonl",
+    "protected_raw_responses_path": ".local/benchmark/openrouter-hy3-capability-probe-v1/raw_responses.jsonl",
+    "protected_parsed_responses_path": ".local/benchmark/openrouter-hy3-capability-probe-v1/parsed_responses.jsonl"
+  },
+  "one_time_execution": true,
+  "credential_required": true,
+  "key_status_preflight_required": true,
+  "model_catalog_preflight_required": true,
+  "provider_calls_permitted": true,
+  "capability_probe_execution_authorized": true,
+  "authorization_consumed": false,
+  "resume_permitted": false,
+  "rerun_permitted": false,
+  "pilot_execution_authorized": false,
+  "retained_benchmark_authorized": false,
+  "comparison_eligible": false,
+  "next_gate": "protected_local_preparation_and_live_preflight"
+}
