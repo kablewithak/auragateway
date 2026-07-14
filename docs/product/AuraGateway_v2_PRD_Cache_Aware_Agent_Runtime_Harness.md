@@ -4,14 +4,14 @@
 
 | Field | Value |
 |---|---|
-| **Document version** | 2.2.0 |
-| **Status** | Terminal evidence amendment; core runtime closed with negative provider telemetry |
+| **Document version** | 2.3.0 |
+| **Status** | Terminal provider-extension amendment; core and OpenRouter/Hy3 lineages closed |
 | **Project type** | Standalone advanced AI reliability systems lab |
 | **Execution allocation** | 200 hours |
 | **Primary relationship to roadmap** | Week 3 companion project only; not part of the roadmap, not a core capstone, and not a dependency for consultancy progress |
 | **Primary technical focus** | Retrieval-aware context construction, prompt/KV-cache evidence, cache-affinity routing, telemetry normalization, hard diagnostic evaluation, and EFC-style trajectory evidence |
 | **Architecture posture** | Local-first, provider-neutral, typed, eval-driven, privacy-safe, production-shaped but not production-ready |
-| **Primary output** | A reproducible terminal evidence review showing whether the measured A/B/C benchmark was evidence-eligible, including an accepted negative result when required provider telemetry is unavailable |
+| **Primary output** | Reproducible terminal evidence across Groq and OpenRouter/Hy3 provider lineages, including fail-closed benchmark decisions when required evidence is unavailable |
 | **Author role** | AI Reliability Lead |
 
 ---
@@ -24,13 +24,13 @@ It is not a generic AI gateway, a model-router platform, a billing product, a pr
 
 The project evaluates one fixed, multi-turn, retrieval-grounded technical-support workflow under three runtime conditions:
 
-1. **Condition A — Cache-Hostile Baseline**  
+1. **Condition A — Cache-Hostile Baseline**
    Stable and dynamic context are assembled without deterministic static/volatile separation. Routing is turn-local and does not preserve session cache value.
 
-2. **Condition B — Prefix-Deterministic Runtime**  
+2. **Condition B — Prefix-Deterministic Runtime**
    Stable instructions, output schema, tool contracts, reusable examples, and approved context packs are serialized deterministically. User state, retrieval evidence, changing conversation state, and runtime metadata are isolated in a typed volatile append.
 
-3. **Condition C — Cache-Aware Agent Runtime**  
+3. **Condition C — Cache-Aware Agent Runtime**
    Condition B plus a bounded cache-affinity session policy that preserves an eligible provider/model route while cache reuse remains plausible and re-evaluates the route only for explicit, typed reasons.
 
 The project holds the workload, corpus, retrieval configuration, output schema, task budget, quality rubric, benchmark cases, provider/model capability tier, and pricing schedule constant during comparison. It changes only the intended intervention for each causal contrast:
@@ -76,8 +76,46 @@ The original A/B/C benchmark remains design intent, not completed evidence. The 
 substitute latency for provider cache telemetry, interpret a missing field as zero, or rerun a
 consumed authorization until an attractive result appeared.
 
-The next phase is a separate Hugging Face publication layer. It is not part of the core runtime and
-must consume only sanitized, precomputed artifacts.
+An optional next phase is a separate Hugging Face publication layer. It is not part of the core
+runtime and must consume only sanitized, precomputed artifacts.
+
+## 1.2 Version 2.3.0 Provider-Extension Terminal Amendment
+
+Version 2.3.0 preserves the closed Groq evidence lineage and records the terminal result of the
+separately authorized OpenRouter `tencent/hy3:free` capability extension.
+
+```text
+Groq lineage:
+  authorized raw-wire calls: 2
+  successful responses: 2
+  required cached-token field: absent from both raw responses
+  cache-use conclusion: unavailable
+
+OpenRouter/Hy3 lineage:
+  authorized capability probe: one cold/warm pair under bounded execution
+  live attempts used: 1 cold attempt
+  successful completions: 0
+  terminal response: HTTP 401
+  safe failure code: PROVIDER_AUTHENTICATION_FAILED
+  generation metadata requested: false
+  warm call attempted: false
+  numeric cache telemetry observed: false
+  authorization consumed: true
+  resume or rerun permitted: false
+```
+
+The OpenRouter/Hy3 result is a pre-inference authentication failure. It is not evidence that Hy3 was
+unavailable, that privacy-compatible routing failed, that cache telemetry was absent from a
+successful response, or that any cache hit, miss, write, discount, latency, or cost outcome occurred.
+
+The combined terminal provider conclusion is:
+
+> AuraGateway implemented and exercised provider-specific measurement boundaries, but neither closed
+> provider lineage produced the trustworthy numeric cache evidence required to authorize the measured
+> A/B/C comparison.
+
+The remaining work, if pursued, is static publication and commercial translation. It must not reopen
+or mutate the consumed provider authorizations.
 
 ---
 
@@ -2210,20 +2248,26 @@ The provider/model/date boundary is frozen.
 The observed field supports the intended cache claim.
 ```
 
-Terminal v2.2.0 status:
+Terminal v2.3.0 status:
 
 ```text
-4A contract integrity: passed
-4B live numeric evidence: closed unavailable
-overall Gate 4 for measured benchmark eligibility: did not pass
-negative result accepted: true
+4A telemetry contract integrity: passed
+4B Groq live numeric cache evidence: closed unavailable
+4C OpenRouter/Hy3 capability evidence: closed before successful inference
+measured A/B/C benchmark eligibility: did not pass
+negative and terminal-failure results accepted: true
 benchmark execution permitted: false
 comparison eligible: false
 ```
 
-Both authorized raw-wire calls succeeded, but
-`usage.prompt_tokens_details.cached_tokens` was absent from both raw responses. Missing telemetry
-remains unknown and cannot authorize a cache hit, cache miss, zero-token, savings, or A/B/C claim.
+Groq produced two successful raw responses, but
+`usage.prompt_tokens_details.cached_tokens` was absent from both. Missing telemetry remains unknown
+and cannot authorize a cache hit, cache miss, zero-token, savings, or A/B/C claim.
+
+The OpenRouter/Hy3 extension then closed on the first cold attempt after HTTP `401` with safe failure
+code `PROVIDER_AUTHENTICATION_FAILED`. No successful completion, generation metadata, route identity,
+or cache telemetry was obtained. This result blocks the Hy3 pilot but does not establish a Hy3 model,
+route, privacy, or cache conclusion.
 
 ## Gate 5 — Route Policy
 
@@ -2366,8 +2410,9 @@ Cumulative project hours: **94 / 200**.
 
 Exit criteria:
 
-- Gate 4 passes;
-- evidence semantics documented;
+- Gate 4 contract integrity passes;
+- live evidence either satisfies the declared claim boundary or closes terminally;
+- evidence semantics are documented;
 - unavailable values remain unavailable;
 - unsupported claims are machine-blocked.
 
@@ -2435,41 +2480,51 @@ Exit criteria:
 The version 2.1.0 plan allocated 26 hours to dry run, calibration, functional A/B/C execution,
 runtime microbenchmarking, exclusion review, and paired analysis.
 
-Terminal v2.2.0 disposition:
+Terminal v2.3.0 disposition:
 
 ```text
 dry-run and evidence controls: implemented
-live telemetry calibration: completed
-raw-wire reauthorization: completed
+Groq live telemetry calibration: completed
+Groq raw-wire reauthorization: completed
+OpenRouter/Hy3 identifiability review: completed
+OpenRouter adapter and capability harness: completed
+OpenRouter metadata-only preflight: passed
+OpenRouter/Hy3 live capability attempt: terminally closed on HTTP 401
 functional A/B/C execution: not authorized
 runtime A/B/C microbenchmark: not authorized
 paired analysis: not produced
-reason: Gate 4 required numeric provider cache evidence was unavailable
+reason: no closed provider lineage produced eligible numeric cache evidence
 ```
 
-No hours were spent forcing an ineligible comparison after the evidence gate closed.
+No hours were spent forcing an ineligible comparison after the evidence gates closed. The Hy3
+extension stopped after one non-retryable cold attempt and did not consume the remaining pilot or
+retained-benchmark budget.
 
 ## Phase 8 — Terminal Reporting, Case Study, and Handover
 
 Terminal deliverables:
 
 ```text
-machine-readable terminal evidence review
-hash-bound source lineage
-negative provider-telemetry case study
+machine-readable Groq terminal evidence review
+sanitized OpenRouter/Hy3 capability closeout
+OpenRouter/Hy3 terminal evidence review
+cross-provider evidence matrix
+hash-bound source lineages
+negative and terminal-failure case study material
 claim and non-claim matrix
-updated PRD and continuity state
+updated PRD, session brief, README, and formal handover
 separate Hugging Face publication-layer PRD
 ```
 
 Exit criteria:
 
-- terminal evidence review validates;
-- the negative result is reproducible from public metadata;
-- claims match evidence;
+- both terminal evidence lineages validate independently;
+- the Groq field omission and OpenRouter/Hy3 HTTP 401 are reproducible from public metadata;
+- claims match the exact evidence stage reached by each provider;
 - historical A/B/C intent is not presented as completed work;
-- core scope is handover-ready;
-- publication work remains a separate phase.
+- no consumed authorization is reopened;
+- core and provider-extension scope are handover-ready;
+- publication work remains a separate optional phase.
 
 ## 30.1 Authoritative Hours Ledger
 
@@ -2486,9 +2541,9 @@ Exit criteria:
 | Phase 8 | 14 | 200 |
 | **Total** | **200** | **200** |
 
-The hours table is the historical design allocation. Version 2.2.0 closes work by evidence boundary,
-not by claiming every planned measured activity occurred. Phase 7 measured comparison work was not
-authorized after Gate 4 closed.
+The hours table is the historical design allocation. Version 2.3.0 closes work by evidence boundary,
+not by claiming every planned measured activity occurred. Phase 7 measured comparison work and the
+remaining Hy3 pilot/benchmark allocation were not authorized after their evidence gates closed.
 
 ---
 
@@ -2601,7 +2656,7 @@ sanitized, precomputed artifacts. It is not a runtime dashboard.
 
 # 34. Maturity and Claim Boundaries
 
-## 34.1 Achieved Maturity at Core Closure
+## 34.1 Achieved Maturity at Terminal Provider Closure
 
 ```text
 Production-shaped
@@ -2614,7 +2669,7 @@ Not deployed
 Not production-ready
 ```
 
-## 34.2 Permitted Claims at Core Closure
+## 34.2 Permitted Claims at Terminal Provider Closure
 
 AuraGateway may claim:
 
@@ -2627,11 +2682,16 @@ AuraGateway may claim:
 - cache-affinity routing under explicit policy and fixed-fixture validation;
 - feedback-evidence trace controls;
 - privacy-safe metadata traces;
+- bounded one-time execution with append-only protected evidence;
 - immutable terminal evidence validation;
-- provider wire-field omission for the two observed reauthorization calls.
+- Groq wire-field omission for the two observed successful reauthorization calls;
+- OpenRouter/Hy3 terminal closure on the first cold attempt after HTTP `401`;
+- no successful Hy3 completion, generation metadata, route identity, or cache telemetry;
+- authorization consumption with no resume or rerun.
 
-AuraGateway may not claim paired A/B/C results, provider cache usage, or provider cache savings because
-the measured comparison was not evidence-eligible.
+AuraGateway may not claim paired A/B/C results, provider cache usage, provider cache savings, or a Hy3
+model/cache result because the measured comparison was not evidence-eligible and the Hy3 capability
+path ended before successful inference.
 
 ## 34.3 Forbidden Claims
 
@@ -2753,16 +2813,18 @@ The skeptical-reviewer guide must explain:
 
 # 37. Final Acceptance Statement
 
-AuraGateway v2 core scope is complete when a skeptical senior AI engineer can inspect the repository
-and conclude:
+AuraGateway v2 and its OpenRouter/Hy3 provider extension are complete when a skeptical senior AI
+engineer can inspect the repository and conclude:
 
 > “This project implemented a typed cache-aware runtime and evidence harness, froze its benchmark
-> requirements, preserved unknown telemetry semantics, traced the provider field to the raw wire,
-> accepted a negative result, and blocked an A/B/C comparison when the required numeric evidence was
-> unavailable. It does not present historical design intent as completed measurement.”
+> requirements, preserved unknown telemetry semantics, traced the Groq cache field to the raw wire,
+> accepted the missing-field result, bounded a second provider capability probe, retained its HTTP 401
+> terminal failure without retry, and blocked A/B/C execution when neither lineage produced eligible
+> cache evidence. It does not present design intent, local header diagnostics, or failed authentication
+> as completed model measurement.”
 
 The original paired A/B/C benchmark remains an uncompleted target. The reliable outcome is the
-fail-closed decision, not a fabricated savings number.
+fail-closed provider evidence discipline, not a fabricated savings number.
 
 ---
 
@@ -2774,9 +2836,19 @@ The project takes direct architectural inspiration from Mark Landgrebe’s descr
 
 Effective Feedback Compute is used as a trace-level evaluation doctrine. Value comes from feedback that is valid, non-redundant, retained, action-changing, and sufficient for the task—not from raw token volume, retries, tool calls, or agent steps.
 
-The completed provider-evidence path’s strongest claim is conditional and local:
+The completed provider-evidence paths support two separate conditional and local claims:
 
-> For the two authorized raw-wire calls under the named provider, model, request, SDK, and observation
-> boundary, the billing cached-token field was absent from both raw responses.
+> For the two authorized Groq raw-wire calls under the named provider, model, request, SDK, and
+> observation boundary, the billing cached-token field was absent from both successful raw responses.
 
-The repository does not contain an accepted measured A/B/C cost, latency, or cache-savings outcome.
+> For the one authorized OpenRouter/Hy3 cold attempt, OpenRouter returned HTTP `401` before a successful
+> completion; no generation metadata or cache telemetry was obtained, and the authorization was
+> consumed without resume or rerun.
+
+The OpenRouter evidence does not prove whether credential validity, credential entry, surrounding
+whitespace, header delivery, or another authentication factor caused the response. Post hoc local
+header construction proves only that the merged backend can construct a Bearer header; it does not
+prove what the provider received during the closed live attempt.
+
+The repository does not contain an accepted measured A/B/C cost, latency, route-affinity, or
+cache-savings outcome.

@@ -1,1561 +1,562 @@
 # AuraGateway — Session Brief
-## Current Session Mission Order, Benchmark Integrity, and Evidence Control
+## Terminal Provider Evidence, Continuity, and Publication Control
 
-> Paste this file into every new AuraGateway working session after the current project handover or continuity checkpoint.
+> Paste this file into every fresh AuraGateway working session together with the current formal
+> handover.
 >
-> This is a **session-specific** document. Update only the sections relevant to the current session, active proof gate, and frozen experiment state.
+> This brief is aligned to
+> `AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md` version `2.3.0` and
+> `AuraGateway_OpenRouter_Hy3_Free_Tier_Validation_Mini_PRD.md` version `1.1.0`.
 >
-> This brief is aligned to `AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md` version `2.2.0`, the terminal evidence amendment to the 200-hour design baseline.
->
-> AuraGateway is a standalone advanced AI reliability systems lab. It is a Week 3 companion project only. It is **not** part of the AI consultancy roadmap’s core capstones, does not replace Week 3 requirements, and must not become a hidden dependency of the consultancy proof repository.
+> AuraGateway is a standalone advanced AI reliability systems lab and Week 3 companion project. It
+> is not a consultancy-roadmap core capstone and must not become a hidden dependency of the primary
+> consultancy proof repository.
 
 ---
 
-# Terminal Continuity State — PRD 2.2.0
+# 0. Terminal Continuity State
 
-This state is fixed unless a new, separately authorized project phase changes it.
+This state is fixed unless a separately authorized future phase explicitly supersedes it.
 
 ```text
 core runtime and evaluation harness: implemented
-terminal evidence review: complete
+core PRD: 2.3.0
+Groq terminal evidence review: complete
+OpenRouter/Hy3 terminal evidence review: complete
 Gate 4 telemetry contract integrity: passed
-Gate 4 live numeric evidence sufficiency: closed unavailable
-measured A/B/C comparison: not completed
+Gate 4 live numeric evidence sufficiency: did not pass
+measured A/B/C comparison: not authorized and not completed
 provider cache usage measured: false
 provider cache savings measured: false
-core scope: closed
+runtime provider authorizations: consumed and closed
 maturity: production-shaped, locally validated, synthetic-corpus validated,
           fixed-eval validated, controlled-provider tested
-deployed: false
 customer-data tested: false
+deployed: false
 production-ready: false
 ```
 
-Permitted terminal claim:
+## Terminal provider results
+
+### Groq
 
 ```text
-For the two authorized raw-wire calls, Groq omitted
-usage.prompt_tokens_details.cached_tokens from both raw responses.
+authorized raw-wire calls: 2
+successful responses: 2
+required field: usage.prompt_tokens_details.cached_tokens
+observed state: absent from both raw responses
+cache conclusion: unavailable
+lineage state: closed
 ```
 
-Permanent blocked claims:
+Permitted Groq claim:
+
+> For the two authorized raw-wire calls, Groq omitted
+> `usage.prompt_tokens_details.cached_tokens` from both successful raw responses.
+
+### OpenRouter / Tencent Hy3 free route
+
+```text
+requested model: tencent/hy3:free
+metadata-only preflight: passed
+live cold attempts: 1
+successful completions: 0
+HTTP status: 401
+safe failure code: PROVIDER_AUTHENTICATION_FAILED
+provider message: Missing Authentication header
+generation metadata requested: false
+warm call attempted: false
+numeric cache telemetry observed: false
+route identity observed: false
+authorization consumed: true
+resume permitted: false
+rerun permitted: false
+lineage state: closed
+```
+
+Permitted OpenRouter/Hy3 claim:
+
+> The one-time OpenRouter Hy3 capability probe closed on its first cold-call attempt after HTTP
+> `401`; no successful completion, generation metadata, route identity, or cache telemetry was
+> obtained.
+
+## Permanent blocked claims
 
 ```text
 provider cache hit or miss
 cached tokens equal zero
 measured provider cache usage
 measured provider cache savings
+successful Hy3 inference
+Hy3 route availability or privacy-routing conclusion
 completed A/B/C benchmark result
+Condition C affinity benefit
 universal cost or latency savings
 production readiness
 ```
 
-No identical provider rerun, resume, additional provider execution, or execution-evidence mutation is
-permitted on the closed evidence path.
+## Root-cause boundary
 
-The next phase is `hugging_face_publication_layer_design`. It is a separate static publication
-adapter and must not introduce live inference, credentials, customer data, or protected provider
-payloads.
+The OpenRouter evidence does not establish whether the `401` resulted from:
+
+```text
+credential validity
+credential entry or mismatch with preflight
+surrounding whitespace
+header delivery
+account-side rejection
+another authentication factor
+```
+
+A post hoc zero-network test proved only that the merged urllib backend can construct a Bearer
+header and that no system proxy was detected. It does not prove what OpenRouter received during the
+closed attempt.
 
 ---
 
-# 0. Project Identity and Operating Boundary
-
-## Project
+# 1. Current Session Mode
 
 ```text
-AuraGateway v2 — Cache-Aware Agent Runtime and Evaluation Harness
+Primary mode: Documentation / Handover
+Secondary mode: Static publication planning, only when explicitly authorized
+Active proof gate: Gate 10 — Final Evidence Report, terminally closed
+Active experiment: none
+Active causal contrast: none
+Live provider execution permitted: no
 ```
 
-## North Star
+## Current objective
 
-> AuraGateway proves, through a reproducible and controlled multi-turn retrieval-agent benchmark, whether deterministic context construction and cache-affinity routing reduce avoidable prefill work, latency, and estimated cost while preserving retrieval quality, grounded task success, structured-output validity, and useful feedback retention under fixed provider, model, and evaluation conditions.
+Preserve the two terminal provider lineages, prevent cache or A/B/C overclaims, maintain queryable
+sanitized evidence, and keep any later Hugging Face publication layer fully separate from runtime
+execution.
 
-## Plain-English North Star
+## Smallest safe future slice
 
-> AuraGateway tests whether an AI assistant can reuse the parts of its context that have not changed and avoid unnecessarily switching models during a conversation, so it spends less time and money repeating work without becoming less accurate, less reliable, or worse at completing the task.
-
-## Project Classification
+The next optional implementation slice is the static Hugging Face publication adapter described in:
 
 ```text
-Standalone advanced AI reliability systems lab
+docs/product/AuraGateway_Hugging_Face_Publication_Layer_PRD.md
 ```
 
-## Roadmap Relationship
+That slice must consume only committed sanitized artifacts and must not:
 
 ```text
-Week 3 companion project only.
-
-It may borrow retrieval, token-budget, context-assembly, provider-boundary,
-prompt-cache, KV-cache, routing, evaluation, and EFC concepts.
-
-It must not replace roadmap Week 3 gates.
-It must not be treated as a consultancy core capstone.
-It must not create a dependency on the primary consultancy proof repository.
-```
-
-## Direct Inspiration
-
-```text
-Mark Landgrebe, Senior Staff Software Engineer at Coinbase:
-- exact-prefix caching;
-- long stable prefixes across turns;
-- cheaper model defaults;
-- cache-aware session routing;
-- preserving a model while cache state remains warm;
-- TTL-based route reconsideration;
-- gateway-level redaction, logging, failover, and cost controls.
-
-AuraGateway tests a bounded version of the underlying engineering hypothesis.
-It does not reproduce Coinbase infrastructure, scale, or results.
-```
-
-## Current Maturity Label
-
-Choose one:
-
-```text
-Prototype
-Production-shaped
-Locally validated
-Synthetic-corpus validated
-Benchmark-constitution validated
-Diagnostic-eval validated
-Fixed-eval validated
-Controlled-provider validated
-Customer-data tested
-Deployed
-Production-ready
-```
-
-Selected label:
-
-```text
-Production-shaped
-Locally validated
-Synthetic-corpus validated
-Fixed-eval validated
-Controlled-provider tested
-Not customer-data tested
-Not deployed
-Not production-ready
-```
-
-## Permanent Claim Boundary
-
-AuraGateway may measure:
-
-```text
-- deterministic static-prefix construction;
-- prefix mutation and volatile-content leakage;
-- provider-reported cache telemetry where available;
-- locally inferred prompt-evaluation timing where available;
-- cache-affinity route decisions and route preservation;
-- retrieval and task-quality outcomes;
-- paired A/B/C runtime differences only when comparison eligibility passes;
-- terminal negative results when required evidence is unavailable;
-- trace-level feedback validity, novelty, retention, action change, and sufficiency;
-- comparison eligibility under frozen configuration fingerprints;
-- estimated cost only under a named, versioned pricing schedule.
-```
-
-For the closed v2 provider path, paired A/B/C measurement and cache-savings claims are not permitted.
-
-AuraGateway must not claim:
-
-```text
-- guaranteed provider cache hits;
-- direct provider GPU KV-cache visibility;
-- guaranteed cache residency, TTL, eviction, or provider scheduling behavior;
-- universal cost or latency savings;
-- broad provider performance rankings;
-- universal or complete EFC scoring;
-- production readiness;
-- customer-data readiness;
-- Coinbase-scale infrastructure or Coinbase-scale results.
+load provider credentials
+perform live inference
+read protected .local payloads
+publish raw prompts or provider bodies
+alter closed evidence
+reopen consumed authorizations
+claim measured cache savings
 ```
 
 ---
 
-# 1. Session Mode
-
-Choose the main mode for this session:
-
-- Build
-- Debug / Refactor
-- Eval / Harness
-- Agent
-- RAG
-- Roadmap / Learning
-- Business Translation
-- Teaching
-- Documentation
-- Handover
-
-Selected mode:
+# 2. Repository and Git Context
 
 ```text
-Documentation
+repository: kablewithak/auragateway
+local path: C:\Users\kabom\Documents\Machine Learning\Machine Learning Workspace\auragateway
+shell: Windows PowerShell
+source terminal checkpoint: main clean at 00d0712
+source merge: PR #61 — OpenRouter Hy3 capability-probe closeout
+latest main after any later PR: verify from current terminal output
 ```
 
-Secondary mode, if any:
+Orientation commands:
+
+```powershell
+Set-Location "C:\Users\kabom\Documents\Machine Learning\Machine Learning Workspace\auragateway"
+
+git status
+git --no-pager log -1 --oneline
+python --version
+python -m ruff --version
+```
+
+Current local lint authority at terminal closeout:
 
 ```text
-Handover
+Ruff 0.15.21
+```
+
+Historical validation records using Ruff `0.15.20` remain historically correct and must not be
+rewritten.
+
+---
+
+# 3. Source Hierarchy
+
+Use sources in this order:
+
+```text
+1. AuraGateway v2 PRD version 2.3.0
+2. OpenRouter Hy3 Mini PRD version 1.1.0
+3. OpenRouter Hy3 terminal evidence review and provider evidence matrix
+4. Sanitized OpenRouter closeout result and manifest
+5. Core AuraGateway v2 terminal evidence review
+6. Frozen benchmark constitution and evidence-bundle specifications
+7. Relevant ADRs
+8. This session brief
+9. Current formal handover
+10. Current terminal output, logs, screenshots, and test evidence
+```
+
+Current governing files:
+
+```text
+docs/product/AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md
+docs/product/AuraGateway_OpenRouter_Hy3_Free_Tier_Validation_Mini_PRD.md
+docs/benchmark/AuraGateway_v2_Terminal_Evidence_Review.md
+docs/benchmark/AuraGateway_OpenRouter_Hy3_Terminal_Evidence_Review.md
+docs/benchmark/AuraGateway_Provider_Evidence_Matrix.md
+data/evals/benchmark/openrouter-hy3-capability-probe-closeout-v1/closeout_result.json
+data/evals/benchmark/openrouter-hy3-capability-probe-closeout-v1/closeout_manifest.json
+data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1/review.json
+data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1/manifest.json
+docs/handover/AuraGateway_Handover_Terminal_Provider_Evidence.md
+```
+
+Historical design documents remain useful for intent, but terminal review files govern achieved
+claims.
+
+---
+
+# 4. Experiment and Freeze State
+
+## Runtime condition
+
+```text
+None — all live provider execution is terminally closed.
+```
+
+## Controlled assets
+
+| Asset | State | Governing evidence |
+|---|---|---|
+| Core benchmark constitution | Frozen | Existing benchmark constitution and core terminal review |
+| Corpus and retrieval configuration | Frozen | Closed core evidence lineage |
+| Prompt and static-anchor design | Frozen for closed benchmark | Core manifests |
+| Groq raw-wire evidence | Immutable | Groq closeout and core terminal review |
+| OpenRouter identifiability review | Immutable | `openrouter-hy3-identifiability-review-v1` |
+| OpenRouter adapter dry run | Immutable | `openrouter-hy3-adapter-dry-run-v1` |
+| Hy3 authorization review | Immutable | `openrouter-hy3-capability-probe-authorization-review-v1` |
+| Hy3 committed authorization | Immutable grant | `openrouter-hy3-capability-probe-v1/authorization.json` |
+| Protected Hy3 execution evidence | Local-only and terminal | `.local/benchmark/openrouter-hy3-capability-probe-v1/` |
+| Sanitized Hy3 closeout | Immutable public evidence | `openrouter-hy3-capability-probe-closeout-v1` |
+| A/B/C pilot | Not authorized | Capability gate did not pass |
+| Retained benchmark | Not authorized | Capability and pilot gates did not pass |
+
+## Allowed changes
+
+```text
+documentation corrections that do not alter evidence meaning
+static publication adapters over sanitized committed artifacts
+test-only hardening for future unrelated provider lineages
+commercial case-study packaging with explicit claims and non-claims
+```
+
+## Prohibited changes
+
+```text
+rerun or resume either closed provider authorization
+mutate historical evidence in place
+convert missing or unavailable telemetry to zero
+present post hoc diagnostics as live-request proof
+run the A/B/C pilot or retained benchmark
+reuse protected prompt bundles for a new provider call
+publish raw prompts, credentials, session IDs, or provider bodies
+claim a cache, routing, cost, or latency result from the Hy3 401
+```
+
+## Comparison eligibility
+
+```text
+Eligible: no
+Groq reason: required numeric cache field absent from successful responses
+OpenRouter/Hy3 reason: no successful completion or cache telemetry
+Invalidated claims: A/B/C, cache usage, cache savings, affinity advantage
+Required reruns: none under the closed lineages; rerun is prohibited
 ```
 
 ---
 
-# 2. Current Project Position
+# 5. Provider and Telemetry State
 
-## Active Phase
-
-Choose one:
+## Groq evidence level
 
 ```text
-Phase 0 — Design Freeze and Benchmark Constitution
-Phase 1 — Corpus, Retrieval, and Eval Asset Construction
-Phase 2 — Typed Contracts and Context Compiler
-Phase 3 — Provider Adapters and Telemetry Calibration
-Phase 4 — Cache-Affinity Controller and Trajectory Regulation
-Phase 5 — Quality, Feedback Evidence, and Blinded Adjudication
-Phase 6 — Fault Injection, Meta-Harness, and Reproducibility
-Phase 7 — Benchmark Execution and Statistical Analysis
-Phase 8 — Reporting, Case Study, Demo, and Handover
-Post-implementation — Maintenance, Revalidation, or Commercial Translation
+Observed provider response evidence: yes
+Successful model responses: yes
+Required numeric cache telemetry: unavailable
+Cache claim permitted: no
+Latency claim permitted as cache proof: no
+Cost claim permitted: no
 ```
 
-Selected phase:
+## OpenRouter/Hy3 evidence level
 
 ```text
-Post-implementation — Maintenance, Revalidation, or Commercial Translation
+Observed provider HTTP evidence: yes
+Successful model response: no
+Generation metadata: unavailable
+Resolved route identity: unavailable
+Numeric cache telemetry: unavailable
+Cache claim permitted: no
+Latency claim permitted: no
+Cost claim permitted: no
 ```
 
-## Hours Completed
+## Telemetry semantics
 
 ```text
-Historical design allocation: 200 hours
-Core evidence scope: closed
-Hours are no longer the release gate; evidence and publication acceptance criteria govern next work
-```
-
-## Current Active Proof Gate
-
-Choose the one being advanced:
-
-```text
-Gate 0 — Benchmark Constitution
-Gate 1 — Retrieval Readiness
-Gate 2 — Diagnostic Eval Readiness
-Gate 3 — Prefix Determinism
-Gate 4 — Telemetry Integrity
-Gate 5 — Route Policy
-Gate 6 — Task-Quality Safety
-Gate 7 — Feedback Evidence
-Gate 8 — Fault and Privacy Controls
-Gate 9 — Benchmark Execution
-Gate 10 — Final Evidence Report
-```
-
-Selected proof gate:
-
-```text
-Gate 10 — Final Evidence Report: closed by terminal evidence review
-```
-
-## Current Experiment State
-
-Choose one:
-
-```text
-Pre-freeze
-Benchmark constitution drafting
-Benchmark constitution frozen
-Development retrieval tuning
-Retrieval frozen
-Diagnostic eval authoring
-Diagnostic eval review
-Evaluation manifest frozen
-Prompt/static-anchor still editable
-Prompt/static-anchor frozen
-Telemetry fixture validation
-Telemetry sufficiency validation
-Live provider smoke validation
-Negative-control calibration
-Condition A active
-Condition B active
-Condition C active
-Paired A/B/C execution active
-Blinded adjudication active
-Fault-injection validation
-Comparison eligibility validation
-Benchmark complete
-Statistical analysis active
-Report under review
-Handover-ready
-```
-
-Selected state:
-
-```text
-Handover-ready
-```
-
-## Why This Session Matters
-
-```text
-Preserve the terminal negative result, prevent future A/B/C or cache-savings overclaims, and keep
-the Hugging Face publication layer separate from the closed runtime.
-```
-
-## Current Benchmark Objective
-
-```text
-No benchmark execution is active. The evidence path is terminal because required numeric provider
-cache telemetry was unavailable.
-```
-
-## Current Causal Contrast
-
-Choose one:
-
-```text
-None — design, retrieval, shared infrastructure, or reporting session
-A versus B — deterministic context construction only
-B versus C — cache-affinity route policy only
-A versus C — total system effect; not a single-mechanism causal claim
-Negative control — deliberate stable-prefix mutation
-Functional benchmark — task quality and policy correctness
-Runtime microbenchmark — cache, prefill, TTFO, and cost evidence
-```
-
-Selected contrast:
-
-```text
-None — terminal reporting, handover, or static publication work only
+absent: unknown
+null: unknown
+numeric zero: observed zero, not cache use
+positive cache write: potential bounded cache-use evidence
+positive warm cache read: potential bounded cache-use evidence
+cold positive cache read: contamination signal, not sufficient alone for promotion
+HTTP 401 before completion: authentication failure, not cache telemetry
 ```
 
 ---
 
-# 3. Session Objective
+# 6. Evidence and Privacy Boundary
 
-## Primary Objective
+Publicly permitted:
 
 ```text
-Maintain the closed core evidence state and implement the separate, sanitized Hugging Face
-publication layer without changing runtime evidence or claims.
+artifact hashes
+byte counts
+attempt and success counts
+HTTP status
+safe error code and bounded safe message
+requested provider/model identifiers
+terminal outcome
+claims and non-claims
+maturity labels
 ```
 
-## Expected Output From the Assistant
-
-Choose or describe:
+Protected or prohibited:
 
 ```text
-- implementation plan
-- full replacement files
-- repo file tree
-- ADR
-- benchmark constitution
-- paired execution design
-- eval design
-- diagnostic case set
-- retrieval scorecard design
-- telemetry contract
-- telemetry sufficiency gate
-- routing-policy design
-- comparison-eligibility contract
-- negative-control design
-- fault-injection suite
-- blinded-adjudication protocol
-- debugging diagnosis
-- failure analysis
-- benchmark report
-- trace review
-- evidence-bundle design
-- one-command reproducibility workflow
-- reviewer guide
-- case-study draft
-- demo script
-- handover
-- study explanation
-- GitOps commands
+API keys
+Authorization header values
+raw prompts
+protected session identity
+raw OpenRouter response body
+raw parsed provider object
+full attempt journal
+private repository content
+customer data
+PII or secrets
 ```
 
-Expected output:
+Engineering controls:
 
 ```text
-
+.local ignored by Git
+no secrets in logs
+synthetic public-safe prompt only
+one-time authorization
+bounded attempts
+append-only journal
+raw response retained before typed interpretation
+sanitized closeout published separately
+no resume or rerun
 ```
 
-## Smallest Safe Slice
+These are engineering controls aligned with minimization and least-privilege principles. They are not
+legal compliance claims.
 
-State the smallest deliverable that moves the active proof gate forward without changing unrelated frozen assets:
+---
 
-```text
+# 7. Validation Commands
 
+Terminal public evidence:
+
+```powershell
+python -m auragateway.benchmark.auragateway_v2_terminal_evidence_review_runner `
+    validate `
+    --repo-root .
+
+python -m auragateway.benchmark.openrouter_hy3_capability_probe_closeout_runner `
+    validate-public `
+    --repo-root .
 ```
 
-## What Evidence Will Exist at the End of This Session?
+Repository release gates:
 
-```text
-
+```powershell
+python -m pytest
+python -m ruff check .
+python -m ruff format --check .
+python -m mypy src tests
+git diff --check
+git ls-files .local
 ```
 
-## Definition of Done for This Session
+`git ls-files .local` must return no output.
+
+---
+
+# 8. Workflow Preferences
+
+Treat these phrases as confirmation that prior instructions were completed and the next bounded
+operational response is wanted:
 
 ```text
+excellent work
+what's next?
+take it away
+```
 
+For implementation slices, provide one complete PowerShell workflow:
+
+```text
+branch and current-state checks
+one implementation ZIP to Downloads
+exact extraction and target-copy commands
+git status after files land
+validation before staging
+one pytest command per line
+git status before and after git add
+exact-path git add
+semantic commit and push
+clean GitHub-safe PR title and raw Markdown body
+one commands-only after-merge sync/delete block
+```
+
+Additional rules:
+
+```text
+full-file replacements preferred
+no formal handover mid-slice unless requested
+no invented branch names, hashes, test counts, or provider results
+Ruff check and Ruff format check are independent gates
+PowerShell only for user commands
+no explanatory prose inside the after-merge command block
 ```
 
 ---
 
-# 4. Experiment Integrity and Freeze Status
+# 9. Commercial Translation
 
-> This section is mandatory for any session that changes retrieval, prompts, context packs, routing, provider behavior, telemetry, metrics, evaluation cases, adjudication rules, benchmark execution, statistical reporting, or comparison eligibility.
+The terminal result supports these offer angles:
 
-## Current Runtime Condition
+## AI System Evaluation Audit
 
-Choose one:
+Buyer pain:
 
-```text
-None — design or shared infrastructure session
-A — Cache-Hostile Baseline
-B — Prefix-Deterministic Runtime
-C — Cache-Aware Agent Runtime
-A/B/C comparison runner
-Negative-control calibration
-Functional benchmark runner
-Runtime microbenchmark runner
-```
+> The team assumes provider usage fields are sufficient to support cache or savings claims.
 
-Selected condition:
+Proof asset:
 
-```text
+> Two provider lineages showing that measurement-channel sufficiency must be tested before benchmark
+> spend is authorized.
 
-```
+## Agent Harness Hardening Sprint
 
-## Intervention Under Test
+Buyer pain:
 
-State exactly one main intervention whenever a benchmark comparison is active:
+> External calls can retry, drift, or produce ambiguous evidence without bounded state control.
 
-```text
+Proof asset:
 
-```
+> One-time authorization, append-only attempt accounting, terminal closeout, protected raw evidence,
+> and machine-blocked promotion.
 
-## Controlled Constants
+## AI Reliability Retainer
 
-These must remain fixed during the affected comparison unless the benchmark constitution declares a full rerun:
+Buyer pain:
 
-```text
-- corpus manifest;
-- chunking strategy;
-- retrieval implementation;
-- retrieval configuration;
-- top-k;
-- metadata-filter policy;
-- prompt template ID and version;
-- static context-pack ID and version;
-- tool-contract version;
-- output-schema version;
-- development and held-out evaluation manifests;
-- multi-turn episode manifest;
-- task-quality rubric and thresholds;
-- blinded-adjudication protocol;
-- max turns;
-- input and output budgets;
-- provider/model capability tier;
-- provider/model aliases;
-- provider adapter version;
-- runtime condition implementation version;
-- route-policy version;
-- benchmark runner version;
-- run-order and counterbalancing policy;
-- cold-start classification policy;
-- retry, exclusion, and rerun rules;
-- statistical reporting configuration;
-- comparison-eligibility rules;
-- pricing schedule version, if cost is reported.
-```
+> Provider contracts, credentials, routes, and telemetry can drift after initial integration.
 
-Current controlled constants:
+Proof asset:
 
-```text
-
-```
-
-## Freeze Status
-
-| Asset | Status: Editable / Frozen / Not Applicable | Manifest, Version, or Hash | Evidence |
-|---|---|---|---|
-| Benchmark constitution |  |  |  |
-| Corpus |  |  |  |
-| Development retrieval cases |  |  |  |
-| Held-out retrieval cases |  |  |  |
-| Diagnostic multi-turn episodes |  |  |  |
-| Functional benchmark subset |  |  |  |
-| Runtime microbenchmark subset |  |  |  |
-| Chunking strategy |  |  |  |
-| Retrieval configuration |  |  |  |
-| Prompt template |  |  |  |
-| Static context pack |  |  |  |
-| Tool contract |  |  |  |
-| Output schema |  |  |  |
-| Routing policy |  |  |  |
-| Quality rubric |  |  |  |
-| Blinded-adjudication protocol |  |  |  |
-| Negative-control definitions |  |  |  |
-| Fault-injection fixtures |  |  |  |
-| Telemetry sufficiency rules |  |  |  |
-| Pricing schedule |  |  |  |
-| Benchmark runner |  |  |  |
-| Statistical reporting configuration |  |  |  |
-| Comparison-eligibility contract |  |  |  |
-| Evidence-bundle schema |  |  |  |
-
-## Allowed Changes This Session
-
-```text
-
-```
-
-## Prohibited Changes This Session
-
-```text
-
-```
-
-## Full Rerun Required If
-
-```text
-- any controlled constant changes;
-- a held-out or diagnostic evaluation case changes after freeze;
-- the benchmark constitution changes after benchmark execution begins;
-- a prompt or static-anchor change alters the configured experiment;
-- retrieval configuration changes after freeze;
-- the provider/model capability tier or alias changes;
-- a provider adapter changes telemetry meaning;
-- the quality rubric, scorer, reviewer instructions, or acceptance threshold changes;
-- a route-policy rule changes during comparison;
-- negative-control or fault-injection definitions change after their gate closes;
-- run-order, cold-start, retry, exclusion, or rerun rules change;
-- statistical reporting rules change after results are inspected;
-- the pricing schedule changes while cost comparison remains in scope;
-- a configuration fingerprint mismatch is discovered between compared runs.
-```
-
-Additional rerun triggers:
-
-```text
-
-```
-
-## Comparison Eligibility
-
-```text
-Eligible for comparison: yes / no / not yet evaluated
-Mismatched fingerprint fields:
-Invalidated claims:
-Required reruns:
-```
-
----
-
-# 5. Benchmark Constitution and Run Control
-
-## Constitution State
-
-```text
-Draft / under review / frozen / superseded / verify first
-```
-
-Selected state:
-
-```text
-
-```
-
-## Paired Execution Identity
-
-```text
-comparison_pair_id strategy:
-episode_id strategy:
-replication_id strategy:
-condition_id:
-provider_model_alias:
-benchmark_manifest_hash:
-```
-
-## Run Order and Counterbalancing
-
-```text
-Execution-order policy:
-Counterbalancing method:
-Provider-load drift control:
-Time spacing between runs:
-Randomization seed or deterministic schedule:
-```
-
-## Cold and Warm Classification
-
-```text
-Cold-start definition:
-Warm-turn eligibility:
-TTL assumption:
-TTL source and date checked:
-Ambiguous cache-state treatment:
-```
-
-## Retry, Exclusion, and Rerun Rules
-
-```text
-Retryable failures:
-Non-retryable failures:
-Maximum retries:
-Ambiguous response-state handling:
-Predeclared exclusion rules:
-Rerun eligibility:
-Whether failed runs remain in denominators:
-```
-
-## Statistical Reporting Configuration
-
-```text
-Primary summary statistics:
-Paired-difference reporting:
-Range / quartile reporting:
-P90 reporting:
-Bootstrap interval configuration:
-Outlier reporting policy:
-Success-only versus failure-inclusive views:
-```
-
----
-
-# 6. Cache Evidence and Provider State
-
-## Primary Provider and Model
-
-```text
-Provider:
-Model alias:
-Exact model identifier:
-Adapter path/version:
-Documentation date checked:
-```
-
-## Secondary Provider or Fixture-Only Adapter
-
-```text
-Provider:
-Model or fixture version:
-Role:
-Live or fixture-only:
-```
-
-## Local Ollama / Local Runtime State
-
-```text
-Installed / not installed:
-Model:
-Purpose:
-Known local limitations:
-```
-
-## Cache Evidence Level for This Session
-
-Choose one:
-
-```text
-Observed provider evidence
-Inferred local evidence
-Unavailable
-Mixed — specify by provider/runtime
-```
-
-Selected level:
-
-```text
-
-```
-
-## Provider Telemetry Fields Available
-
-```text
-
-```
-
-## Provider Telemetry Fields Unavailable or Semantically Uncertain
-
-```text
-
-```
-
-## Telemetry Sufficiency
-
-```text
-Cache claim permitted: yes / no / not evaluated
-Latency claim permitted: yes / no / not evaluated
-Cost claim permitted: yes / no / not evaluated
-Unavailable required fields:
-Reasons:
-```
-
-## Cache TTL Assumptions
-
-```text
-Provider TTL or retention assumption:
-Source:
-Date checked:
-Known uncertainty:
-```
-
-## Pricing Schedule
-
-```text
-Pricing schedule version:
-Pricing source date:
-Estimated or provider-reported:
-Cache read/write pricing available:
-```
-
-## Prefix Negative-Control Calibration
-
-```text
-Calibration status: not started / passed / failed / inconclusive
-Stable-prefix run evidence:
-Controlled mutation used:
-Mutated-prefix run evidence:
-Telemetry sensitivity conclusion:
-Claims still permitted:
-```
-
-## Required Evidence Language
-
-Use only one of these when reporting cache behavior:
-
-```text
-Observed provider cache evidence:
-The provider explicitly returned cache-related usage fields.
-
-Inferred local cache evidence:
-A controlled local runtime showed timing behavior consistent with warm/cold
-prefill reuse. This does not prove provider-style cached-token counts.
-
-Cache evidence unavailable:
-The current provider/runtime did not expose enough trustworthy telemetry to
-support a cache-efficiency claim.
-```
-
----
-
-# 7. Current Repo / Workspace Context
-
-Repo name:
-
-```text
-
-```
-
-Local repo path:
-
-```text
-
-```
-
-Current branch:
-
-```text
-
-```
-
-Latest known Git status:
-
-```text
-
-```
-
-Latest known commit or PR state:
-
-```text
-
-```
-
-Virtual environment or setup notes:
-
-```text
-
-```
-
-Known commands that already passed:
-
-```text
-
-```
-
-Known commands that failed:
-
-```text
-
-```
-
-Current relevant package or module paths:
-
-```text
-
-```
-
-Current data / evidence paths:
-
-```text
-
-```
-
-Current frozen manifests:
-
-```text
-
-```
-
-Current untracked or local-only artifacts that must be preserved:
-
-```text
-
-```
-
----
-
-# 8. Benchmark Configuration Fingerprint
-
-> Complete this section once benchmarked evidence exists. Do not invent values.
-
-```text
-Benchmark constitution version/hash:
-Corpus manifest hash:
-Retrieval configuration hash:
-Prompt template ID and version:
-Static context-pack ID and version:
-Tool-contract version:
-Output-schema version:
-Development-eval manifest hash:
-Held-out-eval manifest hash:
-Diagnostic-episode manifest hash:
-Functional benchmark subset hash:
-Runtime microbenchmark subset hash:
-Quality rubric version:
-Blinded-adjudication protocol version:
-Negative-control manifest hash:
-Fault-injection fixture hash:
-Telemetry-sufficiency rules version:
-Route-policy version:
-Benchmark runner version:
-Statistical reporting configuration version:
-Comparison-eligibility contract version:
-Evidence-bundle schema version:
-Pricing schedule version:
-Provider/model alias:
-Provider adapter version:
-Python version:
-Dependency lock hash/version:
-Git commit hash:
-```
-
-Benchmark namespace controls:
-
-```text
-cache_namespace_id strategy:
-session_id_hash policy:
-run_id format:
-comparison_pair_id format:
-replication_id format:
-condition ID:
-```
-
-Cold-start handling:
-
-```text
-How cold-start turns are separated from warm-turn reporting:
-```
-
-Comparison result:
-
-```text
-Comparison eligible: yes / no / not evaluated
-Mismatches:
-Invalidated metrics or claims:
-```
-
----
-
-# 9. Evaluation, Adjudication, and Evidence State
-
-## Diagnostic Case State
-
-```text
-Development cases complete:
-Held-out retrieval cases complete:
-Diagnostic multi-turn episodes complete:
-Cases accepted:
-Cases rejected:
-Acceptance/rejection reasons stored:
-Evaluation manifest state:
-```
-
-## Scoring Boundary
-
-Deterministic checks:
-
-```text
-
-```
-
-Rubric-based checks:
-
-```text
-
-```
-
-## Blinded Adjudication
-
-```text
-Protocol version:
-Opaque review-ID method:
-Reviewer count:
-Double-review percentage:
-Disagreement-resolution rule:
-Reviewer condition visibility:
-Rubric freeze status:
-```
-
-## Functional Benchmark State
-
-```text
-Not started / partial / complete / invalidated
-Episode count:
-Repetitions:
-Task-quality result state:
-Known failures:
-```
-
-## Runtime Microbenchmark State
-
-```text
-Not started / partial / complete / invalidated
-Episode subset count:
-Repetitions:
-Cold/warm reporting state:
-Known failures:
-```
-
-## Negative Controls and Fault Injection
-
-```text
-Prefix mutation controls:
-Telemetry semantic controls:
-Route-thrash controls:
-Retrieval/stale-source controls:
-Feedback retention controls:
-Privacy trace-rejection controls:
-Cross-condition isolation controls:
-Fault suite status:
-```
-
-## Evidence Bundle State
-
-```text
-Run bundle path:
-Manifest path:
-Results JSONL path:
-Failures JSONL path:
-Comparison CSV path:
-Benchmark report path:
-Sanitized trace path:
-Artifact hash manifest path:
-Bundle immutable: yes / no / not yet
-```
-
----
-
-# 10. Files and Evidence Available
-
-Files uploaded or pasted for this session:
-
-```text
-
-```
-
-Files that are source of truth:
-
-```text
-1. AuraGateway v2 PRD version 2.2.0
-2. Relevant AuraGateway ADRs
-3. Frozen benchmark constitution
-4. Corpus, retrieval, and evaluation manifests
-5. Frozen prompt, context-pack, tool-contract, and output-schema versions
-6. Current provider documentation and pricing references
-7. Latest validated evidence bundle, benchmark report, and sanitized traces
-8. This SESSION_BRIEF.md
-9. Terminal output, logs, screenshots, and test evidence provided in this session
-```
-
-Current source-of-truth files:
-
-```text
-
-```
-
-Files that may be stale or must not be trusted:
-
-```text
-
-```
-
-Files that must not be inspected for the active task:
-
-```text
-
-```
-
-Terminal output, logs, screenshots, or test evidence already provided:
-
-```text
-
-```
-
-Missing evidence the assistant must request before making a confident claim:
-
-```text
-
-```
-
----
-
-# 11. Constraints and Workflow Preferences
-
-## Permanent Technical Constraints
-
-```text
-- Local-first, repo-first, provider-neutral, and testable.
-- Python 3.11+ with type hints and Pydantic v2.
-- pytest, Ruff, mypy, structured JSON logs, explicit error taxonomy, and trace IDs/run IDs.
-- No vague dict-passing across core boundaries.
-- No direct provider SDK objects outside provider adapters.
-- No raw prompts, raw documents, raw model outputs, PII, secrets, or unbounded metadata in traces.
-- No blanket exceptions.
-- Timeouts, bounded retries, and explicit retryability where external I/O exists.
-- No ambiguous automatic duplicate generation after uncertain provider response state.
-- No cloud infrastructure unless explicitly requested for a later deployment scope.
-- No production-readiness claim without proven deployment, monitoring, security,
-  incident response, load behavior, and operational ownership.
-```
-
-## Permanent Experiment Constraints
-
-```text
-- Freeze the benchmark constitution before measured execution.
-- Use paired and counterbalanced A/B/C execution.
-- Keep A versus B limited to context-construction policy.
-- Keep B versus C limited to cache-affinity route policy.
-- Treat A versus C as total system effect, not a single-mechanism causal claim.
-- Do not use held-out or diagnostic cases to tune retrieval, prompts, routing, metrics, or thresholds.
-- Do not change controlled constants during an active comparison.
-- Do not compare runs with different configuration fingerprints.
-- Do not compare conditions with different corpus, retrieval setup, output schema,
-  task budget, quality rubric, provider/model tier, or adjudication protocol.
-- Keep functional and runtime benchmark purposes distinct.
-- Blind rubric-based task-quality review to runtime condition.
-- Retain failed runs, excluded runs, provider errors, outliers, and rerun reasons.
-- Apply only predeclared exclusion and rerun rules.
-- Separate cold and warm turns.
-- Do not present inferred local timing as observed provider cache-token evidence.
-- Do not report cache ratios when provider semantics or denominators are unknown.
-- Do not optimize cost by allowing lower task quality, unsupported answers, unsafe retry,
-  premature escalation, or incapable-model routing.
-- Do not claim improvement unless comparison eligibility and quality gates pass.
-```
-
-## User Workflow Preferences
-
-```text
-- Treat “excellent work,” “what’s next?”, and “take it away” as confirmation that all
-  prior instructions have been completed and the next operational response is wanted.
-- Prefer one complete operational response for implementation slices:
-  branch/current state → one complete source/test ZIP to Downloads → exact PowerShell
-  unzip-and-copy commands → Git status → validation/tests → Git add/status/commit/push
-  → GitHub-safe PR description → one after-merge sync/delete block.
-- Provide full-file replacements rather than patches unless explicitly requested otherwise.
-- Use copy-paste-safe Windows PowerShell commands.
-- Do not repeat Set-Location when the user is already in the repo root.
-- Keep validation before Git add/commit/push.
-- Use one pytest command per line.
-- After every git add, include git status before git commit.
-- Include after-merge sync/delete instructions as one complete PowerShell-only block.
-- Use Desktop ZIPs for user-to-assistant multi-file context bundles.
-- Do not create formal handovers mid-slice.
-- Do not invent branch names, repo state, test results, hashes, provider evidence, or benchmark results.
-```
-
-## Session-Specific Constraints
-
-```text
-
-```
-
-## Preferred Output Format
-
-```text
-
-```
-
----
-
-# 12. What Must Not Be Done
-
-Do not do the following in this session:
-
-```text
-- Do not introduce a third live provider unless the active proof gate explicitly requires it.
-- Do not add dashboards, billing, authentication, generic proxy compatibility,
-  cloud deployment, production failover, vector database migration, multi-agent scope,
-  fine-tuning, arbitrary Jinja execution, or a universal EFC scoring dashboard.
-- Do not make the API gateway application part of the critical path unless explicitly approved.
-- Do not change frozen evaluation assets or controlled constants without declaring reruns.
-- Do not tune prompts, context packs, routing, quality thresholds, or statistical rules using held-out results.
-- Do not inspect condition identity during blinded rubric review.
-- Do not decide exclusions or reruns after seeing whether they improve the result.
-- Do not compare runs with mismatched configuration fingerprints.
-- Do not call a stable prefix hash proof of provider cache reuse.
-- Do not call provider cache evidence proof of direct GPU KV-cache visibility.
-- Do not claim universal cost savings, latency improvement, or production behavior.
-- Do not log raw prompts, raw user messages, raw retrieved documents, raw model outputs,
-  raw provider payloads, secrets, direct user identifiers, or unrestricted metadata.
-- Do not use fake telemetry values such as zero when the correct value is unknown.
-- Do not proceed from implementation evidence to benchmark claims without fixed evaluation evidence.
-- Do not move to the next phase without the active proof gate’s required evidence.
-- Do not overwrite or delete failed, anomalous, or excluded run evidence.
-```
-
-Additional session-specific prohibitions:
-
-```text
-
-```
-
----
-
-# 13. Acceptance Criteria
-
-## Session Acceptance Criteria
-
-This session is successful only if:
-
-```text
-
-```
-
-## Active Proof-Gate Requirements
-
-Select the relevant requirements.
-
-### Gate 0 — Benchmark Constitution
-
-```text
-- Primary causal contrasts are explicit.
-- Controlled constants are enumerated.
-- Paired and counterbalanced run order is defined.
-- Cold/warm classification is defined.
-- Retry, exclusion, and rerun rules are predeclared.
-- Failed-run denominator treatment is explicit.
-- Statistical reporting is defined before results are inspected.
-- Constitution version/hash is frozen before measured execution.
-```
-
-### Gate 1 — Retrieval Readiness
-
-```text
-- Two chunking strategies are compared.
-- Dense and sparse retrieval are compared.
-- Recall@k, Precision@k, MRR, stale-source rate, and metadata violations are reported.
-- Final retrieval configuration is selected and frozen.
-- Held-out retrieval cases are not used for tuning.
-```
-
-### Gate 2 — Diagnostic Eval Readiness
-
-```text
-- Hard diagnostic multi-turn cases cover named failure hypotheses.
-- Each case defines required sources, forbidden sources, expected decision, and failure labels.
-- Ambiguous, trivial, duplicate, and non-diagnostic cases are rejected.
-- Accept/reject reasons are stored.
-- Functional and runtime benchmark subsets are declared.
-- Evaluation manifests are frozen.
-```
-
-### Gate 3 — Prefix Determinism
-
-```text
-- Five controlled turns preserve the same static-anchor fingerprint.
-- Volatile append changes do not mutate the static fingerprint.
-- Timestamp insertion into static context fails.
-- Tool-order mutation fails.
-- Output-schema mutation fails.
-- Prefix negative-control calibration is executed and interpreted.
-```
-
-### Gate 4 — Telemetry Integrity
-
-```text
-- Provider telemetry fixtures map into typed contracts.
-- Unknown values remain None.
-- Provider-specific cache fields remain semantically distinct.
-- Local timing evidence remains separate from provider-reported cached tokens.
-- Telemetry sufficiency explicitly permits or blocks cache, latency, and cost claims.
-- Raw provider payloads remain inside adapter boundaries.
-```
-
-### Gate 5 — Route Policy
-
-```text
-- Warm session preserves an eligible active route.
-- TTL expiry permits route re-evaluation.
-- Provider failure produces typed reroute with explicit reason.
-- Capability, safety, and quality reasons are enforced.
-- No route thrash occurs in fixed fixtures.
-- Every route change has an allowed reason code.
-```
-
-### Gate 6 — Task-Quality Safety
-
-```text
-- Deterministic scoring checks are implemented.
-- Rubric-based scoring criteria are explicit and frozen.
-- Rubric review is blinded to condition.
-- Double-review and disagreement rules are implemented.
-- Structured-output validity remains at or above 95%.
-- Citation support does not regress.
-- Unsupported-answer rate does not increase.
-- Task success remains within the non-inferiority boundary.
-- Retrieval configuration remains unchanged across conditions.
-```
-
-### Gate 7 — Feedback Evidence
-
-```text
-- Valid/new/retained feedback is visible.
-- Valid/redundant feedback is visible.
-- Invalid feedback is visible.
-- Valid/unretained feedback is visible.
-- At least one feedback event changes a later action.
-- At least one trace is task-sufficient.
-- No universal EFC score is invented.
-```
-
-### Gate 8 — Fault and Privacy Controls
-
-```text
-- Prefix mutation and volatile leak injections fail safely.
-- Telemetry semantic mismatches are detected.
-- Route thrash is detected.
-- Stale-source and retrieval failures are surfaced.
-- Repeated and unretained feedback is classified.
-- Cross-condition cache namespace contamination is detected.
-- Trace writer rejects raw prompts, documents, outputs, PII, and secrets.
-- Metamorphic invariants pass.
-```
-
-### Gate 9 — Benchmark Execution
-
-```text
-- Functional and runtime benchmarks are run under the frozen constitution.
-- A/B/C runs are paired and counterbalanced.
-- Cold and warm turns are separated.
-- Per-run results, failures, exclusions, and reruns are retained.
-- Compared runs pass configuration-fingerprint eligibility.
-- Paired differences, medians, ranges, quartiles, P90, and uncertainty intervals are reported as configured.
-- Quality non-inferiority gates are evaluated before savings claims.
-```
-
-### Gate 10 — Final Evidence Report
-
-```text
-- Machine-readable result bundle exists.
-- Markdown and CSV comparison reports exist.
-- Failure taxonomy and residual risks are documented.
-- Provider-reported and inferred evidence are separated.
-- Negative and inconclusive results remain reportable.
-- Artifact hashes and immutable evidence bundle exist.
-- One-command validation, run, and report workflows are documented.
-- Reviewer guide, case study, demo script, claims, and non-claims are complete.
-```
-
-## Minimum Verification Required
-
-```text
-
-```
-
-## Current Permitted Claim
-
-```text
-
-```
-
-## Current Evidence Level
-
-```text
-Observed provider evidence / inferred local evidence / unavailable / mixed
-```
-
-Selected evidence level:
-
-```text
-
-```
-
-## Current Comparison Eligibility
-
-```text
-Eligible / ineligible / not yet evaluated
-```
-
-Selected:
-
-```text
-
-```
-
-## Non-Claims for This Session
-
-```text
-
-```
-
----
-
-# 14. Commercial Translation — Optional and Evidence-Subordinate
-
-> Do not force commercial language into a session whose primary work is benchmark integrity, retrieval correctness, telemetry semantics, fault controls, or safety.
-
-Selected offer:
-
-```text
-None — standalone proof project
-AI System Evaluation Audit
-Context, Cache, and Agent Runtime Efficiency Audit
-RAG Reliability Improvement Sprint
-Agent Harness Hardening Sprint
-AI Reliability Pilot
-AI Reliability Retainer
-Other
-```
-
-Selected offer:
-
-```text
-
-```
-
-Buyer pain addressed:
-
-```text
-
-```
-
-Proof asset this session creates or improves:
-
-```text
-
-```
+> Provider-specific evidence matrices, residual-gap tracking, and static public closeouts.
 
 Commercial claim permitted today:
 
-```text
+> AuraGateway demonstrates how to stop unsupported runtime-efficiency claims when provider evidence
+> is absent, ambiguous, or never reached.
 
-```
-
-How this could become sellable later:
-
-```text
-
-```
-
-Acceptance criteria a future buyer could understand:
-
-```text
-
-```
+Do not sell this as proof of measured savings.
 
 ---
 
-# 15. Open Questions and Known Uncertainty
-
-## Questions the Assistant Should Answer
+# 10. Known Residual Gaps
 
 ```text
-
+OpenRouter preflight and execution did not retain a protected credential fingerprint.
+Execution did not retain exact-live-request proof that the header was constructed.
+The execution runner accepted a stripped key for non-emptiness but transported the original value.
+The exact 401 root cause remains unresolved.
+No provider lineage produced eligible numeric cache evidence.
+No A/B/C runtime comparison was completed.
+The static Hugging Face publication layer is optional and not yet implemented unless a later merge proves otherwise.
 ```
 
-## Questions the Assistant Should Ask Before Proceeding
-
-```text
-
-```
-
-## Known Technical Uncertainty
-
-```text
-
-```
-
-## Provider / Cache Uncertainty
-
-```text
-
-```
-
-## Experiment / Evaluation Uncertainty
-
-```text
-
-```
-
-## Adjudication / Statistical Uncertainty
-
-```text
-
-```
-
-## Decision Needed Before the Next Slice
-
-```text
-
-```
+These gaps are evidence for future harness design. They do not reopen the closed experiment.
 
 ---
 
-# 16. Instruction to Assistant
+# 11. Next Decision
 
-Use the following source hierarchy.
-
-```text
-1. AuraGateway v2 PRD version 2.2.0
-2. Relevant AuraGateway ADRs
-3. Frozen benchmark constitution
-4. Corpus, retrieval, evaluation, negative-control, and fault-injection manifests
-5. Frozen prompt, context-pack, tool-contract, output-schema, and route-policy versions
-6. Provider documentation and versioned pricing sources
-7. Latest validated immutable evidence bundle and reports
-8. This SESSION_BRIEF.md
-9. Terminal output, logs, screenshots, and test evidence provided in this session
-```
-
-The wider AI consultancy roadmap may be used only as background learning context. It is not the architecture, implementation, or evidence source of truth for AuraGateway.
-
-## Assistant Operating Rules
+Default next state:
 
 ```text
-- Respect the selected session mode.
-- Treat the active proof gate as the immediate definition of done.
-- Preserve benchmark and experiment integrity before optimizing implementation speed.
-- Do not infer or invent repo state, branch names, hashes, test outputs, benchmark results,
-  provider cache behavior, telemetry semantics, statistical conclusions, or production readiness.
-- Ask for the smallest concrete missing input only when it is required for correctness.
-- When enough evidence exists, proceed without unnecessary reconfirmation.
-- Use schema-first interfaces, typed errors, deterministic contracts, and explicit evidence boundaries.
-- Keep raw prompts, raw documents, raw outputs, raw provider payloads, PII, and secrets out of logs and traces.
-- Treat local timing as inferred evidence unless the runtime directly exposes valid provider cache telemetry.
-- Enforce telemetry sufficiency before allowing cache, latency, or cost claims.
-- Refuse comparisons when controlled configuration fingerprints differ.
-- Keep A versus B, B versus C, and A versus C interpretations distinct.
-- Apply only predeclared retry, exclusion, rerun, and statistical rules.
-- Preserve failed runs, anomalies, outliers, exclusions, and rerun reasons.
-- Keep rubric review blinded to condition.
-- Do not call a cost or latency result successful unless task-quality non-inferiority passes.
-- Do not optimize raw token count, retries, tool calls, or agent steps in isolation.
-  Evaluate whether feedback was valid, non-redundant, retained, action-changing, and sufficient.
-- When code changes are requested, use the user’s required operational workflow:
-  branch/current state → one ZIP to Downloads → exact PowerShell copy commands → Git status
-  → validation → Git add/status/commit/push → PR description → one after-merge sync/delete block.
-- For debugging or refactoring without enough evidence, state exactly:
-  “PREMISE FAILURE: Missing context. Please provide: [specific files/functions/stack traces/test output/logs].”
+Project handover-ready and terminally closed for runtime execution.
 ```
+
+Optional next phase:
+
+```text
+Hugging Face publication layer over sanitized, precomputed evidence only.
+```
+
+A new live provider experiment would require a new PRD, new provider lineage, new authorization,
+new protected assets, and explicit evidence that it is not a rerun of either closed lineage.
 
 ---
 
-# 17. Session Completion Record
+# 12. Session Completion Record
 
-> Complete this section before handing over or starting a new session.
-
-## What Changed
+## What changed
 
 ```text
-
+Groq and OpenRouter/Hy3 terminal evidence were reconciled into PRD 2.3.0.
+The Hy3 mini PRD advanced to 1.1.0 terminal status.
+The README, provider evidence matrix, session brief, terminal review, and formal handover were aligned.
 ```
 
-## What Was Verified
+## What was verified
 
 ```text
-
+Groq: two successful raw responses with required cached-token field absent.
+OpenRouter/Hy3: one cold HTTP 401, zero provider successes, no generation metadata or cache telemetry.
+Authorization consumed and no rerun permitted.
+Public closeout contains no raw prompt, raw provider body, or credential.
 ```
 
-## What Failed or Remains Risky
+## What remains risky
 
 ```text
-
+The precise OpenRouter authentication root cause is unresolved.
+A/B/C remains unmeasured.
+Publication language must preserve provider and evidence-stage distinctions.
 ```
 
-## Benchmark / Freeze Impact
+## Permitted claim after this session
 
 ```text
-
+AuraGateway terminally closed two provider evidence lineages without fabricating a cache result and
+blocked the measured A/B/C benchmark because neither lineage produced eligible numeric cache evidence.
 ```
 
-## Comparison Eligibility Impact
+## Handover trigger
 
 ```text
-
-```
-
-## Evidence Bundle Impact
-
-```text
-
-```
-
-## Permitted Claim After This Session
-
-```text
-
-```
-
-## Non-Claims That Still Apply
-
-```text
-
-```
-
-## Hours Ledger Update
-
-```text
-Hours before session:
-Hours spent this session:
-Hours completed after session: ___ / 200
-Remaining hours:
-```
-
-## Next Safest Slice
-
-```text
-
-```
-
-## Handover Trigger
-
-```text
-No handover / lightweight continuity checkpoint / formal handover
-```
-
-Selected:
-
-```text
-
+Formal handover complete.
 ```

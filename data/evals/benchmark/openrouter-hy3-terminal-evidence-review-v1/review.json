@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "openrouter-hy3-terminal-evidence-review-v1",
+  "project": "AuraGateway v2",
+  "provider": "openrouter",
+  "requested_model": "tencent/hy3:free",
+  "telemetry_authority": "openrouter_normalized_usage",
+  "source_main_checkpoint": "00d0712",
+  "execution_source_commit": "8a514458275ae6c1757e9f464c724312996a1ce6",
+  "source_closeout_id": "openrouter-hy3-capability-probe-closeout-v1",
+  "terminal_outcome": "closed_terminal_provider_failure",
+  "failure_stage": "pre_inference_authentication",
+  "failure_class": "provider_authentication_failed",
+  "http_status": 401,
+  "safe_error_code": "PROVIDER_AUTHENTICATION_FAILED",
+  "safe_provider_message": "Missing Authentication header",
+  "attempt_count": 1,
+  "provider_success_count": 0,
+  "retained_success_count": 0,
+  "replacement_count": 0,
+  "cold_call_attempted": true,
+  "warm_call_attempted": false,
+  "generation_metadata_requested": false,
+  "numeric_cache_telemetry_observed": false,
+  "controlled_cache_use_observed": false,
+  "route_identity_observed": false,
+  "comparison_eligible": false,
+  "pilot_authorized": false,
+  "retained_benchmark_authorized": false,
+  "authorization_consumed": true,
+  "resume_permitted": false,
+  "rerun_permitted": false,
+  "credential_continuity_proven": false,
+  "authorization_header_delivery_proven": false,
+  "root_cause_resolved": false,
+  "posthoc_local_diagnostic": {
+    "network_request_performed": false,
+    "authorization_header_present": true,
+    "authorization_scheme": "Bearer",
+    "proxy_detected": false,
+    "credential_value_used": false,
+    "proves_provider_received_header": false
+  },
+  "gate_decision": {
+    "capability_gate_passed": false,
+    "pilot_authorization_review_permitted": false,
+    "abc_pilot_permitted": false,
+    "retained_benchmark_permitted": false,
+    "next_optional_phase": "static_hugging_face_publication_integration"
+  },
+  "permitted_claims": [
+    "The one-time OpenRouter Hy3 capability probe closed on its first cold-call attempt after HTTP 401.",
+    "No successful completion, generation metadata, route identity, or cache telemetry was obtained.",
+    "The authorization was consumed without retry, resume, or rerun."
+  ],
+  "blocked_claims": [
+    "Hy3 inference succeeded.",
+    "Hy3 failed for a model-level reason.",
+    "OpenRouter removed or never received the Authorization header.",
+    "The exact authentication root cause is known.",
+    "Cache telemetry was absent from a successful Hy3 response.",
+    "A cache hit, miss, read, write, discount, latency, or cost result occurred.",
+    "The A/B/C pilot or retained benchmark was completed."
+  ],
+  "residual_harness_gaps": [
+    "Preflight and execution did not retain a protected credential fingerprint.",
+    "Execution did not retain non-sensitive exact-live-request proof of header construction.",
+    "The runner validated a stripped key for non-emptiness but transported the original value."
+  ],
+  "relationship_to_groq": {
+    "groq_lineage_immutable": true,
+    "groq_successful_responses": 2,
+    "groq_required_cache_field_absent": true,
+    "combined_numeric_cache_evidence_eligible": false
+  },
+  "maturity": [
+    "production-shaped",
+    "locally validated",
+    "synthetic-data validated",
+    "controlled-provider tested",
+    "not customer-data tested",
+    "not deployed",
+    "not production-ready"
+  ],
+  "review_decision": "terminally_closed",
+  "reviewed_at": "2026-07-14"
+}
