@@ -13,16 +13,27 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from auragateway.contracts.auragateway_v2_terminal_evidence_review import (
     AuraGatewayV2TerminalEvidenceReview,
+    OpenRouterHy3TerminalEvidenceReviewManifest,
 )
 from auragateway.contracts.openrouter_hy3_identifiability import (
     OpenRouterHy3IdentifiabilityManifest,
     OpenRouterHy3IdentifiabilityReview,
     OpenRouterHy3IdentifiabilitySummary,
 )
+from auragateway.contracts.openrouter_hy3_review_supersession import (
+    OpenRouterHy3HistoricalReviewSupersession,
+    OpenRouterHy3SupersessionScope,
+    superseding_hash,
+)
 
-_DEFAULT_REVIEW_ROOT = Path("data/evals/benchmark/openrouter-hy3-identifiability-review-v1")
+_DEFAULT_REVIEW_ROOT = Path(
+    "data/evals/benchmark/openrouter-hy3-identifiability-review-v1"
+)
 _DEFAULT_TERMINAL_REVIEW_ROOT = Path(
     "data/evals/benchmark/auragateway-v2-terminal-evidence-review-v1"
+)
+_DEFAULT_SUPERSESSION_ROOT = Path(
+    "data/evals/benchmark/openrouter-hy3-historical-review-supersession-v1"
 )
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
 
@@ -103,19 +114,90 @@ def _load_model(path: Path, model_type: type[_ModelT]) -> _ModelT:
         ) from exc
 
 
+def _load_supersession(
+    repo_root: Path,
+    supersession_root: Path,
+) -> tuple[
+    OpenRouterHy3HistoricalReviewSupersession,
+    OpenRouterHy3TerminalEvidenceReviewManifest,
+]:
+    supersession = _load_model(
+        repo_root / supersession_root / "supersession.json",
+        OpenRouterHy3HistoricalReviewSupersession,
+    )
+    historical_assets = {
+        supersession.identifiability_review_path: supersession.identifiability_review_sha256,
+        supersession.identifiability_manifest_path: (
+            supersession.identifiability_manifest_sha256
+        ),
+        supersession.superseding_manifest_path: supersession.superseding_manifest_sha256,
+    }
+    for relative_path, expected_hash in historical_assets.items():
+        observed = _sha256_file(repo_root / relative_path)
+        if observed != expected_hash:
+            raise OpenRouterHy3IdentifiabilityError(
+                "OPENROUTER_HY3_REVIEW_SUPERSESSION_LINEAGE_MISMATCH",
+                "A historical or superseding review asset no longer matches its supersession.",
+                path=relative_path,
+                details=(
+                    f"expected={expected_hash}",
+                    f"observed={observed}",
+                ),
+            )
+    superseding_manifest = _load_model(
+        repo_root / supersession.superseding_manifest_path,
+        OpenRouterHy3TerminalEvidenceReviewManifest,
+    )
+    return supersession, superseding_manifest
+
+
+def _delegated_hash(
+    *,
+    supersession: OpenRouterHy3HistoricalReviewSupersession,
+    superseding_manifest: OpenRouterHy3TerminalEvidenceReviewManifest,
+    scope: OpenRouterHy3SupersessionScope,
+    path: str,
+    historical_hash: str,
+) -> str | None:
+    for binding in supersession.bindings:
+        if binding.scope is scope and binding.path.value == path:
+            if binding.historical_sha256 != historical_hash:
+                raise OpenRouterHy3IdentifiabilityError(
+                    "OPENROUTER_HY3_REVIEW_SUPERSESSION_HISTORICAL_HASH_MISMATCH",
+                    "A delegated historical hash no longer matches the frozen review.",
+                    path=path,
+                )
+            return superseding_hash(
+                superseding_manifest,
+                binding.superseding_hash_field,
+            )
+    return None
+
+
 def _validate_source_bindings(
     repo_root: Path,
     review: OpenRouterHy3IdentifiabilityReview,
+    supersession: OpenRouterHy3HistoricalReviewSupersession,
+    superseding_manifest: OpenRouterHy3TerminalEvidenceReviewManifest,
 ) -> None:
     for binding in review.source_bindings:
+        expected = _delegated_hash(
+            supersession=supersession,
+            superseding_manifest=superseding_manifest,
+            scope=OpenRouterHy3SupersessionScope.IDENTIFIABILITY_REVIEW_SOURCE,
+            path=binding.path,
+            historical_hash=binding.sha256,
+        )
+        if expected is None:
+            expected = binding.sha256
         observed = _sha256_file(repo_root / binding.path)
-        if observed != binding.sha256:
+        if observed != expected:
             raise OpenRouterHy3IdentifiabilityError(
                 "OPENROUTER_HY3_REVIEW_BINDING_MISMATCH",
                 "A bound OpenRouter Hy3 review source no longer matches.",
                 path=binding.path,
                 details=(
-                    f"expected={binding.sha256}",
+                    f"expected={expected}",
                     f"observed={observed}",
                 ),
             )
@@ -145,6 +227,8 @@ def _validate_terminal_core_boundary(
 def _validate_manifest_assets(
     repo_root: Path,
     manifest: OpenRouterHy3IdentifiabilityManifest,
+    supersession: OpenRouterHy3HistoricalReviewSupersession,
+    superseding_manifest: OpenRouterHy3TerminalEvidenceReviewManifest,
 ) -> None:
     expected = {
         manifest.review_path: manifest.review_sha256,
@@ -152,7 +236,15 @@ def _validate_manifest_assets(
         manifest.report_path: manifest.report_sha256,
         manifest.mini_prd_path: manifest.mini_prd_sha256,
     }
-    for relative_path, expected_hash in expected.items():
+    for relative_path, historical_hash in expected.items():
+        delegated = _delegated_hash(
+            supersession=supersession,
+            superseding_manifest=superseding_manifest,
+            scope=OpenRouterHy3SupersessionScope.IDENTIFIABILITY_MANIFEST_ASSET,
+            path=relative_path,
+            historical_hash=historical_hash,
+        )
+        expected_hash = historical_hash if delegated is None else delegated
         observed = _sha256_file(repo_root / relative_path)
         if observed != expected_hash:
             raise OpenRouterHy3IdentifiabilityError(
@@ -171,6 +263,7 @@ def validate_openrouter_hy3_identifiability(
     *,
     review_root: Path = _DEFAULT_REVIEW_ROOT,
     terminal_review_root: Path = _DEFAULT_TERMINAL_REVIEW_ROOT,
+    supersession_root: Path = _DEFAULT_SUPERSESSION_ROOT,
 ) -> OpenRouterHy3IdentifiabilitySummary:
     """Validate source lineage, frozen controls, and non-live claim boundaries."""
 
@@ -189,9 +282,23 @@ def validate_openrouter_hy3_identifiability(
             "The review and manifest source commits do not match.",
         )
 
-    _validate_source_bindings(repo_root, review)
+    supersession, superseding_manifest = _load_supersession(
+        repo_root,
+        supersession_root,
+    )
+    _validate_source_bindings(
+        repo_root,
+        review,
+        supersession,
+        superseding_manifest,
+    )
     _validate_terminal_core_boundary(repo_root, terminal_review_root)
-    _validate_manifest_assets(repo_root, manifest)
+    _validate_manifest_assets(
+        repo_root,
+        manifest,
+        supersession,
+        superseding_manifest,
+    )
 
     return OpenRouterHy3IdentifiabilitySummary(
         review_id=review.review_id,
@@ -214,6 +321,11 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         default=_DEFAULT_TERMINAL_REVIEW_ROOT,
     )
+    parser.add_argument(
+        "--supersession-root",
+        type=Path,
+        default=_DEFAULT_SUPERSESSION_ROOT,
+    )
     return parser
 
 
@@ -224,6 +336,7 @@ def main() -> int:
             args.repo_root.resolve(),
             review_root=args.review_root,
             terminal_review_root=args.terminal_review_root,
+            supersession_root=args.supersession_root,
         )
     except OpenRouterHy3IdentifiabilityError as exc:
         envelope = OpenRouterHy3IdentifiabilityErrorEnvelope(
