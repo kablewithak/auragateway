@@ -1,0 +1,162 @@
+{
+  "schema_version": "1.0.0",
+  "closeout_id": "groq-cache-telemetry-reauthorization-closeout-v1",
+  "status": "closed_provider_wire_field_unavailable",
+  "source_commit": "80e97a64b65bbfa32e8dd9fe0c452bdcc416762d",
+  "authorization_id": "groq-cache-telemetry-reauthorization-auth-v1",
+  "execution_id": "groq-cache-telemetry-reauthorization-v1",
+  "execution_bindings": [
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/authorization.json",
+      "sha256": "57d0d5608976baddc4d39d670097f5908ebb7e95cdc5fc10db403dc6d739ac32"
+    },
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/runtime_policy.json",
+      "sha256": "7724ccaf131246b881ec03cd245edbd688d16e7c36ce0241f79c0c738ff6ac3e"
+    },
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/activation_report.json",
+      "sha256": "d681f0a478c8a71f33602cbb050c70c2d0d7e3476ec6c157d254957193218226"
+    },
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/activation_manifest.json",
+      "sha256": "dda3676b00243fd26a139bca38b9545fd687c6720aca8f3c06bdbc84bfef872c"
+    },
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/journal.jsonl",
+      "sha256": "d8e51df9de831cb29e5aefee531229162e07265c3912eda4aefb9f27e9763706"
+    },
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/run_records.json",
+      "sha256": "901f7e68f331d3eb7930a325add78cdcd13db1ecf4c0fc323d3074fa62320de3"
+    },
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/report.json",
+      "sha256": "c51e9fa9c2ee8ea6b0be7667fc68219c6cbc59694f5f0d2a5b57c4ad27ad1527"
+    },
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/manifest.json",
+      "sha256": "0cd773660968af34b926926ade245ac2f329ba721d81668ad81c96cce629f88a"
+    }
+  ],
+  "execution_outcome": {
+    "planned_attempt_count": 2,
+    "provider_call_count": 2,
+    "successful_call_count": 2,
+    "provider_error_count": 0,
+    "observation_invalid_count": 0,
+    "skipped_attempt_count": 0,
+    "estimated_cost_microusd": 400,
+    "cost_semantics": "planned_bounded_estimate_not_provider_invoice"
+  },
+  "telemetry_assessment": {
+    "installed_sdk_version": "1.5.0",
+    "installed_sdk_version_sample_count": 2,
+    "raw_response_sample_count": 2,
+    "parsed_response_sample_count": 2,
+    "raw_billing_field_absent_count": 2,
+    "parsed_billing_field_absent_count": 2,
+    "raw_billing_numeric_sample_count": 0,
+    "parsed_billing_numeric_sample_count": 0,
+    "exact_provider_request_sha256": "23cac23a165812ae8e9908e9d0609fb533359a30ed4386d76bcfb82e6a9d17c9",
+    "provider_wire_omission_established_for_observed_calls": true,
+    "universal_provider_wire_omission_established": false,
+    "sdk_live_parse_defect_established": false,
+    "provider_cache_usage_evidence_available": false,
+    "unknown_interpreted_as_zero": false
+  },
+  "protected_evidence": {
+    "raw_responses_path": ".local/benchmark/groq-cache-telemetry-reauthorization-v1/raw_responses.jsonl",
+    "raw_responses_sha256": "636f67735a5212ffdc3714204fa45279a79a880fbbe9c1afd756e18796724b0b",
+    "parsed_responses_path": ".local/benchmark/groq-cache-telemetry-reauthorization-v1/parsed_responses.jsonl",
+    "parsed_responses_sha256": "dcfe790769270b53214293ca0cc0c7579e094fd2d815986723a73efea1ef9d26",
+    "protected_content_committed": false,
+    "protected_content_read_by_closeout": false,
+    "hash_lineage_preserved": true
+  },
+  "claims": [
+    {
+      "claim_kind": "execution_completed",
+      "decision": "permitted",
+      "reason": "TWO_SUCCESSFUL_CALLS_VERIFIED"
+    },
+    {
+      "claim_kind": "exact_provider_wire_omission_for_observed_calls",
+      "decision": "permitted",
+      "reason": "FIELD_ABSENT_ON_BOTH_RAW_RESPONSES"
+    },
+    {
+      "claim_kind": "universal_provider_wire_omission",
+      "decision": "blocked",
+      "reason": "OBSERVATION_SCOPE_LIMITED_TO_TWO_CALLS"
+    },
+    {
+      "claim_kind": "sdk_live_parse_defect",
+      "decision": "blocked",
+      "reason": "FIELD_ABSENT_BEFORE_SDK_PARSE"
+    },
+    {
+      "claim_kind": "provider_cache_usage",
+      "decision": "blocked",
+      "reason": "BILLING_CACHE_EVIDENCE_UNAVAILABLE"
+    },
+    {
+      "claim_kind": "provider_cache_miss",
+      "decision": "blocked",
+      "reason": "FIELD_ABSENCE_IS_NOT_CACHE_MISS"
+    },
+    {
+      "claim_kind": "cached_tokens_equal_zero",
+      "decision": "blocked",
+      "reason": "MISSING_FIELD_IS_NOT_ZERO"
+    },
+    {
+      "claim_kind": "provider_cache_savings",
+      "decision": "blocked",
+      "reason": "NUMERIC_CACHE_EVIDENCE_UNAVAILABLE"
+    },
+    {
+      "claim_kind": "benchmark_execution",
+      "decision": "blocked",
+      "reason": "GATE_4_REQUIRED_EVIDENCE_UNAVAILABLE"
+    },
+    {
+      "claim_kind": "accepted_a_b_c_comparison",
+      "decision": "blocked",
+      "reason": "COMPARISON_NOT_ELIGIBLE"
+    }
+  ],
+  "implementation_resolution": {
+    "retain_current_adapter": true,
+    "sdk_upgrade_selected": false,
+    "request_construction_change_selected": false,
+    "routing_change_selected": false,
+    "cache_affinity_change_selected": false,
+    "identical_provider_rerun_permitted": false,
+    "additional_provider_execution_permitted": false,
+    "evidence_path_terminal": true,
+    "reason": "billing_cache_field_absent_on_both_raw_responses"
+  },
+  "gate_4_resolution": {
+    "status": "closed_required_provider_cache_evidence_unavailable",
+    "gate_4_passed": false,
+    "required_provider_cache_evidence_available": false,
+    "negative_result_accepted": true,
+    "benchmark_execution_permitted": false,
+    "benchmark_claims_permitted": false,
+    "comparison_eligible": false,
+    "next_gate": "auragateway_v2_terminal_evidence_review"
+  },
+  "authorization_consumed": true,
+  "rerun_permitted": false,
+  "resume_permitted": false,
+  "execution_evidence_mutation_permitted": false,
+  "provider_calls_permitted": false,
+  "credential_access_required": false,
+  "provider_cache_usage_claim_permitted": false,
+  "provider_cache_savings_claim_permitted": false,
+  "benchmark_execution_permitted": false,
+  "benchmark_claims_permitted": false,
+  "comparison_eligible": false,
+  "next_gate": "auragateway_v2_terminal_evidence_review"
+}
