@@ -15,6 +15,10 @@ from auragateway.contracts.auragateway_v2_terminal_evidence_review import (
     AuraGatewayV2TerminalEvidenceReview,
     AuraGatewayV2TerminalEvidenceReviewManifest,
     AuraGatewayV2TerminalEvidenceReviewSummary,
+    AuraGatewayV2TerminalEvidenceReviewSupersession,
+    OpenRouterHy3TerminalEvidenceReviewManifest,
+    TerminalEvidenceSupersededDocumentPath,
+    TerminalEvidenceSupersedingHashField,
 )
 from auragateway.contracts.groq_cache_telemetry_reauthorization_closeout import (
     GroqCacheTelemetryReauthorizationCloseout,
@@ -32,6 +36,12 @@ _DEFAULT_CLOSEOUT_ROOT = Path(
     "data/evals/benchmark/groq-cache-telemetry-reauthorization-closeout-v1"
 )
 _DEFAULT_SDK_REVIEW_ROOT = Path("data/evals/benchmark/groq-sdk-cache-schema-compatibility-v1")
+_DEFAULT_SUPERSESSION_ROOT = Path(
+    "data/evals/benchmark/auragateway-v2-terminal-evidence-review-supersession-v1"
+)
+_DEFAULT_SUPERSEDING_REVIEW_ROOT = Path(
+    "data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1"
+)
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
 
 
@@ -198,26 +208,138 @@ def _validate_closeout_boundary(repo_root: Path, closeout_root: Path) -> None:
         )
 
 
+def _validate_document_supersession(
+    repo_root: Path,
+    manifest: AuraGatewayV2TerminalEvidenceReviewManifest,
+    *,
+    supersession_root: Path,
+    superseding_review_root: Path,
+) -> None:
+    supersession_path = repo_root / supersession_root / "supersession.json"
+    supersession = _load_model(
+        supersession_path,
+        AuraGatewayV2TerminalEvidenceReviewSupersession,
+    )
+    superseding_manifest_path = repo_root / superseding_review_root / "manifest.json"
+    superseding_manifest = _load_model(
+        superseding_manifest_path,
+        OpenRouterHy3TerminalEvidenceReviewManifest,
+    )
+
+    observed_source_manifest_hash = _sha256_file(repo_root / supersession.source_manifest_path)
+    if observed_source_manifest_hash != supersession.source_manifest_sha256:
+        raise TerminalEvidenceReviewError(
+            "AURAGATEWAY_TERMINAL_REVIEW_SOURCE_MANIFEST_DRIFT",
+            "The historical terminal review manifest no longer matches its supersession overlay.",
+            path=supersession.source_manifest_path,
+            details=(
+                f"expected={supersession.source_manifest_sha256}",
+                f"observed={observed_source_manifest_hash}",
+            ),
+        )
+
+    if superseding_manifest_path != repo_root / supersession.superseding_manifest_path:
+        raise TerminalEvidenceReviewError(
+            "AURAGATEWAY_TERMINAL_REVIEW_SUPERSEDING_ROOT_MISMATCH",
+            "The superseding terminal review root does not match the overlay path.",
+            path=str(superseding_manifest_path),
+        )
+
+    observed_superseding_manifest_hash = _sha256_file(superseding_manifest_path)
+    if observed_superseding_manifest_hash != supersession.superseding_manifest_sha256:
+        raise TerminalEvidenceReviewError(
+            "AURAGATEWAY_TERMINAL_REVIEW_SUPERSEDING_MANIFEST_DRIFT",
+            "The superseding terminal continuity manifest no longer matches the overlay.",
+            path=supersession.superseding_manifest_path,
+            details=(
+                f"expected={supersession.superseding_manifest_sha256}",
+                f"observed={observed_superseding_manifest_hash}",
+            ),
+        )
+
+    if (
+        superseding_manifest.review_id != supersession.superseding_review_id
+        or superseding_manifest.source_main_checkpoint
+        != supersession.superseding_source_main_checkpoint
+    ):
+        raise TerminalEvidenceReviewError(
+            "AURAGATEWAY_TERMINAL_REVIEW_SUPERSESSION_IDENTITY_MISMATCH",
+            "The superseding terminal continuity identity does not match the overlay.",
+        )
+
+    historical_hashes = {
+        TerminalEvidenceSupersededDocumentPath.CORE_PRD: manifest.prd_sha256,
+        TerminalEvidenceSupersededDocumentPath.SESSION_BRIEF: manifest.session_brief_sha256,
+        TerminalEvidenceSupersededDocumentPath.README: manifest.readme_sha256,
+    }
+    superseding_hashes = {
+        TerminalEvidenceSupersedingHashField.CORE_PRD_SHA256: (
+            superseding_manifest.core_prd_sha256
+        ),
+        TerminalEvidenceSupersedingHashField.SESSION_BRIEF_SHA256: (
+            superseding_manifest.session_brief_sha256
+        ),
+        TerminalEvidenceSupersedingHashField.README_SHA256: superseding_manifest.readme_sha256,
+    }
+
+    for asset in supersession.assets:
+        historical_hash = historical_hashes[asset.path]
+        if historical_hash != asset.historical_sha256:
+            raise TerminalEvidenceReviewError(
+                "AURAGATEWAY_TERMINAL_REVIEW_HISTORICAL_BINDING_MISMATCH",
+                "A delegated historical document hash does not match the original manifest.",
+                path=asset.path.value,
+                details=(
+                    f"expected={historical_hash}",
+                    f"observed={asset.historical_sha256}",
+                ),
+            )
+
+        superseding_hash = superseding_hashes[asset.superseding_hash_field]
+        if superseding_hash != asset.superseding_sha256:
+            raise TerminalEvidenceReviewError(
+                "AURAGATEWAY_TERMINAL_REVIEW_SUPERSEDING_BINDING_MISMATCH",
+                "A delegated document hash does not match the superseding manifest.",
+                path=asset.path.value,
+                details=(
+                    f"expected={superseding_hash}",
+                    f"observed={asset.superseding_sha256}",
+                ),
+            )
+
+        observed_document_hash = _sha256_file(repo_root / asset.path.value)
+        if observed_document_hash != superseding_hash:
+            raise TerminalEvidenceReviewError(
+                "AURAGATEWAY_TERMINAL_REVIEW_SUPERSEDED_DOCUMENT_DRIFT",
+                "A superseded governing document no longer matches terminal continuity.",
+                path=asset.path.value,
+                details=(
+                    f"expected={superseding_hash}",
+                    f"observed={observed_document_hash}",
+                ),
+            )
+
+
 def _validate_manifest_assets(
     repo_root: Path,
     review_root: Path,
     manifest: AuraGatewayV2TerminalEvidenceReviewManifest,
+    *,
+    supersession_root: Path,
+    superseding_review_root: Path,
 ) -> None:
-    expected = {
+    immutable_expected = {
         manifest.review_path: manifest.review_sha256,
         manifest.report_path: manifest.report_sha256,
         manifest.adr_path: manifest.adr_sha256,
-        manifest.prd_path: manifest.prd_sha256,
-        manifest.session_brief_path: manifest.session_brief_sha256,
-        manifest.readme_path: manifest.readme_sha256,
         manifest.publication_prd_path: manifest.publication_prd_sha256,
     }
-    for relative_path, expected_hash in expected.items():
+    for relative_path, expected_hash in immutable_expected.items():
         observed = _sha256_file(repo_root / relative_path)
         if observed != expected_hash:
             raise TerminalEvidenceReviewError(
                 "AURAGATEWAY_TERMINAL_REVIEW_HASH_MISMATCH",
-                "A terminal review or governing document no longer matches its manifest.",
+                "A terminal review or immutable governing document no longer matches its manifest.",
                 path=relative_path,
                 details=(
                     f"expected={expected_hash}",
@@ -225,13 +347,19 @@ def _validate_manifest_assets(
                 ),
             )
 
-    if repo_root / review_root / "manifest.json" != repo_root / (
-        "data/evals/benchmark/auragateway-v2-terminal-evidence-review-v1/manifest.json"
-    ):
+    expected_review_root = Path("data/evals/benchmark/auragateway-v2-terminal-evidence-review-v1")
+    if review_root != expected_review_root:
         raise TerminalEvidenceReviewError(
             "AURAGATEWAY_TERMINAL_REVIEW_ROOT_MISMATCH",
             "The terminal review root does not match the frozen manifest path.",
         )
+
+    _validate_document_supersession(
+        repo_root,
+        manifest,
+        supersession_root=supersession_root,
+        superseding_review_root=superseding_review_root,
+    )
 
 
 def validate_terminal_evidence_review(
@@ -241,6 +369,8 @@ def validate_terminal_evidence_review(
     execution_root: Path = _DEFAULT_EXECUTION_ROOT,
     closeout_root: Path = _DEFAULT_CLOSEOUT_ROOT,
     sdk_review_root: Path = _DEFAULT_SDK_REVIEW_ROOT,
+    supersession_root: Path = _DEFAULT_SUPERSESSION_ROOT,
+    superseding_review_root: Path = _DEFAULT_SUPERSEDING_REVIEW_ROOT,
 ) -> AuraGatewayV2TerminalEvidenceReviewSummary:
     """Validate terminal review, source lineage, and governing-document hashes."""
 
@@ -264,7 +394,13 @@ def validate_terminal_evidence_review(
     _validate_sdk_boundary(repo_root, sdk_review_root)
     _validate_execution_boundary(repo_root, execution_root)
     _validate_closeout_boundary(repo_root, closeout_root)
-    _validate_manifest_assets(repo_root, review_root, manifest)
+    _validate_manifest_assets(
+        repo_root,
+        review_root,
+        manifest,
+        supersession_root=supersession_root,
+        superseding_review_root=superseding_review_root,
+    )
 
     return AuraGatewayV2TerminalEvidenceReviewSummary(
         review_id=review.review_id,
@@ -297,6 +433,16 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         default=_DEFAULT_SDK_REVIEW_ROOT,
     )
+    parser.add_argument(
+        "--supersession-root",
+        type=Path,
+        default=_DEFAULT_SUPERSESSION_ROOT,
+    )
+    parser.add_argument(
+        "--superseding-review-root",
+        type=Path,
+        default=_DEFAULT_SUPERSEDING_REVIEW_ROOT,
+    )
     return parser
 
 
@@ -309,6 +455,8 @@ def main() -> int:
             execution_root=args.execution_root,
             closeout_root=args.closeout_root,
             sdk_review_root=args.sdk_review_root,
+            supersession_root=args.supersession_root,
+            superseding_review_root=args.superseding_review_root,
         )
     except TerminalEvidenceReviewError as exc:
         envelope = TerminalEvidenceReviewErrorEnvelope(

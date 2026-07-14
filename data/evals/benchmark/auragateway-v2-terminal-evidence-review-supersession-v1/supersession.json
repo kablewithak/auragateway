@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "supersession_id": "auragateway-v2-terminal-evidence-review-supersession-v1",
+  "source_review_id": "auragateway-v2-terminal-evidence-review-v1",
+  "source_manifest_path": "data/evals/benchmark/auragateway-v2-terminal-evidence-review-v1/manifest.json",
+  "source_manifest_sha256": "e8b1bce2b302094fec8d302c5f90b1d944fe9486b6bfd93d84287a60e2d7df3e",
+  "superseding_review_id": "openrouter-hy3-terminal-evidence-review-v1",
+  "superseding_manifest_path": "data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1/manifest.json",
+  "superseding_manifest_sha256": "c3b20f3796323bf83254f9fa30273980b9ab80fed2ce4ce376db0fc3ca262c82",
+  "superseding_source_main_checkpoint": "00d0712",
+  "superseding_merge_checkpoint": "768800b",
+  "effective_prd_version": "2.3.0",
+  "assets": [
+    {
+      "path": "docs/product/AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md",
+      "historical_sha256": "86acfc9bed13767a2869090d64fcabbfdf3da3b4bd156708afbd8f3919586409",
+      "superseding_hash_field": "core_prd_sha256",
+      "superseding_sha256": "d2530adc6399a3cc83f62a87aaa9a3b6bcceb7ffad80acce4bb93354d20d1a26",
+      "reason": "governing_document_superseded_by_terminal_continuity"
+    },
+    {
+      "path": "docs/session/AuraGateway_SESSION_BRIEF.md",
+      "historical_sha256": "1a98bf300cd5c9712f7a318b2dd2de92d17049aa41f8ca881751902e1906f880",
+      "superseding_hash_field": "session_brief_sha256",
+      "superseding_sha256": "3d71754c5389e7cc647344b8204e1f89ffee369c9ef4d03151348553c0d41bbd",
+      "reason": "governing_document_superseded_by_terminal_continuity"
+    },
+    {
+      "path": "README.md",
+      "historical_sha256": "c12e03409e70bb3539466694c5d20785ab5de7d1579700f2c11f7bbd84e4525f",
+      "superseding_hash_field": "readme_sha256",
+      "superseding_sha256": "d1f07c1a0325f1090c0d3750e47266a6627d9757bde1bba291d6cb5e41815972",
+      "reason": "governing_document_superseded_by_terminal_continuity"
+    }
+  ],
+  "historical_manifest_immutable": true,
+  "source_evidence_locked": true,
+  "protected_evidence_read": false,
+  "provider_execution_permitted": false,
+  "next_phase": "hugging_face_static_publication_package"
+}

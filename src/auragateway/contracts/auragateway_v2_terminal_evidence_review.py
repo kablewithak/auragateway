@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from datetime import date
 from enum import StrEnum
 from pathlib import PurePosixPath
 from typing import Literal
@@ -296,6 +297,159 @@ class AuraGatewayV2TerminalEvidenceReviewManifest(BaseModel):
         if _SHA256_PATTERN.fullmatch(value) is None:
             raise ValueError("terminal review manifest requires lowercase SHA-256")
         return value
+
+
+class TerminalEvidenceSupersededDocumentPath(StrEnum):
+    """Mutable governing documents delegated to the later continuity review."""
+
+    CORE_PRD = "docs/product/AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md"
+    SESSION_BRIEF = "docs/session/AuraGateway_SESSION_BRIEF.md"
+    README = "README.md"
+
+
+class TerminalEvidenceSupersedingHashField(StrEnum):
+    """Hash fields exposed by the superseding Hy3 terminal-review manifest."""
+
+    CORE_PRD_SHA256 = "core_prd_sha256"
+    SESSION_BRIEF_SHA256 = "session_brief_sha256"
+    README_SHA256 = "readme_sha256"
+
+
+class TerminalEvidenceSupersededAsset(BaseModel):
+    """One historical governing-document binding delegated to a later manifest."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    path: TerminalEvidenceSupersededDocumentPath
+    historical_sha256: str
+    superseding_hash_field: TerminalEvidenceSupersedingHashField
+    superseding_sha256: str
+    reason: Literal["governing_document_superseded_by_terminal_continuity"] = (
+        "governing_document_superseded_by_terminal_continuity"
+    )
+
+    @field_validator("historical_sha256", "superseding_sha256")
+    @classmethod
+    def validate_hash(cls, value: str) -> str:
+        if _SHA256_PATTERN.fullmatch(value) is None:
+            raise ValueError("superseded document bindings require lowercase SHA-256")
+        return value
+
+
+class OpenRouterHy3TerminalEvidenceReviewManifest(BaseModel):
+    """Typed subset-complete manifest for the later Hy3 terminal continuity review."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    review_id: Literal["openrouter-hy3-terminal-evidence-review-v1"]
+    source_main_checkpoint: str
+    source_closeout_result_sha256: str
+    source_closeout_manifest_sha256: str
+    source_closeout_policy_sha256: str
+    review_sha256: str
+    readme_sha256: str
+    core_prd_sha256: str
+    hy3_mini_prd_sha256: str
+    session_brief_sha256: str
+    terminal_review_sha256: str
+    provider_matrix_sha256: str
+    adr_sha256: str
+    handover_sha256: str
+    terminal_outcome: Literal["closed_terminal_provider_failure"]
+    comparison_eligible: Literal[False] = False
+    pilot_authorized: Literal[False] = False
+    retained_benchmark_authorized: Literal[False] = False
+    runtime_rerun_permitted: Literal[False] = False
+    raw_provider_payload_published: Literal[False] = False
+    protected_prompt_published: Literal[False] = False
+    credential_published: Literal[False] = False
+    generated_at: date
+
+    @field_validator("source_main_checkpoint")
+    @classmethod
+    def validate_source_main_checkpoint(cls, value: str) -> str:
+        if re.fullmatch(r"[0-9a-f]{7,40}", value) is None:
+            raise ValueError("Hy3 terminal manifest requires a lowercase Git checkpoint")
+        return value
+
+    @field_validator(
+        "source_closeout_result_sha256",
+        "source_closeout_manifest_sha256",
+        "source_closeout_policy_sha256",
+        "review_sha256",
+        "readme_sha256",
+        "core_prd_sha256",
+        "hy3_mini_prd_sha256",
+        "session_brief_sha256",
+        "terminal_review_sha256",
+        "provider_matrix_sha256",
+        "adr_sha256",
+        "handover_sha256",
+    )
+    @classmethod
+    def validate_hash(cls, value: str) -> str:
+        if _SHA256_PATTERN.fullmatch(value) is None:
+            raise ValueError("Hy3 terminal manifest requires lowercase SHA-256")
+        return value
+
+
+class AuraGatewayV2TerminalEvidenceReviewSupersession(BaseModel):
+    """Additive overlay delegating mutable governing documents to a later review."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    supersession_id: Literal["auragateway-v2-terminal-evidence-review-supersession-v1"]
+    source_review_id: Literal["auragateway-v2-terminal-evidence-review-v1"]
+    source_manifest_path: Literal[
+        "data/evals/benchmark/auragateway-v2-terminal-evidence-review-v1/manifest.json"
+    ]
+    source_manifest_sha256: str
+    superseding_review_id: Literal["openrouter-hy3-terminal-evidence-review-v1"]
+    superseding_manifest_path: Literal[
+        "data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1/manifest.json"
+    ]
+    superseding_manifest_sha256: str
+    superseding_source_main_checkpoint: Literal["00d0712"]
+    superseding_merge_checkpoint: Literal["768800b"]
+    effective_prd_version: Literal["2.3.0"]
+    assets: tuple[TerminalEvidenceSupersededAsset, ...] = Field(
+        min_length=3,
+        max_length=3,
+    )
+    historical_manifest_immutable: Literal[True] = True
+    source_evidence_locked: Literal[True] = True
+    protected_evidence_read: Literal[False] = False
+    provider_execution_permitted: Literal[False] = False
+    next_phase: Literal["hugging_face_static_publication_package"] = (
+        "hugging_face_static_publication_package"
+    )
+
+    @field_validator("source_manifest_sha256", "superseding_manifest_sha256")
+    @classmethod
+    def validate_hash(cls, value: str) -> str:
+        if _SHA256_PATTERN.fullmatch(value) is None:
+            raise ValueError("terminal supersession requires lowercase SHA-256")
+        return value
+
+    @model_validator(mode="after")
+    def validate_assets(self) -> AuraGatewayV2TerminalEvidenceReviewSupersession:
+        expected = {
+            TerminalEvidenceSupersededDocumentPath.CORE_PRD: (
+                TerminalEvidenceSupersedingHashField.CORE_PRD_SHA256
+            ),
+            TerminalEvidenceSupersededDocumentPath.SESSION_BRIEF: (
+                TerminalEvidenceSupersedingHashField.SESSION_BRIEF_SHA256
+            ),
+            TerminalEvidenceSupersededDocumentPath.README: (
+                TerminalEvidenceSupersedingHashField.README_SHA256
+            ),
+        }
+        observed = {item.path: item.superseding_hash_field for item in self.assets}
+        if observed != expected:
+            raise ValueError("terminal supersession requires the exact three document mappings")
+        return self
 
 
 class AuraGatewayV2TerminalEvidenceReviewSummary(BaseModel):

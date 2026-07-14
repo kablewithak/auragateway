@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "publication_id": "auragateway-hugging-face-publication-v1",
+  "source_main_checkpoint": "768800b",
+  "dataset_candidate_path": "release/hugging-face/dataset/auragateway-provider-evidence",
+  "space_candidate_path": "release/hugging-face/space/auragateway-provider-evidence",
+  "publication_license": "other",
+  "live_inference_permitted": false,
+  "credential_access_permitted": false,
+  "customer_data_permitted": false,
+  "raw_provider_payload_permitted": false,
+  "protected_local_evidence_access_permitted": false,
+  "remote_publication_authorized": false,
+  "next_gate": "remote_publication_authorization_review"
+}

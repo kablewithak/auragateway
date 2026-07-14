@@ -11,18 +11,34 @@ from auragateway.benchmark.openrouter_hy3_capability_probe_authorization_runner 
     validate_openrouter_probe_authorization,
 )
 
-_ROOT = Path("data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1")
+_ROOT = Path(
+    "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1"
+)
 _REVIEW = _ROOT / "review.json"
 _PROMPT = _ROOT / "prompt_recipe.json"
 _STATE = _ROOT / "state_model_report.json"
 _TRANSPORT = _ROOT / "transport_report.json"
 _MANIFEST = _ROOT / "manifest.json"
+_SUPERSESSION = Path(
+    "data/evals/benchmark/openrouter-hy3-historical-review-supersession-v1/supersession.json"
+)
+_SUPERSEDING_MANIFEST = Path(
+    "data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1/manifest.json"
+)
 
 
 def _copy_assets(repo_root: Path) -> None:
     review = json.loads(_REVIEW.read_text(encoding="utf-8"))
     manifest = json.loads(_MANIFEST.read_text(encoding="utf-8"))
-    paths = {_REVIEW, _PROMPT, _STATE, _TRANSPORT, _MANIFEST}
+    paths = {
+        _REVIEW,
+        _PROMPT,
+        _STATE,
+        _TRANSPORT,
+        _MANIFEST,
+        _SUPERSESSION,
+        _SUPERSEDING_MANIFEST,
+    }
     paths.update(Path(item["path"]) for item in review["source_bindings"])
     paths.update(Path(item["path"]) for item in manifest["bindings"])
     for path in paths:
@@ -87,5 +103,26 @@ def test_validator_rejects_manifest_bound_output_drift(tmp_path: Path) -> None:
         / "docs/benchmark/AuraGateway_OpenRouter_Hy3_Capability_Probe_Authorization_Review.md"
     )
     path.write_text(path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+    with pytest.raises(OpenRouterProbeAuthorizationError, match="manifest"):
+        validate_openrouter_probe_authorization(tmp_path)
+
+
+def test_validator_rejects_superseding_manifest_drift(tmp_path: Path) -> None:
+    _copy_assets(tmp_path)
+    path = tmp_path / _SUPERSEDING_MANIFEST
+    path.write_text(path.read_text(encoding="utf-8") + " ", encoding="utf-8")
+
+    with pytest.raises(OpenRouterProbeAuthorizationError, match="supersession"):
+        validate_openrouter_probe_authorization(tmp_path)
+
+
+def test_validator_rejects_superseded_runner_drift(tmp_path: Path) -> None:
+    _copy_assets(tmp_path)
+    path = (
+        tmp_path / "src/auragateway/benchmark/"
+        "openrouter_hy3_capability_probe_authorization_runner.py"
+    )
+    path.write_text(path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+
     with pytest.raises(OpenRouterProbeAuthorizationError, match="manifest"):
         validate_openrouter_probe_authorization(tmp_path)

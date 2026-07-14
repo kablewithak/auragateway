@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "supersession_id": "openrouter-hy3-historical-review-supersession-v1",
+  "identifiability_review_path": "data/evals/benchmark/openrouter-hy3-identifiability-review-v1/review.json",
+  "identifiability_review_sha256": "0bdc5738b7c87c8f6cd5217db629f433d315a65857b60e0a1e2742a1af2655f5",
+  "identifiability_manifest_path": "data/evals/benchmark/openrouter-hy3-identifiability-review-v1/manifest.json",
+  "identifiability_manifest_sha256": "c9e097a171d42dffc336bcd3240f2661765cfbeb54ec8c555a6d14ab30e4993a",
+  "authorization_review_path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/review.json",
+  "authorization_review_sha256": "4bdaa340216a99d30bfe9cbdececf4498f1f12240afb4505e87a550d59f37f76",
+  "authorization_manifest_path": "data/evals/benchmark/openrouter-hy3-capability-probe-authorization-review-v1/manifest.json",
+  "authorization_manifest_sha256": "0d53cd56cbbfdafcc5d4adefaaf5de57cc8c336712579a0468ca65891c1c45cb",
+  "superseding_manifest_path": "data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1/manifest.json",
+  "superseding_manifest_sha256": "c3b20f3796323bf83254f9fa30273980b9ab80fed2ce4ce376db0fc3ca262c82",
+  "authorization_runner_path": "src/auragateway/benchmark/openrouter_hy3_capability_probe_authorization_runner.py",
+  "authorization_runner_historical_sha256": "a409c28bb13ad70e51831007486995781b0708c191dc7dc5df582fe9c138d9a6",
+  "authorization_runner_superseding_sha256": "a136b029e0fd64a875a86b48033b0954f153afeb7e2d0de0973e5ed3008fbfca",
+  "bindings": [
+    {
+      "scope": "identifiability_review_source",
+      "path": "docs/product/AuraGateway_OpenRouter_Hy3_Free_Tier_Validation_Mini_PRD.md",
+      "historical_sha256": "8d3604a65a94c50098e8e7d853e16b1ab21a5f9fdf8aaedf6e3d5ee7a793be0a",
+      "superseding_hash_field": "hy3_mini_prd_sha256"
+    },
+    {
+      "scope": "identifiability_review_source",
+      "path": "docs/product/AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md",
+      "historical_sha256": "86acfc9bed13767a2869090d64fcabbfdf3da3b4bd156708afbd8f3919586409",
+      "superseding_hash_field": "core_prd_sha256"
+    },
+    {
+      "scope": "identifiability_manifest_asset",
+      "path": "docs/product/AuraGateway_OpenRouter_Hy3_Free_Tier_Validation_Mini_PRD.md",
+      "historical_sha256": "8d3604a65a94c50098e8e7d853e16b1ab21a5f9fdf8aaedf6e3d5ee7a793be0a",
+      "superseding_hash_field": "hy3_mini_prd_sha256"
+    },
+    {
+      "scope": "authorization_review_source",
+      "path": "docs/product/AuraGateway_OpenRouter_Hy3_Free_Tier_Validation_Mini_PRD.md",
+      "historical_sha256": "8d3604a65a94c50098e8e7d853e16b1ab21a5f9fdf8aaedf6e3d5ee7a793be0a",
+      "superseding_hash_field": "hy3_mini_prd_sha256"
+    }
+  ],
+  "historical_evidence_mutation_permitted": false,
+  "provider_execution_reopened": false
+}

@@ -1,0 +1,137 @@
+{
+  "candidate_files": [
+    {
+      "bytes": 446,
+      "path": "release/hugging-face/dataset/auragateway-provider-evidence/ATTRIBUTION.md",
+      "sha256": "9f30b0428389c292c0a02e271d3e5f938c57b00fcb1cd7562367bf9088f0a6b6"
+    },
+    {
+      "bytes": 1714,
+      "path": "release/hugging-face/dataset/auragateway-provider-evidence/data/claim_matrix.jsonl",
+      "sha256": "5abef4d1100b57841b3801045bae1ff4335def213a0919880d6aae5e6ac7ae3a"
+    },
+    {
+      "bytes": 1989,
+      "path": "release/hugging-face/dataset/auragateway-provider-evidence/data/provider_evidence.jsonl",
+      "sha256": "ed061520c600a0b00ddb62b065b6335f9774e79dfaca4c911bd0d95468504a16"
+    },
+    {
+      "bytes": 1107,
+      "path": "release/hugging-face/dataset/auragateway-provider-evidence/docs/METHODOLOGY.md",
+      "sha256": "5937de75e50c41f86461c222fdabf890eb57a8d21eba82beabc90c16517fc56c"
+    },
+    {
+      "bytes": 740,
+      "path": "release/hugging-face/dataset/auragateway-provider-evidence/evidence_boundary.md",
+      "sha256": "cb109f5ff30d09e784959b3b43607576f1151b340883294a3332a8c04a0a13d6"
+    },
+    {
+      "bytes": 557,
+      "path": "release/hugging-face/dataset/auragateway-provider-evidence/LICENSE.md",
+      "sha256": "2f0f98b96f9f97470c6b4325576e91fea2e81a5654c79733a74c7af9d41ac253"
+    },
+    {
+      "bytes": 5091,
+      "path": "release/hugging-face/dataset/auragateway-provider-evidence/publication_state.json",
+      "sha256": "0c2fcacc46b49f925852f512ede44b26b466bd08a10cb869d38802336c054952"
+    },
+    {
+      "bytes": 2476,
+      "path": "release/hugging-face/dataset/auragateway-provider-evidence/README.md",
+      "sha256": "fb66db83f66700641cb1d83e8a9f8a5b595f48b268fa692043de32f991d8a675"
+    },
+    {
+      "bytes": 3268,
+      "path": "release/hugging-face/space/auragateway-provider-evidence/app.js",
+      "sha256": "170228a5ddcc18f540a23d429dcef526a42e96df834d0efaa179b29092a460f4"
+    },
+    {
+      "bytes": 5122,
+      "path": "release/hugging-face/space/auragateway-provider-evidence/evidence.js",
+      "sha256": "60739c1c8bf02141f9af0ded66f4cdf07270868498c5dd646878b561d9f93acd"
+    },
+    {
+      "bytes": 740,
+      "path": "release/hugging-face/space/auragateway-provider-evidence/evidence_boundary.md",
+      "sha256": "cb109f5ff30d09e784959b3b43607576f1151b340883294a3332a8c04a0a13d6"
+    },
+    {
+      "bytes": 3668,
+      "path": "release/hugging-face/space/auragateway-provider-evidence/index.html",
+      "sha256": "5b552f951832715f11c41b7a8392e8c72da5192542a971ac9a3bb2a9e9e27710"
+    },
+    {
+      "bytes": 557,
+      "path": "release/hugging-face/space/auragateway-provider-evidence/LICENSE.md",
+      "sha256": "2f0f98b96f9f97470c6b4325576e91fea2e81a5654c79733a74c7af9d41ac253"
+    },
+    {
+      "bytes": 440,
+      "path": "release/hugging-face/space/auragateway-provider-evidence/README.md",
+      "sha256": "c047d80e0d5aaefc5b456bad4f0411cae9e4d796a6212b054001cbb409711766"
+    },
+    {
+      "bytes": 4429,
+      "path": "release/hugging-face/space/auragateway-provider-evidence/style.css",
+      "sha256": "0b49d6a5ba91c0b5de1bfc4998760ee441e937f5819b1d4ca6890041705ebf65"
+    }
+  ],
+  "credential_required": false,
+  "live_inference_included": false,
+  "publication_id": "auragateway-hugging-face-publication-v1",
+  "remote_publication_authorized": false,
+  "schema_version": "1.0.0",
+  "source_evidence": [
+    {
+      "bytes": 3459,
+      "path": "data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1/review.json",
+      "sha256": "3aef21c3e32c23206ad49efa4ebce16e5faef93247f77d762f91a63da2819e05"
+    },
+    {
+      "bytes": 1602,
+      "path": "data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1/manifest.json",
+      "sha256": "c3b20f3796323bf83254f9fa30273980b9ab80fed2ce4ce376db0fc3ca262c82"
+    },
+    {
+      "bytes": 3736,
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-closeout-v1/closeout_result.json",
+      "sha256": "d77376a801758349158c878c4b7e9ad9e8d9e6bc0372b447c44ae4b5aa7fd105"
+    },
+    {
+      "bytes": 1203,
+      "path": "data/evals/benchmark/openrouter-hy3-capability-probe-closeout-v1/closeout_manifest.json",
+      "sha256": "f8e3d905b23bcc905e1617ae8ecb06de60ea292785c5c3ab19202bbed63e3b4c"
+    },
+    {
+      "bytes": 5804,
+      "path": "docs/benchmark/AuraGateway_Provider_Evidence_Matrix.md",
+      "sha256": "8fc4e0d82f6e908d13e22c26a6be5cf2944516ab692d4f177f68de28082a3a5b"
+    },
+    {
+      "bytes": 654,
+      "path": "data/publication/hugging-face-v1/publication_policy.json",
+      "sha256": "06507ce10d3c5bbeb6e17e7592208620994aacdc2cbe7590e25bd8f6245238dd"
+    },
+    {
+      "bytes": 5705,
+      "path": "src/auragateway/contracts/hugging_face_publication.py",
+      "sha256": "36efc2f3203f7f8877b15930128e8611193a2b7519f06d37daebc2e318ccd23a"
+    },
+    {
+      "bytes": 70,
+      "path": "src/auragateway/publication/__init__.py",
+      "sha256": "a1e8de0d43d8528e7c467eb32782a39ee13eb46d211e324554a806ea4692208a"
+    },
+    {
+      "bytes": 37156,
+      "path": "src/auragateway/publication/hugging_face.py",
+      "sha256": "56a036a3881443a3182843608cfa193a0af186873c73ce851bd23a7b49d2fd54"
+    },
+    {
+      "bytes": 1379,
+      "path": "src/auragateway/publication/hugging_face_runner.py",
+      "sha256": "4a3cea6a1fade08090bf92cbbcabcef631d4a96bfabc5df7d7e8ef7c50e59545"
+    }
+  ],
+  "source_main_checkpoint": "768800b"
+}

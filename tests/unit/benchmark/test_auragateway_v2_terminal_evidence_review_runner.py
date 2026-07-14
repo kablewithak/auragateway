@@ -14,6 +14,10 @@ from auragateway.benchmark.auragateway_v2_terminal_evidence_review_runner import
 )
 
 _REVIEW_ROOT = Path("data/evals/benchmark/auragateway-v2-terminal-evidence-review-v1")
+_SUPERSESSION_ROOT = Path(
+    "data/evals/benchmark/auragateway-v2-terminal-evidence-review-supersession-v1"
+)
+_SUPERSEDING_REVIEW_ROOT = Path("data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1")
 
 
 def _sha256(path: Path) -> str:
@@ -56,7 +60,14 @@ def _copy_repo_assets(repo_root: Path) -> None:
         path = manifest[key]
         assert isinstance(path, str)
         paths.append(Path(path))
-    paths.append(_REVIEW_ROOT / "manifest.json")
+
+    paths.extend(
+        (
+            _REVIEW_ROOT / "manifest.json",
+            _SUPERSESSION_ROOT / "supersession.json",
+            _SUPERSEDING_REVIEW_ROOT / "manifest.json",
+        )
+    )
 
     for relative_path in set(paths):
         destination = repo_root / relative_path
@@ -78,19 +89,13 @@ def _refresh_review_and_manifest(repo_root: Path) -> None:
 
     manifest_path = repo_root / _REVIEW_ROOT / "manifest.json"
     manifest = _json_object(manifest_path)
-    for path_key, hash_key in (
-        ("review_path", "review_sha256"),
-        ("report_path", "report_sha256"),
-        ("adr_path", "adr_sha256"),
-        ("prd_path", "prd_sha256"),
-        ("session_brief_path", "session_brief_sha256"),
-        ("readme_path", "readme_sha256"),
-        ("publication_prd_path", "publication_prd_sha256"),
-    ):
-        path = manifest[path_key]
-        assert isinstance(path, str)
-        manifest[hash_key] = _sha256(repo_root / path)
+    manifest["review_sha256"] = _sha256(review_path)
     _write_json(manifest_path, manifest)
+
+    supersession_path = repo_root / _SUPERSESSION_ROOT / "supersession.json"
+    supersession = _json_object(supersession_path)
+    supersession["source_manifest_sha256"] = _sha256(manifest_path)
+    _write_json(supersession_path, supersession)
 
 
 def test_validator_accepts_terminal_review(tmp_path: Path) -> None:
@@ -113,6 +118,7 @@ def test_validator_reads_no_credential(
 ) -> None:
     _copy_repo_assets(tmp_path)
     monkeypatch.setenv("GROQ_API_KEY", "must-not-be-read")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "must-not-be-read")
 
     summary = validate_terminal_evidence_review(tmp_path)
 
@@ -138,7 +144,97 @@ def test_validator_rejects_governing_document_drift(tmp_path: Path) -> None:
 
     with pytest.raises(
         TerminalEvidenceReviewError,
-        match="governing document no longer matches",
+        match="superseded governing document no longer matches",
+    ):
+        validate_terminal_evidence_review(tmp_path)
+
+
+def test_validator_rejects_immutable_document_drift(tmp_path: Path) -> None:
+    _copy_repo_assets(tmp_path)
+    path = tmp_path / "docs/benchmark/AuraGateway_v2_Terminal_Evidence_Review.md"
+    path.write_text(path.read_text(encoding="utf-8") + "drift\n", encoding="utf-8")
+
+    with pytest.raises(
+        TerminalEvidenceReviewError,
+        match="immutable governing document no longer matches",
+    ):
+        validate_terminal_evidence_review(tmp_path)
+
+
+def test_validator_rejects_missing_supersession_overlay(tmp_path: Path) -> None:
+    _copy_repo_assets(tmp_path)
+    (tmp_path / _SUPERSESSION_ROOT / "supersession.json").unlink()
+
+    with pytest.raises(
+        TerminalEvidenceReviewError,
+        match="required terminal review asset was not found",
+    ):
+        validate_terminal_evidence_review(tmp_path)
+
+
+def test_validator_rejects_superseding_manifest_drift(tmp_path: Path) -> None:
+    _copy_repo_assets(tmp_path)
+    path = tmp_path / _SUPERSEDING_REVIEW_ROOT / "manifest.json"
+    path.write_text(path.read_text(encoding="utf-8") + " ", encoding="utf-8")
+
+    with pytest.raises(
+        TerminalEvidenceReviewError,
+        match="superseding terminal continuity manifest no longer matches",
+    ):
+        validate_terminal_evidence_review(tmp_path)
+
+
+def test_validator_rejects_superseding_binding_drift(tmp_path: Path) -> None:
+    _copy_repo_assets(tmp_path)
+    path = tmp_path / _SUPERSESSION_ROOT / "supersession.json"
+    payload = _json_object(path)
+    assets = payload["assets"]
+    assert isinstance(assets, list)
+    first = assets[0]
+    assert isinstance(first, dict)
+    first["superseding_sha256"] = "0" * 64
+    _write_json(path, payload)
+
+    with pytest.raises(
+        TerminalEvidenceReviewError,
+        match="delegated document hash does not match the superseding manifest",
+    ):
+        validate_terminal_evidence_review(tmp_path)
+
+
+def test_validator_rejects_invalid_supersession_mapping(tmp_path: Path) -> None:
+    _copy_repo_assets(tmp_path)
+    path = tmp_path / _SUPERSESSION_ROOT / "supersession.json"
+    payload = _json_object(path)
+    assets = payload["assets"]
+    assert isinstance(assets, list)
+    first = assets[0]
+    assert isinstance(first, dict)
+    first["superseding_hash_field"] = "readme_sha256"
+    _write_json(path, payload)
+
+    with pytest.raises(
+        TerminalEvidenceReviewError,
+        match="terminal review asset failed typed validation",
+    ):
+        validate_terminal_evidence_review(tmp_path)
+
+
+def test_validator_rejects_historical_manifest_mutation(tmp_path: Path) -> None:
+    _copy_repo_assets(tmp_path)
+    manifest_path = tmp_path / _REVIEW_ROOT / "manifest.json"
+    manifest = _json_object(manifest_path)
+    manifest["readme_sha256"] = "0" * 64
+    _write_json(manifest_path, manifest)
+
+    supersession_path = tmp_path / _SUPERSESSION_ROOT / "supersession.json"
+    supersession = _json_object(supersession_path)
+    supersession["source_manifest_sha256"] = _sha256(manifest_path)
+    _write_json(supersession_path, supersession)
+
+    with pytest.raises(
+        TerminalEvidenceReviewError,
+        match="delegated historical document hash does not match",
     ):
         validate_terminal_evidence_review(tmp_path)
 
@@ -176,8 +272,8 @@ def test_validator_rejects_execution_outcome_promotion(tmp_path: Path) -> None:
 def test_validator_rejects_gate_4_promotion(tmp_path: Path) -> None:
     _copy_repo_assets(tmp_path)
     path = (
-        tmp_path / "data/evals/benchmark/"
-        "groq-cache-telemetry-reauthorization-closeout-v1/closeout.json"
+        tmp_path
+        / "data/evals/benchmark/groq-cache-telemetry-reauthorization-closeout-v1/closeout.json"
     )
     payload = _json_object(path)
     gate = payload["gate_4_resolution"]

@@ -14,9 +14,20 @@ from auragateway.benchmark.openrouter_hy3_identifiability_runner import (
 
 _REVIEW_ROOT = Path("data/evals/benchmark/openrouter-hy3-identifiability-review-v1")
 _TERMINAL_ROOT = Path("data/evals/benchmark/auragateway-v2-terminal-evidence-review-v1")
+_SUPERSESSION_PATH = Path(
+    "data/evals/benchmark/openrouter-hy3-historical-review-supersession-v1/"
+    "supersession.json"
+)
+_SUPERSEDING_MANIFEST_PATH = Path(
+    "data/evals/benchmark/openrouter-hy3-terminal-evidence-review-v1/manifest.json"
+)
 _ADR_PATH = Path("docs/adr/openrouter-hy3-identifiability-review.md")
-_REPORT_PATH = Path("docs/benchmark/AuraGateway_OpenRouter_Hy3_Identifiability_Review.md")
-_MINI_PRD_PATH = Path("docs/product/AuraGateway_OpenRouter_Hy3_Free_Tier_Validation_Mini_PRD.md")
+_REPORT_PATH = Path(
+    "docs/benchmark/AuraGateway_OpenRouter_Hy3_Identifiability_Review.md"
+)
+_MINI_PRD_PATH = Path(
+    "docs/product/AuraGateway_OpenRouter_Hy3_Free_Tier_Validation_Mini_PRD.md"
+)
 
 
 def _review_payload() -> dict[str, object]:
@@ -38,8 +49,12 @@ def _copy_assets(repo_root: Path) -> None:
         _REPORT_PATH,
         _MINI_PRD_PATH,
         _TERMINAL_ROOT / "review.json",
+        _SUPERSESSION_PATH,
+        _SUPERSEDING_MANIFEST_PATH,
     ]
-    paths.extend(Path(cast(str, item["path"])) for item in bindings if isinstance(item, dict))
+    paths.extend(
+        Path(cast(str, item["path"])) for item in bindings if isinstance(item, dict)
+    )
 
     for relative_path in set(paths):
         destination = repo_root / relative_path
@@ -144,6 +159,33 @@ def test_validator_rejects_mini_prd_hash_drift(tmp_path: Path) -> None:
         prd_path.read_text(encoding="utf-8") + "\n",
         encoding="utf-8",
     )
+
+    with pytest.raises(
+        OpenRouterHy3IdentifiabilityError,
+        match="no longer matches",
+    ):
+        validate_openrouter_hy3_identifiability(tmp_path)
+
+
+def test_validator_rejects_superseding_manifest_drift(tmp_path: Path) -> None:
+    _copy_assets(tmp_path)
+    path = tmp_path / _SUPERSEDING_MANIFEST_PATH
+    path.write_text(path.read_text(encoding="utf-8") + " ", encoding="utf-8")
+
+    with pytest.raises(
+        OpenRouterHy3IdentifiabilityError,
+        match="supersession",
+    ):
+        validate_openrouter_hy3_identifiability(tmp_path)
+
+
+def test_validator_rejects_core_prd_hash_drift(tmp_path: Path) -> None:
+    _copy_assets(tmp_path)
+    path = (
+        tmp_path
+        / "docs/product/AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md"
+    )
+    path.write_text(path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
 
     with pytest.raises(
         OpenRouterHy3IdentifiabilityError,
