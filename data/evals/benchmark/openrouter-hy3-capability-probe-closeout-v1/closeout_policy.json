@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "closeout_id": "openrouter-hy3-capability-probe-closeout-v1",
+  "authorization_id": "openrouter-hy3-capability-probe-auth-v1",
+  "execution_id": "openrouter-hy3-capability-probe-v1",
+  "terminal_outcome": "closed_terminal_provider_failure",
+  "failure_stage": "pre_inference_authentication",
+  "safe_error_code": "PROVIDER_AUTHENTICATION_FAILED",
+  "expected_http_status": 401,
+  "expected_attempt_count": 1,
+  "expected_provider_success_count": 0,
+  "expected_retained_success_count": 0,
+  "expected_replacement_count": 0,
+  "resume_permitted": false,
+  "rerun_permitted": false,
+  "public_raw_payload_permitted": false,
+  "public_prompt_permitted": false,
+  "public_secret_permitted": false,
+  "credential_continuity_claim_permitted": false,
+  "authorization_header_delivery_claim_permitted": false,
+  "root_cause_claim_permitted": false,
+  "next_gate": "terminal_review_and_continuity_update"
+}
