@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "groq-cache-telemetry-reauthorization-auth-v1",
+  "schedule_offsets_seconds": [
+    0,
+    10
+  ],
+  "request_roles": [
+    "cold_wire_probe",
+    "warm_wire_probe"
+  ],
+  "planned_cost_microusd_per_call": 200,
+  "planned_maximum_cost_microusd": 400,
+  "authorization_cost_ceiling_microusd": 700,
+  "exact_provider_request_required": true,
+  "raw_and_parsed_same_response_required": true,
+  "provider_error_stops_execution": true,
+  "invalid_observation_stops_execution": true,
+  "evidence_write_failure_stops_execution": true,
+  "retry_permitted": false,
+  "resume_permitted": false,
+  "absolute_schedule_enforced": true,
+  "write_through_journal_required": true,
+  "protected_raw_retention_required": true,
+  "protected_parsed_retention_required": true,
+  "public_raw_payload_permitted": false
+}

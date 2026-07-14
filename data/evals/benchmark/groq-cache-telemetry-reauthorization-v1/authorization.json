@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "groq-cache-telemetry-reauthorization-auth-v1",
+  "status": "active",
+  "review_id": "groq-cache-telemetry-reauthorization-review-v1",
+  "observation_plan_id": "groq-cache-telemetry-reauthorization-observation-v1",
+  "execution_id": "groq-cache-telemetry-reauthorization-v1",
+  "source_commit": "6e76bfcda488f11b6903d8aedbe04a997af35f87",
+  "bindings": [
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-review-v1/observation_plan.json",
+      "sha256": "b70c629e87c155c5e662869cf6748b186285c538f56f8dce1ac8211340feb513",
+      "protected_local": false
+    },
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-review-v1/review.json",
+      "sha256": "426fe625e341c90f9a0743fbbfba8a50b8b2ea2845dfa098674eb243620030f0",
+      "protected_local": false
+    },
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-review-v1/dry_run_report.json",
+      "sha256": "2eec7c7fa2f32ef58bd21770cf56d82b4d75e4cab8854d6f48119774516a4105",
+      "protected_local": false
+    },
+    {
+      "path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-review-v1/manifest.json",
+      "sha256": "ab7cdd242c3e99aa40b47c356aa5b7d127866e9b8a09ca80bb2590d115accb8b",
+      "protected_local": false
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-review-v1/prompt_recipe.json",
+      "sha256": "8f9a1d34bce04f4d4176c1a26a61d88b52f459ea5e58e9d5ab628e01c46c4321",
+      "protected_local": false
+    },
+    {
+      "path": ".local/benchmark/cache-telemetry-calibration-v1/prompt_bundle.json",
+      "sha256": "7fbf0a9d5ef02aece3159f1654b3f2a8fa2e306e9e7147aae12a4ca2f4312033",
+      "protected_local": true
+    }
+  ],
+  "provider": "groq",
+  "model_alias": "groq-gpt-oss-20b",
+  "exact_model_identifier": "openai/gpt-oss-20b",
+  "adapter_version": "groq-chat-completions-v1",
+  "telemetry_capture_version": "groq-cache-telemetry-capture-v1",
+  "raw_response_capture_version": "groq-raw-response-capture-v1",
+  "observation_boundary": "sdk_raw_and_parsed_same_response",
+  "timeout_seconds": 30,
+  "maximum_completion_tokens": 32,
+  "maximum_provider_calls": 2,
+  "maximum_total_cost_microusd": 700,
+  "planned_maximum_cost_microusd": 400,
+  "minimum_planned_elapsed_seconds": 10,
+  "planned_attempt_count": 2,
+  "confirmation_phrase": "EXECUTE_GROQ_CACHE_TELEMETRY_REAUTHORIZATION_ONCE",
+  "evidence_paths": {
+    "authorization_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/authorization.json",
+    "runtime_policy_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/runtime_policy.json",
+    "activation_report_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/activation_report.json",
+    "activation_manifest_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/activation_manifest.json",
+    "journal_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/journal.jsonl",
+    "run_records_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/run_records.json",
+    "report_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/report.json",
+    "manifest_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/manifest.json",
+    "protected_prompt_bundle_path": ".local/benchmark/cache-telemetry-calibration-v1/prompt_bundle.json",
+    "protected_raw_responses_path": ".local/benchmark/groq-cache-telemetry-reauthorization-v1/raw_responses.jsonl",
+    "protected_parsed_responses_path": ".local/benchmark/groq-cache-telemetry-reauthorization-v1/parsed_responses.jsonl"
+  },
+  "one_time_execution": true,
+  "retry_permitted": false,
+  "resume_permitted": false,
+  "rerun_permitted": false,
+  "provider_calls_permitted": true,
+  "credential_required": true,
+  "execution_command_available": true,
+  "reauthorization_execution_authorized": true,
+  "prior_calibration_rerun_authorized": false,
+  "benchmark_execution_authorized": false,
+  "benchmark_claims_permitted": false,
+  "comparison_eligible": false,
+  "execution_completed": false,
+  "next_gate": "live_reauthorization_preflight"
+}
