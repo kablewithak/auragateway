@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "groq-cache-telemetry-reauthorization-auth-v1",
+  "authorization_sha256": "57d0d5608976baddc4d39d670097f5908ebb7e95cdc5fc10db403dc6d739ac32",
+  "runtime_policy_sha256": "7724ccaf131246b881ec03cd245edbd688d16e7c36ce0241f79c0c738ff6ac3e",
+  "activation_manifest_sha256": "dda3676b00243fd26a139bca38b9545fd687c6720aca8f3c06bdbc84bfef872c",
+  "journal_sha256": "d8e51df9de831cb29e5aefee531229162e07265c3912eda4aefb9f27e9763706",
+  "run_records_sha256": "901f7e68f331d3eb7930a325add78cdcd13db1ecf4c0fc323d3074fa62320de3",
+  "report_sha256": "c51e9fa9c2ee8ea6b0be7667fc68219c6cbc59694f5f0d2a5b57c4ad27ad1527",
+  "protected_raw_responses_sha256": "636f67735a5212ffdc3714204fa45279a79a880fbbe9c1afd756e18796724b0b",
+  "protected_parsed_responses_sha256": "dcfe790769270b53214293ca0cc0c7579e094fd2d815986723a73efea1ef9d26",
+  "live_provider_called": true,
+  "execution_completed": true
+}
