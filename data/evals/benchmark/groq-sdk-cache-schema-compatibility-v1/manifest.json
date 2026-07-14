@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "groq-sdk-cache-schema-compatibility-manifest-v1",
+  "review_id": "groq-sdk-cache-schema-compatibility-v1",
+  "review_path": "data/evals/benchmark/groq-sdk-cache-schema-compatibility-v1/review.json",
+  "review_sha256": "9fbe7ef29eb7064e62f0774305c56a299eeeac47f7a6611f12cbb267f67ec807",
+  "adr_path": "docs/adr/groq-sdk-cache-schema-compatibility.md",
+  "adr_sha256": "add4bd5257592102a83b06a386d0aa3f297467faa6a73f3265a99e6d3ec6ed14",
+  "report_path": "docs/benchmark/AuraGateway_Groq_SDK_Cache_Schema_Compatibility_Review.md",
+  "report_sha256": "fe61ab9e4e4d45346970698cf1cfe851cbaa706397d4a9e4cab29876267e7ffd"
+}
