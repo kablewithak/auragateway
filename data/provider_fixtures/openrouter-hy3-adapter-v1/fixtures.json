@@ -1,0 +1,261 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_set_id": "openrouter-hy3-adapter-dry-run-fixtures-v1",
+  "cases": [
+    {
+      "case_id": "fields-absent",
+      "session_id": "auragateway-fields-absent",
+      "completion_payload": {
+        "id": "gen-fields-absent",
+        "model": "tencent/hy3",
+        "choices": [
+          {
+            "message": {
+              "content": "READY"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 12000,
+          "completion_tokens": 4
+        }
+      },
+      "generation_payload": {
+        "data": {
+          "id": "gen-fields-absent",
+          "model": "tencent/hy3",
+          "provider_name": "synthetic-hy3-provider",
+          "session_id": "auragateway-fields-absent",
+          "native_tokens_cached": null,
+          "cache_discount": "0"
+        }
+      },
+      "expected_status": "succeeded",
+      "expected_read_state": "field_absent",
+      "expected_write_state": "field_absent",
+      "expected_error_code": null
+    },
+    {
+      "case_id": "fields-null",
+      "session_id": "auragateway-fields-null",
+      "completion_payload": {
+        "id": "gen-fields-null",
+        "model": "tencent/hy3",
+        "choices": [
+          {
+            "message": {
+              "content": "READY"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 12000,
+          "completion_tokens": 4,
+          "prompt_tokens_details": {
+            "cached_tokens": null,
+            "cache_write_tokens": null
+          }
+        }
+      },
+      "generation_payload": {
+        "data": {
+          "id": "gen-fields-null",
+          "model": "tencent/hy3",
+          "provider_name": "synthetic-hy3-provider",
+          "session_id": "auragateway-fields-null",
+          "native_tokens_cached": null,
+          "cache_discount": "0"
+        }
+      },
+      "expected_status": "succeeded",
+      "expected_read_state": "field_null",
+      "expected_write_state": "field_null",
+      "expected_error_code": null
+    },
+    {
+      "case_id": "fields-zero",
+      "session_id": "auragateway-fields-zero",
+      "completion_payload": {
+        "id": "gen-fields-zero",
+        "model": "tencent/hy3",
+        "choices": [
+          {
+            "message": {
+              "content": "READY"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 12000,
+          "completion_tokens": 4,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          }
+        }
+      },
+      "generation_payload": {
+        "data": {
+          "id": "gen-fields-zero",
+          "model": "tencent/hy3",
+          "provider_name": "synthetic-hy3-provider",
+          "session_id": "auragateway-fields-zero",
+          "native_tokens_cached": 0,
+          "cache_discount": "0"
+        }
+      },
+      "expected_status": "succeeded",
+      "expected_read_state": "observed_zero",
+      "expected_write_state": "observed_zero",
+      "expected_error_code": null
+    },
+    {
+      "case_id": "positive-read",
+      "session_id": "auragateway-positive-read",
+      "completion_payload": {
+        "id": "gen-positive-read",
+        "model": "tencent/hy3",
+        "choices": [
+          {
+            "message": {
+              "content": "READY"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 12000,
+          "completion_tokens": 4,
+          "prompt_tokens_details": {
+            "cached_tokens": 10000,
+            "cache_write_tokens": 0
+          }
+        }
+      },
+      "generation_payload": {
+        "data": {
+          "id": "gen-positive-read",
+          "model": "tencent/hy3",
+          "provider_name": "synthetic-hy3-provider",
+          "session_id": "auragateway-positive-read",
+          "native_tokens_cached": 10000,
+          "cache_discount": "0"
+        }
+      },
+      "expected_status": "succeeded",
+      "expected_read_state": "observed_positive",
+      "expected_write_state": "observed_zero",
+      "expected_error_code": null
+    },
+    {
+      "case_id": "positive-write",
+      "session_id": "auragateway-positive-write",
+      "completion_payload": {
+        "id": "gen-positive-write",
+        "model": "tencent/hy3",
+        "choices": [
+          {
+            "message": {
+              "content": "READY"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 12000,
+          "completion_tokens": 4,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 10000
+          }
+        }
+      },
+      "generation_payload": {
+        "data": {
+          "id": "gen-positive-write",
+          "model": "tencent/hy3",
+          "provider_name": "synthetic-hy3-provider",
+          "session_id": "auragateway-positive-write",
+          "native_tokens_cached": 0,
+          "cache_discount": "0"
+        }
+      },
+      "expected_status": "succeeded",
+      "expected_read_state": "observed_zero",
+      "expected_write_state": "observed_positive",
+      "expected_error_code": null
+    },
+    {
+      "case_id": "invalid-numeric-type",
+      "session_id": "auragateway-invalid-type",
+      "completion_payload": {
+        "id": "gen-invalid-numeric-type",
+        "model": "tencent/hy3",
+        "choices": [
+          {
+            "message": {
+              "content": "READY"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 12000,
+          "completion_tokens": 4,
+          "prompt_tokens_details": {
+            "cached_tokens": "100",
+            "cache_write_tokens": 0
+          }
+        }
+      },
+      "generation_payload": {
+        "data": {
+          "id": "gen-invalid-numeric-type",
+          "model": "tencent/hy3",
+          "provider_name": "synthetic-hy3-provider",
+          "session_id": "auragateway-invalid-type",
+          "native_tokens_cached": 100,
+          "cache_discount": "0"
+        }
+      },
+      "expected_status": "rejected",
+      "expected_read_state": null,
+      "expected_write_state": null,
+      "expected_error_code": "PROVIDER_RESPONSE_INVALID"
+    },
+    {
+      "case_id": "generation-identity-mismatch",
+      "session_id": "auragateway-generation-mismatch",
+      "completion_payload": {
+        "id": "gen-generation-identity-mismatch",
+        "model": "tencent/hy3",
+        "choices": [
+          {
+            "message": {
+              "content": "READY"
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 12000,
+          "completion_tokens": 4,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          }
+        }
+      },
+      "generation_payload": {
+        "data": {
+          "id": "gen-generation-identity-mismatch",
+          "model": "different/model",
+          "provider_name": "synthetic-hy3-provider",
+          "session_id": "auragateway-generation-mismatch",
+          "native_tokens_cached": 0,
+          "cache_discount": "0"
+        }
+      },
+      "expected_status": "rejected",
+      "expected_read_state": null,
+      "expected_write_state": null,
+      "expected_error_code": "PROVIDER_CONFIGURATION_MISMATCH"
+    }
+  ]
+}
