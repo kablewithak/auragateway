@@ -1,0 +1,167 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "groq-sdk-cache-schema-compatibility-v1",
+  "status": "closed_provider_omission_supported",
+  "source_commit": "75b03a8",
+  "provider": "groq",
+  "model_alias": "groq-gpt-oss-20b",
+  "exact_model_identifier": "openai/gpt-oss-20b",
+  "adapter_version": "groq-chat-completions-v1",
+  "installed_sdk_version": "1.5.0",
+  "declared_sdk_requirement": "groq>=1.5,<2",
+  "billing_cache_field_path": "usage.prompt_tokens_details.cached_tokens",
+  "hardware_cache_field_paths": [
+    "x_groq.usage.dram_cached_tokens",
+    "x_groq.usage.sram_cached_tokens"
+  ],
+  "calibration_status": "closed_billing_field_unavailable",
+  "calibration_successful_call_count": 3,
+  "calibration_billing_numeric_sample_count": 0,
+  "source_bindings": [
+    {
+      "path": "pyproject.toml",
+      "sha256": "5387ea09341bde18d73518e28a236f65865918dd406fcb13824c0c8156a57103",
+      "evidence_kind": "repository_source"
+    },
+    {
+      "path": "src/auragateway/providers/groq.py",
+      "sha256": "1f1e5a8baa64848b542e447540a814ed5ed8894f16ef27a51ac278ad8b3c19b9",
+      "evidence_kind": "repository_source"
+    },
+    {
+      "path": "src/auragateway/contracts/cache_telemetry_capture.py",
+      "sha256": "c6fef4ce75de734f4741f10314a4ba5f7395ce66f323baef543f849b0f0c9417",
+      "evidence_kind": "repository_source"
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-v1/report.json",
+      "sha256": "382ce03cfdd52cc2479d2f2779119196d904f43c103389663e9b1842bf24a60f",
+      "evidence_kind": "immutable_calibration"
+    },
+    {
+      "path": "data/evals/benchmark/cache-telemetry-calibration-closeout-v1/closeout.json",
+      "sha256": "2361c3507cc69318fd46567ebebde636a1cfcfefe2f838b7b25faf61f7395c24",
+      "evidence_kind": "immutable_calibration"
+    }
+  ],
+  "external_sources": [
+    {
+      "source_id": "groq-prompt-caching-docs-2026-07-14",
+      "evidence_kind": "official_provider_documentation",
+      "url": "https://console.groq.com/docs/prompt-caching",
+      "retrieved_on": "2026-07-14",
+      "assertions": [
+        "Billing cache usage is reported at usage.prompt_tokens_details.cached_tokens.",
+        "The documented field is numeric and distinguishes a cold zero from positive cached tokens.",
+        "Exact prefix matching is required for prompt-cache reuse."
+      ]
+    },
+    {
+      "source_id": "groq-python-pypi-2026-07-14",
+      "evidence_kind": "official_package_registry",
+      "url": "https://pypi.org/project/groq/",
+      "retrieved_on": "2026-07-14",
+      "assertions": [
+        "Groq SDK 1.5.0 was the current package release reviewed on 2026-07-14.",
+        "The package is the official Python library for the Groq API."
+      ]
+    }
+  ],
+  "probe_expectations": [
+    {
+      "case_id": "details_absent",
+      "sdk_usage_field_present": true,
+      "sdk_prompt_tokens_details_field_present": false,
+      "sdk_cached_tokens_field_present": false,
+      "sdk_cached_tokens_value": null,
+      "adapter_prompt_tokens_details_present": false,
+      "adapter_billing_cached_tokens_field_present": false,
+      "adapter_billing_cached_input_tokens": null,
+      "adapter_billing_observation_state": "field_absent",
+      "sdk_model_dump_preserves_expected_shape": true,
+      "adapter_capture_matches_sdk_presence": true
+    },
+    {
+      "case_id": "details_explicit_null",
+      "sdk_usage_field_present": true,
+      "sdk_prompt_tokens_details_field_present": true,
+      "sdk_cached_tokens_field_present": false,
+      "sdk_cached_tokens_value": null,
+      "adapter_prompt_tokens_details_present": true,
+      "adapter_billing_cached_tokens_field_present": false,
+      "adapter_billing_cached_input_tokens": null,
+      "adapter_billing_observation_state": "field_absent",
+      "sdk_model_dump_preserves_expected_shape": true,
+      "adapter_capture_matches_sdk_presence": true
+    },
+    {
+      "case_id": "cached_tokens_zero",
+      "sdk_usage_field_present": true,
+      "sdk_prompt_tokens_details_field_present": true,
+      "sdk_cached_tokens_field_present": true,
+      "sdk_cached_tokens_value": 0,
+      "adapter_prompt_tokens_details_present": true,
+      "adapter_billing_cached_tokens_field_present": true,
+      "adapter_billing_cached_input_tokens": 0,
+      "adapter_billing_observation_state": "observed_zero",
+      "sdk_model_dump_preserves_expected_shape": true,
+      "adapter_capture_matches_sdk_presence": true
+    },
+    {
+      "case_id": "cached_tokens_positive",
+      "sdk_usage_field_present": true,
+      "sdk_prompt_tokens_details_field_present": true,
+      "sdk_cached_tokens_field_present": true,
+      "sdk_cached_tokens_value": 600,
+      "adapter_prompt_tokens_details_present": true,
+      "adapter_billing_cached_tokens_field_present": true,
+      "adapter_billing_cached_input_tokens": 600,
+      "adapter_billing_observation_state": "observed_positive",
+      "sdk_model_dump_preserves_expected_shape": true,
+      "adapter_capture_matches_sdk_presence": true
+    }
+  ],
+  "candidate_assessments": [
+    {
+      "classification": "provider_omission_supported",
+      "supported": true,
+      "evidence": [
+        "Three successful calibration responses omitted prompt_tokens_details.",
+        "Groq SDK 1.5.0 models prompt_tokens_details.cached_tokens.",
+        "Real SDK objects preserve numeric zero and positive cached-token values.",
+        "The current adapter preserves real SDK field-presence semantics.",
+        "Current provider documentation identifies the same billing field path."
+      ]
+    },
+    {
+      "classification": "sdk_schema_incompatibility_supported",
+      "supported": false,
+      "evidence": [
+        "The installed SDK exposes CompletionUsage.prompt_tokens_details.",
+        "The installed SDK exposes PromptTokensDetails.cached_tokens.",
+        "The installed SDK exposes x_groq hardware-cache fields.",
+        "No newer SDK is required to represent the reviewed fields."
+      ]
+    },
+    {
+      "classification": "adapter_extraction_defect_supported",
+      "supported": false,
+      "evidence": [
+        "The adapter checks model_fields_set before serialized mapping fallback.",
+        "Real SDK absent, explicit-null, zero, and positive cases match expected capture states.",
+        "No cache value is fabricated from SDK defaults."
+      ]
+    }
+  ],
+  "primary_classification": "provider_omission_supported",
+  "exact_provider_omission_cause_resolved": false,
+  "nested_cached_tokens_null_rejected_by_sdk": true,
+  "sdk_upgrade_required": false,
+  "adapter_change_required": false,
+  "credential_access_permitted": false,
+  "provider_call_authorized": false,
+  "calibration_rerun_authorized": false,
+  "benchmark_execution_authorized": false,
+  "new_live_authorization_review_permitted": true,
+  "next_gate": "groq_cache_telemetry_reauthorization_review"
+}
