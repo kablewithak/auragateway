@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "groq-cache-telemetry-reauthorization-auth-v1",
+  "execution_id": "groq-cache-telemetry-reauthorization-v1",
+  "status": "active",
+  "provider_call_performed": false,
+  "credential_accessed": false,
+  "active_authorization_created": true,
+  "execution_command_available": true,
+  "reauthorization_execution_authorized": true,
+  "prior_calibration_rerun_authorized": false,
+  "benchmark_execution_authorized": false,
+  "comparison_eligible": false,
+  "next_gate": "live_reauthorization_preflight"
+}

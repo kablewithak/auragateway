@@ -3,3 +3,9 @@ data/evals/benchmark/cache-telemetry-calibration-v1/journal.jsonl -text
 data/evals/benchmark/cache-telemetry-calibration-v1/run_records.json -text
 data/evals/benchmark/cache-telemetry-calibration-v1/report.json -text
 data/evals/benchmark/cache-telemetry-calibration-v1/manifest.json -text
+
+# Preserve future raw-wire reauthorization evidence byte-for-byte.
+data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/journal.jsonl -text
+data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/run_records.json -text
+data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/report.json -text
+data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/manifest.json -text
