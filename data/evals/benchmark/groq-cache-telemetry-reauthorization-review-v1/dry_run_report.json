@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "groq-cache-telemetry-reauthorization-review-v1",
+  "plan_id": "groq-cache-telemetry-reauthorization-observation-v1",
+  "status": "passed_inactive",
+  "attempts": [
+    {
+      "attempt_index": 0,
+      "request_role": "cold_wire_probe",
+      "planned_offset_seconds": 0,
+      "provider_request_sha256": "23cac23a165812ae8e9908e9d0609fb533359a30ed4386d76bcfb82e6a9d17c9",
+      "prompt_recipe_sha256": "8f9a1d34bce04f4d4176c1a26a61d88b52f459ea5e58e9d5ab628e01c46c4321",
+      "observation_boundary": "sdk_raw_and_parsed_same_response",
+      "raw_response_capture_required": true,
+      "parsed_response_capture_required": true,
+      "provider_call_permitted": false
+    },
+    {
+      "attempt_index": 1,
+      "request_role": "warm_wire_probe",
+      "planned_offset_seconds": 10,
+      "provider_request_sha256": "23cac23a165812ae8e9908e9d0609fb533359a30ed4386d76bcfb82e6a9d17c9",
+      "prompt_recipe_sha256": "8f9a1d34bce04f4d4176c1a26a61d88b52f459ea5e58e9d5ab628e01c46c4321",
+      "observation_boundary": "sdk_raw_and_parsed_same_response",
+      "raw_response_capture_required": true,
+      "parsed_response_capture_required": true,
+      "provider_call_permitted": false
+    }
+  ],
+  "planned_attempt_count": 2,
+  "unique_provider_request_count": 1,
+  "repeated_provider_request_count": 1,
+  "raw_and_parsed_same_response_required": true,
+  "provider_call_performed": false,
+  "credential_accessed": false,
+  "execution_command_available": false,
+  "reauthorization_execution_authorized": false,
+  "benchmark_execution_authorized": false
+}

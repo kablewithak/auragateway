@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "groq-cache-telemetry-reauthorization-review-manifest-v1",
+  "status": "frozen_inactive",
+  "source_commit": "e639fca938e7d0309a185eff5c7fac533015d9ec",
+  "observation_plan_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-review-v1/observation_plan.json",
+  "observation_plan_sha256": "b70c629e87c155c5e662869cf6748b186285c538f56f8dce1ac8211340feb513",
+  "review_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-review-v1/review.json",
+  "review_sha256": "426fe625e341c90f9a0743fbbfba8a50b8b2ea2845dfa098674eb243620030f0",
+  "dry_run_report_path": "data/evals/benchmark/groq-cache-telemetry-reauthorization-review-v1/dry_run_report.json",
+  "dry_run_report_sha256": "2eec7c7fa2f32ef58bd21770cf56d82b4d75e4cab8854d6f48119774516a4105",
+  "adr_path": "docs/adr/groq-cache-telemetry-reauthorization-review.md",
+  "adr_sha256": "f48d718f3592b352fb823e89001832d63429a97299c23cae154353e67f700324",
+  "report_path": "docs/benchmark/AuraGateway_Groq_Cache_Telemetry_Reauthorization_Review.md",
+  "report_sha256": "289783dbfb94b042f3684a804e41f1cdd2d0797616456ca00ef92d6afb9a7146",
+  "provider_call_authorized": false,
+  "active_authorization_created": false,
+  "execution_command_available": false,
+  "reauthorization_execution_authorized": false,
+  "benchmark_execution_authorized": false,
+  "next_gate": "groq_cache_telemetry_reauthorization_activation"
+}
