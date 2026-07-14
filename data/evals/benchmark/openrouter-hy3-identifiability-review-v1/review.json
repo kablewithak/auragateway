@@ -1,0 +1,243 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "openrouter-hy3-identifiability-review-v1",
+  "status": "review_ready_inactive",
+  "source_commit": "1442abf0ff0bf011f7fa4dff18ec0fe135057001",
+  "mini_prd_version": "1.0.0",
+  "source_bindings": [
+    {
+      "path": "docs/product/AuraGateway_OpenRouter_Hy3_Free_Tier_Validation_Mini_PRD.md",
+      "sha256": "8d3604a65a94c50098e8e7d853e16b1ab21a5f9fdf8aaedf6e3d5ee7a793be0a",
+      "purpose": "Governing 48-hour extension plan and gate definitions."
+    },
+    {
+      "path": "data/evals/benchmark/auragateway-v2-terminal-evidence-review-v1/review.json",
+      "sha256": "57ceff75d32e39e78a0c1ea47f25a76c83af26977887f03919b9dfaa2de4c3d7",
+      "purpose": "Closed core-runtime state and blocked benchmark claims."
+    },
+    {
+      "path": "data/evals/benchmark/auragateway-v2-terminal-evidence-review-v1/manifest.json",
+      "sha256": "e8b1bce2b302094fec8d302c5f90b1d944fe9486b6bfd93d84287a60e2d7df3e",
+      "purpose": "Integrity identity for the closed core-runtime review."
+    },
+    {
+      "path": "docs/product/AuraGateway_v2_PRD_Cache_Aware_Agent_Runtime_Harness.md",
+      "sha256": "86acfc9bed13767a2869090d64fcabbfdf3da3b4bd156708afbd8f3919586409",
+      "purpose": "Governing AuraGateway v2 core product boundary."
+    },
+    {
+      "path": "src/auragateway/contracts/provider.py",
+      "sha256": "a9e230f20ec3c1081d901229c4d84cad0da0027766c64cfe42b520172aefbcd8",
+      "purpose": "Existing provider-neutral request and result seam."
+    },
+    {
+      "path": "src/auragateway/providers/base.py",
+      "sha256": "ea3f2fc0968b5d6a6c7f323928dea7859d38341e96057c5d6cab4e42d1246de6",
+      "purpose": "Existing live adapter and protected-content protocols."
+    }
+  ],
+  "external_sources": [
+    {
+      "source_id": "openrouter-hy3-free-route",
+      "url": "https://openrouter.ai/tencent/hy3:free",
+      "retrieved_on": "2026-07-14",
+      "assertions": [
+        "The route slug is tencent/hy3:free.",
+        "The route is free.",
+        "The route is scheduled to go away on July 21, 2026.",
+        "The listed context window is 262K tokens.",
+        "The listed release date is July 6, 2026."
+      ]
+    },
+    {
+      "source_id": "openrouter-prompt-caching",
+      "url": "https://openrouter.ai/docs/guides/best-practices/prompt-caching",
+      "retrieved_on": "2026-07-14",
+      "assertions": [
+        "OpenRouter documents provider sticky routing for prompt caching.",
+        "A supplied session_id becomes the sticky routing key.",
+        "session_id activates stickiness after any successful request.",
+        "Manual provider order disables sticky routing.",
+        "cached_tokens and cache_write_tokens are normalized usage fields."
+      ]
+    },
+    {
+      "source_id": "openrouter-provider-selection",
+      "url": "https://openrouter.ai/docs/guides/routing/provider-selection",
+      "retrieved_on": "2026-07-14",
+      "assertions": [
+        "data_collection=deny filters providers that collect data.",
+        "zdr=true restricts routing to zero-retention endpoints.",
+        "provider order can target exact endpoints but changes routing behavior."
+      ]
+    },
+    {
+      "source_id": "openrouter-generation-metadata",
+      "url": "https://openrouter.ai/docs/api/api-reference/generations/get-request-%26-usage-metadata-for-a-generation",
+      "retrieved_on": "2026-07-14",
+      "assertions": [
+        "Generation metadata can be fetched by generation ID.",
+        "The schema includes provider_name, model, session_id, and cache_discount.",
+        "The schema includes native_tokens_cached."
+      ]
+    }
+  ],
+  "route_boundary": {
+    "gateway_provider": "openrouter",
+    "requested_model": "tencent/hy3:free",
+    "model_family": "tencent-hy3",
+    "route_available_as_of_review": true,
+    "route_is_free": true,
+    "model_release_date": "2026-07-06",
+    "scheduled_route_retirement_date": "2026-07-21",
+    "context_window_tokens": 262144,
+    "endpoint_count_known": false,
+    "direct_tencent_telemetry_claim_permitted": false
+  },
+  "telemetry_boundary": {
+    "authority": "openrouter_normalized_usage",
+    "cached_tokens_path": "usage.prompt_tokens_details.cached_tokens",
+    "cache_write_tokens_path": "usage.prompt_tokens_details.cache_write_tokens",
+    "cache_discount_path": "generation.cache_discount",
+    "generation_provider_path": "generation.provider_name",
+    "generation_model_path": "generation.model",
+    "generation_session_path": "generation.session_id",
+    "generation_native_cached_tokens_path": "generation.native_tokens_cached",
+    "normalized_schema_documented": true,
+    "hy3_free_numeric_telemetry_observed": false,
+    "hy3_free_cache_use_observed": false,
+    "missing_interpreted_as_zero": false
+  },
+  "conditions": [
+    {
+      "condition_id": "condition_a",
+      "prefix_mode": "unstable",
+      "session_mode": "unique_per_request",
+      "intended_hypothesis": "control"
+    },
+    {
+      "condition_id": "condition_b",
+      "prefix_mode": "deterministic_stable",
+      "session_mode": "unique_per_request",
+      "intended_hypothesis": "context_determinism"
+    },
+    {
+      "condition_id": "condition_c",
+      "prefix_mode": "deterministic_stable",
+      "session_mode": "stable_affinity_key",
+      "intended_hypothesis": "affinity_retention"
+    }
+  ],
+  "identifiability": {
+    "explicit_session_id_replaces_message_hash_key": true,
+    "explicit_session_id_activates_stickiness_on_success": true,
+    "manual_provider_order_permitted": false,
+    "manual_provider_order_disables_sticky_routing": true,
+    "unique_session_ids_required_for_a_and_b": true,
+    "stable_session_id_required_for_c": true,
+    "generation_metadata_required": true,
+    "provider_route_stability_requires_live_verification": true,
+    "condition_a_b_design_identifiable": true,
+    "condition_b_c_design_identifiable": true,
+    "condition_c_effect_claim_permitted": false
+  },
+  "privacy_boundary": {
+    "synthetic_public_safe_prompts_only": true,
+    "data_collection_deny_required": true,
+    "zero_data_retention_required": true,
+    "customer_data_permitted": false,
+    "private_repository_content_permitted": false,
+    "historical_local_prompt_bundle_permitted": false,
+    "public_raw_provider_body_permitted": false,
+    "credential_logging_permitted": false,
+    "privacy_compatible_route_verified": false
+  },
+  "call_budget": {
+    "maximum_successful_calls": 2,
+    "maximum_total_attempts": 4,
+    "transient_replacement_http_statuses": [
+      429,
+      502,
+      524,
+      529
+    ],
+    "replacement_only_before_usable_evidence": true,
+    "successful_response_retry_permitted": false,
+    "authentication_failure_retry_permitted": false,
+    "contract_failure_retry_permitted": false,
+    "privacy_failure_retry_permitted": false,
+    "live_calls_performed_by_review": 0
+  },
+  "claims": [
+    {
+      "claim_kind": "free_route_available_time_limited",
+      "decision": "permitted",
+      "reason": "OFFICIAL_ROUTE_PAGE_OBSERVED"
+    },
+    {
+      "claim_kind": "normalized_cache_schema_documented",
+      "decision": "permitted",
+      "reason": "OFFICIAL_CACHE_SCHEMA_DOCUMENTED"
+    },
+    {
+      "claim_kind": "explicit_session_stickiness_documented",
+      "decision": "permitted",
+      "reason": "OFFICIAL_SESSION_ROUTING_DOCUMENTED"
+    },
+    {
+      "claim_kind": "generation_route_metadata_documented",
+      "decision": "permitted",
+      "reason": "OFFICIAL_GENERATION_METADATA_DOCUMENTED"
+    },
+    {
+      "claim_kind": "condition_a_b_design_identifiable",
+      "decision": "permitted",
+      "reason": "EXPERIMENTAL_CONTROL_FROZEN"
+    },
+    {
+      "claim_kind": "condition_b_c_design_identifiable",
+      "decision": "permitted",
+      "reason": "EXPERIMENTAL_CONTROL_FROZEN"
+    },
+    {
+      "claim_kind": "hy3_free_numeric_cache_telemetry",
+      "decision": "blocked",
+      "reason": "LIVE_RESPONSE_NOT_OBSERVED"
+    },
+    {
+      "claim_kind": "hy3_free_cache_use",
+      "decision": "blocked",
+      "reason": "LIVE_CACHE_USE_NOT_OBSERVED"
+    },
+    {
+      "claim_kind": "condition_c_effect",
+      "decision": "blocked",
+      "reason": "COMPARISON_NOT_EXECUTED"
+    },
+    {
+      "claim_kind": "multiple_eligible_endpoints",
+      "decision": "blocked",
+      "reason": "ENDPOINT_COUNT_NOT_VERIFIED"
+    },
+    {
+      "claim_kind": "privacy_compatible_endpoint_available",
+      "decision": "blocked",
+      "reason": "PRIVACY_ROUTE_NOT_PREFLIGHTED"
+    },
+    {
+      "claim_kind": "benchmark_eligibility",
+      "decision": "blocked",
+      "reason": "CAPABILITY_GATE_NOT_PASSED"
+    }
+  ],
+  "adapter_implementation_permitted": true,
+  "dry_run_harness_permitted": true,
+  "live_provider_call_authorized": false,
+  "credential_access_permitted": false,
+  "capability_probe_authorization_review_permitted": true,
+  "pilot_execution_authorized": false,
+  "retained_benchmark_authorized": false,
+  "tla_plus_required_before_adapter": false,
+  "tla_plus_reassessment_required_before_live_authorization": true,
+  "next_gate": "openrouter_provider_adapter_dry_run"
+}

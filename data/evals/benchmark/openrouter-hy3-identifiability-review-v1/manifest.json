@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "openrouter-hy3-identifiability-review-v1",
+  "source_commit": "1442abf0ff0bf011f7fa4dff18ec0fe135057001",
+  "review_path": "data/evals/benchmark/openrouter-hy3-identifiability-review-v1/review.json",
+  "review_sha256": "0bdc5738b7c87c8f6cd5217db629f433d315a65857b60e0a1e2742a1af2655f5",
+  "adr_path": "docs/adr/openrouter-hy3-identifiability-review.md",
+  "adr_sha256": "4d63079c7978b203c9493bfe7df607d1d07237f9a227a6ad59420d45e4a827cd",
+  "report_path": "docs/benchmark/AuraGateway_OpenRouter_Hy3_Identifiability_Review.md",
+  "report_sha256": "ee118d7435251e578ca1d945667c4750ede014f6be6d7ff1b356b693a02b8f56",
+  "mini_prd_path": "docs/product/AuraGateway_OpenRouter_Hy3_Free_Tier_Validation_Mini_PRD.md",
+  "mini_prd_sha256": "8d3604a65a94c50098e8e7d853e16b1ab21a5f9fdf8aaedf6e3d5ee7a793be0a",
+  "source_evidence_locked": true,
+  "provider_call_performed": false,
+  "credential_accessed": false,
+  "next_gate": "openrouter_provider_adapter_dry_run"
+}
