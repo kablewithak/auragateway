@@ -1,0 +1,13 @@
+{
+  "credential_value_included": false,
+  "customer_data_included": false,
+  "forbidden_path_match_count": 0,
+  "passed": true,
+  "publication_id": "auragateway-hugging-face-publication-v1",
+  "raw_payload_match_count": 0,
+  "raw_prompt_included": false,
+  "raw_provider_payload_included": false,
+  "scanned_file_count": 17,
+  "schema_version": "1.0.0",
+  "secret_pattern_match_count": 0
+}

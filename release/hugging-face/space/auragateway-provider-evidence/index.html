@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AuraGateway static provider evidence lab">
+  <title>AuraGateway Evidence Lab</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="eyebrow">AI RELIABILITY CASE STUDY</div>
+    <h1>AuraGateway stopped when the evidence stopped.</h1>
+    <p class="lede">
+      A read-only account of two provider lineages that did not produce trustworthy numeric cache
+      evidence—and the harness controls that prevented unsupported performance claims.
+    </p>
+    <div class="status-row" id="status-row"></div>
+  </header>
+
+  <main>
+    <section aria-labelledby="answer-title" class="panel answer-panel">
+      <div>
+        <div class="section-kicker">THE ANSWER</div>
+        <h2 id="answer-title">The A/B/C cache benchmark was not eligible to run.</h2>
+      </div>
+      <p>
+        Groq completed inference but omitted the required cached-token field. OpenRouter returned
+        HTTP 401 before successful Hy3 inference. Neither result supports a cache hit, miss, saving,
+        or latency conclusion.
+      </p>
+    </section>
+
+    <section aria-labelledby="lineages-title">
+      <div class="section-heading">
+        <div>
+          <div class="section-kicker">PROVIDER LINEAGES</div>
+          <h2 id="lineages-title">Different failures. Same fail-closed decision.</h2>
+        </div>
+        <div class="filter" role="group" aria-label="Evidence filter">
+          <button class="filter-button active" data-filter="all">All</button>
+          <button class="filter-button" data-filter="permitted">Permitted</button>
+          <button class="filter-button" data-filter="blocked">Blocked</button>
+        </div>
+      </div>
+      <div class="lineage-grid" id="lineage-grid"></div>
+    </section>
+
+    <section aria-labelledby="claims-title">
+      <div class="section-kicker">CLAIM CONTROL</div>
+      <h2 id="claims-title">What the evidence allows—and what it blocks.</h2>
+      <div class="claims-grid" id="claims-grid"></div>
+    </section>
+
+    <section aria-labelledby="timeline-title">
+      <div class="section-kicker">METHOD</div>
+      <h2 id="timeline-title">The experiment narrowed before it executed.</h2>
+      <ol class="timeline">
+        <li>
+          <strong>Freeze the question.</strong> Separate deterministic context from route affinity.
+        </li>
+        <li>
+          <strong>Validate the adapter.</strong> Preserve absent, null, zero, and positive states.
+        </li>
+        <li>
+          <strong>Bound the calls.</strong> One-time authorization, append-only evidence, no rerun.
+        </li>
+        <li><strong>Run only when eligible.</strong> Stop when the measurement channel fails.</li>
+        <li>
+          <strong>Publish the negative result.</strong> Retain non-claims as first-class evidence.
+        </li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="boundary-title" class="boundary-panel">
+      <div class="section-kicker">EVIDENCE BOUNDARY</div>
+      <h2 id="boundary-title">This is a replay surface, not a live benchmark.</h2>
+      <div class="boundary-grid">
+        <div>
+          <h3>Included</h3>
+          <ul id="included-list"></ul>
+        </div>
+        <div>
+          <h3>Excluded</h3>
+          <ul id="excluded-list"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>AuraGateway v2 · static sanitized evidence · no live inference</p>
+  </footer>
+
+  <script src="evidence.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
