@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import re
+from contextlib import suppress
 from datetime import datetime
 from enum import StrEnum
 from typing import Literal, Protocol, TypeVar, runtime_checkable
@@ -510,22 +511,29 @@ class WorkerClientBoundary:
                 code=WorkerClientErrorCode.INVALID_CONFIG,
                 safe_detail="worker client operation is not callable",
             )
+
+        failure: tuple[WorkerClientErrorCode, str] | None = None
         try:
             return function()
         except WorkerClientError:
             raise
-        except TimeoutError as exc:
-            raise WorkerClientError(
-                operation=operation,
-                code=WorkerClientErrorCode.TIMEOUT,
-                safe_detail="worker operation exceeded its configured timeout",
-            ) from exc
-        except ConnectionError as exc:
-            raise WorkerClientError(
-                operation=operation,
-                code=WorkerClientErrorCode.CONNECTION_FAILED,
-                safe_detail="worker operation could not reach the configured endpoint",
-            ) from exc
+        except TimeoutError:
+            failure = (
+                WorkerClientErrorCode.TIMEOUT,
+                "worker operation exceeded its configured timeout",
+            )
+        except ConnectionError:
+            failure = (
+                WorkerClientErrorCode.CONNECTION_FAILED,
+                "worker operation could not reach the configured endpoint",
+            )
+
+        code, safe_detail = failure
+        raise WorkerClientError(
+            operation=operation,
+            code=code,
+            safe_detail=safe_detail,
+        )
 
     @staticmethod
     def _revalidate(
@@ -535,11 +543,14 @@ class WorkerClientBoundary:
         operation: WorkerClientOperation,
     ) -> ContractT:
         payload = value.model_dump(mode="python") if isinstance(value, BaseModel) else value
-        try:
-            return model_type.model_validate(payload)
-        except ValidationError as exc:
+        validated: ContractT | None = None
+        with suppress(ValidationError):
+            validated = model_type.model_validate(payload)
+
+        if validated is None:
             raise WorkerClientError(
                 operation=operation,
                 code=WorkerClientErrorCode.INVALID_RESPONSE,
                 safe_detail="worker client contract failed strict boundary revalidation",
-            ) from exc
+            )
+        return validated

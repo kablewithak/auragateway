@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import traceback
 from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import cast
@@ -380,8 +381,11 @@ def test_boundary_revalidates_tampered_model_instances() -> None:
     with pytest.raises(WorkerClientError) as exc_info:
         WorkerClientBoundary(client).health()
 
-    assert exc_info.value.code is WorkerClientErrorCode.INVALID_RESPONSE
-    assert exc_info.value.operation is WorkerClientOperation.HEALTH
+    error = exc_info.value
+    assert error.code is WorkerClientErrorCode.INVALID_RESPONSE
+    assert error.operation is WorkerClientOperation.HEALTH
+    assert error.__cause__ is None
+    assert error.__context__ is None
 
 
 @pytest.mark.parametrize(
@@ -462,8 +466,14 @@ def test_boundary_rejects_request_id_mismatch(
 @pytest.mark.parametrize(
     ("failure", "expected_code"),
     [
-        (TimeoutError(), WorkerClientErrorCode.TIMEOUT),
-        (ConnectionError(), WorkerClientErrorCode.CONNECTION_FAILED),
+        (
+            TimeoutError("sensitive endpoint and payload detail"),
+            WorkerClientErrorCode.TIMEOUT,
+        ),
+        (
+            ConnectionError("sensitive endpoint and payload detail"),
+            WorkerClientErrorCode.CONNECTION_FAILED,
+        ),
     ],
 )
 def test_boundary_maps_transport_failures_without_raw_payloads(
@@ -476,9 +486,16 @@ def test_boundary_maps_transport_failures_without_raw_payloads(
     with pytest.raises(WorkerClientError) as exc_info:
         WorkerClientBoundary(client).health()
 
-    assert exc_info.value.code is expected_code
-    assert exc_info.value.operation is WorkerClientOperation.HEALTH
-    assert "synthetic stable prefix" not in str(exc_info.value)
+    error = exc_info.value
+    formatted = "".join(traceback.format_exception(error))
+    assert error.code is expected_code
+    assert error.operation is WorkerClientOperation.HEALTH
+    assert error.__cause__ is None
+    assert error.__context__ is None
+    assert "sensitive endpoint and payload detail" not in str(error)
+    assert "sensitive endpoint and payload detail" not in repr(error)
+    assert "sensitive endpoint and payload detail" not in formatted
+    assert "synthetic stable prefix" not in formatted
 
 
 def test_boundary_does_not_retry_failed_operations() -> None:
