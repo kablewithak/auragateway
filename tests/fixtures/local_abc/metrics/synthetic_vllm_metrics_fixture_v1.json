@@ -1,0 +1,97 @@
+{
+  "fixture_id": "synthetic-vllm-metrics-fixture-v1",
+  "mapping_profile": {
+    "profile_id": "synthetic-vllm-metrics-v1",
+    "mapping_version": "synthetic-vllm-mapping-v1",
+    "runtime_name": "vllm",
+    "runtime_version": "synthetic-vllm-fixture-1.0.0",
+    "source_format": "json",
+    "selectors": [
+      {
+        "semantic": "cached_prefix_tokens",
+        "metric_name": "vllm_fixture:cached_prefix_tokens_total",
+        "labels": [["model", "synthetic-model"]],
+        "value_kind": "counter_delta"
+      },
+      {
+        "semantic": "newly_computed_prefill_tokens",
+        "metric_name": "vllm_fixture:new_prefill_tokens_total",
+        "labels": [["model", "synthetic-model"]],
+        "value_kind": "counter_delta"
+      },
+      {
+        "semantic": "prefill_duration_seconds",
+        "metric_name": "vllm_fixture:prefill_seconds_total",
+        "labels": [["model", "synthetic-model"]],
+        "value_kind": "counter_delta"
+      },
+      {
+        "semantic": "time_to_first_token_seconds",
+        "metric_name": "vllm_fixture:ttft_seconds",
+        "labels": [["model", "synthetic-model"]],
+        "value_kind": "gauge"
+      }
+    ]
+  },
+  "worker_identity": {
+    "worker_id": "worker_1",
+    "gpu_index": 0,
+    "port": 8001,
+    "runtime_name": "vllm",
+    "runtime_version": "synthetic-vllm-fixture-1.0.0",
+    "model": {
+      "repository": "synthetic/model",
+      "revision": "revision-001",
+      "config_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "tokenizer": {
+      "repository": "synthetic/tokenizer",
+      "revision": "revision-001",
+      "config_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+    }
+  },
+  "before_metrics": {
+    "worker_id": "worker_1",
+    "captured_at": "2026-07-15T10:00:00Z",
+    "source_format": "json",
+    "samples": [
+      {"name": "vllm_fixture:cached_prefix_tokens_total", "value": 100, "labels": [["model", "synthetic-model"]]},
+      {"name": "vllm_fixture:new_prefill_tokens_total", "value": 400, "labels": [["model", "synthetic-model"]]},
+      {"name": "vllm_fixture:prefill_seconds_total", "value": 2.0, "labels": [["model", "synthetic-model"]]},
+      {"name": "vllm_fixture:ttft_seconds", "value": 0.30, "labels": [["model", "synthetic-model"]]}
+    ]
+  },
+  "after_metrics": {
+    "worker_id": "worker_1",
+    "captured_at": "2026-07-15T10:00:01.100000Z",
+    "source_format": "json",
+    "samples": [
+      {"name": "vllm_fixture:cached_prefix_tokens_total", "value": 164, "labels": [["model", "synthetic-model"]]},
+      {"name": "vllm_fixture:new_prefill_tokens_total", "value": 464, "labels": [["model", "synthetic-model"]]},
+      {"name": "vllm_fixture:prefill_seconds_total", "value": 2.04, "labels": [["model", "synthetic-model"]]},
+      {"name": "vllm_fixture:ttft_seconds", "value": 0.16, "labels": [["model", "synthetic-model"]]}
+    ]
+  },
+  "invocation_response": {
+    "request_id": "request-fixture-001",
+    "worker_id": "worker_1",
+    "completed_at": "2026-07-15T10:00:01Z",
+    "output_text": "synthetic fixture completion",
+    "finish_reason": "stop",
+    "input_tokens": 256,
+    "output_tokens": 24,
+    "end_to_end_latency_ms": 460.0
+  },
+  "adaptation": {
+    "observation_id": "observation-fixture-001",
+    "eligible_shared_prefix_tokens": 128
+  },
+  "expected": {
+    "cache_state": "positive",
+    "cached_prefix_tokens": 64,
+    "newly_computed_prefill_tokens": 64,
+    "prefill_duration_ms": 40.0,
+    "time_to_first_token_ms": 160.0,
+    "end_to_end_latency_ms": 460.0
+  }
+}
