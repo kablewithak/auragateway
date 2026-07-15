@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import traceback
 from datetime import UTC, datetime
 from typing import cast
 from uuid import UUID
@@ -190,6 +191,25 @@ def test_registry_requires_unique_worker_1_and_worker_2() -> None:
     assert exc_info.value.code is WorkerRegistryErrorCode.INVALID_CLIENT_SET
 
 
+def test_invalid_client_boundary_drops_complete_exception_chain() -> None:
+    worker_1, worker_2 = clients()
+    worker_1._config = worker_1.config.model_copy(
+        update={"base_url": "http://sensitive-user:sensitive-password@127.0.0.1:8001"}
+    )
+
+    with pytest.raises(WorkerRegistryError) as exc_info:
+        WorkerRegistry((worker_1, worker_2))
+
+    error = exc_info.value
+    formatted = "".join(traceback.format_exception(error))
+    assert error.code is WorkerRegistryErrorCode.INVALID_CLIENT_BOUNDARY
+    assert error.__cause__ is None
+    assert error.__context__ is None
+    assert "sensitive-user" not in str(error)
+    assert "sensitive-password" not in repr(error)
+    assert "sensitive-password" not in formatted
+
+
 @pytest.mark.parametrize(
     ("worker_id", "wrong_port"),
     [(WorkerId.WORKER_1, 8101), (WorkerId.WORKER_2, 8102)],
@@ -362,7 +382,7 @@ def test_qualification_calls_only_health_and_identity_once() -> None:
         assert worker.reset_calls == 0
 
 
-def test_client_timeout_is_wrapped_with_worker_context() -> None:
+def test_client_timeout_is_wrapped_without_retaining_sensitive_chain() -> None:
     worker_1 = StubWorkerClient(
         worker_id=WorkerId.WORKER_1,
         health_error=TimeoutError("sensitive transport detail"),
@@ -371,9 +391,15 @@ def test_client_timeout_is_wrapped_with_worker_context() -> None:
     with pytest.raises(WorkerRegistryError) as exc_info:
         WorkerRegistry(clients(worker_1=worker_1)).qualify(qualified_at=NOW)
 
-    assert exc_info.value.code is WorkerRegistryErrorCode.CLIENT_OPERATION_FAILED
-    assert exc_info.value.worker_id is WorkerId.WORKER_1
-    assert "sensitive transport detail" not in str(exc_info.value)
+    error = exc_info.value
+    formatted = "".join(traceback.format_exception(error))
+    assert error.code is WorkerRegistryErrorCode.CLIENT_OPERATION_FAILED
+    assert error.worker_id is WorkerId.WORKER_1
+    assert error.__cause__ is None
+    assert error.__context__ is None
+    assert "sensitive transport detail" not in str(error)
+    assert "sensitive transport detail" not in repr(error)
+    assert "sensitive transport detail" not in formatted
 
 
 def test_identity_worker_mismatch_is_wrapped_as_operation_failure() -> None:
@@ -385,8 +411,11 @@ def test_identity_worker_mismatch_is_wrapped_as_operation_failure() -> None:
     with pytest.raises(WorkerRegistryError) as exc_info:
         WorkerRegistry(clients(worker_1=worker_1)).qualify(qualified_at=NOW)
 
-    assert exc_info.value.code is WorkerRegistryErrorCode.CLIENT_OPERATION_FAILED
-    assert exc_info.value.worker_id is WorkerId.WORKER_1
+    error = exc_info.value
+    assert error.code is WorkerRegistryErrorCode.CLIENT_OPERATION_FAILED
+    assert error.worker_id is WorkerId.WORKER_1
+    assert error.__cause__ is None
+    assert error.__context__ is None
 
 
 def test_qualification_rejects_naive_timestamp() -> None:

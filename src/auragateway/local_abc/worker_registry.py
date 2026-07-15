@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from contextlib import suppress
 from datetime import datetime
 from enum import StrEnum
 from typing import Literal, Self
@@ -193,13 +194,15 @@ class WorkerRegistry:
                 safe_detail="worker registry requires exactly two clients",
             )
 
-        try:
+        boundaries: tuple[WorkerClientBoundary, ...] | None = None
+        with suppress(WorkerClientError):
             boundaries = tuple(WorkerClientBoundary(client) for client in clients_tuple)
-        except WorkerClientError as exc:
+
+        if boundaries is None:
             raise WorkerRegistryError(
                 code=WorkerRegistryErrorCode.INVALID_CLIENT_BOUNDARY,
                 safe_detail="worker client failed registry-boundary validation",
-            ) from exc
+            )
 
         by_id = {boundary.config.worker_id: boundary for boundary in boundaries}
         if len(by_id) != 2 or set(by_id) != set(WorkerId):
@@ -227,15 +230,18 @@ class WorkerRegistry:
         qualifications: list[WorkerQualification] = []
         for worker_id in WorkerId:
             boundary = self._boundaries[worker_id]
-            try:
+            health: WorkerHealth | None = None
+            identity: WorkerIdentity | None = None
+            with suppress(WorkerClientError):
                 health = boundary.health()
                 identity = boundary.identity()
-            except WorkerClientError as exc:
+
+            if health is None or identity is None:
                 raise WorkerRegistryError(
                     code=WorkerRegistryErrorCode.CLIENT_OPERATION_FAILED,
                     safe_detail="worker health or identity qualification failed",
                     worker_id=worker_id,
-                ) from exc
+                )
             qualifications.append(
                 WorkerQualification(
                     worker_id=worker_id,
