@@ -16,6 +16,12 @@ EXPECTED_AUTHORIZATION_FINGERPRINT = (
     "9efe45c37b3223b6f01bd55e6471a1c487b5115ba6260b77bd3a6ff2219933a9"
 )
 EXPECTED_AUTHORIZATION_MERGE_COMMIT = "0619867a7acbee5e4c5b639963cf1046cbf36809"
+EXPECTED_IMPORT_MODULES = (
+    "auragateway",
+    "auragateway.local_abc.action_extraction_authorization",
+    "auragateway.local_abc.action_extraction_eval",
+    "auragateway.local_abc.arithmetic_action",
+)
 
 
 def load_notebook() -> dict[str, Any]:
@@ -45,10 +51,18 @@ def notebook_code_sources(notebook: dict[str, Any]) -> tuple[str, ...]:
     )
 
 
+def notebook_code_cell(notebook: dict[str, Any], header: str) -> str:
+    matches = tuple(
+        source for source in notebook_code_sources(notebook) if source.startswith(header)
+    )
+    assert len(matches) == 1
+    return matches[0]
+
+
 def test_notebook_exact_hash_matches_binding() -> None:
     binding = load_binding()
 
-    assert hashlib.sha256(NOTEBOOK_PATH.read_bytes()).hexdigest() == (binding["notebook_sha256"])
+    assert hashlib.sha256(NOTEBOOK_PATH.read_bytes()).hexdigest() == binding["notebook_sha256"]
 
 
 def test_notebook_code_source_hash_matches_binding() -> None:
@@ -60,7 +74,7 @@ def test_notebook_code_source_hash_matches_binding() -> None:
         hashlib.sha256(source_text.encode("utf-8")).hexdigest()
         == (binding["notebook_code_source_sha256"])
     )
-    assert len(notebook_code_sources(notebook)) == (binding["notebook_code_cell_count"])
+    assert len(notebook_code_sources(notebook)) == binding["notebook_code_cell_count"]
 
 
 def test_notebook_has_no_saved_execution_state() -> None:
@@ -82,8 +96,9 @@ def test_notebook_code_cells_compile() -> None:
 def test_notebook_binding_preserves_authorized_boundary() -> None:
     binding = load_binding()
 
-    assert binding["authorization_fingerprint"] == (EXPECTED_AUTHORIZATION_FINGERPRINT)
-    assert binding["authorization_merge_commit"] == (EXPECTED_AUTHORIZATION_MERGE_COMMIT)
+    assert binding["schema_version"] == "1.1.0"
+    assert binding["authorization_fingerprint"] == EXPECTED_AUTHORIZATION_FINGERPRINT
+    assert binding["authorization_merge_commit"] == EXPECTED_AUTHORIZATION_MERGE_COMMIT
     assert binding["case_count"] == 12
     assert binding["request_count"] == 12
     assert binding["request_attempts_per_case"] == 1
@@ -91,6 +106,64 @@ def test_notebook_binding_preserves_authorized_boundary() -> None:
     assert binding["cache_measurement_in_scope"] is False
     assert binding["cache_claims_permitted"] is False
     assert binding["full_measured_rerun_authorized"] is False
+
+
+def test_notebook_binding_requires_current_kernel_import_qualification() -> None:
+    binding = load_binding()
+
+    assert binding["repository_import_qualification_required"] is True
+    assert binding["repository_source_path_policy"] == "exact_checkout_src_prepend_v1"
+    assert binding["editable_install_required"] is False
+    assert tuple(binding["required_import_modules"]) == EXPECTED_IMPORT_MODULES
+    assert binding["pre_execution_failure_classification"] == (
+        "PRE_EXECUTION_HARNESS_IMPORTABILITY_FAILURE"
+    )
+    assert binding["predecessor_failure_sent_model_requests"] is False
+    assert binding["predecessor_failure_consumed_authorization"] is False
+
+
+def test_repository_gate_qualifies_current_kernel_source_imports() -> None:
+    notebook = load_notebook()
+    source = notebook_code_cell(
+        notebook,
+        "# Cell 03 — Exact Repository Checkout and Current-Kernel Import Qualification",
+    )
+
+    assert 'REPO_SRC_DIR = (REPO_DIR / "src").resolve()' in source
+    assert "sys.path.insert(0, repo_src_text)" in source
+    assert "importlib.invalidate_caches()" in source
+    assert 'importlib.util.find_spec("auragateway")' in source
+    assert "package_origin.is_relative_to(EXPECTED_PACKAGE_ROOT)" in source
+    assert '"status": "REPOSITORY_IMPORT_QUALIFIED"' in source
+    assert '"status": "REPOSITORY_CHECKOUT_QUALIFIED"' not in source
+    assert "--editable" not in source
+
+
+def test_repository_gate_probes_exact_required_modules() -> None:
+    notebook = load_notebook()
+    source = notebook_code_cell(
+        notebook,
+        "# Cell 03 — Exact Repository Checkout and Current-Kernel Import Qualification",
+    )
+
+    for module_name in EXPECTED_IMPORT_MODULES:
+        assert f'"{module_name}"' in source
+    assert "importlib.import_module(module_name)" in source
+    assert "module_path.is_relative_to(EXPECTED_PACKAGE_ROOT)" in source
+    assert "module_path.relative_to(REPO_DIR).as_posix()" in source
+
+
+def test_repository_gate_purges_stale_auragateway_modules() -> None:
+    notebook = load_notebook()
+    source = notebook_code_cell(
+        notebook,
+        "# Cell 03 — Exact Repository Checkout and Current-Kernel Import Qualification",
+    )
+
+    assert "for module_name in tuple(sys.modules):" in source
+    assert 'module_name == "auragateway"' in source
+    assert 'module_name.startswith("auragateway.")' in source
+    assert "del sys.modules[module_name]" in source
 
 
 def test_notebook_prohibits_retry_and_raw_retention() -> None:
