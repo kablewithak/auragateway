@@ -1,0 +1,343 @@
+{
+  "adr_decision_boundary": {
+    "admissible_options": [
+      {
+        "description": "The model emits validated arithmetic intent and operands; repository code performs the calculation and returns a typed result.",
+        "id": "A",
+        "name": "typed_deterministic_action_realization",
+        "new_experiment_required": true
+      },
+      {
+        "description": "Bind a different model and rerun a newly authorized capability experiment under a new evidence lineage.",
+        "id": "B",
+        "name": "new_model_capability_binding",
+        "new_experiment_required": true
+      }
+    ],
+    "certificate_does_not_choose_option": true,
+    "rejected_options": [
+      "change the expected answer",
+      "remove the arithmetic case",
+      "weaken exact-answer scoring",
+      "add hidden retries",
+      "replace the failed trajectory",
+      "reuse the consumed authorization",
+      "run the full measured benchmark"
+    ],
+    "required_decision": "Choose the next system boundary for deterministic arithmetic reliability without rewriting the failed evidence."
+  },
+  "alternative_hypotheses": [
+    {
+      "evidence": "Planned, API, and metric prompt-token counts match exactly for all three observed requests.",
+      "hypothesis": "The token-normalization defect persisted.",
+      "id": "H1",
+      "verdict": "REFUTED_FOR_OBSERVED_REQUESTS"
+    },
+    {
+      "evidence": "Payment turn 1 passed JSON parsing, exact key set, case ID, turn index, confidence, no-extra-text, and schema checks.",
+      "hypothesis": "The JSON schema or output envelope failed.",
+      "id": "H2",
+      "verdict": "REFUTED"
+    },
+    {
+      "evidence": "Payment turn 1 passed telemetry and cold-cache gates; the failure code was OUTPUT_ANSWER_MISMATCH.",
+      "hypothesis": "Cache telemetry caused the payment failure.",
+      "id": "H3",
+      "verdict": "REFUTED"
+    },
+    {
+      "evidence": "Observed requests used worker_1 as authorized; cleanup was clean and both ports closed.",
+      "hypothesis": "Route realization or worker lifecycle failed.",
+      "id": "H4",
+      "verdict": "REFUTED"
+    },
+    {
+      "evidence": "The ledger retained the failed request metadata and the zero-failure policy aborted without retries or replacements.",
+      "hypothesis": "The harness hid or retried the failed answer.",
+      "id": "H5",
+      "verdict": "REFUTED"
+    },
+    {
+      "evidence": "The arithmetic case failed exact-answer matching after all observed harness gates passed.",
+      "hypothesis": "The pinned model and frozen prompt contract did not reliably satisfy the mixed semantic canary.",
+      "id": "H6",
+      "verdict": "SUPPORTED"
+    },
+    {
+      "evidence": "Incident-severity turn 2 showed positive cache reuse. The remaining cache observations were not executed.",
+      "hypothesis": "Cache-aware routing as a whole failed.",
+      "id": "H7",
+      "verdict": "NOT_SUPPORTED"
+    }
+  ],
+  "certificate_id": "auragateway-local-abc-sfrc-0001",
+  "certificate_type": "execution_grounded_semi_formal_reasoning_certificate",
+  "claims": [
+    {
+      "confidence": "high",
+      "id": "C1",
+      "premises": [
+        "P1",
+        "P3",
+        "P4",
+        "P5"
+      ],
+      "statement": "The prior rendered-token counting defect is remediated for all three observed requests."
+    },
+    {
+      "confidence": "high",
+      "id": "C2",
+      "premises": [
+        "P4"
+      ],
+      "statement": "Positive same-worker turn-two cache reuse is qualified for the incident-severity trajectory only."
+    },
+    {
+      "confidence": "high",
+      "id": "C3",
+      "premises": [
+        "P5",
+        "P6"
+      ],
+      "statement": "The terminal failure occurred at the model-output semantic answer boundary, after the observed harness boundaries passed."
+    },
+    {
+      "confidence": "medium",
+      "id": "C4",
+      "premises": [
+        "P5",
+        "P6"
+      ],
+      "statement": "The evidence is consistent with insufficient arithmetic or instruction-execution capability under the pinned model and frozen prompt contract, but does not isolate a lower-level internal model cause."
+    },
+    {
+      "confidence": "high",
+      "id": "C5",
+      "premises": [
+        "P7"
+      ],
+      "statement": "Payment-reconciliation turn 2 and both data-sharing-policy turns are NOT_OBSERVED."
+    },
+    {
+      "confidence": "high",
+      "id": "C6",
+      "premises": [
+        "P2",
+        "P6",
+        "P7"
+      ],
+      "statement": "The six-request canary failed under its frozen all-or-nothing acceptance contract."
+    },
+    {
+      "confidence": "high",
+      "id": "C7",
+      "premises": [
+        "P2",
+        "P7"
+      ],
+      "statement": "The v2 rerun authorization is consumed and cannot be reused."
+    },
+    {
+      "confidence": "high",
+      "id": "C8",
+      "premises": [
+        "P7",
+        "P8"
+      ],
+      "statement": "The full 72-trajectory measured benchmark remains blocked."
+    }
+  ],
+  "counterexample": {
+    "case_id": "payment-reconciliation",
+    "conclusion": "At least one required request produced a semantically incorrect answer; therefore the all-six canary cannot pass.",
+    "expected_answer": "1450",
+    "observed_evidence": {
+      "exact_answer_match": false,
+      "failure_code": "OUTPUT_ANSWER_MISMATCH",
+      "output_text_sha256": "c7cd9dd704ec1660a8085b2561e7c9101b234ca2ad523d9675272db03177b5bf"
+    },
+    "required_for": "claim that the mixed six-request canary qualified",
+    "turn_index": 1
+  },
+  "created_at": "2026-07-16",
+  "definitions": [
+    {
+      "id": "D1",
+      "text": "The bounded canary passes only if all three two-turn trajectories complete, all six requests pass quality, schema, telemetry, cache, route, and zero-failure gates, and cleanup is clean."
+    },
+    {
+      "id": "D2",
+      "text": "A request is observed only when a ledger record exists. Unexecuted requests are NOT_OBSERVED and cannot be labeled passed, failed, zero-cache, or positive-cache."
+    },
+    {
+      "id": "D3",
+      "text": "A harness defect is supported when repository planning, validation, routing, telemetry, or scoring diverges from the frozen contract. A model-output semantic failure is supported when those boundaries pass but the deterministic expected answer does not match."
+    },
+    {
+      "id": "D4",
+      "text": "The rerun authorization is consumed once real canary model requests execute; it cannot authorize another run."
+    }
+  ],
+  "evidence_bindings": {
+    "archive_filename": "auragateway-schema-constrained-quality-cache-canary-rerun-v2-evidence.zip",
+    "archive_sha256": "38dfb3e727b5234e9db510e0c4735150e5721b479908c69fec4d4c8e004059f1",
+    "checkpoint_sha256": "607520a7f36dd1a2da67cf5afb6571d3d21ea2a3ea37bf6ef730560bb6e800a2",
+    "customer_data_used": false,
+    "evidence_class": "KAGGLE_MEASURED_SYNTHETIC_CONTROLLED",
+    "external_spend": "0",
+    "failed_predecessor_audit_fingerprint": "45712ac7ab42c17bc949dc374dd1e4114ab408657b54d36509c0d241a5f74019",
+    "ledger_sha256": "8005e62f7ca807fd65ccca0b3e3f29fcde26e2c6853d77042d6a719e243592cc",
+    "preserved_scope_fingerprint": "d1563d346138f10c4701492a2c1ddc7bd02bb0c5c937221b36c916361e348c64",
+    "raw_output_retained": false,
+    "raw_prompt_retained": false,
+    "report_sha256": "351128671b40beda9163415a09d006ea215d2ff84b2dce89c4e5a15666c4e1a5",
+    "repository_commit": "5d8170b5f33f9bff07a3f6c0db3f90b5399a1bae",
+    "rerun_authorization_fingerprint": "7e8f9529cdf43118a09f5c6c9512f8729447a506b3a61cd303c6e09a652dbd66",
+    "run_id": "auragateway-schema-canary-rerun-v2-bf55bf4de546",
+    "schedule_sha256": "fcae45007e883875dc29acdb4388ff20458d6ab5851331f005d09b97cec44ab8",
+    "token_normalization_policy_fingerprint": "9b16866de747d67f41e4289d6f5fc9e7398da0054ee052dcc9371c5585954830"
+  },
+  "execution_trace": [
+    {
+      "boundary": "source_and_authorization_preflight",
+      "outcome": "PASSED",
+      "step": 1,
+      "supports": [
+        "P1",
+        "P2"
+      ]
+    },
+    {
+      "api_prompt_tokens": 282,
+      "boundary": "incident_severity_turn_1",
+      "cached_prefix_tokens": 0,
+      "metric_prompt_tokens": 282,
+      "outcome": "PASSED",
+      "planned_prompt_tokens": 282,
+      "step": 2,
+      "supports": [
+        "P3"
+      ]
+    },
+    {
+      "api_prompt_tokens": 290,
+      "boundary": "incident_severity_turn_2",
+      "cached_prefix_tokens": 192,
+      "eligible_shared_prefix_tokens": 205,
+      "metric_prompt_tokens": 290,
+      "outcome": "PASSED",
+      "planned_prompt_tokens": 290,
+      "step": 3,
+      "supports": [
+        "P4"
+      ]
+    },
+    {
+      "api_prompt_tokens": 289,
+      "boundary": "payment_reconciliation_turn_1",
+      "cached_prefix_tokens": 0,
+      "failure_code": "OUTPUT_ANSWER_MISMATCH",
+      "metric_prompt_tokens": 289,
+      "outcome": "FAILED_QUALITY_ONLY",
+      "planned_prompt_tokens": 289,
+      "step": 4,
+      "supports": [
+        "P5",
+        "P6"
+      ]
+    },
+    {
+      "boundary": "zero_failure_abort",
+      "outcome": "ABORTED_AS_DESIGNED",
+      "step": 5,
+      "supports": [
+        "P7"
+      ]
+    },
+    {
+      "boundary": "worker_cleanup",
+      "outcome": "CLEAN",
+      "step": 6,
+      "supports": [
+        "P8"
+      ]
+    }
+  ],
+  "formal_conclusion": {
+    "answer": "The v2.3 canary did not qualify. The observed terminal failure is an exact semantic answer mismatch under an otherwise passing observed harness path.",
+    "derivation": [
+      "By D1, all six requests must pass.",
+      "By P6, payment-reconciliation turn 1 failed exact-answer matching.",
+      "By P7, execution aborted after three requests and three remained not observed.",
+      "Therefore, the canary is CERTIFIED_FAILED_DIAGNOSTIC.",
+      "By C1, the original token-counting defect is not the terminal cause.",
+      "By C3, the terminal divergence is at the model-output semantic answer boundary.",
+      "By C7, the authorization is consumed.",
+      "By C8, the full measured benchmark remains blocked."
+    ],
+    "verdict": "CERTIFIED_FAILED_DIAGNOSTIC"
+  },
+  "method_basis": {
+    "adaptation": "execution-grounded premise -> trace -> divergence -> alternative-hypothesis -> conclusion certificate",
+    "formal_proof_claimed": false,
+    "name": "semi-formal reasoning",
+    "source": "Ugare and Chandra, Agentic Code Reasoning, arXiv:2603.01896v1"
+  },
+  "next_safe_action": "Review and approve this certificate, then draft the ADR using only the admissible decision boundary above. Keep GPU execution off.",
+  "non_claims": [
+    "The data-sharing-policy case passed or failed.",
+    "Payment-reconciliation turn 2 passed or failed.",
+    "All case types benefit from cache reuse.",
+    "The pinned model is universally incapable of arithmetic.",
+    "A larger model will solve the problem.",
+    "Deterministic action realization is implemented or validated.",
+    "The 72-trajectory benchmark is authorized.",
+    "The system is production-ready."
+  ],
+  "premises": [
+    {
+      "evidence": "report.source_binding.status",
+      "id": "P1",
+      "statement": "Repository, audit, authorization, token-normalization, case-manifest, model, and runtime bindings qualified."
+    },
+    {
+      "evidence": "report.authorization_preflight",
+      "id": "P2",
+      "statement": "The frozen scope was three Condition-C trajectories, six requests, worker_1 -> worker_1, full restart before each trajectory, no retries, and no replacements."
+    },
+    {
+      "evidence": "ledger incident-severity turn 1",
+      "id": "P3",
+      "statement": "Incident-severity turn 1 passed exact output quality, schema, telemetry, route, and cold-cache gates; planned, API, and metric prompt-token counts were all 282."
+    },
+    {
+      "evidence": "ledger incident-severity turn 2",
+      "id": "P4",
+      "statement": "Incident-severity turn 2 passed exact output quality, schema, telemetry, route, and positive-cache gates; 192 cached tokens were observed from 205 eligible shared prefix tokens."
+    },
+    {
+      "evidence": "ledger payment-reconciliation turn 1",
+      "id": "P5",
+      "statement": "Payment-reconciliation turn 1 passed HTTP, JSON parsing, exact key set, case ID, turn index, confidence, schema, telemetry, route, and cold-cache gates."
+    },
+    {
+      "evidence": "ledger payment-reconciliation turn 1 quality",
+      "id": "P6",
+      "statement": "Payment-reconciliation turn 1 failed only the exact-answer check and emitted OUTPUT_ANSWER_MISMATCH."
+    },
+    {
+      "evidence": "checkpoint and report",
+      "id": "P7",
+      "statement": "The zero-failure policy aborted after the third completed request; payment turn 2 and both data-sharing-policy turns were not executed."
+    },
+    {
+      "evidence": "report.cleanup",
+      "id": "P8",
+      "statement": "Both workers exited cleanly and ports 8001 and 8002 closed."
+    }
+  ],
+  "question": "What does the v2.3 canary evidence prove about the failure, which alternative explanations are refuted, and what decision boundary may the ADR address?",
+  "schema_version": "1.0.0",
+  "status": "CERTIFIED_FAILED_DIAGNOSTIC",
+  "title": "AuraGateway Local A/B/C Schema-Constrained Quality/Cache Canary Rerun v2.3"
+}
