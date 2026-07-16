@@ -3,147 +3,104 @@
 ## Artifact identity
 
 - Notebook: `notebooks/kaggle/auragateway_v2_reconcile_balance_action_extraction_canary_v1.ipynb`
-- Notebook SHA-256: `b5909d8c29230aa0dc28abb7f87c3a97d577375d9f303a33b4664f0915384e2d`
-- Binding SHA-256: `4818fdfc2f63141da7ddd2dc98a87825551198e9d6505e9c2327f6cf135e4eea`
-- Notebook code-source SHA-256: `09310bbd4f82665cb1ccf50eda0d356db092c1e5db65e5ca411feeeceec49413`
+- Notebook SHA-256: `1557161e6f5f70e3eb4b2d8d69a0d50efec47d3d2449af7f2a3a6c1edfdf1b7c`
+- Binding SHA-256: `c4384d475dc94897095f181895af748ff1a6c5db4311dfc7622c364569fadde0`
+- Notebook code-source SHA-256: `fbcf0677ecd04e7a758d3714646126834ba489a6bdf232929a3eed6b476634d3`
 - Authorization fingerprint: `9efe45c37b3223b6f01bd55e6471a1c487b5115ba6260b77bd3a6ff2219933a9`
 - Authorization merge commit: `0619867a7acbee5e4c5b639963cf1046cbf36809`
 - Authorized requests: `12`
 - Cache measurement: out of scope
 - Full measured benchmark: unauthorized
 
-## Remediation decision
+## Runtime-drift diagnosis
 
-The predecessor notebook cloned the exact repository and accepted a successful
-editable-install subprocess as evidence that the active Kaggle kernel could
-import `auragateway`. Kaggle reproduced a deterministic boundary failure:
-Cell 03 emitted `REPOSITORY_CHECKOUT_QUALIFIED`, while Cell 04 immediately
-failed with `ModuleNotFoundError: No module named 'auragateway'`.
+The predecessor PR #82 notebook passed artifact, repository-import, and source
+qualification. It then installed the exact authorized vLLM wheel into Kaggle's
+base Python using `--no-deps`.
 
-The predecessor failure is classified as
-`PRE_EXECUTION_HARNESS_IMPORTABILITY_FAILURE`. It occurred before worker startup
-and before any model request, so the bounded execution authorization remains
-unconsumed.
+The observed Kaggle base runtime was:
 
-This remediation removes the editable-install dependency from the qualification
-gate. Cell 03 now:
+- Python `3.12.13`;
+- Torch `2.10.0+cu128`;
+- Torch CUDA `12.8`;
+- two Tesla T4 GPUs with compute capability `7.5`.
 
-1. checks out the exact authorization merge commit;
-2. resolves the exact `<repository>/src` directory;
-3. prepends that directory to the active kernel's `sys.path`;
-4. invalidates import caches;
-5. verifies `auragateway` discovery;
-6. imports the required authorization, evaluation, and arithmetic modules;
-7. verifies every imported module resolves beneath the exact checked-out source
-   tree;
-8. emits `REPOSITORY_IMPORT_QUALIFIED` only after those checks pass.
+The authorized wheel declares `torch==2.11.0` and is compiled for CUDA `12.9`.
+Its first binary import failed with an unresolved `torch_from_blob` symbol.
 
-No kernel restart or hidden editable-install state is required.
+This is classified as
+`PRE_EXECUTION_VLLM_ABI_RUNTIME_DRIFT`. The failure occurred before model
+loading, worker startup, or any authorized model request. The authorization
+remains unconsumed.
 
-## Design
+## Resolution
 
-The notebook remains a thin orchestration layer over repository contracts. It
-does not reimplement action validation, deterministic execution, scoring,
-aggregate metrics, or gate decisions.
+The notebook no longer mutates or trusts Kaggle's base Torch installation.
 
-Repository code owns:
+Cell 05 now:
 
-- fixed case and evaluation-plan loading;
-- authorization cross-binding;
-- prompt rendering;
-- JSON Schema response format;
-- action validation;
-- deterministic reconciliation execution;
-- per-case scoring;
-- aggregate evaluation reporting;
-- notebook runtime binding.
+1. locates the exact authorized wheel by SHA-256;
+2. creates a clean virtual environment beneath the run workspace;
+3. rejects system-site-package inheritance;
+4. installs the exact Torch `2.11.0`, torchvision `0.26.0`, and torchaudio
+   `2.11.0` stack from the CUDA `12.9` PyTorch index;
+5. installs the exact vLLM wheel with its declared dependencies;
+6. runs `pip check`.
 
-The notebook owns:
+Cell 06 runs a clean subprocess using the isolated runtime Python. The probe
+must import both Torch and vLLM successfully, enumerate both T4 GPUs, verify
+compute capability, report the exact authorized runtime versions, and prove the
+Torch and vLLM module files resolve beneath the isolated environment.
 
-- exact artifact and repository checkout;
-- current-kernel source import qualification;
-- exact vLLM wheel installation;
-- model and runtime preflight;
-- one worker lifecycle;
-- one request per fixed case;
-- safe evidence serialization;
-- privacy scanning;
-- evidence ZIP creation.
+Cell 09 starts the vLLM worker with the same qualified isolated runtime Python.
+The active notebook kernel is used only for AuraGateway contracts, scoring,
+evidence, and orchestration.
 
-## Repository import qualification
+## Runtime contract
 
-Cell 03 must report:
-
-`REPOSITORY_IMPORT_QUALIFIED`
-
-The qualification evidence includes:
-
-- repository identity;
-- exact checked-out commit;
-- source root relative to the repository;
-- source-relative file identity for every required imported module.
-
-The required modules are:
-
-- `auragateway`;
-- `auragateway.local_abc.action_extraction_authorization`;
-- `auragateway.local_abc.action_extraction_eval`;
-- `auragateway.local_abc.arithmetic_action`.
-
-A successful Git checkout alone is insufficient. A successful pip subprocess is
-also insufficient. Current-kernel importability from the exact checked-out source
-tree is a mandatory pre-execution gate.
-
-## Kaggle inputs
-
-Attach the exact notebook package and the previously qualified vLLM wheel with
-SHA-256:
-
-`9e206f370c934a2d4b6b1f05d3d09708d344e05d80260189ef19f60755709431`
-
-Internet access is required to clone the exact repository commit and obtain the
-public Qwen model snapshot at revision
-`7ae557604adf67be50417f59c2c2f167def9a775`, unless those assets are supplied
-through attached private inputs.
+- environment policy: `isolated_venv_exact_torch_cu129_v1`;
+- system site packages inherited: `false`;
+- Torch: `2.11.0+cu129`;
+- Torch CUDA: `12.9`;
+- torchvision: `0.26.0+cu129`;
+- torchaudio: `2.11.0+cu129`;
+- vLLM module: `0.25.1`;
+- vLLM distribution: `0.25.1+cu129`;
+- vLLM wheel SHA-256: `9e206f370c934a2d4b6b1f05d3d09708d344e05d80260189ef19f60755709431`;
+- GPU count: `2`;
+- GPU model: `Tesla T4`;
+- compute capability: `7.5`;
+- binary import probe: required;
+- worker interpreter: qualified isolated runtime Python.
 
 ## Execution protocol
 
-1. Import the corrected notebook.
-2. Attach the exact package ZIP as a notebook output or other input that retains
-   the ZIP file itself.
-3. Attach the exact qualified vLLM wheel input.
-4. Select two Tesla T4 GPUs and enable internet access.
-5. Run cells sequentially.
-6. Stop immediately if any preflight cell fails.
-7. Do not edit the notebook, binding, cases, prompt policy, model identity,
-   runtime identity, decoding settings, or request count.
-8. Run the 12-request execution cell once.
-9. Download the generated evidence ZIP from `/kaggle/working`.
-
-The notebook starts no model worker and sends no request before artifact, source,
-wheel, runtime, model, and notebook-binding preflight qualify.
+1. Attach the exact notebook package and exact vLLM wheel inputs.
+2. Enable two Tesla T4 GPUs and internet access.
+3. Run cells sequentially.
+4. Stop on any failed preflight.
+5. Cell 05 may take several minutes while the isolated runtime is installed.
+6. Cell 06 must report `RUNTIME_PREFLIGHT_QUALIFIED` and
+   `binary_import_probe=passed`.
+7. Run the 12-request Cell 10 exactly once only after Cells 01–09 pass.
+8. Package and return the evidence ZIP.
 
 ## Failure behavior
 
-Semantic extraction failures are retained and execution continues through all 12
-fixed cases. Infrastructure failures abort immediately. No failed case is
-retried, repaired, or replaced.
+The notebook remains fail-closed:
 
-## Evidence retention
+- no model request is sent before every preflight passes;
+- no failed request is retried, repaired, or replaced;
+- semantic failures are retained;
+- infrastructure failures abort;
+- cleanup is mandatory.
 
-Evidence retains hashes, counts, finish reasons, typed failure codes, aggregate
-metrics, worker lifecycle, and cleanup status.
+## Privacy and non-claims
 
-Evidence does not retain raw prompts, raw model outputs, raw actions, token IDs,
-PII, secrets, authorization headers, or customer data.
+The notebook retains hashes, counts, typed failure codes, metrics, lifecycle,
+and cleanup evidence. It does not retain raw prompts, raw outputs, raw actions,
+token IDs, PII, secrets, authorization headers, or customer data.
 
-## Non-claims
-
-This artifact does not claim:
-
-- the model passes the action-extraction gate;
-- payment reconciliation is remediated before execution;
-- cache behavior is measured or comparable;
-- the six rejected candidates are solved;
-- the 72-trajectory benchmark is authorized;
-- AuraGateway is production-ready.
+This remediation does not claim that the model passes the 12-case gate, that
+cache behavior is qualified, that the full benchmark is authorized, or that
+AuraGateway is production-ready.

@@ -45,13 +45,18 @@ def code_cell_source(cell: dict[str, Any]) -> str:
     return source
 
 
-def notebook_code_sources(notebook: dict[str, Any]) -> tuple[str, ...]:
+def notebook_code_sources(
+    notebook: dict[str, Any],
+) -> tuple[str, ...]:
     return tuple(
         code_cell_source(cell) for cell in notebook["cells"] if cell["cell_type"] == "code"
     )
 
 
-def notebook_code_cell(notebook: dict[str, Any], header: str) -> str:
+def notebook_code_cell(
+    notebook: dict[str, Any],
+    header: str,
+) -> str:
     matches = tuple(
         source for source in notebook_code_sources(notebook) if source.startswith(header)
     )
@@ -72,7 +77,7 @@ def test_notebook_code_source_hash_matches_binding() -> None:
 
     assert (
         hashlib.sha256(source_text.encode("utf-8")).hexdigest()
-        == (binding["notebook_code_source_sha256"])
+        == binding["notebook_code_source_sha256"]
     )
     assert len(notebook_code_sources(notebook)) == binding["notebook_code_cell_count"]
 
@@ -90,15 +95,19 @@ def test_notebook_code_cells_compile() -> None:
     notebook = load_notebook()
 
     for index, source in enumerate(notebook_code_sources(notebook)):
-        compile(source, f"notebook-cell-{index:02d}", "exec")
+        compile(
+            source,
+            f"notebook-cell-{index:02d}",
+            "exec",
+        )
 
 
 def test_notebook_binding_preserves_authorized_boundary() -> None:
     binding = load_binding()
 
-    assert binding["schema_version"] == "1.1.0"
-    assert binding["authorization_fingerprint"] == EXPECTED_AUTHORIZATION_FINGERPRINT
-    assert binding["authorization_merge_commit"] == EXPECTED_AUTHORIZATION_MERGE_COMMIT
+    assert binding["schema_version"] == "1.2.0"
+    assert binding["authorization_fingerprint"] == (EXPECTED_AUTHORIZATION_FINGERPRINT)
+    assert binding["authorization_merge_commit"] == (EXPECTED_AUTHORIZATION_MERGE_COMMIT)
     assert binding["case_count"] == 12
     assert binding["request_count"] == 12
     assert binding["request_attempts_per_case"] == 1
@@ -108,62 +117,101 @@ def test_notebook_binding_preserves_authorized_boundary() -> None:
     assert binding["full_measured_rerun_authorized"] is False
 
 
-def test_notebook_binding_requires_current_kernel_import_qualification() -> None:
+def test_repository_import_gate_remains_required() -> None:
     binding = load_binding()
 
     assert binding["repository_import_qualification_required"] is True
-    assert binding["repository_source_path_policy"] == "exact_checkout_src_prepend_v1"
+    assert binding["repository_source_path_policy"] == ("exact_checkout_src_prepend_v1")
     assert binding["editable_install_required"] is False
-    assert tuple(binding["required_import_modules"]) == EXPECTED_IMPORT_MODULES
-    assert binding["pre_execution_failure_classification"] == (
-        "PRE_EXECUTION_HARNESS_IMPORTABILITY_FAILURE"
+    assert tuple(binding["required_import_modules"]) == (EXPECTED_IMPORT_MODULES)
+
+
+def test_binding_requires_isolated_runtime() -> None:
+    binding = load_binding()
+
+    assert binding["runtime_environment_isolation_required"] is True
+    assert binding["runtime_environment_policy"] == ("isolated_venv_exact_torch_cu129_v1")
+    assert binding["runtime_system_site_packages_inherited"] is False
+    assert binding["runtime_exact_torch_version"] == ("2.11.0+cu129")
+    assert binding["runtime_cuda_version"] == "12.9"
+    assert binding["runtime_exact_torchvision_version"] == ("0.26.0+cu129")
+    assert binding["runtime_exact_torchaudio_version"] == ("2.11.0+cu129")
+    assert binding["vllm_binary_import_probe_required"] is True
+    assert binding["vllm_worker_python_policy"] == ("qualified_isolated_runtime_python_v1")
+
+
+def test_binding_records_predecessor_runtime_failure() -> None:
+    binding = load_binding()
+
+    assert (
+        binding["pre_execution_runtime_failure_classification"]
+        == "PRE_EXECUTION_VLLM_ABI_RUNTIME_DRIFT"
     )
-    assert binding["predecessor_failure_sent_model_requests"] is False
-    assert binding["predecessor_failure_consumed_authorization"] is False
+    assert binding["predecessor_runtime_base_torch_version"] == "2.10.0+cu128"
+    assert binding["predecessor_runtime_base_cuda_version"] == "12.8"
+    assert binding["predecessor_runtime_wheel_torch_requirement"] == "torch==2.11.0"
+    assert binding["predecessor_runtime_failure_sent_model_requests"] is False
+    assert binding["predecessor_runtime_failure_consumed_authorization"] is False
 
 
-def test_repository_gate_qualifies_current_kernel_source_imports() -> None:
+def test_runtime_preparation_uses_clean_venv() -> None:
     notebook = load_notebook()
     source = notebook_code_cell(
         notebook,
-        "# Cell 03 — Exact Repository Checkout and Current-Kernel Import Qualification",
+        "# Cell 05 — Isolated Authorized vLLM Runtime Preparation",
     )
 
-    assert 'REPO_SRC_DIR = (REPO_DIR / "src").resolve()' in source
-    assert "sys.path.insert(0, repo_src_text)" in source
-    assert "importlib.invalidate_caches()" in source
-    assert 'importlib.util.find_spec("auragateway")' in source
-    assert "package_origin.is_relative_to(EXPECTED_PACKAGE_ROOT)" in source
-    assert '"status": "REPOSITORY_IMPORT_QUALIFIED"' in source
-    assert '"status": "REPOSITORY_CHECKOUT_QUALIFIED"' not in source
-    assert "--editable" not in source
+    assert '"venv"' in source
+    assert '"--index-url"' in source
+    assert "PYTORCH_CU129_INDEX_URL" in source
+    assert '"torch==2.11.0"' in source
+    assert '"torchvision==0.26.0"' in source
+    assert '"torchaudio==2.11.0"' in source
+    assert '"pip",\n        "check"' in source
+    assert "include-system-site-packages = false" in source
+    assert '"--no-deps"' not in source
+    assert '"--system-site-packages"' not in source
 
 
-def test_repository_gate_probes_exact_required_modules() -> None:
+def test_runtime_gate_requires_binary_import_probe() -> None:
     notebook = load_notebook()
     source = notebook_code_cell(
         notebook,
-        "# Cell 03 — Exact Repository Checkout and Current-Kernel Import Qualification",
+        "# Cell 06 — Isolated GPU, PyTorch, CUDA, and vLLM ABI Preflight",
     )
 
-    for module_name in EXPECTED_IMPORT_MODULES:
-        assert f'"{module_name}"' in source
-    assert "importlib.import_module(module_name)" in source
-    assert "module_path.is_relative_to(EXPECTED_PACKAGE_ROOT)" in source
-    assert "module_path.relative_to(REPO_DIR).as_posix()" in source
+    assert "import torch" in source
+    assert "import vllm" in source
+    assert "RUNTIME_PROBE_SENTINEL" in source
+    assert "binary_import_probe" in source
+    assert "torch_file.is_relative_to(runtime_root)" in source
+    assert "vllm_file.is_relative_to(runtime_root)" in source
+    assert '"status": "RUNTIME_PREFLIGHT_QUALIFIED"' in source
 
 
-def test_repository_gate_purges_stale_auragateway_modules() -> None:
+def test_current_kernel_does_not_import_vllm() -> None:
     notebook = load_notebook()
     source = notebook_code_cell(
         notebook,
-        "# Cell 03 — Exact Repository Checkout and Current-Kernel Import Qualification",
+        "# Cell 06 — Isolated GPU, PyTorch, CUDA, and vLLM ABI Preflight",
     )
 
-    assert "for module_name in tuple(sys.modules):" in source
-    assert 'module_name == "auragateway"' in source
-    assert 'module_name.startswith("auragateway.")' in source
-    assert "del sys.modules[module_name]" in source
+    assert source.count("import vllm") == 1
+    assert 'str(RUNTIME_PYTHON),\n        "-c"' in source
+    assert "subprocess.run(" in source
+
+
+def test_worker_uses_qualified_runtime_python() -> None:
+    notebook = load_notebook()
+    source = notebook_code_cell(
+        notebook,
+        "# Cell 09 — Worker Lifecycle and One-Shot HTTP Transport",
+    )
+
+    assert "if not RUNTIME_PYTHON.is_file()" in source
+    assert "str(RUNTIME_PYTHON)" in source
+    assert '"vllm.entrypoints.openai.api_server"' in source
+    assert 'sys.executable,\n        "-m",\n        "vllm' not in source
 
 
 def test_notebook_prohibits_retry_and_raw_retention() -> None:
