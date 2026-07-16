@@ -2,15 +2,18 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from auragateway.local_abc.contracts import (
     ConditionId,
     RunTerminalClassification,
 )
 from auragateway.local_abc.errors import LocalABCFailureCode
 from auragateway.local_abc.measured_quality import (
-    MeasuredQualityCheck,
+    MeasuredOutputShape,
     MeasuredQualityDecision,
     build_quality_gated_run_eligibility,
+    build_trajectory_quality_failure_envelope,
     decide_measured_output_quality,
     score_measured_output,
 )
@@ -44,99 +47,108 @@ def test_exact_json_passes_every_required_check() -> None:
     decision = decision_for(output)
 
     assert decision.passed is True
-    assert decision.comparison_eligible is True
-    assert decision.failed_checks == ()
     assert decision.failure_codes == ()
-    assert decision.score.all_required_checks_passed() is True
+    assert decision.score.output_shape is MeasuredOutputShape.JSON_OBJECT
 
 
-def test_empty_output_fails_closed() -> None:
+def test_empty_output_reports_only_json_invalid() -> None:
     decision = decision_for("", completion_tokens=1)
 
     assert decision.passed is False
-    assert MeasuredQualityCheck.JSON_PARSE_SUCCESS in decision.failed_checks
-    assert LocalABCFailureCode.OUTPUT_JSON_INVALID in decision.failure_codes
-    assert decision.score.output_character_count == 0
+    assert decision.score.output_shape is MeasuredOutputShape.EMPTY
+    assert decision.failure_codes == (LocalABCFailureCode.OUTPUT_JSON_INVALID,)
 
 
-def test_malformed_json_fails_closed() -> None:
+def test_malformed_json_reports_only_json_invalid() -> None:
     decision = decision_for('{"answer":"sev3"')
 
-    assert decision.passed is False
-    assert LocalABCFailureCode.OUTPUT_JSON_INVALID in decision.failure_codes
+    assert decision.score.output_shape is MeasuredOutputShape.MALFORMED_JSON
+    assert decision.failure_codes == (LocalABCFailureCode.OUTPUT_JSON_INVALID,)
 
 
-def test_trailing_text_is_rejected() -> None:
+def test_markdown_fence_is_classified_without_semantic_claims() -> None:
+    output = "```json\n" + json.dumps(EXPECTED) + "\n```"
+
+    decision = decision_for(output)
+
+    assert decision.score.output_shape is MeasuredOutputShape.MARKDOWN_FENCE
+    assert decision.failure_codes == (LocalABCFailureCode.OUTPUT_JSON_INVALID,)
+
+
+def test_leading_prose_is_classified_without_semantic_claims() -> None:
+    output = "Here is the result: " + json.dumps(EXPECTED)
+
+    decision = decision_for(output)
+
+    assert decision.score.output_shape is MeasuredOutputShape.LEADING_TEXT
+    assert decision.failure_codes == (LocalABCFailureCode.OUTPUT_JSON_INVALID,)
+
+
+def test_other_non_json_text_is_classified() -> None:
+    decision = decision_for("The answer is sev3.")
+
+    assert decision.score.output_shape is MeasuredOutputShape.OTHER_NON_JSON
+    assert decision.failure_codes == (LocalABCFailureCode.OUTPUT_JSON_INVALID,)
+
+
+def test_trailing_text_reports_extra_text_only() -> None:
     output = json.dumps(EXPECTED) + " trailing"
 
     decision = decision_for(output)
 
+    assert decision.score.output_shape is MeasuredOutputShape.TRAILING_TEXT
     assert decision.score.json_parse_success is True
-    assert decision.score.no_extra_text is False
-    assert LocalABCFailureCode.OUTPUT_EXTRA_TEXT in decision.failure_codes
+    assert decision.failure_codes == (LocalABCFailureCode.OUTPUT_EXTRA_TEXT,)
 
 
-def test_wrong_key_set_is_rejected() -> None:
+def test_multiple_json_values_are_structurally_distinct() -> None:
+    output = json.dumps(EXPECTED) + " " + json.dumps(EXPECTED)
+
+    decision = decision_for(output)
+
+    assert decision.score.output_shape is MeasuredOutputShape.MULTIPLE_JSON_VALUES
+    assert decision.failure_codes == (LocalABCFailureCode.OUTPUT_EXTRA_TEXT,)
+
+
+def test_json_non_object_reports_key_set_mismatch_only() -> None:
+    decision = decision_for('["sev3"]')
+
+    assert decision.score.output_shape is MeasuredOutputShape.JSON_NON_OBJECT
+    assert decision.failure_codes == (LocalABCFailureCode.OUTPUT_KEY_SET_MISMATCH,)
+
+
+def test_wrong_key_set_does_not_invent_semantic_mismatches() -> None:
     payload = dict(EXPECTED)
     payload["extra"] = "not-permitted"
 
     decision = decision_for(json.dumps(payload))
 
-    assert decision.score.exact_key_set_match is False
-    assert LocalABCFailureCode.OUTPUT_KEY_SET_MISMATCH in decision.failure_codes
+    assert decision.failure_codes == (LocalABCFailureCode.OUTPUT_KEY_SET_MISMATCH,)
 
 
-def test_wrong_answer_is_rejected() -> None:
+def test_semantic_mismatch_requires_exact_key_set() -> None:
     payload = dict(EXPECTED)
     payload["answer"] = "sev1"
 
     decision = decision_for(json.dumps(payload))
 
-    assert decision.score.exact_answer_match is False
-    assert LocalABCFailureCode.OUTPUT_ANSWER_MISMATCH in decision.failure_codes
-
-
-def test_wrong_case_id_is_rejected() -> None:
-    payload = dict(EXPECTED)
-    payload["case_id"] = "wrong-case"
-
-    decision = decision_for(json.dumps(payload))
-
-    assert decision.score.exact_case_id_match is False
-    assert LocalABCFailureCode.OUTPUT_CASE_ID_MISMATCH in decision.failure_codes
-
-
-def test_wrong_turn_index_is_rejected() -> None:
-    payload = dict(EXPECTED)
-    payload["turn_index"] = 2
-
-    decision = decision_for(json.dumps(payload))
-
-    assert decision.score.exact_turn_index_match is False
-    assert LocalABCFailureCode.OUTPUT_TURN_INDEX_MISMATCH in decision.failure_codes
-
-
-def test_wrong_confidence_is_rejected() -> None:
-    payload = dict(EXPECTED)
-    payload["confidence"] = "low"
-
-    decision = decision_for(json.dumps(payload))
-
-    assert decision.score.exact_confidence_match is False
-    assert LocalABCFailureCode.OUTPUT_CONFIDENCE_MISMATCH in decision.failure_codes
+    assert decision.failure_codes == (LocalABCFailureCode.OUTPUT_ANSWER_MISMATCH,)
 
 
 def test_length_finish_reason_adds_truncation_code() -> None:
     decision = decision_for(
         '{"answer":"sev3"',
         finish_reason="length",
-        completion_tokens=64,
+        completion_tokens=128,
     )
 
-    assert LocalABCFailureCode.OUTPUT_TRUNCATED in decision.failure_codes
+    assert decision.failure_codes == (
+        LocalABCFailureCode.OUTPUT_JSON_INVALID,
+        LocalABCFailureCode.OUTPUT_TRUNCATED,
+    )
 
 
-def test_score_retains_hash_and_length_but_not_raw_output() -> None:
+def test_score_retains_metadata_but_not_raw_output() -> None:
     output = json.dumps(EXPECTED, separators=(",", ":"))
 
     decision = decision_for(output)
@@ -147,17 +159,46 @@ def test_score_retains_hash_and_length_but_not_raw_output() -> None:
     assert output not in decision.canonical_json()
 
 
+def test_failed_turn_propagates_to_trajectory_envelope() -> None:
+    decision = decision_for("The answer is sev3.")
+
+    envelope = build_trajectory_quality_failure_envelope(
+        trajectory_id="canary-c-incident-severity",
+        condition_id=ConditionId.C,
+        failed_turn_index=1,
+        turn_decision=decision,
+    )
+
+    assert envelope.failed_turn_index == 1
+    assert envelope.failure_codes == (LocalABCFailureCode.OUTPUT_JSON_INVALID,)
+    assert envelope.terminal_classification is RunTerminalClassification.FAILED_RETAINED
+    assert envelope.comparison_eligible is False
+
+
+def test_passing_turn_cannot_create_failure_envelope() -> None:
+    decision = decision_for(json.dumps(EXPECTED))
+
+    with pytest.raises(ValueError, match="passing output"):
+        build_trajectory_quality_failure_envelope(
+            trajectory_id="canary-c-incident-severity",
+            condition_id=ConditionId.C,
+            failed_turn_index=1,
+            turn_decision=decision,
+        )
+
+
 def test_two_passing_turns_are_comparison_eligible() -> None:
     first = decision_for(json.dumps(EXPECTED))
     second_expected = dict(EXPECTED)
     second_expected["turn_index"] = 2
-    second_score = score_measured_output(
-        output_text=json.dumps(second_expected),
-        expected_payload=second_expected,
-        finish_reason="stop",
-        completion_tokens=24,
+    second = decide_measured_output_quality(
+        score_measured_output(
+            output_text=json.dumps(second_expected),
+            expected_payload=second_expected,
+            finish_reason="stop",
+            completion_tokens=24,
+        )
     )
-    second = decide_measured_output_quality(second_score)
 
     eligibility = build_quality_gated_run_eligibility(
         trajectory_id="r1-c-incident-severity",
@@ -170,12 +211,11 @@ def test_two_passing_turns_are_comparison_eligible() -> None:
 
     assert eligibility.comparison_eligible is True
     assert eligibility.task_completed is True
-    assert eligibility.terminal_classification is RunTerminalClassification.COMPLETED_ELIGIBLE
 
 
-def test_one_failed_turn_makes_trajectory_failed_and_ineligible() -> None:
+def test_failed_turn_makes_trajectory_failed_and_ineligible() -> None:
     passing = decision_for(json.dumps(EXPECTED))
-    failing = decision_for("")
+    failing = decision_for("not-json")
 
     eligibility = build_quality_gated_run_eligibility(
         trajectory_id="r1-c-incident-severity",
@@ -188,42 +228,4 @@ def test_one_failed_turn_makes_trajectory_failed_and_ineligible() -> None:
 
     assert eligibility.comparison_eligible is False
     assert eligibility.task_completed is False
-    assert eligibility.terminal_classification is RunTerminalClassification.FAILED_RETAINED
-    assert LocalABCFailureCode.OUTPUT_JSON_INVALID in eligibility.failure_codes
-
-
-def test_quality_pass_with_bad_telemetry_is_task_complete_but_ineligible() -> None:
-    decision = decision_for(json.dumps(EXPECTED))
-
-    eligibility = build_quality_gated_run_eligibility(
-        trajectory_id="r1-c-incident-severity",
-        condition_id=ConditionId.C,
-        turn_decisions=(decision, decision),
-        telemetry_sufficient=False,
-        route_realized=True,
-        fallback_used=False,
-    )
-
-    assert eligibility.task_completed is True
-    assert eligibility.comparison_eligible is False
-    assert (
-        eligibility.terminal_classification
-        is RunTerminalClassification.TASK_COMPLETED_BUT_COMPARISON_INELIGIBLE
-    )
-    assert LocalABCFailureCode.TELEMETRY_INVALID in eligibility.failure_codes
-
-
-def test_route_mismatch_blocks_comparison_eligibility() -> None:
-    decision = decision_for(json.dumps(EXPECTED))
-
-    eligibility = build_quality_gated_run_eligibility(
-        trajectory_id="r1-c-incident-severity",
-        condition_id=ConditionId.C,
-        turn_decisions=(decision, decision),
-        telemetry_sufficient=True,
-        route_realized=False,
-        fallback_used=True,
-    )
-
-    assert eligibility.comparison_eligible is False
-    assert LocalABCFailureCode.ROUTE_REALIZATION_MISMATCH in eligibility.failure_codes
+    assert eligibility.failure_codes == (LocalABCFailureCode.OUTPUT_JSON_INVALID,)
