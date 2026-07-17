@@ -42,9 +42,9 @@ AUDIT_MARKDOWN_PATH = (
     "evidence_audit_v2.md"
 )
 RECOVERY_RUNBOOK_PATH = DOCS_ROOT / "runbooks" / "local_abc_kaggle_recovery_topology_v1.md"
-EXPECTED_AUDIT_SHA256 = "ce789b6e4510095d5b5f70ccfde71c5524b2847b05c5767dadb1704e2970a7a1"
+EXPECTED_AUDIT_SHA256 = "a6a1031d85997d8b13b521866d580ce468579cfbb8d731180820fdcc5dd0be79"
 EXPECTED_CERTIFICATE_SHA256 = "5f3477801f19e14743a621d48bd2a68ac5ced967ef15f9c00ca67a94421cc71e"
-EXPECTED_CONSUMPTION_SHA256 = "af39a09c974fb237976f3273a6f07323809b40edb2260a327a6187addf52d4c1"
+EXPECTED_CONSUMPTION_SHA256 = "51b36a3ac4e6122c2cf9fa9e5132d26e57af101a19714cb4cd60c4c71afdff4f"
 
 
 def _load_package() -> ActionExtractionGovernancePackage:
@@ -188,6 +188,28 @@ def test_certificate_preserves_non_claims_and_next_gate() -> None:
     assert package.certificate.full_abc_authorized is False
     assert package.certificate.next_gate == ("action_extraction_v2_traceability_cleanup_hardening")
     assert package.audit.full_measured_rerun_authorized is False
+
+
+def test_certificate_markdown_preserves_full_reasoning_constitution() -> None:
+    text = CERTIFICATE_MARKDOWN_PATH.read_text(encoding="utf-8")
+
+    required_sections = (
+        "## 4. Definitions",
+        "## 5. Premises",
+        "## 6. Evidence Trace",
+        "## 7. Alternative-Hypothesis Checks",
+        "## 8. Formal Derivation",
+        "## 9. Formal Conclusion",
+        "## 11. Non-Claims",
+    )
+    for section in required_sections:
+        assert section in text
+
+    assert "H1=REFUTED" in text
+    assert "H5=REFUTED_AND_PROHIBITED" in text
+    assert "quality_gate_passed=true" in text
+    assert "audited_cleanup_status=CLEAN_WITH_RUNTIME_WARNINGS" in text
+    assert "RERUN_STATUS=PROHIBITED" in text
 
 
 def test_json_artifacts_are_canonical_single_line_files() -> None:
