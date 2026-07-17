@@ -105,7 +105,7 @@ def test_notebook_code_cells_compile() -> None:
 def test_notebook_binding_preserves_authorized_boundary() -> None:
     binding = load_binding()
 
-    assert binding["schema_version"] == "1.2.0"
+    assert binding["schema_version"] == "1.3.0"
     assert binding["authorization_fingerprint"] == (EXPECTED_AUTHORIZATION_FINGERPRINT)
     assert binding["authorization_merge_commit"] == (EXPECTED_AUTHORIZATION_MERGE_COMMIT)
     assert binding["case_count"] == 12
@@ -130,7 +130,7 @@ def test_binding_requires_isolated_runtime() -> None:
     binding = load_binding()
 
     assert binding["runtime_environment_isolation_required"] is True
-    assert binding["runtime_environment_policy"] == ("isolated_venv_exact_torch_cu129_v1")
+    assert binding["runtime_environment_policy"] == ("isolated_venv_exact_torch_cu129_v2")
     assert binding["runtime_system_site_packages_inherited"] is False
     assert binding["runtime_exact_torch_version"] == ("2.11.0+cu129")
     assert binding["runtime_cuda_version"] == "12.9"
@@ -167,7 +167,7 @@ def test_runtime_preparation_uses_clean_venv() -> None:
     assert '"torch==2.11.0"' in source
     assert '"torchvision==0.26.0"' in source
     assert '"torchaudio==2.11.0"' in source
-    assert '"pip",\n        "check"' in source
+    assert '"check"' in source
     assert "include-system-site-packages = false" in source
     assert '"--no-deps"' not in source
     assert '"--system-site-packages"' not in source
@@ -254,3 +254,46 @@ def test_binding_json_is_canonical_single_line() -> None:
         separators=(",", ":"),
         sort_keys=True,
     ) == text.rstrip("\n")
+
+
+def test_runtime_venv_bootstrap_avoids_ensurepip() -> None:
+    notebook = load_notebook()
+    binding = load_binding()
+    source = notebook_code_cell(
+        notebook,
+        "# Cell 05 — Isolated Authorized vLLM Runtime Preparation",
+    )
+
+    assert binding["runtime_venv_bootstrap_policy"] == ("without_pip_host_pip_python_v1")
+    assert binding["runtime_default_ensurepip_used"] is False
+    assert binding["runtime_host_pip_targeting_required"] is True
+    assert '"--without-pip"' in source
+    assert '"--python"' in source
+    assert "str(RUNTIME_ENV_DIR)" in source
+    assert "host_pip_target" in source
+    assert 'str(RUNTIME_PYTHON),\n        "-m",\n        "pip"' not in source
+
+
+def test_binding_records_predecessor_venv_failure() -> None:
+    binding = load_binding()
+
+    assert (
+        binding["pre_execution_venv_failure_classification"]
+        == "PRE_EXECUTION_VENV_BOOTSTRAP_FAILURE"
+    )
+    assert binding["predecessor_venv_failure_stderr_captured"] is False
+    assert binding["predecessor_venv_failure_sent_model_requests"] is False
+    assert binding["predecessor_venv_failure_consumed_authorization"] is False
+
+
+def test_runtime_setup_failures_emit_bounded_diagnostics() -> None:
+    notebook = load_notebook()
+    source = notebook_code_cell(
+        notebook,
+        "# Cell 05 — Isolated Authorized vLLM Runtime Preparation",
+    )
+
+    assert "capture_output=True" in source
+    assert "completed.stdout.splitlines()[-20:]" in source
+    assert "completed.stderr.splitlines()[-20:]" in source
+    assert "timeout_seconds" in source
