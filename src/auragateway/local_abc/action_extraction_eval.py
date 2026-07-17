@@ -703,8 +703,19 @@ def evaluate_reconcile_balance_extraction(
     output_text: str,
     finish_reason: str | None,
     completion_tokens: int,
+    prompt_identity: ActionExtractionPromptIdentity | None = None,
 ) -> ActionExtractionCaseScore:
-    """Score one first-attempt output without retries or raw-output retention."""
+    """Score one first-attempt output with an explicit executed-prompt identity seam."""
+
+    resolved_prompt_identity = (
+        prompt_identity
+        if prompt_identity is not None
+        else build_action_extraction_prompt_identity(case)
+    )
+    if resolved_prompt_identity.case_prompt_sha256 != case.prompt_sha256:
+        raise ValueError("score prompt identity must bind the evaluated case prompt")
+    if resolved_prompt_identity.case_prompt_character_count != len(case.user_prompt):
+        raise ValueError("score prompt identity character count must bind the evaluated case")
 
     action, json_valid, action_failure = _parse_action_for_evaluation(output_text)
     failure_codes: set[ExtractionEvaluationFailureCode] = set()
@@ -760,7 +771,7 @@ def evaluate_reconcile_balance_extraction(
     )
     return ActionExtractionCaseScore(
         eval_case_id=case.eval_case_id,
-        prompt_identity=build_action_extraction_prompt_identity(case),
+        prompt_identity=resolved_prompt_identity,
         expected_action_sha256=case.expected_action_sha256,
         output_text_sha256=hashlib.sha256(output_text.encode("utf-8")).hexdigest(),
         output_character_count=len(output_text),
