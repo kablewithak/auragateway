@@ -1,0 +1,126 @@
+{
+  "authorization_decision": {
+    "cache_claims_permitted": false,
+    "full_measured_rerun_authorized": false,
+    "gpu_execution_authorized": false,
+    "lifecycle_state": "consumed",
+    "next_gate": "immutable_evidence_audit_and_failure_disposition",
+    "retry_only_failed_cases_permitted": false,
+    "same_authorization_rerun_permitted": false
+  },
+  "certificate_id": "AURAGATEWAY-LOCAL-ABC-SFRC-0003",
+  "certificate_type": "engineering_evidence_and_reasoning_certificate",
+  "confidence": "high",
+  "evidence_bindings": {
+    "archive_filename": "auragateway-reconcile-balance-action-extraction-canary-evidence-v1.zip",
+    "archive_sha256": "412db1700b6505502ca9afc83981738c9f50f043bad6de37e015ab7f3a9944c8",
+    "archive_size_bytes": 18837,
+    "authorization_fingerprint": "9efe45c37b3223b6f01bd55e6471a1c487b5115ba6260b77bd3a6ff2219933a9",
+    "customer_data_used": false,
+    "execution_source_commit": "0619867a7acbee5e4c5b639963cf1046cbf36809",
+    "external_spend": "0",
+    "model_repository": "Qwen/Qwen2.5-0.5B-Instruct",
+    "model_revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+    "notebook_sha256": "b0d3f840e6d334c6b7631431228ef9ff50a7ea55f8eabceb65fcf4685a1ad5ab",
+    "raw_action_retained": false,
+    "raw_output_retained": false,
+    "raw_prompt_retained": false,
+    "source_certificate_markdown_sha256": "2bba7783be895dcedb3b4fa89dee94ed3750310f0383feb5cb790240987ee6eb"
+  },
+  "failure_proofs": [
+    {
+      "action_sha256": "6b74eea6c5d3430390068dad20e9932b82e84b821252c7a2103cb93924dc304b",
+      "case_id": "formatted-currency-values",
+      "expected_answer": 1450,
+      "expected_operands": {
+        "credits": 300,
+        "debits": 50,
+        "opening_balance": 1200
+      },
+      "failure_code": "FORMATTED_INTEGER_LEADING_COMPONENT_DROPPED",
+      "observed_answer": 450,
+      "observed_operands": {
+        "credits": 300,
+        "debits": 50,
+        "opening_balance": 200
+      },
+      "result_sha256": "4d255be4764ee2679eebc6be05249ff0bf87700d65be21e51da79bdf9f5b9a5e"
+    },
+    {
+      "action_sha256": "bd5c297bb523706089530596576da835e8d7c7895842622328d381258db2d139",
+      "case_id": "key-value-layout",
+      "expected_answer": 4000,
+      "expected_operands": {
+        "credits": 250,
+        "debits": 1250,
+        "opening_balance": 5000
+      },
+      "failure_code": "KEY_VALUE_CREDIT_DEBIT_ROLE_REVERSAL",
+      "observed_answer": 6000,
+      "observed_operands": {
+        "credits": 1250,
+        "debits": 250,
+        "opening_balance": 5000
+      },
+      "result_sha256": "5b66dcbc8a06a470a6257f35bb109136eef13bdcd6799e5fa25362f9dae96d88"
+    }
+  ],
+  "formal_conclusion": {
+    "derivation": [
+      "Infrastructure, transport, schema, identity, and executor boundaries passed.",
+      "Two schema-valid actions contained incorrect business operands.",
+      "The deterministic executor faithfully executed those incorrect actions.",
+      "The quality gate therefore failed and the evidence remains diagnostic.",
+      "The one-shot authorization is consumed and cannot be reused."
+    ],
+    "verdict": "CERTIFIED_FAILED_DIAGNOSTIC_WITH_CLEAN_HARNESS"
+  },
+  "formal_mathematical_proof": false,
+  "issued_at": "2026-07-17T00:33:08.793643Z",
+  "non_claims": [
+    "The action-extraction canary passed.",
+    "Schema validity guarantees semantic correctness.",
+    "The extraction boundary is production-safe.",
+    "Cache savings were measured by this canary.",
+    "The full A/B/C benchmark is authorized.",
+    "AuraGateway is production-ready."
+  ],
+  "premises": [
+    {
+      "id": "P1",
+      "statement": "The execution was bound to one authorization, notebook, model, runtime, worker, and twelve fixed requests."
+    },
+    {
+      "id": "P2",
+      "statement": "Every fixed case permitted exactly one attempt with no retry, repair, replacement, or direct model arithmetic fallback."
+    },
+    {
+      "id": "P3",
+      "statement": "All twelve requests completed with HTTP 200 and no infrastructure failure."
+    },
+    {
+      "id": "P4",
+      "statement": "All twelve responses passed JSON, action schema, identity, and deterministic execution checks."
+    },
+    {
+      "id": "P5",
+      "statement": "Exactly ten actions matched the expected operands and final answer."
+    },
+    {
+      "id": "P6",
+      "statement": "The two failed cases were formatted-currency-values and key-value-layout."
+    },
+    {
+      "id": "P7",
+      "statement": "The retained action and result hashes reproduce the exact observed semantic failures."
+    },
+    {
+      "id": "P8",
+      "statement": "Cache measurement and the full measured benchmark were outside the authorization."
+    }
+  ],
+  "reasoning_standard": "semi_formal_evidence_bound_reproducible_hash_verification",
+  "schema_version": "1.0.0",
+  "status": "CERTIFIED_FAILED_DIAGNOSTIC_WITH_CLEAN_HARNESS",
+  "title": "AuraGateway Reconcile-Balance Action-Extraction Canary v1"
+}
