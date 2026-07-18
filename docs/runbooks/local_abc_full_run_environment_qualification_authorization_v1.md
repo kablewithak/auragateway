@@ -193,9 +193,13 @@ Required content:
 - `tokenizer_config.json`.
 - `tokenizer.json`.
 
-The adapter accepts only a `.tar.gz`, `.tgz`, or `.zip` archive. It rejects path traversal,
-symbolic links, hard links, device members, encrypted ZIP members, and archives exceeding the
-bounded extraction budget.
+The adapter accepts the exact expanded Hugging Face snapshot directory mounted by Kaggle. It
+also retains archive compatibility for `.tar.gz`, `.tgz`, and `.zip` inputs used by local tests and
+historical materialization flows. Directory inputs must preserve the exact `hf_home/hub/.../snapshots`
+layout. The adapter copies the mounted read-only snapshot into a bounded writable workspace before
+worker startup. Directory inputs reject symlinks and non-regular members. Archive inputs also
+reject hard links, path traversal, and encrypted ZIP members. All inputs remain bounded by the
+copy or extraction budget.
 
 ### `vllm_wheel`
 
@@ -330,16 +334,17 @@ Do not perform this procedure from the feature branch.
 2. Sync clean `main` and record the full merge commit.
 3. Build the `harness_source` archive from that exact commit.
 4. Calculate its SHA-256.
-5. Verify or build the exact model archive and calculate its SHA-256.
-6. Verify the exact vLLM wheel and calculate its SHA-256.
-7. Upload or version all three Kaggle datasets.
-8. Record each exact Kaggle slug and immutable dataset version.
-9. Record each exact `/kaggle/input/...` mounted path.
-10. Construct the canonical materialization record.
-11. Project the portable runtime manifest from that record.
-12. Bind the runtime manifest fingerprint back into the materialization record.
-13. Validate both artifacts with the authorization tooling.
-14. Open the separate authorization-issuance review.
+5. Attach and inspect the exact expanded model snapshot directory.
+6. Calculate its canonical sorted file-manifest SHA-256.
+7. Verify the exact vLLM wheel and calculate its SHA-256.
+8. Upload or version all three Kaggle datasets.
+9. Record each exact Kaggle slug and immutable dataset version.
+10. Record each exact `/kaggle/input/...` mounted path.
+11. Construct the canonical materialization record.
+12. Project the portable runtime manifest from that record.
+13. Bind the runtime manifest fingerprint back into the materialization record.
+14. Validate both artifacts with the authorization tooling.
+15. Open the separate authorization-issuance review.
 
 ## Issuance-input inspection
 

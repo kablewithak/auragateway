@@ -41,6 +41,7 @@ MATERIALIZED_DATASET_MANIFEST_PATH = auth_contracts.MATERIALIZED_DATASET_MANIFES
 NEXT_GATE = auth_contracts.NEXT_GATE
 RUNTIME_ADAPTER_PATH = auth_contracts.RUNTIME_ADAPTER_PATH
 AuthorizationPackageError = auth_contracts.AuthorizationPackageError
+DatasetArtifactFormat = auth_contracts.DatasetArtifactFormat
 DatasetMaterializationState = auth_contracts.DatasetMaterializationState
 DatasetRole = auth_contracts.DatasetRole
 OfflineDatasetManifestRequest = auth_contracts.OfflineDatasetManifestRequest
@@ -66,9 +67,9 @@ SOURCE_PATHS = (
     Path(__file__).resolve(),
 )
 
-EXPECTED_DATASET_REQUEST_SHA256 = "75751bbb278315142f41bb41f6350a6f4e36c570bf757e0801a25c78a4434a9d"
+EXPECTED_DATASET_REQUEST_SHA256 = "1cd096100cc620d5c68f70a58cdbb4756c7ba7e93c67cc6b601415c584eb643e"
 EXPECTED_AUTHORIZATION_REQUEST_SHA256 = (
-    "8879a94f8529a89b0c2adf77248eb253b8e39208fccb4d99364afb599887fca7"
+    "4e7a33e0f8364feb87af7d058f86cf5c7b2636b5139ac80428b788dcc4fe24fb"
 )
 
 
@@ -260,6 +261,17 @@ def _write_model_archive(tmp_path: Path) -> Path:
     return archive
 
 
+def _write_model_snapshot_directory(tmp_path: Path) -> Path:
+    snapshot = tmp_path / (
+        "hf_home/hub/models--Qwen--Qwen2.5-0.5B-Instruct/"
+        "snapshots/7ae557604adf67be50417f59c2c2f167def9a775"
+    )
+    snapshot.mkdir(parents=True)
+    for name in ("config.json", "tokenizer_config.json", "tokenizer.json"):
+        (snapshot / name).write_text("{}", encoding="utf-8")
+    return snapshot
+
+
 def _dataset_manifest(tmp_path: Path) -> QualificationDatasetManifest:
     harness = tmp_path / "harness.zip"
     harness.write_bytes(b"harness")
@@ -301,7 +313,11 @@ def _materialized_record() -> auth_contracts.MaterializedOfflineDatasetRecord:
             role=DatasetRole.MODEL_ARTIFACTS,
             kaggle_dataset_slug="kablewithak/qwen25-05b-offline",
             kaggle_dataset_version=2,
-            mounted_path="/kaggle/input/qwen25-05b-offline/model-artifacts.tar.gz",
+            mounted_path=(
+                "/kaggle/input/qwen25-05b-offline/hf_home/hub/"
+                "models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/"
+                "7ae557604adf67be50417f59c2c2f167def9a775"
+            ),
             sha256="2" * 64,
         ),
         auth_contracts.MaterializedDatasetEntry(
@@ -363,6 +379,9 @@ def test_dataset_request_preserves_exact_offline_roles() -> None:
         DatasetRole.HARNESS_SOURCE,
         DatasetRole.MODEL_ARTIFACTS,
         DatasetRole.VLLM_WHEEL,
+    )
+    assert request.roles[1].artifact_format is (
+        DatasetArtifactFormat.HUGGING_FACE_SNAPSHOT_DIRECTORY
     )
     assert all(item.materialized is False for item in request.roles)
     assert request.network_fallback_permitted is False
@@ -663,6 +682,42 @@ def test_issuance_inputs_validate_exact_hash_linkage(tmp_path: Path) -> None:
     assert summary["exact_kaggle_dataset_count"] == 3
     assert summary["runtime_dataset_manifest_sha256"] == manifest.fingerprint()
     assert summary["final_authorization_generated"] is False
+
+
+def test_expanded_model_snapshot_is_copied_into_writable_cache(tmp_path: Path) -> None:
+    snapshot = _write_model_snapshot_directory(tmp_path)
+    workspace = tmp_path / "workspace"
+    adapter = adapter_module.KaggleQualificationRuntimeAdapter(_FakeOperations())
+
+    cache_root, copied_snapshot = adapter._prepare_model_cache(snapshot, workspace)
+
+    assert cache_root == workspace / "model-cache/hf_home"
+    assert copied_snapshot == cache_root / (
+        "hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/7ae557604adf67be50417f59c2c2f167def9a775"
+    )
+    assert (copied_snapshot / "config.json").read_text(encoding="utf-8") == "{}"
+    assert copied_snapshot != snapshot
+
+
+def test_model_snapshot_directory_fingerprint_is_deterministic(tmp_path: Path) -> None:
+    snapshot = _write_model_snapshot_directory(tmp_path)
+
+    first = adapter_module.KaggleQualificationRuntimeAdapter._model_artifact_sha256(snapshot)
+    second = adapter_module.KaggleQualificationRuntimeAdapter._model_artifact_sha256(snapshot)
+
+    assert first == second
+    assert len(first) == 64
+
+
+def test_model_snapshot_requires_exact_hugging_face_cache_layout(tmp_path: Path) -> None:
+    snapshot = tmp_path / "7ae557604adf67be50417f59c2c2f167def9a775"
+    snapshot.mkdir()
+    (snapshot / "config.json").write_text("{}", encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="exact cache layout"):
+        adapter_module.KaggleQualificationRuntimeAdapter._copy_snapshot_directory_safely(
+            snapshot, tmp_path / "target"
+        )
 
 
 def test_model_tar_rejects_symbolic_links(tmp_path: Path) -> None:

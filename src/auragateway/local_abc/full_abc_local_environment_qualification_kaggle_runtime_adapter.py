@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import socket
 import stat
 import subprocess
@@ -477,24 +478,100 @@ class KaggleQualificationRuntimeAdapter:
         if os.environ.get("AURAGATEWAY_CUSTOMER_DATA_PRESENT") == "1":
             raise RuntimeError("customer data is prohibited during environment qualification")
 
-    def _prepare_model_cache(self, archive: Path, workspace: Path) -> tuple[Path, Path]:
+    def _prepare_model_cache(self, artifact: Path, workspace: Path) -> tuple[Path, Path]:
         target = workspace / "model-cache"
         target.mkdir(parents=True, exist_ok=True)
-        if archive.name.endswith(".tar.gz") or archive.suffix == ".tgz":
-            self._extract_tar_safely(archive, target)
-        elif archive.suffix == ".zip":
-            self._extract_zip_safely(archive, target)
+        if artifact.is_dir():
+            self._copy_snapshot_directory_safely(artifact, target)
+        elif artifact.name.endswith(".tar.gz") or artifact.suffix == ".tgz":
+            self._extract_tar_safely(artifact, target)
+        elif artifact.suffix == ".zip":
+            self._extract_zip_safely(artifact, target)
         else:
-            raise RuntimeError("model artifacts must be a tar.gz, tgz, or zip archive")
+            raise RuntimeError(
+                "model artifacts must be an exact Hugging Face snapshot directory "
+                "or a tar.gz, tgz, or zip archive"
+            )
 
         matches = tuple(target.rglob(f"snapshots/{_MODEL_REVISION}/config.json"))
         if len(matches) != 1:
-            raise RuntimeError("model archive must contain one exact Hugging Face snapshot")
+            raise RuntimeError("model artifacts must contain one exact Hugging Face snapshot")
         snapshot = matches[0].parent
         hub_parent = next((parent for parent in snapshot.parents if parent.name == "hub"), None)
         if hub_parent is None:
-            raise RuntimeError("model archive must preserve the Hugging Face cache layout")
+            raise RuntimeError("model artifacts must preserve the Hugging Face cache layout")
         return hub_parent.parent, snapshot
+
+    @classmethod
+    def _copy_snapshot_directory_safely(cls, snapshot: Path, target: Path) -> None:
+        expected_tail = (
+            "hub",
+            "models--Qwen--Qwen2.5-0.5B-Instruct",
+            "snapshots",
+            _MODEL_REVISION,
+        )
+        if not snapshot.is_dir() or snapshot.is_symlink():
+            raise RuntimeError("model snapshot input must be a real directory")
+        if tuple(snapshot.parts[-len(expected_tail) :]) != expected_tail:
+            raise RuntimeError("model snapshot path does not preserve the exact cache layout")
+
+        destination = target.joinpath("hf_home", *expected_tail)
+        cls._copy_directory_safely(snapshot, destination)
+
+    @staticmethod
+    def _copy_directory_safely(source: Path, destination: Path) -> None:
+        total_size = 0
+        files: list[tuple[Path, Path]] = []
+        for path in sorted(source.rglob("*"), key=lambda item: item.as_posix()):
+            relative = path.relative_to(source)
+            if path.is_symlink():
+                raise RuntimeError("model snapshot contains an unsafe member type")
+            mode = path.stat().st_mode
+            if path.is_dir():
+                continue
+            if not stat.S_ISREG(mode):
+                raise RuntimeError("model snapshot contains an unsafe member type")
+            total_size += path.stat().st_size
+            if total_size > _MAX_MODEL_EXTRACT_BYTES:
+                raise RuntimeError("model snapshot exceeds the copy budget")
+            files.append((path, destination / relative))
+
+        if not files:
+            raise RuntimeError("model snapshot directory is empty")
+        for source_file, destination_file in files:
+            destination_file.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source_file, destination_file, follow_symlinks=False)
+
+    @classmethod
+    def _model_artifact_sha256(cls, artifact: Path) -> str:
+        if artifact.is_file():
+            return cls._file_sha256(artifact)
+        if not artifact.is_dir() or artifact.is_symlink():
+            raise RuntimeError("model artifact must be a regular file or directory")
+
+        entries: list[dict[str, object]] = []
+        total_size = 0
+        for path in sorted(artifact.rglob("*"), key=lambda item: item.as_posix()):
+            if path.is_symlink():
+                raise RuntimeError("model snapshot contains an unsafe member type")
+            if path.is_dir():
+                continue
+            metadata = path.stat()
+            if not stat.S_ISREG(metadata.st_mode):
+                raise RuntimeError("model snapshot contains an unsafe member type")
+            total_size += metadata.st_size
+            if total_size > _MAX_MODEL_EXTRACT_BYTES:
+                raise RuntimeError("model snapshot exceeds the fingerprint budget")
+            entries.append(
+                {
+                    "path": path.relative_to(artifact).as_posix(),
+                    "sha256": cls._file_sha256(path),
+                    "size_bytes": metadata.st_size,
+                }
+            )
+        if not entries:
+            raise RuntimeError("model snapshot directory is empty")
+        return cls._sha256(json.dumps(entries, sort_keys=True, separators=(",", ":")))
 
     @staticmethod
     def _extract_tar_safely(archive: Path, target: Path) -> None:
@@ -662,7 +739,7 @@ class KaggleQualificationRuntimeAdapter:
 
     def _capture_model_identity(
         self,
-        model_archive: Path,
+        model_artifact: Path,
         snapshot: Path,
         session_id: str,
         captured_at: datetime,
@@ -686,7 +763,7 @@ class KaggleQualificationRuntimeAdapter:
             model_repository=_MODEL_REPOSITORY,
             model_revision=_MODEL_REVISION,
             tokenizer_revision=_MODEL_REVISION,
-            model_manifest_sha256=self._file_sha256(model_archive),
+            model_manifest_sha256=self._model_artifact_sha256(model_artifact),
             config_sha256=self._file_sha256(required["config"]),
             tokenizer_config_sha256=self._file_sha256(required["tokenizer_config"]),
             tokenizer_json_sha256=self._file_sha256(required["tokenizer_json"]),
