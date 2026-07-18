@@ -40,6 +40,7 @@ AUTHORIZATION_REQUEST_PATH = auth_contracts.AUTHORIZATION_REQUEST_PATH
 DATASET_MANIFEST_REQUEST_PATH = auth_contracts.DATASET_MANIFEST_REQUEST_PATH
 EXPECTED_RUFF_VERSION = auth_contracts.EXPECTED_RUFF_VERSION
 FINAL_AUTHORIZATION_PATH = auth_contracts.FINAL_AUTHORIZATION_PATH
+MATERIALIZATION_RECORD_PATH = auth_contracts.MATERIALIZATION_RECORD_PATH
 MATERIALIZED_DATASET_MANIFEST_PATH = auth_contracts.MATERIALIZED_DATASET_MANIFEST_PATH
 NEXT_GATE = auth_contracts.NEXT_GATE
 RUNTIME_ADAPTER_PATH = auth_contracts.RUNTIME_ADAPTER_PATH
@@ -900,21 +901,42 @@ def test_committed_requests_match_builders() -> None:
     )
 
 
-def test_repository_package_matches_exact_pr_105_authorities() -> None:
+def test_repository_package_matches_current_authorization_lifecycle() -> None:
     if not (ROOT / ".git").exists():
         pytest.skip("full Git checkout is unavailable")
 
-    summary = authorization_module.verify_static_authorization_package(ROOT)
+    materialization_record_path = ROOT / MATERIALIZATION_RECORD_PATH
+    runtime_manifest_path = ROOT / MATERIALIZED_DATASET_MANIFEST_PATH
+    materialized_paths = (
+        materialization_record_path.exists(),
+        runtime_manifest_path.exists(),
+    )
 
-    assert summary["authorization_package_generated"] is True
-    assert summary["runtime_adapter_generated"] is True
-    assert summary["runtime_adapter_executed"] is False
+    if materialized_paths == (False, False):
+        summary = authorization_module.verify_static_authorization_package(ROOT)
+
+        assert summary["authorization_package_generated"] is True
+        assert summary["runtime_adapter_generated"] is True
+        assert summary["runtime_adapter_executed"] is False
+        assert summary["final_authorization_generated"] is False
+        assert summary["materialized_dataset_manifest_generated"] is False
+        assert summary["kaggle_session_started"] is False
+        assert summary["maximum_model_requests"] == 8
+        assert summary["benchmark_trajectory_requests_permitted"] == 0
+        assert summary["external_spend"] == 0
+        return
+
+    assert materialized_paths == (True, True)
+    summary = authorization_module.validate_issuance_inputs(
+        repo_root=ROOT,
+        materialization_record_path=materialization_record_path,
+        runtime_manifest_path=runtime_manifest_path,
+    )
+
+    assert summary["exact_kaggle_dataset_count"] == 3
     assert summary["final_authorization_generated"] is False
-    assert summary["materialized_dataset_manifest_generated"] is False
     assert summary["kaggle_session_started"] is False
-    assert summary["maximum_model_requests"] == 8
-    assert summary["benchmark_trajectory_requests_permitted"] == 0
-    assert summary["external_spend"] == 0
+    assert summary["next_gate"] == NEXT_GATE
 
 
 def test_authorization_error_is_metadata_safe() -> None:
