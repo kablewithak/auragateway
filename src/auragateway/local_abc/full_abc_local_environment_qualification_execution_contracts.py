@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 from enum import StrEnum
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Final, Literal, Protocol, Self, runtime_checkable
 
 from pydantic import Field, field_validator, model_validator
@@ -448,6 +448,11 @@ class DatasetManifestEntry(LocalABCContract):
     """One exact mounted input artifact for an authorized offline run."""
 
     role: Literal["harness_source", "model_artifacts", "vllm_wheel"]
+    artifact_format: Literal[
+        "source_tree_directory",
+        "hugging_face_snapshot_directory",
+        "python_wheel",
+    ]
     mounted_path: str
     sha256: str
 
@@ -490,6 +495,13 @@ class QualificationDatasetManifest(LocalABCContract):
         roles = tuple(item.role for item in self.entries)
         if roles != ("harness_source", "model_artifacts", "vllm_wheel"):
             raise ValueError("dataset manifest must preserve the exact role order")
+        formats = tuple(item.artifact_format for item in self.entries)
+        if formats != (
+            "source_tree_directory",
+            "hugging_face_snapshot_directory",
+            "python_wheel",
+        ):
+            raise ValueError("dataset manifest artifact formats drifted")
         if len({item.mounted_path for item in self.entries}) != 3:
             raise ValueError("dataset manifest mounted paths must be unique")
         return self
@@ -512,9 +524,11 @@ class QualificationRuntimeFactoryBinding(LocalABCContract):
     @field_validator("artifact_path")
     @classmethod
     def validate_artifact_path(cls, value: str) -> str:
-        path = Path(value)
-        if not path.is_absolute() or ".." in path.parts:
-            raise ValueError("runtime factory artifact path must be absolute and bounded")
+        path = PurePosixPath(value)
+        if _PATH_PATTERN.fullmatch(value) is None or path.is_absolute() or ".." in path.parts:
+            raise ValueError(
+                "runtime factory artifact path must be repository-relative and bounded"
+            )
         return value
 
     @field_validator("artifact_sha256")

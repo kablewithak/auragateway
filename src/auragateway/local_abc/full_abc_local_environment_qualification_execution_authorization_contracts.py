@@ -38,19 +38,23 @@ EXECUTION_REQUEST_SHA256: Final = "dcef7e7243f4de16955bccdfc36dbd0194b51a602d1fc
 EXECUTION_RUNNER_PATH: Final = Path(
     "src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py"
 )
-EXECUTION_RUNNER_GIT_BLOB_SHA: Final = "921b5dcff84880f1c0e02bbc1164a7c73567d1fb"
+EXECUTION_RUNNER_GIT_BLOB_SHA: Final = "dc218d98194b2166a034087c600bcf65f5606388"
+ARTIFACT_IDENTITY_PATH: Final = Path(
+    "src/auragateway/local_abc/full_abc_local_environment_qualification_artifact_identity.py"
+)
+ARTIFACT_IDENTITY_GIT_BLOB_SHA: Final = "60189de0e17c52db52610dd4b32a1babc59033ab"
 EXECUTION_CONTRACTS_PATH: Final = Path(
     "src/auragateway/local_abc/full_abc_local_environment_qualification_execution_contracts.py"
 )
-EXECUTION_CONTRACTS_GIT_BLOB_SHA: Final = "a82423c9cd5739d0d47e128bb5ce74493952ceb7"
+EXECUTION_CONTRACTS_GIT_BLOB_SHA: Final = "f1d7201e5af0d67275126be20edba80ef8d14fda"
 EXECUTION_NOTEBOOK_PATH: Final = Path(
     "notebooks/auragateway_full_abc_environment_qualification_v1.ipynb"
 )
-EXECUTION_NOTEBOOK_GIT_BLOB_SHA: Final = "b154168dcc300243b80cdf2fb4104d311195176e"
+EXECUTION_NOTEBOOK_GIT_BLOB_SHA: Final = "1fd89440e46250862596f7202382e9ba5c70230a"
 EXECUTION_RUNBOOK_PATH: Final = Path(
     "docs/runbooks/local_abc_full_run_environment_qualification_v1.md"
 )
-EXECUTION_RUNBOOK_GIT_BLOB_SHA: Final = "181a9bfb9a8984716f734389881477f8bee58e69"
+EXECUTION_RUNBOOK_GIT_BLOB_SHA: Final = "e20563ca924e926c1a7d33cd5f31140fde5aaecc"
 WORKER_STARTUP_PLAN_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/worker_startup_plan.json"
 )
@@ -147,6 +151,7 @@ class DatasetRole(StrEnum):
 class DatasetArtifactFormat(StrEnum):
     """Supported offline artifact representations."""
 
+    SOURCE_TREE_DIRECTORY = "source_tree_directory"
     ZIP_ARCHIVE = "zip_archive"
     HUGGING_FACE_SNAPSHOT_DIRECTORY = "hugging_face_snapshot_directory"
     PYTHON_WHEEL = "python_wheel"
@@ -259,6 +264,7 @@ class MaterializedDatasetEntry(LocalABCContract):
     """Exact Kaggle identity and runtime projection for one offline input."""
 
     role: DatasetRole
+    artifact_format: DatasetArtifactFormat
     kaggle_dataset_slug: str
     kaggle_dataset_version: int = Field(ge=1)
     mounted_path: str
@@ -341,6 +347,14 @@ class MaterializedOfflineDatasetRecord(LocalABCContract):
         )
         if roles != expected:
             raise ValueError("materialized dataset roles drifted")
+        formats = tuple(item.artifact_format for item in self.entries)
+        expected_formats = (
+            DatasetArtifactFormat.SOURCE_TREE_DIRECTORY,
+            DatasetArtifactFormat.HUGGING_FACE_SNAPSHOT_DIRECTORY,
+            DatasetArtifactFormat.PYTHON_WHEEL,
+        )
+        if formats != expected_formats:
+            raise ValueError("materialized dataset artifact formats drifted")
         slugs = tuple(item.kaggle_dataset_slug for item in self.entries)
         if len(slugs) != len(set(slugs)):
             raise ValueError("materialized dataset slugs must be unique")
@@ -354,6 +368,11 @@ class PortableDatasetManifestEntry(LocalABCContract):
     """Runtime-compatible manifest entry validated with POSIX path semantics."""
 
     role: Literal["harness_source", "model_artifacts", "vllm_wheel"]
+    artifact_format: Literal[
+        "source_tree_directory",
+        "hugging_face_snapshot_directory",
+        "python_wheel",
+    ]
     mounted_path: str
     sha256: str
 
@@ -402,6 +421,13 @@ class PortableQualificationDatasetManifest(LocalABCContract):
         roles = tuple(item.role for item in self.entries)
         if roles != ("harness_source", "model_artifacts", "vllm_wheel"):
             raise ValueError("runtime dataset roles drifted")
+        formats = tuple(item.artifact_format for item in self.entries)
+        if formats != (
+            "source_tree_directory",
+            "hugging_face_snapshot_directory",
+            "python_wheel",
+        ):
+            raise ValueError("runtime dataset artifact formats drifted")
         return self
 
 

@@ -14,6 +14,8 @@ from typing import Never, cast
 from pydantic import ValidationError
 
 from .full_abc_local_environment_qualification_execution_authorization_contracts import (
+    ARTIFACT_IDENTITY_GIT_BLOB_SHA,
+    ARTIFACT_IDENTITY_PATH,
     AUTHORIZATION_REQUEST_PATH,
     DATASET_MANIFEST_REQUEST_PATH,
     EXECUTION_CONTRACTS_GIT_BLOB_SHA,
@@ -119,14 +121,22 @@ def _write_text_atomic(path: Path, payload: str) -> None:
 
 
 def _git_blob_sha(repo_root: Path, relative_path: Path) -> str:
+    artifact_path = repo_root / relative_path
+    if not artifact_path.is_file():
+        raise AuthorizationPackageError(
+            "REQUIRED_GIT_AUTHORITY_UNREADABLE",
+            "required authorization-package Git authority could not be resolved",
+            relative_path.as_posix(),
+        )
     try:
         result = subprocess.run(
             [
                 "git",
                 "-C",
                 str(repo_root),
-                "rev-parse",
-                f"HEAD:{relative_path.as_posix()}",
+                "hash-object",
+                f"--path={relative_path.as_posix()}",
+                str(artifact_path),
             ],
             check=True,
             capture_output=True,
@@ -183,6 +193,11 @@ def _source_authority_specs() -> tuple[tuple[str, Path, str], ...]:
     return (
         ("authorization-review", REVIEW_PATH, REVIEW_GIT_BLOB_SHA),
         ("authorization-review-source", REVIEW_SOURCE_PATH, REVIEW_SOURCE_GIT_BLOB_SHA),
+        (
+            "artifact-identity",
+            ARTIFACT_IDENTITY_PATH,
+            ARTIFACT_IDENTITY_GIT_BLOB_SHA,
+        ),
         (
             "execution-contracts",
             EXECUTION_CONTRACTS_PATH,
@@ -261,10 +276,10 @@ def build_offline_dataset_manifest_request() -> OfflineDatasetManifestRequest:
         roles=(
             DatasetRoleMaterializationRequest(
                 role=DatasetRole.HARNESS_SOURCE,
-                artifact_format=DatasetArtifactFormat.ZIP_ARCHIVE,
+                artifact_format=DatasetArtifactFormat.SOURCE_TREE_DIRECTORY,
                 required_content=(
-                    "Post-implementation AuraGateway source, exact lock files, notebook, "
-                    "runtime adapter, and authorization tooling."
+                    "Exact post-implementation AuraGateway source tree, lock files, "
+                    "notebook, runtime adapter, and authorization tooling."
                 ),
             ),
             DatasetRoleMaterializationRequest(
@@ -516,6 +531,7 @@ def build_portable_runtime_manifest(
     entries = tuple(
         PortableDatasetManifestEntry(
             role=item.role.value,
+            artifact_format=item.artifact_format.value,
             mounted_path=item.mounted_path,
             sha256=item.sha256,
         )

@@ -2,15 +2,22 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Literal, cast
+from typing import cast
 
 import pytest
 from pydantic import ValidationError
 
+from auragateway.local_abc import (
+    full_abc_local_environment_qualification_execution as execution_module,
+)
+from auragateway.local_abc.full_abc_local_environment_qualification_artifact_identity import (
+    directory_sha256,
+)
 from auragateway.local_abc.full_abc_local_environment_qualification_execution import (
     build_execution_request,
     build_notebook_payload,
@@ -65,24 +72,36 @@ def _sha256(path: Path) -> str:
 
 
 def _dataset_manifest(tmp_path: Path) -> QualificationDatasetManifest:
-    entries: list[DatasetManifestEntry] = []
-    for role, name in (
-        ("harness_source", "harness"),
-        ("model_artifacts", "model"),
-        ("vllm_wheel", "wheel.whl"),
-    ):
-        mounted = tmp_path / name
-        mounted.write_text(role, encoding="utf-8")
-        entries.append(
-            DatasetManifestEntry(
-                role=cast(Literal["harness_source", "model_artifacts", "vllm_wheel"], role),
-                mounted_path=str(mounted.resolve()),
-                sha256=_sha256(mounted),
-            )
-        )
+    harness = tmp_path / "harness"
+    (harness / "src/auragateway").mkdir(parents=True)
+    (harness / "src/auragateway/__init__.py").write_text("", encoding="utf-8")
+    model = tmp_path / "model"
+    model.mkdir()
+    (model / "config.json").write_text("{}", encoding="utf-8")
+    wheel = tmp_path / "wheel.whl"
+    wheel.write_text("vllm_wheel", encoding="utf-8")
     return QualificationDatasetManifest(
         manifest_id="qualification-dataset-v1",
-        entries=(entries[0], entries[1], entries[2]),
+        entries=(
+            DatasetManifestEntry(
+                role="harness_source",
+                artifact_format="source_tree_directory",
+                mounted_path=str(harness.resolve()),
+                sha256=directory_sha256(harness),
+            ),
+            DatasetManifestEntry(
+                role="model_artifacts",
+                artifact_format="hugging_face_snapshot_directory",
+                mounted_path=str(model.resolve()),
+                sha256=directory_sha256(model),
+            ),
+            DatasetManifestEntry(
+                role="vllm_wheel",
+                artifact_format="python_wheel",
+                mounted_path=str(wheel.resolve()),
+                sha256=_sha256(wheel),
+            ),
+        ),
     )
 
 
@@ -103,7 +122,7 @@ def _authorization(
         dataset_manifest_sha256=dataset_manifest.fingerprint(),
         runtime_factory=QualificationRuntimeFactoryBinding(
             factory_path="runtime_adapter:build_runtime",
-            artifact_path=str(adapter_path.resolve()),
+            artifact_path="runtime_adapter.py",
             artifact_sha256=_sha256(adapter_path),
         ),
         issued_at=_FIXED_NOW - timedelta(minutes=5),
@@ -353,9 +372,164 @@ def test_notebook_is_unexecuted_and_delegates_to_typed_runner() -> None:
     assert code_cells[0]["outputs"] == []
     source = "".join(cast(list[str], code_cells[0]["source"]))
     assert "execute_from_environment" in source
+    assert "source_tree_directory" in source
+    assert "AURAGATEWAY_REPO_ROOT" in source
+    assert "AURAGATEWAY_QUALIFICATION_AUTHORIZATION" in source
+    assert "authorization does not bind the supplied dataset manifest" in source
+    assert "must remain under /kaggle/input" in source
+    assert "sys.path.insert" in source
+    assert "shutil.copytree" in source
+    assert "writable harness copy identity drifted" in source
+    assert "harness_source identity does not match" in source
     assert "pip install" not in source
     assert "curl" not in source
     assert all(len(line) <= 100 for line in source.splitlines())
+
+
+def test_notebook_bootstrap_executes_only_verified_harness_source(
+    tmp_path: Path,
+) -> None:
+    notebook = build_notebook_payload()
+    cells = cast(list[dict[str, object]], notebook["cells"])
+    code = "".join(cast(list[str], cells[1]["source"]))
+    working_root = tmp_path / "working"
+    working_root.mkdir()
+    code = code.replace(
+        'KAGGLE_INPUT_ROOT = Path("/kaggle/input").resolve()',
+        f"KAGGLE_INPUT_ROOT = Path({str(tmp_path)!r}).resolve()",
+    ).replace(
+        'KAGGLE_WORKING_ROOT = Path("/kaggle/working").resolve()',
+        f"KAGGLE_WORKING_ROOT = Path({str(working_root)!r}).resolve()",
+    )
+
+    harness = tmp_path / "harness"
+    package = harness / "src/auragateway/local_abc"
+    package.mkdir(parents=True)
+    (harness / "src/auragateway/__init__.py").write_text("", encoding="utf-8")
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    module = package / "full_abc_local_environment_qualification_execution.py"
+    module.write_text(
+        "def execute_from_environment():\n    return {'bootstrap': 'passed'}\n",
+        encoding="utf-8",
+    )
+    (harness / "pyproject.toml").write_text(
+        "[project]\nname='bootstrap-test'\nversion='0.0.0'\n",
+        encoding="utf-8",
+    )
+    request_path = (
+        harness / "data/evals/benchmark/environment-qualification-v1/"
+        "qualification_execution_request.json"
+    )
+    request_path.parent.mkdir(parents=True)
+    request_path.write_text(
+        build_execution_request().canonical_json(),
+        encoding="utf-8",
+    )
+    adapter_path = (
+        harness / "src/auragateway/local_abc/"
+        "full_abc_local_environment_qualification_kaggle_runtime_adapter.py"
+    )
+    adapter_path.write_text("def create_runtime_adapter():\n    return None\n", encoding="utf-8")
+
+    model = tmp_path / "model"
+    model.mkdir()
+    (model / "config.json").write_text("{}", encoding="utf-8")
+    wheel = tmp_path / "vllm.whl"
+    wheel.write_text("wheel", encoding="utf-8")
+    manifest = {
+        "schema_version": "1.0.0",
+        "manifest_id": "qualification-dataset-v1",
+        "entries": [
+            {
+                "role": "harness_source",
+                "artifact_format": "source_tree_directory",
+                "mounted_path": str(harness.resolve()),
+                "sha256": directory_sha256(harness),
+            },
+            {
+                "role": "model_artifacts",
+                "artifact_format": "hugging_face_snapshot_directory",
+                "mounted_path": str(model.resolve()),
+                "sha256": directory_sha256(model),
+            },
+            {
+                "role": "vllm_wheel",
+                "artifact_format": "python_wheel",
+                "mounted_path": str(wheel.resolve()),
+                "sha256": _sha256(wheel),
+            },
+        ],
+        "network_access_permitted": False,
+        "credentials_present": False,
+        "customer_data_present": False,
+        "hosted_provider_inputs_present": False,
+    }
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    authorization = {
+        "schema_version": "1.0.0",
+        "authorization_id": "qualification-execution-authorization-v1",
+        "decision": "AUTHORIZED",
+        "request_sha256": build_execution_request().fingerprint(),
+        "review_git_blob_sha": "0b5fe5dc497080974b27e0720d0fab51baa77851",
+        "dataset_manifest_sha256": hashlib.sha256(
+            json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
+        "runtime_factory": {
+            "factory_path": (
+                "auragateway.local_abc."
+                "full_abc_local_environment_qualification_kaggle_runtime_adapter:"
+                "create_runtime_adapter"
+            ),
+            "artifact_path": str(adapter_path.relative_to(harness)),
+            "artifact_sha256": _sha256(adapter_path),
+        },
+        "issued_at": (datetime.now(UTC) - timedelta(minutes=5)).isoformat(),
+        "expires_at": (datetime.now(UTC) + timedelta(minutes=30)).isoformat(),
+        "maximum_kaggle_sessions": 1,
+        "maximum_model_requests": 8,
+        "maximum_output_tokens_per_request": 32,
+        "benchmark_trajectory_requests_permitted": 0,
+        "customer_data_permitted": False,
+        "credentials_permitted": False,
+        "network_access_permitted": False,
+        "external_spend": 0,
+        "measured_execution_authorized": False,
+    }
+    authorization_path = tmp_path / "authorization.json"
+    authorization_path.write_text(json.dumps(authorization), encoding="utf-8")
+
+    environment = dict(os.environ)
+    environment["AURAGATEWAY_QUALIFICATION_AUTHORIZATION"] = str(authorization_path)
+    environment["AURAGATEWAY_QUALIFICATION_DATASET_MANIFEST"] = str(manifest_path)
+    result = subprocess.run(
+        [sys.executable, "-c", code + "\nprint(summary['bootstrap'])"],
+        check=True,
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        env=environment,
+    )
+
+    assert result.stdout.strip() == "passed"
+
+
+def test_runtime_adapter_path_must_remain_inside_harness(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    adapter = repo_root / "src/auragateway/runtime_adapter.py"
+    adapter.parent.mkdir(parents=True)
+    adapter.write_text("", encoding="utf-8")
+
+    resolved = execution_module._resolve_repo_artifact(
+        repo_root,
+        "src/auragateway/runtime_adapter.py",
+    )
+
+    assert resolved == adapter.resolve()
+    with pytest.raises(Exception, match="repository-relative and bounded"):
+        execution_module._resolve_repo_artifact(repo_root, "../outside.py")
+    with pytest.raises(Exception, match="repository-relative and bounded"):
+        execution_module._resolve_repo_artifact(repo_root, str(adapter.resolve()))
 
 
 def test_dataset_manifest_rejects_network_or_credentials(tmp_path: Path) -> None:
@@ -367,6 +541,15 @@ def test_dataset_manifest_rejects_network_or_credentials(tmp_path: Path) -> None
     payload = manifest.model_dump(mode="python")
     payload["credentials_present"] = True
     with pytest.raises(ValidationError):
+        QualificationDatasetManifest.model_validate(payload)
+
+
+def test_dataset_manifest_rejects_artifact_format_drift(tmp_path: Path) -> None:
+    manifest = _dataset_manifest(tmp_path)
+    payload = manifest.model_dump(mode="python")
+    payload["entries"][0]["artifact_format"] = "python_wheel"
+
+    with pytest.raises(ValidationError, match="artifact formats drifted"):
         QualificationDatasetManifest.model_validate(payload)
 
 
@@ -481,6 +664,12 @@ def test_runtime_factory_binding_rejects_unsafe_import_path(tmp_path: Path) -> N
     with pytest.raises(ValidationError):
         QualificationRuntimeFactoryBinding(
             factory_path="../adapter:build",
+            artifact_path="adapter.py",
+            artifact_sha256=_sha256(adapter_path),
+        )
+    with pytest.raises(ValidationError, match="repository-relative and bounded"):
+        QualificationRuntimeFactoryBinding(
+            factory_path="runtime_adapter:build",
             artifact_path=str(adapter_path.resolve()),
             artifact_sha256=_sha256(adapter_path),
         )
