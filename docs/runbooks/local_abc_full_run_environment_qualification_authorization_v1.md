@@ -170,15 +170,17 @@ vllm_wheel
 
 Required content:
 
-- Source archive built from the post-implementation merge commit.
+- Source tree materialized from the post-implementation merge commit.
 - The authorization contracts and runner.
 - The concrete Kaggle runtime adapter.
 - The existing qualification execution contracts and runner.
 - The unexecuted qualification notebook.
 - The frozen worker startup plan.
 
-The archive must not be built from PR #104 or PR #105 alone. It must bind the merge commit that
-contains this authorization implementation.
+The source tree must not be built from PR #104 or PR #105 alone. It must bind the merge commit
+that contains the current bootstrap, runner, adapter, and authorization implementation. The final
+Kaggle dataset must expose the repository root directly, including `src/auragateway`, rather than
+requiring an unverified pre-import extraction step.
 
 ### `model_artifacts`
 
@@ -332,19 +334,22 @@ Do not perform this procedure from the feature branch.
 
 1. Merge the authorization implementation PR.
 2. Sync clean `main` and record the full merge commit.
-3. Build the `harness_source` archive from that exact commit.
-4. Calculate its SHA-256.
+3. Materialize the tracked `harness_source` tree from that exact commit.
+4. Calculate its canonical sorted file-manifest SHA-256.
 5. Attach and inspect the exact expanded model snapshot directory.
 6. Calculate its canonical sorted file-manifest SHA-256.
 7. Verify the exact vLLM wheel and calculate its SHA-256.
 8. Upload or version all three Kaggle datasets.
 9. Record each exact Kaggle slug and immutable dataset version.
 10. Record each exact `/kaggle/input/...` mounted path.
-11. Construct the canonical materialization record.
-12. Project the portable runtime manifest from that record.
-13. Bind the runtime manifest fingerprint back into the materialization record.
-14. Validate both artifacts with the authorization tooling.
-15. Open the separate authorization-issuance review.
+11. Ensure the final authorization and portable runtime manifest will also be supplied as
+    immutable `/kaggle/input` files for the notebook bootstrap; they are control artifacts, not
+    additional qualification dataset roles.
+12. Construct the canonical materialization record.
+13. Project the portable runtime manifest from that record.
+14. Bind the runtime manifest fingerprint back into the materialization record.
+15. Validate both artifacts with the authorization tooling.
+16. Open the separate authorization-issuance review.
 
 ## Issuance-input inspection
 

@@ -17,6 +17,11 @@ from typing import Never, cast
 
 from pydantic import ValidationError
 
+from auragateway.local_abc.full_abc_local_environment_qualification_artifact_identity import (
+    ArtifactIdentityError,
+    directory_sha256,
+    file_sha256,
+)
 from auragateway.local_abc.full_abc_local_environment_qualification_execution_contracts import (
     AUTHORIZATION_PATH,
     EXECUTION_REQUEST_PATH,
@@ -103,11 +108,7 @@ def _canonical_sha256(payload: str) -> str:
 
 
 def _file_sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    return file_sha256(path)
 
 
 def _write_text_atomic(path: Path, payload: str) -> None:
@@ -414,6 +415,13 @@ def build_execution_request() -> QualificationExecutionRequest:
     )
 
 
+def _notebook_source_lines(text: str) -> list[str]:
+    """Return code-cell lines without a trailing newline on the final line."""
+
+    lines = text.splitlines()
+    return [line + "\n" if index < len(lines) - 1 else line for index, line in enumerate(lines)]
+
+
 def build_notebook_payload() -> dict[str, object]:
     """Build a deterministic unexecuted notebook that delegates to the typed runner."""
 
@@ -423,14 +431,221 @@ def build_notebook_payload() -> dict[str, object]:
         "until the exact authorization, dataset manifest, and runtime factory binding "
         "have been merged and supplied. No benchmark trajectory is permitted."
     )
-    code = (
-        "from auragateway.local_abc."
-        "full_abc_local_environment_qualification_execution import (\n"
-        "    execute_from_environment,\n"
-        ")\n\n"
-        "summary = execute_from_environment()\n"
-        "summary\n"
+    request_sha256 = build_execution_request().fingerprint()
+    code = f"""import hashlib
+import importlib
+import json
+import os
+import shutil
+import stat
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+EXPECTED_REQUEST_SHA256 = (
+    "{request_sha256}"
+)
+EXPECTED_RUNTIME_FACTORY = (
+    "auragateway.local_abc."
+    "full_abc_local_environment_qualification_kaggle_runtime_adapter:"
+    "create_runtime_adapter"
+)
+KAGGLE_INPUT_ROOT = Path("/kaggle/input").resolve()
+KAGGLE_WORKING_ROOT = Path("/kaggle/working").resolve()
+MATERIALIZED_HARNESS_ROOT = KAGGLE_WORKING_ROOT / "auragateway_qualification_harness"
+
+
+def _required_environment(name):
+    value = os.environ.get(name)
+    if value is None:
+        raise RuntimeError(f"required environment binding is missing: {{name}}")
+    return value
+
+
+def _bounded_input_path(raw_path, *, expected_kind):
+    path = Path(raw_path).resolve()
+    if path != KAGGLE_INPUT_ROOT and KAGGLE_INPUT_ROOT not in path.parents:
+        raise RuntimeError(f"{{expected_kind}} must remain under /kaggle/input")
+    return path
+
+
+def _file_sha256(path):
+    if not path.is_file() or path.is_symlink():
+        raise RuntimeError("expected one regular file")
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _canonical_sha256(payload):
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _directory_sha256(root):
+    entries = []
+    total_bytes = 0
+    for path in sorted(root.rglob("*"), key=lambda item: item.as_posix()):
+        if path.is_symlink():
+            raise RuntimeError("harness source contains a symbolic link")
+        metadata = path.stat()
+        if path.is_dir():
+            continue
+        if not stat.S_ISREG(metadata.st_mode):
+            raise RuntimeError("harness source contains a non-regular member")
+        total_bytes += metadata.st_size
+        if total_bytes > 100 * 1024 * 1024:
+            raise RuntimeError("harness source exceeds the bootstrap byte budget")
+        entries.append(
+            {{
+                "path": path.relative_to(root).as_posix(),
+                "sha256": _file_sha256(path),
+                "size_bytes": metadata.st_size,
+            }}
+        )
+        if len(entries) > 5_000:
+            raise RuntimeError("harness source exceeds the bootstrap file budget")
+    if not entries:
+        raise RuntimeError("harness source is empty")
+    return _canonical_sha256(entries)
+
+
+def _parse_timestamp(raw_value):
+    if not isinstance(raw_value, str):
+        raise RuntimeError("authorization timestamp is invalid")
+    normalized = raw_value.replace("Z", "+00:00")
+    value = datetime.fromisoformat(normalized)
+    if value.tzinfo is None or value.utcoffset() is None:
+        raise RuntimeError("authorization timestamp must be timezone-aware")
+    return value
+
+
+authorization_path = _bounded_input_path(
+    _required_environment("AURAGATEWAY_QUALIFICATION_AUTHORIZATION"),
+    expected_kind="authorization",
+)
+manifest_path = _bounded_input_path(
+    _required_environment("AURAGATEWAY_QUALIFICATION_DATASET_MANIFEST"),
+    expected_kind="dataset manifest",
+)
+authorization = json.loads(authorization_path.read_text(encoding="utf-8"))
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+if authorization.get("decision") != "AUTHORIZED":
+    raise RuntimeError("authorization decision is not AUTHORIZED")
+if authorization.get("request_sha256") != EXPECTED_REQUEST_SHA256:
+    raise RuntimeError("authorization does not bind the expected request")
+if authorization.get("dataset_manifest_sha256") != _canonical_sha256(manifest):
+    raise RuntimeError("authorization does not bind the supplied dataset manifest")
+entries = manifest.get("entries")
+expected_entry_shapes = (
+    ("harness_source", "source_tree_directory"),
+    ("model_artifacts", "hugging_face_snapshot_directory"),
+    ("vllm_wheel", "python_wheel"),
+)
+if not isinstance(entries, list) or len(entries) != len(expected_entry_shapes):
+    raise RuntimeError("dataset manifest entry set drifted")
+for entry, expected_shape in zip(entries, expected_entry_shapes, strict=True):
+    if not isinstance(entry, dict):
+        raise RuntimeError("dataset manifest entry is invalid")
+    observed_shape = (entry.get("role"), entry.get("artifact_format"))
+    if observed_shape != expected_shape:
+        raise RuntimeError("dataset manifest role or artifact format drifted")
+    _bounded_input_path(
+        entry.get("mounted_path"),
+        expected_kind=f"{{expected_shape[0]}} input",
     )
+if any(
+    (
+        manifest.get("network_access_permitted") is not False,
+        manifest.get("credentials_present") is not False,
+        manifest.get("customer_data_present") is not False,
+        manifest.get("hosted_provider_inputs_present") is not False,
+    )
+):
+    raise RuntimeError("dataset manifest safety envelope drifted")
+if any(
+    (
+        authorization.get("maximum_kaggle_sessions") != 1,
+        authorization.get("maximum_model_requests") != 8,
+        authorization.get("maximum_output_tokens_per_request") != 32,
+        authorization.get("benchmark_trajectory_requests_permitted") != 0,
+        authorization.get("customer_data_permitted") is not False,
+        authorization.get("credentials_permitted") is not False,
+        authorization.get("network_access_permitted") is not False,
+        authorization.get("external_spend") != 0,
+        authorization.get("measured_execution_authorized") is not False,
+    )
+):
+    raise RuntimeError("authorization safety envelope drifted")
+now = datetime.now(UTC)
+issued_at = _parse_timestamp(authorization.get("issued_at"))
+expires_at = _parse_timestamp(authorization.get("expires_at"))
+if not issued_at <= now < expires_at:
+    raise RuntimeError("authorization is outside its validity window")
+
+harness_entries = [entry for entry in entries if entry.get("role") == "harness_source"]
+if len(harness_entries) != 1:
+    raise RuntimeError("dataset manifest must contain one harness_source entry")
+harness_entry = harness_entries[0]
+if harness_entry.get("artifact_format") != "source_tree_directory":
+    raise RuntimeError("harness_source must use source_tree_directory")
+mounted_repo_root = _bounded_input_path(
+    harness_entry.get("mounted_path"),
+    expected_kind="harness source",
+)
+if not mounted_repo_root.is_dir() or mounted_repo_root.is_symlink():
+    raise RuntimeError("harness_source must resolve to one real directory")
+harness_sha256 = harness_entry.get("sha256")
+if _directory_sha256(mounted_repo_root) != harness_sha256:
+    raise RuntimeError("harness_source identity does not match the manifest")
+mounted_source_root = mounted_repo_root / "src"
+required_harness_paths = (
+    mounted_repo_root / "pyproject.toml",
+    mounted_source_root / "auragateway",
+    mounted_repo_root / "data/evals/benchmark/environment-qualification-v1/"
+    "qualification_execution_request.json",
+)
+if not required_harness_paths[0].is_file():
+    raise RuntimeError("harness_source does not contain pyproject.toml")
+if not required_harness_paths[1].is_dir():
+    raise RuntimeError("harness_source does not contain src/auragateway")
+if not required_harness_paths[2].is_file():
+    raise RuntimeError("harness_source does not contain the execution request")
+if not KAGGLE_WORKING_ROOT.is_dir():
+    raise RuntimeError("/kaggle/working is unavailable")
+if MATERIALIZED_HARNESS_ROOT.exists():
+    raise RuntimeError("writable harness destination already exists")
+shutil.copytree(mounted_repo_root, MATERIALIZED_HARNESS_ROOT)
+repo_root = MATERIALIZED_HARNESS_ROOT.resolve()
+if _directory_sha256(repo_root) != harness_sha256:
+    raise RuntimeError("writable harness copy identity drifted")
+source_root = repo_root / "src"
+
+runtime_factory = authorization.get("runtime_factory")
+if not isinstance(runtime_factory, dict):
+    raise RuntimeError("authorization runtime factory is invalid")
+if runtime_factory.get("factory_path") != EXPECTED_RUNTIME_FACTORY:
+    raise RuntimeError("authorization runtime factory path drifted")
+adapter_relative_path = Path(runtime_factory.get("artifact_path", ""))
+if adapter_relative_path.is_absolute() or ".." in adapter_relative_path.parts:
+    raise RuntimeError("runtime adapter path must be repository-relative")
+adapter_path = (repo_root / adapter_relative_path).resolve()
+if adapter_path != repo_root and repo_root not in adapter_path.parents:
+    raise RuntimeError("runtime adapter must remain inside harness_source")
+if _file_sha256(adapter_path) != runtime_factory.get("artifact_sha256"):
+    raise RuntimeError("runtime adapter identity does not match authorization")
+
+os.environ["AURAGATEWAY_REPO_ROOT"] = str(repo_root)
+sys.path.insert(0, str(source_root))
+
+execution_module = importlib.import_module(
+    "auragateway.local_abc.full_abc_local_environment_qualification_execution"
+)
+summary = execution_module.execute_from_environment()
+summary
+"""
     return {
         "cells": [
             {
@@ -443,7 +658,7 @@ def build_notebook_payload() -> dict[str, object]:
                 "execution_count": None,
                 "metadata": {},
                 "outputs": [],
-                "source": [line + "\n" for line in code.splitlines()],
+                "source": _notebook_source_lines(code),
             },
         ],
         "metadata": {
@@ -495,6 +710,10 @@ def _require_package_files(repo_root: Path) -> None:
         EXECUTION_REQUEST_PATH,
         NOTEBOOK_PATH,
         RUNBOOK_PATH,
+        Path(
+            "src/auragateway/local_abc/"
+            "full_abc_local_environment_qualification_artifact_identity.py"
+        ),
         Path(
             "src/auragateway/local_abc/"
             "full_abc_local_environment_qualification_execution_contracts.py"
@@ -601,10 +820,15 @@ def _validate_dataset_files(dataset_manifest: QualificationDatasetManifest) -> N
     drift: list[str] = []
     for entry in dataset_manifest.entries:
         mounted_path = Path(entry.mounted_path)
-        if not mounted_path.is_file():
-            drift.append(f"{entry.role}:missing")
+        try:
+            if entry.artifact_format == "python_wheel":
+                observed_sha256 = file_sha256(mounted_path)
+            else:
+                observed_sha256 = directory_sha256(mounted_path)
+        except (ArtifactIdentityError, OSError):
+            drift.append(f"{entry.role}:shape")
             continue
-        if _file_sha256(mounted_path) != entry.sha256:
+        if observed_sha256 != entry.sha256:
             drift.append(f"{entry.role}:sha256")
     if drift:
         raise FullABCLocalEnvironmentQualificationExecutionError(
@@ -614,11 +838,31 @@ def _validate_dataset_files(dataset_manifest: QualificationDatasetManifest) -> N
         )
 
 
+def _resolve_repo_artifact(repo_root: Path, raw_path: str) -> Path:
+    path = Path(raw_path)
+    if path.is_absolute() or ".." in path.parts:
+        raise FullABCLocalEnvironmentQualificationExecutionError(
+            "RUNTIME_ADAPTER_PATH_INVALID",
+            "runtime adapter path must be repository-relative and bounded",
+            raw_path,
+        )
+    root = repo_root.resolve()
+    resolved = (root / path).resolve()
+    if resolved != root and root not in resolved.parents:
+        raise FullABCLocalEnvironmentQualificationExecutionError(
+            "RUNTIME_ADAPTER_PATH_INVALID",
+            "runtime adapter path must remain inside the harness source tree",
+            resolved.as_posix(),
+        )
+    return resolved
+
+
 def _validate_authorized_inputs(
     request: QualificationExecutionRequest,
     authorization: QualificationExecutionAuthorization,
     dataset_manifest: QualificationDatasetManifest,
     *,
+    repo_root: Path,
     now: datetime,
 ) -> None:
     _validate_dataset_files(dataset_manifest)
@@ -647,7 +891,10 @@ def _validate_authorized_inputs(
             "DATASET_MANIFEST_IDENTITY_MISMATCH",
             "authorization does not bind the supplied dataset manifest",
         )
-    adapter_path = Path(authorization.runtime_factory.artifact_path)
+    adapter_path = _resolve_repo_artifact(
+        repo_root,
+        authorization.runtime_factory.artifact_path,
+    )
     if _file_sha256(adapter_path) != authorization.runtime_factory.artifact_sha256:
         raise FullABCLocalEnvironmentQualificationExecutionError(
             "RUNTIME_ADAPTER_IDENTITY_MISMATCH",
@@ -658,9 +905,14 @@ def _validate_authorized_inputs(
 
 def _load_runtime_adapter(
     authorization: QualificationExecutionAuthorization,
+    *,
+    repo_root: Path,
 ) -> QualificationRuntimeAdapter:
     module_name, factory_name = authorization.runtime_factory.factory_path.split(":", maxsplit=1)
-    artifact_path = Path(authorization.runtime_factory.artifact_path)
+    artifact_path = _resolve_repo_artifact(
+        repo_root,
+        authorization.runtime_factory.artifact_path,
+    )
     spec = importlib.util.spec_from_file_location(module_name, artifact_path)
     if spec is None or spec.loader is None:
         raise FullABCLocalEnvironmentQualificationExecutionError(
@@ -784,7 +1036,13 @@ def execute_qualification(
 ) -> dict[str, object]:
     """Execute one authorized capture and commit evidence only after validation."""
 
-    _validate_authorized_inputs(request, authorization, dataset_manifest, now=now)
+    _validate_authorized_inputs(
+        request,
+        authorization,
+        dataset_manifest,
+        repo_root=repo_root,
+        now=now,
+    )
     capture = adapter.capture(request, dataset_manifest)
     if capture.qualification_report.source_request_sha256 != request.fingerprint():
         raise FullABCLocalEnvironmentQualificationExecutionError(
@@ -818,6 +1076,11 @@ def execute_from_paths(
 ) -> dict[str, object]:
     """Load exact operational inputs and run through the typed adapter boundary."""
 
+    repo_root = repo_root.resolve()
+    if not authorization_path.is_absolute():
+        authorization_path = repo_root / authorization_path
+    if not dataset_manifest_path.is_absolute():
+        dataset_manifest_path = repo_root / dataset_manifest_path
     request = QualificationExecutionRequest.model_validate(
         _load_json_object(repo_root / EXECUTION_REQUEST_PATH)
     )
@@ -827,9 +1090,10 @@ def execute_from_paths(
         request,
         authorization,
         dataset_manifest,
+        repo_root=repo_root,
         now=now or datetime.now(UTC),
     )
-    adapter = _load_runtime_adapter(authorization)
+    adapter = _load_runtime_adapter(authorization, repo_root=repo_root)
     return execute_qualification(
         repo_root=repo_root,
         request=request,

@@ -55,7 +55,7 @@ The future authorization must bind exactly three mounted inputs:
 
 | Role | Required content | Required identity |
 |---|---|---|
-| `harness_source` | Reviewed AuraGateway source plus runtime adapter | SHA-256 |
+| `harness_source` | Exact AuraGateway source tree plus runtime adapter | Tree SHA-256 |
 | `model_artifacts` | Local Qwen model and tokenizer revision | SHA-256 manifest |
 | `vllm_wheel` | Exact local vLLM wheel | SHA-256 |
 
@@ -125,10 +125,26 @@ partial evidence bundle.
 
 ## Notebook execution
 
-The notebook delegates to `execute_from_environment()` and requires these path bindings:
+Before importing any AuraGateway code, the notebook uses only the Python standard library to:
+
+1. Require the authorization and dataset-manifest paths to remain under `/kaggle/input`.
+2. Verify that authorization binds the fixed execution-request fingerprint.
+3. Verify that authorization binds the canonical dataset-manifest fingerprint.
+4. Verify the authorization window and fail-closed safety budget.
+5. Verify the mounted `harness_source` tree against the manifest.
+6. Copy the verified read-only source tree to
+   `/kaggle/working/auragateway_qualification_harness` and rehash the copy.
+7. Require the authorization to bind the runtime adapter by one bounded repository-relative path, then verify its SHA-256 inside that writable copy.
+8. Add the verified copied `src` directory to `sys.path` and set `AURAGATEWAY_REPO_ROOT`.
+
+Only after those checks does the notebook import the typed runner. The writable copy is required
+because the runner transactionally commits the eight qualification evidence files beneath the
+repository root. This prevents execution of unverified mounted source, writes to `/kaggle/input`,
+or an authorization/manifest pair that drifted together.
+
+The notebook requires these path bindings:
 
 ```text
-AURAGATEWAY_REPO_ROOT
 AURAGATEWAY_QUALIFICATION_AUTHORIZATION
 AURAGATEWAY_QUALIFICATION_DATASET_MANIFEST
 ```

@@ -24,6 +24,9 @@ from auragateway.local_abc import (
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_kaggle_runtime_adapter as adapter_module,
 )
+from auragateway.local_abc.full_abc_local_environment_qualification_artifact_identity import (
+    directory_sha256,
+)
 from auragateway.local_abc.full_abc_local_environment_qualification_execution import (
     build_execution_request,
 )
@@ -50,6 +53,8 @@ QualificationAuthorizationRequest = auth_contracts.QualificationAuthorizationReq
 ROOT = Path(__file__).resolve().parents[3]
 SOURCE_PATHS = (
     ROOT
+    / ("src/auragateway/local_abc/full_abc_local_environment_qualification_artifact_identity.py"),
+    ROOT
     / (
         "src/auragateway/local_abc/"
         "full_abc_local_environment_qualification_execution_authorization_contracts.py"
@@ -67,9 +72,9 @@ SOURCE_PATHS = (
     Path(__file__).resolve(),
 )
 
-EXPECTED_DATASET_REQUEST_SHA256 = "1cd096100cc620d5c68f70a58cdbb4756c7ba7e93c67cc6b601415c584eb643e"
+EXPECTED_DATASET_REQUEST_SHA256 = "7171c340a6015d962375223d083f62196454ad0097aa7dd72aef402f4ed13e1e"
 EXPECTED_AUTHORIZATION_REQUEST_SHA256 = (
-    "4e7a33e0f8364feb87af7d058f86cf5c7b2636b5139ac80428b788dcc4fe24fb"
+    "671b593f90af0d4a8331764f90a61b090738fb39bd7026f39236ef7eb519496e"
 )
 
 
@@ -273,9 +278,10 @@ def _write_model_snapshot_directory(tmp_path: Path) -> Path:
 
 
 def _dataset_manifest(tmp_path: Path) -> QualificationDatasetManifest:
-    harness = tmp_path / "harness.zip"
-    harness.write_bytes(b"harness")
-    model = _write_model_archive(tmp_path)
+    harness = tmp_path / "harness"
+    (harness / "src/auragateway").mkdir(parents=True)
+    (harness / "src/auragateway/__init__.py").write_text("", encoding="utf-8")
+    model = _write_model_snapshot_directory(tmp_path)
     wheel = tmp_path / "vllm-0.25.1.whl"
     wheel.write_bytes(b"wheel")
     return QualificationDatasetManifest(
@@ -283,16 +289,19 @@ def _dataset_manifest(tmp_path: Path) -> QualificationDatasetManifest:
         entries=(
             DatasetManifestEntry(
                 role="harness_source",
+                artifact_format="source_tree_directory",
                 mounted_path=str(harness.resolve()),
-                sha256=_sha256(harness),
+                sha256=directory_sha256(harness),
             ),
             DatasetManifestEntry(
                 role="model_artifacts",
+                artifact_format="hugging_face_snapshot_directory",
                 mounted_path=str(model.resolve()),
-                sha256=_sha256(model),
+                sha256=directory_sha256(model),
             ),
             DatasetManifestEntry(
                 role="vllm_wheel",
+                artifact_format="python_wheel",
                 mounted_path=str(wheel.resolve()),
                 sha256=_sha256(wheel),
             ),
@@ -304,13 +313,15 @@ def _materialized_record() -> auth_contracts.MaterializedOfflineDatasetRecord:
     entries = (
         auth_contracts.MaterializedDatasetEntry(
             role=DatasetRole.HARNESS_SOURCE,
+            artifact_format=DatasetArtifactFormat.SOURCE_TREE_DIRECTORY,
             kaggle_dataset_slug="kablewithak/auragateway-qualification-harness",
             kaggle_dataset_version=1,
-            mounted_path="/kaggle/input/auragateway-qualification-harness/harness.zip",
+            mounted_path="/kaggle/input/auragateway-qualification-harness/source",
             sha256="1" * 64,
         ),
         auth_contracts.MaterializedDatasetEntry(
             role=DatasetRole.MODEL_ARTIFACTS,
+            artifact_format=DatasetArtifactFormat.HUGGING_FACE_SNAPSHOT_DIRECTORY,
             kaggle_dataset_slug="kablewithak/qwen25-05b-offline",
             kaggle_dataset_version=2,
             mounted_path=(
@@ -322,6 +333,7 @@ def _materialized_record() -> auth_contracts.MaterializedOfflineDatasetRecord:
         ),
         auth_contracts.MaterializedDatasetEntry(
             role=DatasetRole.VLLM_WHEEL,
+            artifact_format=DatasetArtifactFormat.PYTHON_WHEEL,
             kaggle_dataset_slug="kablewithak/vllm-0251-wheel",
             kaggle_dataset_version=3,
             mounted_path="/kaggle/input/vllm-0251-wheel/vllm-0.25.1.whl",
@@ -333,16 +345,19 @@ def _materialized_record() -> auth_contracts.MaterializedOfflineDatasetRecord:
         entries=(
             auth_contracts.PortableDatasetManifestEntry(
                 role="harness_source",
+                artifact_format="source_tree_directory",
                 mounted_path=entries[0].mounted_path,
                 sha256=entries[0].sha256,
             ),
             auth_contracts.PortableDatasetManifestEntry(
                 role="model_artifacts",
+                artifact_format="hugging_face_snapshot_directory",
                 mounted_path=entries[1].mounted_path,
                 sha256=entries[1].sha256,
             ),
             auth_contracts.PortableDatasetManifestEntry(
                 role="vllm_wheel",
+                artifact_format="python_wheel",
                 mounted_path=entries[2].mounted_path,
                 sha256=entries[2].sha256,
             ),
@@ -379,6 +394,11 @@ def test_dataset_request_preserves_exact_offline_roles() -> None:
         DatasetRole.HARNESS_SOURCE,
         DatasetRole.MODEL_ARTIFACTS,
         DatasetRole.VLLM_WHEEL,
+    )
+    assert tuple(item.artifact_format for item in request.roles) == (
+        DatasetArtifactFormat.SOURCE_TREE_DIRECTORY,
+        DatasetArtifactFormat.HUGGING_FACE_SNAPSHOT_DIRECTORY,
+        DatasetArtifactFormat.PYTHON_WHEEL,
     )
     assert request.roles[1].artifact_format is (
         DatasetArtifactFormat.HUGGING_FACE_SNAPSHOT_DIRECTORY
@@ -576,6 +596,11 @@ def test_portable_runtime_manifest_is_exact_projection() -> None:
         "model_artifacts",
         "vllm_wheel",
     )
+    assert tuple(item.artifact_format for item in manifest.entries) == (
+        "source_tree_directory",
+        "hugging_face_snapshot_directory",
+        "python_wheel",
+    )
     assert tuple(item.sha256 for item in manifest.entries) == tuple(
         item.sha256 for item in record.entries
     )
@@ -592,6 +617,19 @@ def test_materialized_dataset_duplicate_slug_is_rejected() -> None:
     payload["entries"] = tuple(entries)
 
     with pytest.raises(ValidationError, match="dataset slugs must be unique"):
+        auth_contracts.MaterializedOfflineDatasetRecord.model_validate(payload)
+
+
+def test_materialized_dataset_artifact_format_drift_is_rejected() -> None:
+    record = _materialized_record()
+    payload = _payload(record)
+    entries = list(payload["entries"])
+    first = dict(entries[0])
+    first["artifact_format"] = "python_wheel"
+    entries[0] = first
+    payload["entries"] = tuple(entries)
+
+    with pytest.raises(ValidationError, match="artifact formats drifted"):
         auth_contracts.MaterializedOfflineDatasetRecord.model_validate(payload)
 
 
@@ -709,7 +747,9 @@ def test_model_snapshot_directory_fingerprint_is_deterministic(tmp_path: Path) -
     assert len(first) == 64
 
 
-def test_model_snapshot_requires_exact_hugging_face_cache_layout(tmp_path: Path) -> None:
+def test_model_snapshot_requires_exact_hugging_face_cache_layout(
+    tmp_path: Path,
+) -> None:
     snapshot = tmp_path / "7ae557604adf67be50417f59c2c2f167def9a775"
     snapshot.mkdir()
     (snapshot / "config.json").write_text("{}", encoding="utf-8")
@@ -781,6 +821,52 @@ def test_expected_ruff_version_matches_local_tool() -> None:
     )
 
     assert result.stdout.strip() == f"ruff {EXPECTED_RUFF_VERSION}"
+
+
+def test_git_blob_identity_uses_exact_working_tree_bytes(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "test@example.com"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "Test User"],
+        check=True,
+    )
+    artifact = repo / "authority.txt"
+    artifact.write_text("old\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "authority.txt"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-qm", "initial"],
+        check=True,
+    )
+    committed = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD:authority.txt"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    artifact.write_text("new\n", encoding="utf-8")
+    expected = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo),
+            "hash-object",
+            "--path=authority.txt",
+            str(artifact),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    observed = authorization_module._git_blob_sha(repo, Path("authority.txt"))
+
+    assert observed == expected
+    assert observed != committed
 
 
 def test_changed_python_lines_do_not_exceed_100_characters() -> None:

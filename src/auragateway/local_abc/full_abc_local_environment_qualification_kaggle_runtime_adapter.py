@@ -24,6 +24,10 @@ from pathlib import Path
 from typing import Final, Literal, Protocol, cast
 from uuid import uuid4
 
+from auragateway.local_abc.full_abc_local_environment_qualification_artifact_identity import (
+    directory_sha256,
+    file_sha256,
+)
 from auragateway.local_abc.full_abc_local_environment_qualification_execution import (
     synthetic_probe_payload,
 )
@@ -542,36 +546,14 @@ class KaggleQualificationRuntimeAdapter:
             destination_file.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source_file, destination_file, follow_symlinks=False)
 
-    @classmethod
-    def _model_artifact_sha256(cls, artifact: Path) -> str:
+    @staticmethod
+    def _model_artifact_sha256(artifact: Path) -> str:
         if artifact.is_file():
-            return cls._file_sha256(artifact)
-        if not artifact.is_dir() or artifact.is_symlink():
-            raise RuntimeError("model artifact must be a regular file or directory")
-
-        entries: list[dict[str, object]] = []
-        total_size = 0
-        for path in sorted(artifact.rglob("*"), key=lambda item: item.as_posix()):
-            if path.is_symlink():
-                raise RuntimeError("model snapshot contains an unsafe member type")
-            if path.is_dir():
-                continue
-            metadata = path.stat()
-            if not stat.S_ISREG(metadata.st_mode):
-                raise RuntimeError("model snapshot contains an unsafe member type")
-            total_size += metadata.st_size
-            if total_size > _MAX_MODEL_EXTRACT_BYTES:
-                raise RuntimeError("model snapshot exceeds the fingerprint budget")
-            entries.append(
-                {
-                    "path": path.relative_to(artifact).as_posix(),
-                    "sha256": cls._file_sha256(path),
-                    "size_bytes": metadata.st_size,
-                }
-            )
-        if not entries:
-            raise RuntimeError("model snapshot directory is empty")
-        return cls._sha256(json.dumps(entries, sort_keys=True, separators=(",", ":")))
+            return file_sha256(artifact)
+        return directory_sha256(
+            artifact,
+            maximum_bytes=_MAX_MODEL_EXTRACT_BYTES,
+        )
 
     @staticmethod
     def _extract_tar_safely(archive: Path, target: Path) -> None:
