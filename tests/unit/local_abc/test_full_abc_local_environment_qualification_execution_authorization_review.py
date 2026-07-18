@@ -211,6 +211,63 @@ def test_invalid_review_json_is_metadata_safe(tmp_path: Path) -> None:
     assert caught.value.path == path.as_posix()
 
 
+def test_historical_authority_resolution_ignores_later_commits(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "tests@example.invalid"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "AuraGateway Tests"],
+        check=True,
+    )
+
+    authority_path = repo / "authority.json"
+    authority_path.write_text('{"state":"historical"}\n', encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "authority.json"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-qm", "historical authority"],
+        check=True,
+    )
+    historical_commit = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    ).stdout.strip()
+    historical_blob = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD:authority.json"],
+        check=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    ).stdout.strip()
+
+    authority_path.write_text('{"state":"current"}\n', encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "authority.json"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-qm", "later legitimate change"],
+        check=True,
+    )
+
+    observed_blob = review_module._git_blob_sha(
+        repo,
+        Path("authority.json"),
+        revision=historical_commit,
+    )
+    observed_payload = review_module._load_json_object_at_revision(
+        repo,
+        Path("authority.json"),
+        revision=historical_commit,
+    )
+
+    assert observed_blob == historical_blob
+    assert observed_payload == {"state": "historical"}
+
+
 def test_expected_identifiers_are_stable() -> None:
     assert REVIEW_ID.endswith("authorization-review-v1")
     assert REVIEW_PATH.as_posix().endswith("execution_authorization_review_v1.json")

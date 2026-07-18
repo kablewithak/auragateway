@@ -349,25 +349,23 @@ class FullABCLocalEnvironmentQualificationAuthorizationReview(LocalABCContract):
         return self
 
 
-def _load_json_object(path: Path) -> dict[str, object]:
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+def _validate_git_revision(revision: str) -> str:
+    if _GIT_OBJECT_PATTERN.fullmatch(revision) is None:
         raise AuthorizationReviewError(
-            "REQUIRED_JSON_AUTHORITY_UNREADABLE",
-            "required authorization-review authority could not be read",
-            path.as_posix(),
-        ) from exc
-    if not isinstance(payload, dict):
-        raise AuthorizationReviewError(
-            "REQUIRED_JSON_AUTHORITY_INVALID",
-            "required authorization-review authority must be one JSON object",
-            path.as_posix(),
+            "REQUIRED_GIT_REVISION_INVALID",
+            "required authorization-review Git revision is invalid",
+            details=(revision,),
         )
-    return payload
+    return revision
 
 
-def _git_blob_sha(repo_root: Path, relative_path: Path) -> str:
+def _git_blob_sha(
+    repo_root: Path,
+    relative_path: Path,
+    *,
+    revision: str = SOURCE_MAIN_MERGE_COMMIT,
+) -> str:
+    validated_revision = _validate_git_revision(revision)
     try:
         result = subprocess.run(
             [
@@ -375,11 +373,12 @@ def _git_blob_sha(repo_root: Path, relative_path: Path) -> str:
                 "-C",
                 str(repo_root),
                 "rev-parse",
-                f"HEAD:{relative_path.as_posix()}",
+                f"{validated_revision}:{relative_path.as_posix()}",
             ],
             check=True,
             capture_output=True,
             text=True,
+            encoding="utf-8",
             timeout=5,
         )
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
@@ -387,6 +386,7 @@ def _git_blob_sha(repo_root: Path, relative_path: Path) -> str:
             "REQUIRED_GIT_AUTHORITY_UNREADABLE",
             "required authorization-review Git authority could not be resolved",
             relative_path.as_posix(),
+            details=(validated_revision,),
         ) from exc
     identity = result.stdout.strip()
     if _GIT_OBJECT_PATTERN.fullmatch(identity) is None:
@@ -394,8 +394,72 @@ def _git_blob_sha(repo_root: Path, relative_path: Path) -> str:
             "REQUIRED_GIT_AUTHORITY_INVALID",
             "required authorization-review Git authority returned an invalid identity",
             relative_path.as_posix(),
+            details=(validated_revision,),
         )
     return identity
+
+
+def _git_text_at_revision(
+    repo_root: Path,
+    relative_path: Path,
+    *,
+    revision: str = SOURCE_MAIN_MERGE_COMMIT,
+) -> str:
+    validated_revision = _validate_git_revision(revision)
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(repo_root),
+                "show",
+                f"{validated_revision}:{relative_path.as_posix()}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=5,
+        )
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        raise AuthorizationReviewError(
+            "REQUIRED_GIT_AUTHORITY_UNREADABLE",
+            "required authorization-review Git authority could not be read",
+            relative_path.as_posix(),
+            details=(validated_revision,),
+        ) from exc
+    return result.stdout
+
+
+def _load_json_object_at_revision(
+    repo_root: Path,
+    relative_path: Path,
+    *,
+    revision: str = SOURCE_MAIN_MERGE_COMMIT,
+) -> dict[str, object]:
+    try:
+        payload = json.loads(
+            _git_text_at_revision(
+                repo_root,
+                relative_path,
+                revision=revision,
+            )
+        )
+    except json.JSONDecodeError as exc:
+        raise AuthorizationReviewError(
+            "REQUIRED_JSON_AUTHORITY_INVALID",
+            "required authorization-review authority must be valid JSON",
+            relative_path.as_posix(),
+            details=(revision,),
+        ) from exc
+    if not isinstance(payload, dict):
+        raise AuthorizationReviewError(
+            "REQUIRED_JSON_AUTHORITY_INVALID",
+            "required authorization-review authority must be one JSON object",
+            relative_path.as_posix(),
+            details=(revision,),
+        )
+    return payload
 
 
 def _require_source_ancestor(repo_root: Path) -> None:
@@ -550,7 +614,12 @@ def validate_repository_review_package(repo_root: Path) -> dict[str, object]:
         sorted(
             path.as_posix()
             for path, expected in expected_blobs.items()
-            if _git_blob_sha(repo_root, path) != expected
+            if _git_blob_sha(
+                repo_root,
+                path,
+                revision=SOURCE_MAIN_MERGE_COMMIT,
+            )
+            != expected
         )
     )
     if drift:
@@ -560,8 +629,16 @@ def validate_repository_review_package(repo_root: Path) -> dict[str, object]:
             details=drift,
         )
 
-    request = _load_json_object(repo_root / _EXECUTION_REQUEST_PATH)
-    notebook = _load_json_object(repo_root / _EXECUTION_NOTEBOOK_PATH)
+    request = _load_json_object_at_revision(
+        repo_root,
+        _EXECUTION_REQUEST_PATH,
+        revision=SOURCE_MAIN_MERGE_COMMIT,
+    )
+    notebook = _load_json_object_at_revision(
+        repo_root,
+        _EXECUTION_NOTEBOOK_PATH,
+        revision=SOURCE_MAIN_MERGE_COMMIT,
+    )
     checks = [
         request.get("next_gate")
         == "full_abc_local_full_run_environment_qualification_execution_authorization_review",
