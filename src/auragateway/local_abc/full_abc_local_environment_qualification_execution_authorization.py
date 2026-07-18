@@ -269,9 +269,10 @@ def build_offline_dataset_manifest_request() -> OfflineDatasetManifestRequest:
             ),
             DatasetRoleMaterializationRequest(
                 role=DatasetRole.MODEL_ARTIFACTS,
-                artifact_format=DatasetArtifactFormat.TAR_GZ_ARCHIVE,
+                artifact_format=DatasetArtifactFormat.HUGGING_FACE_SNAPSHOT_DIRECTORY,
                 required_content=(
-                    "Offline Hugging Face cache for Qwen/Qwen2.5-0.5B-Instruct at revision "
+                    "Exact expanded Hugging Face snapshot directory for "
+                    "Qwen/Qwen2.5-0.5B-Instruct at revision "
                     "7ae557604adf67be50417f59c2c2f167def9a775."
                 ),
             ),

@@ -145,10 +145,10 @@ class DatasetRole(StrEnum):
 
 
 class DatasetArtifactFormat(StrEnum):
-    """Supported offline artifact containers."""
+    """Supported offline artifact representations."""
 
     ZIP_ARCHIVE = "zip_archive"
-    TAR_GZ_ARCHIVE = "tar_gz_archive"
+    HUGGING_FACE_SNAPSHOT_DIRECTORY = "hugging_face_snapshot_directory"
     PYTHON_WHEEL = "python_wheel"
 
 
