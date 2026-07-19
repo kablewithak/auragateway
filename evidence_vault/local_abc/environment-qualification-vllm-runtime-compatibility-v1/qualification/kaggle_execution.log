@@ -1,0 +1,78 @@
+8.6s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.6s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.6s 3 0.00s - to python to disable frozen modules.
+8.6s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+9.3s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+9.3s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+9.3s 7 0.00s - to python to disable frozen modules.
+9.3s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+87.1s 9 artifact=/kaggle/working/ag-qualification-evidence-v1.zip
+87.1s 10 size_bytes=932
+87.1s 11 sha256=82a97b9bb66f4411acf9d6a893d969d9919777a1d7ad586519cd8cd3837efca4
+87.1s 12 qualification_status=FAILED
+87.1s 13 upload_only_this_file=true
+87.6s 14 Traceback (most recent call last):
+87.6s 15 File "<string>", line 1, in <module>
+87.6s 16 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+87.6s 17 raise_for_execution_errors(nb, output_path)
+87.6s 18 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+87.6s 19 raise error
+87.6s 20 papermill.exceptions.PapermillExecutionError:
+87.6s 21 ---------------------------------------------------------------------------
+87.6s 22 Exception encountered at "In [1]":
+87.6s 23 ---------------------------------------------------------------------------
+87.6s 24 RuntimeError                              Traceback (most recent call last)
+87.6s 25 /tmp/ipykernel_24/1846388446.py in <cell line: 0>()
+87.6s 26 576
+87.6s 27 577     execution_namespace: dict[str, object] = {}
+87.6s 28 --> 578     exec(
+87.6s 29 579         compile(
+87.6s 30 580             reviewed_core.decode("utf-8"),
+87.6s 31 
+87.6s 32 auragateway_reviewed_qualification_core_v1.py in <module>
+87.6s 33 
+87.6s 34 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py in execute_from_environment()
+87.6s 35 1126             details=missing,
+87.6s 36 1127         )
+87.6s 37 -> 1128     return execute_from_paths(
+87.6s 38 1129         repo_root=Path(cast(str, repo_root_raw)),
+87.6s 39 1130         authorization_path=Path(cast(str, authorization_raw)),
+87.6s 40 
+87.6s 41 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py in execute_from_paths(repo_root, authorization_path, dataset_manifest_path, now)
+87.6s 42 1095     )
+87.6s 43 1096     adapter = _load_runtime_adapter(authorization, repo_root=repo_root)
+87.6s 44 -> 1097     return execute_qualification(
+87.6s 45 1098         repo_root=repo_root,
+87.6s 46 1099         request=request,
+87.6s 47 
+87.6s 48 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py in execute_qualification(repo_root, request, authorization, dataset_manifest, adapter, now)
+87.6s 49 1044         now=now,
+87.6s 50 1045     )
+87.6s 51 -> 1046     capture = adapter.capture(request, dataset_manifest)
+87.6s 52 1047     if capture.qualification_report.source_request_sha256 != request.fingerprint():
+87.6s 53 1048         raise FullABCLocalEnvironmentQualificationExecutionError(
+87.6s 54 
+87.6s 55 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_runtime_adapter.py in capture(self, request, dataset_manifest)
+87.6s 56 366                 dataset_sha256,
+87.6s 57 367             )
+87.6s 58 --> 368             dependency_lock = self._capture_dependency_lock(
+87.6s 59 369                 entries["vllm_wheel"],
+87.6s 60 370                 plans,
+87.6s 61 
+87.6s 62 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_runtime_adapter.py in _capture_dependency_lock(self, wheel_path, plans, session_id, captured_at, request_sha256, dataset_sha256)
+87.6s 63 683         result = self._operations.run([sys.executable, "-c", script], timeout=30.0)
+87.6s 64 684         if result.returncode != 0:
+87.6s 65 --> 685             raise RuntimeError("runtime dependency lock capture failed")
+87.6s 66 686         payload = json.loads(result.stdout)
+87.6s 67 687         if not isinstance(payload, dict):
+87.6s 68 
+87.6s 69 RuntimeError: runtime dependency lock capture failed
+87.6s 70 
+90.2s 71 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+90.2s 72 cells[i][c] = re.sub('\\\\\|', '|', cell)
+90.4s 73 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+90.4s 74 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+91.4s 75 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+91.8s 76 [NbConvertApp] Writing 51086 bytes to __notebook__.ipynb
+94.6s 77 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+95.6s 78 [NbConvertApp] Writing 374746 bytes to __results__.html

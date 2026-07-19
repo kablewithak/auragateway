@@ -1,0 +1,1 @@
+{"command_role":"probe_transformers_runtime","duration_ms":25493,"payload":{"transformers":"5.0.0"},"returncode":0,"schema_version":"1.0.0","started_at":"2026-07-19T22:47:08+00:00","status":"PASSED","stderr_excerpt":"","stdout_excerpt":"AURAGATEWAY_DIAGNOSTIC_JSON={\"transformers\": \"5.0.0\"}","timed_out":false}
