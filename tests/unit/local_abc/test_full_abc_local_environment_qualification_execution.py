@@ -105,6 +105,47 @@ def _dataset_manifest(tmp_path: Path) -> QualificationDatasetManifest:
     )
 
 
+def test_dataset_manifest_entry_accepts_portable_absolute_paths() -> None:
+    mounted_paths = (
+        "/kaggle/input/datasets/auragateway-harness",
+        "C:/Users/example/AppData/Local/Temp/auragateway-harness",
+    )
+
+    for mounted_path in mounted_paths:
+        entry = DatasetManifestEntry(
+            role="harness_source",
+            artifact_format="source_tree_directory",
+            mounted_path=mounted_path,
+            sha256=_SHA_A,
+        )
+
+        assert entry.mounted_path == mounted_path
+
+
+@pytest.mark.parametrize(
+    "mounted_path",
+    (
+        "relative/path",
+        "../escape",
+        "/kaggle/input/../escape",
+        "C:/Users/example/Temp/../escape",
+    ),
+)
+def test_dataset_manifest_entry_rejects_unbounded_paths(
+    mounted_path: str,
+) -> None:
+    with pytest.raises(
+        ValidationError,
+        match=r"absolute bounded|traverse parent",
+    ):
+        DatasetManifestEntry(
+            role="harness_source",
+            artifact_format="source_tree_directory",
+            mounted_path=mounted_path,
+            sha256=_SHA_A,
+        )
+
+
 def _authorization(
     tmp_path: Path,
     request: QualificationExecutionRequest,
@@ -118,7 +159,10 @@ def _authorization(
         authorization_id="qualification-execution-authorization-v1",
         decision=AuthorizationDecision.AUTHORIZED,
         request_sha256=request.fingerprint(),
-        review_git_blob_sha="0b5fe5dc497080974b27e0720d0fab51baa77851",
+        source_main_merge_commit="211a10757999b1b110cb1d9df172938cf6ed7969",
+        review_git_blob_sha="61590be7fe1d10e8e9b38405cf634f4a0cae3e31",
+        authorization_issuance_review_sha256="e" * 64,
+        materialization_record_sha256="f" * 64,
         dataset_manifest_sha256=dataset_manifest.fingerprint(),
         runtime_factory=QualificationRuntimeFactoryBinding(
             factory_path="runtime_adapter:build_runtime",
@@ -127,6 +171,7 @@ def _authorization(
         ),
         issued_at=_FIXED_NOW - timedelta(minutes=5),
         expires_at=_FIXED_NOW + timedelta(minutes=30),
+        operator_confirmation_recorded=True,
     )
 
 
@@ -471,7 +516,10 @@ def test_notebook_bootstrap_executes_only_verified_harness_source(
         "authorization_id": "qualification-execution-authorization-v1",
         "decision": "AUTHORIZED",
         "request_sha256": build_execution_request().fingerprint(),
-        "review_git_blob_sha": "0b5fe5dc497080974b27e0720d0fab51baa77851",
+        "source_main_merge_commit": "211a10757999b1b110cb1d9df172938cf6ed7969",
+        "review_git_blob_sha": "61590be7fe1d10e8e9b38405cf634f4a0cae3e31",
+        "authorization_issuance_review_sha256": "e" * 64,
+        "materialization_record_sha256": "f" * 64,
         "dataset_manifest_sha256": hashlib.sha256(
             json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest(),
@@ -494,6 +542,7 @@ def test_notebook_bootstrap_executes_only_verified_harness_source(
         "credentials_permitted": False,
         "network_access_permitted": False,
         "external_spend": 0,
+        "operator_confirmation_recorded": True,
         "measured_execution_authorized": False,
     }
     authorization_path = tmp_path / "authorization.json"
@@ -560,6 +609,28 @@ def test_authorization_rejects_expired_window(tmp_path: Path) -> None:
     payload = authorization.model_dump(mode="python")
     payload["expires_at"] = payload["issued_at"]
     with pytest.raises(ValidationError):
+        QualificationExecutionAuthorization.model_validate(payload)
+
+
+def test_authorization_rejects_pre_issuance_review_blob(tmp_path: Path) -> None:
+    request = build_execution_request()
+    manifest = _dataset_manifest(tmp_path)
+    authorization = _authorization(tmp_path, request, manifest)
+    payload = authorization.model_dump(mode="python")
+    payload["review_git_blob_sha"] = "0b5fe5dc497080974b27e0720d0fab51baa77851"
+
+    with pytest.raises(ValidationError):
+        QualificationExecutionAuthorization.model_validate(payload)
+
+
+def test_authorization_rejects_window_over_240_minutes(tmp_path: Path) -> None:
+    request = build_execution_request()
+    manifest = _dataset_manifest(tmp_path)
+    authorization = _authorization(tmp_path, request, manifest)
+    payload = authorization.model_dump(mode="python")
+    payload["expires_at"] = payload["issued_at"] + timedelta(minutes=241)
+
+    with pytest.raises(ValidationError, match="cannot exceed 240 minutes"):
         QualificationExecutionAuthorization.model_validate(payload)
 
 
