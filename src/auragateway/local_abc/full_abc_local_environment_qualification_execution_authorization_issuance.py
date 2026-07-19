@@ -17,6 +17,7 @@ from pydantic import Field, ValidationError, field_validator, model_validator
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_execution_authorization_contracts,
     full_abc_local_environment_qualification_execution_authorization_issuance_review,
+    full_abc_local_environment_qualification_harness_rematerialization,
 )
 from auragateway.local_abc.contracts import LocalABCContract
 from auragateway.local_abc.full_abc_local_environment_qualification_execution_contracts import (
@@ -33,12 +34,14 @@ from auragateway.local_abc.full_abc_local_environment_qualification_execution_co
 
 authorization_contracts = full_abc_local_environment_qualification_execution_authorization_contracts
 issuance_review = full_abc_local_environment_qualification_execution_authorization_issuance_review
+rematerialization = full_abc_local_environment_qualification_harness_rematerialization
 MATERIALIZATION_RECORD_PATH = authorization_contracts.MATERIALIZATION_RECORD_PATH
 MATERIALIZED_DATASET_MANIFEST_PATH = authorization_contracts.MATERIALIZED_DATASET_MANIFEST_PATH
 RUNTIME_ADAPTER_PATH = authorization_contracts.RUNTIME_ADAPTER_PATH
 REVIEW_PATH = issuance_review.REVIEW_PATH
 
-SOURCE_MAIN_MERGE_COMMIT: Final = "211a10757999b1b110cb1d9df172938cf6ed7969"
+SOURCE_MAIN_MERGE_COMMIT: Final = "be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"
+REVIEW_SOURCE_MAIN_MERGE_COMMIT: Final = "211a10757999b1b110cb1d9df172938cf6ed7969"
 AUTHORIZATION_ID: Final = (
     "auragateway-full-abc-local-environment-qualification-execution-authorization-v1"
 )
@@ -46,9 +49,12 @@ AUTHORIZATION_ISSUANCE_REVIEW_SHA256: Final = (
     "73e9a4f0642cce40ce6bc6ef875ee13ab81900f0bc7e768e0c4a9a6b6f0ec859"
 )
 MATERIALIZATION_RECORD_SHA256: Final = (
-    "705881978f5a612a4bc1d131fdc96508fd8fb4a78c73e384df6968eb54bbb7a3"
+    "8a0f41def6b3e4e8a34713e4cd9c3023d03619d51a62a2e7ec34da0bcc2f52c0"
 )
-RUNTIME_MANIFEST_SHA256: Final = "ddc1e1fc9e5ba61212dafad8d7196eb17699b6103083b6f9678dce83ca0a74c2"
+RUNTIME_MANIFEST_SHA256: Final = "9ffd335fad6ac660782be7881625a1fb99a39f5d4a1446f31504154634c91eb7"
+HARNESS_REMATERIALIZATION_RECORD_SHA256: Final = (
+    "18a2055d26e83dd3d7ac1f67c680a7e1f6ff29841af5883a3e400444de51f218"
+)
 RUNTIME_ADAPTER_SHA256: Final = "78870b1a7e27de9931f0f58e11613110dc642ba0d4a934ca149576e4e86412d8"
 EXECUTION_REQUEST_SHA256: Final = "dcef7e7243f4de16955bccdfc36dbd0194b51a602d1fc67f5c6fa375ca529e28"
 MAXIMUM_AUTHORIZATION_WINDOW_MINUTES: Final = 240
@@ -215,19 +221,19 @@ def _require_source_authority(repo_root: Path) -> None:
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise AuthorizationIssuanceError(
             "AUTHORIZATION_ISSUANCE_ANCESTRY_UNREADABLE",
-            "the PR 110 source ancestry could not be evaluated",
+            "the PR 112 source ancestry could not be evaluated",
         ) from exc
     if result.returncode != 0:
         raise AuthorizationIssuanceError(
             "AUTHORIZATION_ISSUANCE_SOURCE_MISSING",
-            "PR 110 must be an ancestor before authorization issuance",
+            "PR 112 must be an ancestor before authorization issuance",
             details=(SOURCE_MAIN_MERGE_COMMIT,),
         )
     observed_blob = _run_git(
         repo_root,
         [
             "rev-parse",
-            f"{SOURCE_MAIN_MERGE_COMMIT}:{REVIEW_PATH.as_posix()}",
+            f"{REVIEW_SOURCE_MAIN_MERGE_COMMIT}:{REVIEW_PATH.as_posix()}",
         ],
         error_code="AUTHORIZATION_ISSUANCE_REVIEW_BLOB_UNREADABLE",
         safe_message="the merged authorization-issuance review could not be resolved",
@@ -274,6 +280,28 @@ def _validate_no_runtime_activity(repo_root: Path) -> None:
         )
 
 
+def _validate_rematerialization_package(
+    repo_root: Path,
+) -> dict[str, object]:
+    try:
+        summary = rematerialization.validate_repository_package(repo_root)
+        record = rematerialization.load_record(repo_root / rematerialization.RECORD_PATH)
+    except rematerialization.HarnessRematerializationError as exc:
+        raise AuthorizationIssuanceError(
+            "AUTHORIZATION_ISSUANCE_REMATERIALIZATION_INVALID",
+            "the parity-approved harness rematerialization did not validate",
+            exc.path,
+            details=exc.details,
+        ) from exc
+    if record.fingerprint() != HARNESS_REMATERIALIZATION_RECORD_SHA256:
+        raise AuthorizationIssuanceError(
+            "AUTHORIZATION_ISSUANCE_REMATERIALIZATION_DRIFT",
+            "the harness rematerialization content identity drifted",
+            rematerialization.RECORD_PATH.as_posix(),
+        )
+    return summary
+
+
 def _build_authorization(
     *,
     repo_root: Path,
@@ -281,16 +309,7 @@ def _build_authorization(
 ) -> QualificationExecutionAuthorization:
     _require_source_authority(repo_root)
     _validate_no_runtime_activity(repo_root)
-    try:
-        issuance_review.validate_repository_review_package(repo_root)
-    except issuance_review.AuthorizationIssuanceReviewError as exc:
-        raise AuthorizationIssuanceError(
-            "AUTHORIZATION_ISSUANCE_REVIEW_VALIDATION_FAILED",
-            "the merged authorization-issuance review did not validate",
-            exc.path,
-            details=exc.details,
-        ) from exc
-
+    rematerialization_summary = _validate_rematerialization_package(repo_root)
     review = issuance_review.load_review(repo_root / REVIEW_PATH)
     request, manifest = _load_operational_inputs(repo_root)
     if review.fingerprint() != AUTHORIZATION_ISSUANCE_REVIEW_SHA256:
@@ -318,12 +337,13 @@ def _build_authorization(
             "the materialization record is missing",
             MATERIALIZATION_RECORD_PATH.as_posix(),
         )
-    if review.authorization_issuance.materialization_record_sha256 != (
+    if rematerialization_summary["materialization_record_sha256"] != (
         MATERIALIZATION_RECORD_SHA256
     ):
         raise AuthorizationIssuanceError(
             "AUTHORIZATION_ISSUANCE_MATERIALIZATION_DRIFT",
-            "the review no longer binds the exact materialization record",
+            "the parity-approved rematerialization record no longer binds "
+            "the exact materialization record",
         )
     if review.runtime_factory.artifact_sha256 != RUNTIME_ADAPTER_SHA256:
         raise AuthorizationIssuanceError(
@@ -482,6 +502,7 @@ def verify_authorization(
     repo_root = repo_root.resolve()
     _require_source_authority(repo_root)
     _validate_no_runtime_activity(repo_root)
+    _validate_rematerialization_package(repo_root)
     authorization_path = repo_root / AUTHORIZATION_PATH
     authorization = _load_authorization(authorization_path)
     try:

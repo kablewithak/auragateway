@@ -46,8 +46,13 @@ def test_build_launcher_notebook_is_deterministic(
     assert auragateway["evidence_zip_name"] == ("ag-qualification-evidence-v1.zip")
     assert auragateway["maximum_evidence_zip_bytes"] == (2 * 1024 * 1024)
     assert auragateway["benchmark_trajectory_requests_permitted"] == 0
-    assert len(auragateway["notebook_name"]) <= 50
-    assert len(auragateway["control_notebook_name"]) <= 50
+    notebook_name = auragateway["notebook_name"]
+    control_notebook_name = auragateway["control_notebook_name"]
+
+    assert isinstance(notebook_name, str)
+    assert isinstance(control_notebook_name, str)
+    assert len(notebook_name) <= 50
+    assert len(control_notebook_name) <= 50
 
 
 def test_launcher_binds_reviewed_core_and_cold_session_guards(

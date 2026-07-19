@@ -13,8 +13,8 @@ from typing import Final, Literal, Never, cast
 
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator, model_validator
 
-SOURCE_MAIN_MERGE_COMMIT: Final = "99aed79c582d1fb5cfceaa96840ea97433f62423"
-AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT: Final = "211a10757999b1b110cb1d9df172938cf6ed7969"
+SOURCE_MAIN_MERGE_COMMIT: Final = "be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"
+AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT: Final = "be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"
 
 REVIEWED_NOTEBOOK_PATH: Final = Path(
     "notebooks/auragateway_full_abc_environment_qualification_v1.ipynb"
@@ -35,6 +35,10 @@ PREFLIGHT_ARTIFACT_NAME: Final = "ag-input-preflight-v1.zip"
 PREFLIGHT_ARTIFACT_SHA256: Final = (
     "55c65f0edfd6fbd0b3dfb17070e5f40e849db17b494a43d8a5fcaa2b3ce841c3"
 )
+HARNESS_PARITY_EVIDENCE_NAME: Final = "ag-harness-parity-evidence-v1.zip"
+HARNESS_PARITY_EVIDENCE_SHA256: Final = (
+    "b986f3b82785f86dea2c8fb368dd8ae4def7ee3d7b00f44637f77f3d28b1971b"
+)
 
 CONTROL_NOTEBOOK_NAME: Final = "ag-qualification-control-materializer-v1"
 LAUNCHER_NOTEBOOK_NAME: Final = "ag-full-abc-env-qualification-v1"
@@ -47,7 +51,9 @@ AUTHORIZATION_FILENAME: Final = AUTHORIZATION_PATH.name
 DATASET_MANIFEST_FILENAME: Final = DATASET_MANIFEST_PATH.name
 
 HARNESS_SOURCE_PATH: Final = (
-    "/kaggle/input/datasets/kabomolefe/auragateway-qualification-harness-4dfd799-v1"
+    "/kaggle/input/notebooks/kabomolefe/"
+    "ag-harness-materializer-input-v3/"
+    "auragateway_qualification_harness_be1bfad_v1"
 )
 MODEL_SNAPSHOT_PATH: Final = (
     "/kaggle/input/datasets/kabomolefe/"
@@ -116,8 +122,8 @@ class KaggleControlPackageManifest(_StrictModel):
 
     schema_version: Literal["1.0.0"] = "1.0.0"
     control_package_id: Literal["auragateway-qualification-control-v1"]
-    source_main_merge_commit: Literal["99aed79c582d1fb5cfceaa96840ea97433f62423"]
-    authorization_source_main_merge_commit: Literal["211a10757999b1b110cb1d9df172938cf6ed7969"]
+    source_main_merge_commit: Literal["be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"]
+    authorization_source_main_merge_commit: Literal["be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"]
     authorization_file: Literal[
         "auragateway_full_abc_local_full_run_environment_qualification_"
         "execution_authorization_v1.json"
@@ -130,7 +136,9 @@ class KaggleControlPackageManifest(_StrictModel):
     issued_at: str
     expires_at: str
     harness_source_path: Literal[
-        "/kaggle/input/datasets/kabomolefe/auragateway-qualification-harness-4dfd799-v1"
+        "/kaggle/input/notebooks/kabomolefe/"
+        "ag-harness-materializer-input-v3/"
+        "auragateway_qualification_harness_be1bfad_v1"
     ]
     model_snapshot_path: Literal[
         "/kaggle/input/datasets/kabomolefe/"
@@ -926,6 +934,8 @@ def build_launcher_notebook(repo_root: Path) -> dict[str, object]:
                 "minimum_launch_window_minutes": (MINIMUM_LAUNCH_WINDOW_MINUTES),
                 "notebook_name": LAUNCHER_NOTEBOOK_NAME,
                 "preflight_artifact_sha256": PREFLIGHT_ARTIFACT_SHA256,
+                "harness_parity_evidence_name": HARNESS_PARITY_EVIDENCE_NAME,
+                "harness_parity_evidence_sha256": HARNESS_PARITY_EVIDENCE_SHA256,
                 "reviewed_core_sha256": reviewed_core_sha256,
                 "source_main_merge_commit": SOURCE_MAIN_MERGE_COMMIT,
             },

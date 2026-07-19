@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import importlib
 import subprocess
 import sys
@@ -24,6 +25,7 @@ AuthorizationIssuanceReviewError = review_module.AuthorizationIssuanceReviewErro
 FullABCLocalEnvironmentQualificationAuthorizationIssuanceReview = (
     review_module.FullABCLocalEnvironmentQualificationAuthorizationIssuanceReview
 )
+_git_file_sha256 = review_module._git_file_sha256
 build_default_review = review_module.build_default_review
 load_review = review_module.load_review
 validate_repository_review_package = review_module.validate_repository_review_package
@@ -347,6 +349,75 @@ def test_changed_python_lines_do_not_exceed_100_characters() -> None:
                 failures.append(f"{path.as_posix()}:{line_number}:{len(line)}")
 
     assert failures == []
+
+
+def test_git_file_sha256_reads_bound_revision_not_working_tree(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    subprocess.run(
+        ["git", "init"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "AuraGateway Tests"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.email", "tests@example.invalid"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    authority_path = repo_root / "authority.json"
+    historical_bytes = b'{"status":"historical"}\n'
+    authority_path.write_bytes(historical_bytes)
+    subprocess.run(
+        ["git", "add", "authority.json"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    subprocess.run(
+        ["git", "commit", "-m", "test: freeze authority"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    revision = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    authority_path.write_text(
+        '{"status":"superseded"}\n',
+        encoding="utf-8",
+    )
+
+    assert (
+        _git_file_sha256(
+            repo_root,
+            Path("authority.json"),
+            revision=revision,
+        )
+        == hashlib.sha256(historical_bytes).hexdigest()
+    )
+    assert hashlib.sha256(authority_path.read_bytes()).hexdigest() != (
+        hashlib.sha256(historical_bytes).hexdigest()
+    )
 
 
 def test_committed_review_matches_builder() -> None:
