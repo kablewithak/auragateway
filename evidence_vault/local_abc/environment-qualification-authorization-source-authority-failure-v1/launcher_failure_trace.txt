@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py", line 799, in _load_authorization
+    return QualificationExecutionAuthorization.model_validate(_load_json_object(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/pydantic/main.py", line 716, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for QualificationExecutionAuthorization
+source_main_merge_commit
+  Input should be '211a10757999b1b110cb1d9df172938cf6ed7969' [type=literal_error, input_value='be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/literal_error
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/tmp/ipykernel_23/1968532282.py", line 578, in <cell line: 0>
+    exec(
+  File "auragateway_reviewed_qualification_core_v1.py", line 212, in <module>
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py", line 1128, in execute_from_environment
+    return execute_from_paths(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py", line 1087, in execute_from_paths
+    authorization = _load_authorization(authorization_path)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py", line 801, in _load_authorization
+    raise FullABCLocalEnvironmentQualificationExecutionError(
+auragateway.local_abc.full_abc_local_environment_qualification_execution_contracts.FullABCLocalEnvironmentQualificationExecutionError: the qualification execution authorization is invalid

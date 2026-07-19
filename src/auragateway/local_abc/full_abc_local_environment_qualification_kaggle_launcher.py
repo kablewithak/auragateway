@@ -14,7 +14,7 @@ from typing import Final, Literal, Never, cast
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator, model_validator
 
 SOURCE_MAIN_MERGE_COMMIT: Final = "be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"
-AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT: Final = "be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"
+AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT: Final = "211a10757999b1b110cb1d9df172938cf6ed7969"
 
 REVIEWED_NOTEBOOK_PATH: Final = Path(
     "notebooks/auragateway_full_abc_environment_qualification_v1.ipynb"
@@ -132,7 +132,7 @@ class KaggleControlPackageManifest(_StrictModel):
     schema_version: Literal["1.0.0"] = "1.0.0"
     control_package_id: Literal["auragateway-qualification-control-v1"]
     source_main_merge_commit: Literal["be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"]
-    authorization_source_main_merge_commit: Literal["be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"]
+    authorization_source_main_merge_commit: Literal["211a10757999b1b110cb1d9df172938cf6ed7969"]
     authorization_file: Literal[
         "auragateway_full_abc_local_full_run_environment_qualification_"
         "execution_authorization_v1.json"

@@ -24,7 +24,10 @@ def test_repository_remediation_package_validates() -> None:
         "failure_stage": "control_output_discovery",
         "evidence_zip_sha256": ("55910873d6282ce8b98efd2726d2630bfed4f1c706eb4ec6484adb8a66885926"),
         "evidence_files_verified": 3,
-        "launcher_sha256": ("33e85b6982d9a07328854e922d1a4a0dadc15a92bebf6805e9c2dfa21c18624e"),
+        "historical_launcher_sha256": (
+            "33e85b6982d9a07328854e922d1a4a0dadc15a92bebf6805e9c2dfa21c18624e"
+        ),
+        "current_launcher_sha256": remediation._file_sha256(ROOT / remediation.LAUNCHER_PATH),
         "discovery_scope": "governed_control_output_root",
         "authorization_issued": False,
         "kaggle_gpu_session_started": True,

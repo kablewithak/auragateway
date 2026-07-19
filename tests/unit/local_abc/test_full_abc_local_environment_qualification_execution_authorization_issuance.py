@@ -312,7 +312,8 @@ def test_cli_requires_explicit_operator_confirmation(
 
 
 def test_source_constants_bind_pr112_and_pr110_review() -> None:
-    assert issuance_module.SOURCE_MAIN_MERGE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
+    assert issuance_module.SOURCE_MAIN_MERGE_COMMIT == ("211a10757999b1b110cb1d9df172938cf6ed7969")
+    assert issuance_module.HARNESS_SOURCE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
     assert issuance_module.REVIEW_SOURCE_MAIN_MERGE_COMMIT == (
         "211a10757999b1b110cb1d9df172938cf6ed7969"
     )
@@ -320,6 +321,45 @@ def test_source_constants_bind_pr112_and_pr110_review() -> None:
         "61590be7fe1d10e8e9b38405cf634f4a0cae3e31"
     )
     assert issuance_module.MAXIMUM_AUTHORIZATION_WINDOW_MINUTES == 240
+
+
+def test_current_issuance_payload_round_trips_through_frozen_loader() -> None:
+    authorization = issuance_module.QualificationExecutionAuthorization.model_validate(
+        _authorization_payload()
+    )
+
+    issuance_module._validate_frozen_loader_parity(authorization)
+
+
+def test_frozen_loader_parity_rejects_harness_commit_as_authorization_source() -> None:
+    payload = _authorization_payload()
+    payload["source_main_merge_commit"] = issuance_module.HARNESS_SOURCE_COMMIT
+
+    with pytest.raises(ValidationError):
+        issuance_module.QualificationExecutionAuthorization.model_validate(payload)
+
+
+def test_frozen_loader_parity_failure_uses_explicit_error_code(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authorization = issuance_module.QualificationExecutionAuthorization.model_validate(
+        _authorization_payload()
+    )
+    parity_error = issuance_module.source_authority_parity.FrozenLoaderParityError(
+        "incompatible",
+        details=("source_main_merge_commit",),
+    )
+    monkeypatch.setattr(
+        issuance_module.source_authority_parity,
+        "validate_authorization_payload",
+        lambda payload: (_ for _ in ()).throw(parity_error),
+    )
+
+    with pytest.raises(AuthorizationIssuanceError) as exc_info:
+        issuance_module._validate_frozen_loader_parity(authorization)
+
+    assert exc_info.value.error_code == ("CURRENT_ISSUANCE_FROZEN_LOADER_PARITY_FAILED")
+    assert exc_info.value.details == ("source_main_merge_commit",)
 
 
 def test_final_authorization_is_not_packaged_in_implementation_slice() -> None:
