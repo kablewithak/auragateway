@@ -11,6 +11,11 @@ perform model requests, generate runtime evidence, or authorize the 342-request 
 ## Governing authority
 
 ```text
+Current source authority:
+PR #112 merge:
+be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50
+
+Historical authorization-review authority:
 PR #110 merge:
 211a10757999b1b110cb1d9df172938cf6ed7969
 
@@ -36,6 +41,39 @@ customer data permitted: false
 external spend: R0 / $0
 measured execution authorized: false
 ```
+
+## Harness rematerialization prerequisite
+
+The stale `4dfd799` harness dataset is not eligible for another qualification run.
+
+Authorization issuance now requires the canonical repository record:
+
+```text
+benchmarks/local_abc/
+auragateway_full_abc_local_environment_qualification_
+harness_rematerialization_v1.json
+```
+
+That record binds:
+
+```text
+replacement producer:
+kabomolefe/ag-harness-materializer-input-v3
+
+producer version:
+1
+
+replacement directory SHA-256:
+4a371c80aef605c4f1ab5617c21ce43bd0939ad449ffcbcadab656878d785a2e
+
+parity evidence SHA-256:
+b986f3b82785f86dea2c8fb368dd8ae4def7ee3d7b00f44637f77f3d28b1971b
+
+parity status:
+HARNESS_AUTHORIZATION_PARITY_PASSED
+```
+
+The model snapshot and vLLM wheel remain unchanged.
 
 ## Implementation boundary
 
@@ -63,7 +101,9 @@ Required state:
 ```text
 branch: main
 working tree: clean
-PR #110 is an ancestor of HEAD
+PR #112 is an ancestor of HEAD
+historical PR #110 review blob remains intact
+harness rematerialization record validates
 final authorization artifact: absent
 runtime evidence: absent
 ```
@@ -83,13 +123,14 @@ python -m auragateway.local_abc.full_abc_local_environment_qualification_executi
 The runner:
 
 1. requires clean `main`;
-2. verifies PR #110 ancestry;
-3. verifies the exact review Git blob;
-4. revalidates repository-native issuance inputs;
-5. binds the execution request, materialization record, runtime manifest, and adapter;
-6. writes one canonical authorization without overwriting an existing artifact;
-7. records the confirmation time as `issued_at`;
-8. limits `expires_at` to no more than 240 minutes later.
+2. verifies PR #112 ancestry;
+3. verifies the exact historical PR #110 review Git blob;
+4. validates the parity-approved harness rematerialization record;
+5. revalidates repository-native issuance inputs;
+6. binds the execution request, refreshed materialization record, runtime manifest, and adapter;
+7. writes one canonical authorization without overwriting an existing artifact;
+8. records the confirmation time as `issued_at`;
+9. limits `expires_at` to no more than 240 minutes later.
 
 ## Verify before any Kaggle activity
 
@@ -123,8 +164,9 @@ Issuance stops if:
 
 - the current branch is not `main`;
 - the working tree is not clean;
-- PR #110 is not an ancestor;
-- the review blob or review content drifts;
+- PR #112 is not an ancestor;
+- the historical review blob or review content drifts;
+- the harness rematerialization record or parity-approved identities drift;
 - the final authorization already exists;
 - runtime evidence already exists;
 - any immutable input fails validation;

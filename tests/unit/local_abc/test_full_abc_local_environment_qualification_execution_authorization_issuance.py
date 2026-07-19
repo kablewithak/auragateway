@@ -45,7 +45,7 @@ def _authorization_payload() -> dict[str, Any]:
             "auragateway-full-abc-local-environment-qualification-execution-authorization-v1"
         ),
         "decision": "AUTHORIZED",
-        "source_main_merge_commit": ("211a10757999b1b110cb1d9df172938cf6ed7969"),
+        "source_main_merge_commit": issuance_module.SOURCE_MAIN_MERGE_COMMIT,
         "request_sha256": issuance_module.EXECUTION_REQUEST_SHA256,
         "review_git_blob_sha": ("61590be7fe1d10e8e9b38405cf634f4a0cae3e31"),
         "authorization_issuance_review_sha256": (
@@ -180,6 +180,13 @@ def test_verify_rejects_noncanonical_authorization(
         "_validate_no_runtime_activity",
         lambda repo_root: None,
     )
+    monkeypatch.setattr(
+        issuance_module,
+        "_validate_rematerialization_package",
+        lambda repo_root: {
+            "materialization_record_sha256": (issuance_module.MATERIALIZATION_RECORD_SHA256)
+        },
+    )
 
     with pytest.raises(AuthorizationIssuanceError, match="canonical JSON"):
         verify_authorization(
@@ -218,6 +225,13 @@ def test_build_authorization_binds_reviewed_inputs(
         issuance_module,
         "_validate_no_runtime_activity",
         lambda repo_root: None,
+    )
+    monkeypatch.setattr(
+        issuance_module,
+        "_validate_rematerialization_package",
+        lambda repo_root: {
+            "materialization_record_sha256": (issuance_module.MATERIALIZATION_RECORD_SHA256)
+        },
     )
     monkeypatch.setattr(
         issuance_module.issuance_review,
@@ -272,6 +286,13 @@ def test_verify_rejects_expired_authorization(
         "_validate_no_runtime_activity",
         lambda repo_root: None,
     )
+    monkeypatch.setattr(
+        issuance_module,
+        "_validate_rematerialization_package",
+        lambda repo_root: {
+            "materialization_record_sha256": (issuance_module.MATERIALIZATION_RECORD_SHA256)
+        },
+    )
     with pytest.raises(AuthorizationIssuanceError, match="validity window"):
         verify_authorization(
             repo_root=tmp_path,
@@ -290,8 +311,11 @@ def test_cli_requires_explicit_operator_confirmation(
     assert payload["error_code"] == "OPERATOR_CONFIRMATION_REQUIRED"
 
 
-def test_source_constants_bind_pr110_review() -> None:
-    assert issuance_module.SOURCE_MAIN_MERGE_COMMIT == ("211a10757999b1b110cb1d9df172938cf6ed7969")
+def test_source_constants_bind_pr112_and_pr110_review() -> None:
+    assert issuance_module.SOURCE_MAIN_MERGE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
+    assert issuance_module.REVIEW_SOURCE_MAIN_MERGE_COMMIT == (
+        "211a10757999b1b110cb1d9df172938cf6ed7969"
+    )
     assert issuance_module.AUTHORIZATION_ISSUANCE_REVIEW_GIT_BLOB_SHA == (
         "61590be7fe1d10e8e9b38405cf634f4a0cae3e31"
     )

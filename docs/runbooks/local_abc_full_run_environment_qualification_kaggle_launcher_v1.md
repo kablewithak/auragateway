@@ -55,7 +55,8 @@ Exact observed static inputs:
 
 ```text
 harness source:
-/kaggle/input/datasets/kabomolefe/auragateway-qualification-harness-4dfd799-v1
+/kaggle/input/notebooks/kabomolefe/ag-harness-materializer-input-v3/
+auragateway_qualification_harness_be1bfad_v1
 
 model snapshot:
 /kaggle/input/datasets/kabomolefe/auragateway-qwen2-5-0-5b-offline-v1/
@@ -71,6 +72,56 @@ vllm-0.25.1+cu129-cp38-abi3-manylinux_2_28_x86_64.whl
 
 The line breaks above are for readability. Runtime bindings use the complete uninterrupted
 paths.
+
+## Harness rematerialization authority
+
+The stale `4dfd799` harness dataset is superseded for future qualification runs.
+
+The launcher now binds the saved Version 1 output of:
+
+```text
+ag-harness-materializer-input-v3
+```
+
+Expected output directory:
+
+```text
+auragateway_qualification_harness_be1bfad_v1
+```
+
+Frozen identity:
+
+```text
+source commit:
+be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50
+
+file count:
+953
+
+total bytes:
+8,879,194
+
+directory SHA-256:
+4a371c80aef605c4f1ab5617c21ce43bd0939ad449ffcbcadab656878d785a2e
+```
+
+The metadata-only parity proof is:
+
+```text
+notebook:
+ag-harness-parity-inspection-v4
+
+evidence:
+ag-harness-parity-evidence-v1.zip
+
+evidence SHA-256:
+b986f3b82785f86dea2c8fb368dd8ae4def7ee3d7b00f44637f77f3d28b1971b
+
+status:
+HARNESS_AUTHORIZATION_PARITY_PASSED
+```
+
+The model snapshot and vLLM wheel identities remain unchanged.
 
 ## Execution boundary
 
@@ -197,7 +248,7 @@ None
 
 Attach exactly four input resources:
 
-1. `auragateway-qualification-harness-4dfd799-v1`
+1. the saved Version 1 output of `ag-harness-materializer-input-v3`
 2. `auragateway-qwen2-5-0-5b-offline-v1`
 3. `auragateway-vllm-wheel-recovery-v1`
 4. the saved output of `ag-qualification-control-materializer-v1`

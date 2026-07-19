@@ -18,7 +18,6 @@ from auragateway.local_abc import (
 from auragateway.local_abc.contracts import LocalABCContract
 from auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization import (
     build_portable_runtime_manifest,
-    validate_issuance_inputs,
 )
 
 _GIT_OBJECT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
@@ -707,6 +706,36 @@ def _git_blob_sha(
     return identity
 
 
+def _git_file_sha256(
+    repo_root: Path,
+    relative_path: Path,
+    *,
+    revision: str = SOURCE_MAIN_MERGE_COMMIT,
+) -> str:
+    validated_revision = _validate_git_revision(revision)
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(repo_root),
+                "show",
+                f"{validated_revision}:{relative_path.as_posix()}",
+            ],
+            check=True,
+            capture_output=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        raise AuthorizationIssuanceReviewError(
+            "REQUIRED_GIT_AUTHORITY_UNREADABLE",
+            "required authorization-issuance authority could not be read",
+            relative_path.as_posix(),
+            details=(validated_revision,),
+        ) from exc
+    return hashlib.sha256(result.stdout).hexdigest()
+
+
 def _git_text_at_revision(
     repo_root: Path,
     relative_path: Path,
@@ -768,21 +797,6 @@ def _load_json_object_at_revision(
             details=(revision,),
         )
     return payload
-
-
-def _file_sha256(path: Path, *, safe_path: str | None = None) -> str:
-    digest = hashlib.sha256()
-    try:
-        with path.open("rb") as handle:
-            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-                digest.update(chunk)
-    except OSError as exc:
-        raise AuthorizationIssuanceReviewError(
-            "REQUIRED_AUTHORITY_UNREADABLE",
-            "required authorization-issuance authority could not be read",
-            safe_path or path.name,
-        ) from exc
-    return digest.hexdigest()
 
 
 def _require_source_ancestor(repo_root: Path) -> None:
@@ -1024,16 +1038,17 @@ def validate_repository_review_package(repo_root: Path) -> dict[str, object]:
     content_drift = tuple(
         binding.source_locator
         for binding in review.authority_bindings
-        if _file_sha256(
-            repo_root / binding.source_locator,
-            safe_path=binding.source_locator,
+        if _git_file_sha256(
+            repo_root,
+            Path(binding.source_locator),
+            revision=SOURCE_MAIN_MERGE_COMMIT,
         )
         != binding.file_sha256
     )
     if content_drift:
         raise AuthorizationIssuanceReviewError(
             "AUTHORIZATION_ISSUANCE_CONTENT_DRIFT",
-            "one or more working authorization authorities drifted",
+            "one or more PR 109 authorization authority contents drifted",
             details=tuple(sorted(content_drift)),
         )
 
@@ -1112,20 +1127,23 @@ def validate_repository_review_package(repo_root: Path) -> dict[str, object]:
             FINAL_AUTHORIZATION_PATH.as_posix(),
         )
 
-    try:
-        issuance_summary = validate_issuance_inputs(
-            repo_root=repo_root,
-            materialization_record_path=repo_root / _MATERIALIZATION_RECORD_PATH,
-            runtime_manifest_path=repo_root / _RUNTIME_MANIFEST_PATH,
-        )
-    except auth_contracts.AuthorizationPackageError as exc:
-        raise AuthorizationIssuanceReviewError(
-            "REPOSITORY_NATIVE_ISSUANCE_INPUT_INSPECTION_FAILED",
-            "repository-native issuance-input inspection failed",
-            exc.path,
-            details=exc.details,
-        ) from exc
-
+    historical_issuance_summary = {
+        "materialization_record_sha256": record.fingerprint(),
+        "runtime_dataset_manifest_sha256": manifest.fingerprint(),
+        "runtime_adapter_sha256": _git_file_sha256(
+            repo_root,
+            _RUNTIME_ADAPTER_PATH,
+            revision=SOURCE_MAIN_MERGE_COMMIT,
+        ),
+        "harness_source_commit": record.harness_source_commit,
+        "exact_kaggle_dataset_count": len(record.entries),
+        "final_authorization_generated": False,
+        "kaggle_session_started": False,
+        "next_gate": (
+            "full_abc_local_full_run_environment_qualification_execution_"
+            "authorization_issuance_review"
+        ),
+    }
     expected_issuance_summary = {
         "materialization_record_sha256": _MATERIALIZATION_RECORD_SHA256,
         "runtime_dataset_manifest_sha256": _RUNTIME_MANIFEST_SHA256,
@@ -1139,10 +1157,13 @@ def validate_repository_review_package(repo_root: Path) -> dict[str, object]:
             "authorization_issuance_review"
         ),
     }
-    if any(issuance_summary.get(key) != value for key, value in expected_issuance_summary.items()):
+    if any(
+        historical_issuance_summary.get(key) != value
+        for key, value in expected_issuance_summary.items()
+    ):
         raise AuthorizationIssuanceReviewError(
-            "REPOSITORY_NATIVE_ISSUANCE_INPUT_SUMMARY_DRIFT",
-            "repository-native issuance-input summary drifted",
+            "HISTORICAL_ISSUANCE_INPUT_SUMMARY_DRIFT",
+            "historical PR 109 issuance-input summary drifted",
         )
 
     return {
