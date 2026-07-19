@@ -39,6 +39,15 @@ HARNESS_PARITY_EVIDENCE_NAME: Final = "ag-harness-parity-evidence-v1.zip"
 HARNESS_PARITY_EVIDENCE_SHA256: Final = (
     "b986f3b82785f86dea2c8fb368dd8ae4def7ee3d7b00f44637f77f3d28b1971b"
 )
+CONTROL_DISCOVERY_FAILURE_CODE: Final = "CONTROL_OUTPUT_NAMESPACE_COLLISION"
+CONTROL_DISCOVERY_FAILURE_EVIDENCE_SHA256: Final = (
+    "55910873d6282ce8b98efd2726d2630bfed4f1c706eb4ec6484adb8a66885926"
+)
+CONTROL_DISCOVERY_REMEDIATION_RECORD_PATH: Final = Path(
+    "benchmarks/local_abc/"
+    "auragateway_full_abc_local_environment_qualification_"
+    "control_output_discovery_remediation_v1.json"
+)
 
 CONTROL_NOTEBOOK_NAME: Final = "ag-qualification-control-materializer-v1"
 LAUNCHER_NOTEBOOK_NAME: Final = "ag-full-abc-env-qualification-v1"
@@ -363,6 +372,7 @@ MATERIALIZED_HARNESS_ROOT = WORK_ROOT / "auragateway_qualification_harness"
 EVIDENCE_ZIP_PATH = WORK_ROOT / "__EVIDENCE_ZIP_NAME__"
 
 CONTROL_NOTEBOOK_TOKEN = "__CONTROL_NOTEBOOK_NAME__"
+CONTROL_OUTPUT_DIRECTORY_NAME = "__CONTROL_OUTPUT_DIRECTORY_NAME__"
 CONTROL_MANIFEST_NAME = "__CONTROL_MANIFEST_NAME__"
 CONTROL_RECEIPT_NAME = "__CONTROL_RECEIPT_NAME__"
 AUTHORIZATION_FILENAME = (
@@ -437,16 +447,67 @@ def port_open(port: int) -> bool:
         return False
 
 
-def exact_candidates(filename: str) -> tuple[Path, ...]:
-    return tuple(
+def resolve_control_output() -> tuple[Path, Path, Path, Path]:
+    candidate_roots = tuple(
         sorted(
             (
                 path.resolve()
-                for path in INPUT_ROOT.rglob(filename)
-                if path.is_file() and not path.is_symlink()
+                for path in INPUT_ROOT.rglob(CONTROL_OUTPUT_DIRECTORY_NAME)
+                if path.is_dir()
+                and not path.is_symlink()
+                and CONTROL_NOTEBOOK_TOKEN in path.resolve().as_posix()
             ),
             key=lambda item: item.as_posix(),
         )
+    )
+    relative_candidates = tuple(
+        path.relative_to(INPUT_ROOT).as_posix()
+        for path in candidate_roots
+        if INPUT_ROOT in path.parents
+    )
+    if len(candidate_roots) != 1:
+        raise RuntimeError(
+            "expected exactly one governed control-output root; "
+            f"observed={len(candidate_roots)}; "
+            f"candidates={relative_candidates}"
+        )
+
+    control_root = candidate_roots[0]
+    if INPUT_ROOT not in control_root.parents:
+        raise RuntimeError("control output escaped /kaggle/input")
+
+    expected_control_names = {
+        AUTHORIZATION_FILENAME,
+        DATASET_MANIFEST_FILENAME,
+        CONTROL_MANIFEST_NAME,
+        CONTROL_RECEIPT_NAME,
+    }
+    control_members = tuple(
+        sorted(
+            control_root.iterdir(),
+            key=lambda item: item.name,
+        )
+    )
+    observed_control_names = {path.name for path in control_members}
+    if observed_control_names != expected_control_names:
+        raise RuntimeError(
+            "control output file set drifted; "
+            f"expected={tuple(sorted(expected_control_names))}; "
+            f"observed={tuple(sorted(observed_control_names))}"
+        )
+
+    for path in control_members:
+        if path.is_symlink() or not path.is_file():
+            raise RuntimeError("control output contains an unsafe member type")
+        if path.suffix.lower() in {".zip", ".tar", ".tgz", ".7z"}:
+            raise RuntimeError("control output cannot contain nested archives")
+        validate_regular_file(path, maximum_bytes=1024 * 1024)
+
+    return (
+        control_root / AUTHORIZATION_FILENAME,
+        control_root / DATASET_MANIFEST_FILENAME,
+        control_root / CONTROL_MANIFEST_NAME,
+        control_root / CONTROL_RECEIPT_NAME,
     )
 
 
@@ -581,59 +642,12 @@ try:
 
     stage = "control_output_discovery"
 
-    authorization_candidates = exact_candidates(AUTHORIZATION_FILENAME)
-    manifest_candidates = exact_candidates(DATASET_MANIFEST_FILENAME)
-    control_manifest_candidates = exact_candidates(CONTROL_MANIFEST_NAME)
-    receipt_candidates = exact_candidates(CONTROL_RECEIPT_NAME)
-
-    candidate_sets = (
-        authorization_candidates,
-        manifest_candidates,
-        control_manifest_candidates,
-        receipt_candidates,
-    )
-    if any(len(candidates) != 1 for candidates in candidate_sets):
-        raise RuntimeError(
-            "control output must expose exactly one authorization, manifest, "
-            "control manifest, and receipt"
-        )
-
-    authorization_path = authorization_candidates[0]
-    dataset_manifest_path = manifest_candidates[0]
-    control_manifest_path = control_manifest_candidates[0]
-    receipt_path = receipt_candidates[0]
-
-    control_root = authorization_path.parent
-    if any(path.parent != control_root for path in (
+    (
+        authorization_path,
         dataset_manifest_path,
         control_manifest_path,
         receipt_path,
-    )):
-        raise RuntimeError("control output files must share one flat directory")
-
-    if CONTROL_NOTEBOOK_TOKEN not in control_root.as_posix():
-        raise RuntimeError("control output did not originate from the governed notebook")
-
-    expected_control_names = {
-        AUTHORIZATION_FILENAME,
-        DATASET_MANIFEST_FILENAME,
-        CONTROL_MANIFEST_NAME,
-        CONTROL_RECEIPT_NAME,
-    }
-    observed_control_names = {
-        path.name
-        for path in control_root.iterdir()
-        if path.is_file()
-    }
-    if observed_control_names != expected_control_names:
-        raise RuntimeError("control output file set drifted")
-
-    for path in control_root.iterdir():
-        if path.is_symlink() or not path.is_file():
-            raise RuntimeError("control output contains an unsafe member type")
-        if path.suffix.lower() in {".zip", ".tar", ".tgz", ".7z"}:
-            raise RuntimeError("control output cannot contain nested archives")
-        validate_regular_file(path, maximum_bytes=1024 * 1024)
+    ) = resolve_control_output()
 
     control_manifest = json.loads(
         control_manifest_path.read_text(encoding="utf-8")
@@ -857,6 +871,7 @@ except BaseException as error:
         "__LAUNCHER_NOTEBOOK_NAME__": LAUNCHER_NOTEBOOK_NAME,
         "__EVIDENCE_ZIP_NAME__": EVIDENCE_ZIP_NAME,
         "__CONTROL_NOTEBOOK_NAME__": CONTROL_NOTEBOOK_NAME,
+        "__CONTROL_OUTPUT_DIRECTORY_NAME__": CONTROL_OUTPUT_DIRECTORY_NAME,
         "__CONTROL_MANIFEST_NAME__": CONTROL_MANIFEST_NAME,
         "__CONTROL_RECEIPT_NAME__": CONTROL_RECEIPT_NAME,
         "__AUTHORIZATION_FILENAME_LITERAL__": _string_literal_block(AUTHORIZATION_FILENAME),
@@ -928,7 +943,16 @@ def build_launcher_notebook(repo_root: Path) -> dict[str, object]:
             "auragateway": {
                 "authorization_source_main_merge_commit": (AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT),
                 "benchmark_trajectory_requests_permitted": 0,
+                "control_discovery_failure_code": CONTROL_DISCOVERY_FAILURE_CODE,
+                "control_discovery_failure_evidence_sha256": (
+                    CONTROL_DISCOVERY_FAILURE_EVIDENCE_SHA256
+                ),
+                "control_discovery_remediation_record_path": (
+                    CONTROL_DISCOVERY_REMEDIATION_RECORD_PATH.as_posix()
+                ),
                 "control_notebook_name": CONTROL_NOTEBOOK_NAME,
+                "control_output_directory_name": CONTROL_OUTPUT_DIRECTORY_NAME,
+                "control_output_discovery_scope": "governed_control_output_root",
                 "evidence_zip_name": EVIDENCE_ZIP_NAME,
                 "maximum_evidence_zip_bytes": MAXIMUM_EVIDENCE_ZIP_BYTES,
                 "minimum_launch_window_minutes": (MINIMUM_LAUNCH_WINDOW_MINUTES),
@@ -1055,6 +1079,7 @@ AUTHORIZATION_FILENAME = (
 __AUTHORIZATION_FILENAME_LITERAL__
 )
 DATASET_MANIFEST_FILENAME = "__DATASET_MANIFEST_FILENAME__"
+CONTROL_OUTPUT_DIRECTORY_NAME = "__CONTROL_OUTPUT_DIRECTORY_NAME__"
 CONTROL_MANIFEST_NAME = "__CONTROL_MANIFEST_NAME__"
 CONTROL_RECEIPT_NAME = "__CONTROL_RECEIPT_NAME__"
 

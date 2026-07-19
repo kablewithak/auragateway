@@ -1,0 +1,74 @@
+{
+  "authorization_identity_exposed_by_failure_bundle": false,
+  "decision": "APPROVED_FOR_BOUNDED_LAUNCHER_REMEDIATION",
+  "evidence": {
+    "evidence_directory": "evidence_vault/local_abc/environment-qualification-control-output-discovery-failure-v1",
+    "evidence_sha256_file_sha256": "15cced4ecf960e603959cc8c8afcf43c4c7a3a2ef1e5ce7f7702b83fab8f41e9",
+    "evidence_sha256_path": "evidence_vault/local_abc/environment-qualification-control-output-discovery-failure-v1/evidence_sha256.json",
+    "launcher_failure_path": "evidence_vault/local_abc/environment-qualification-control-output-discovery-failure-v1/launcher_failure.json",
+    "launcher_failure_sha256": "7983ce6c26fda353a1abdbf8f279911f111e7964dfd335eac29551cc6b0185ba",
+    "launcher_failure_trace_path": "evidence_vault/local_abc/environment-qualification-control-output-discovery-failure-v1/launcher_failure_trace.txt",
+    "launcher_failure_trace_sha256": "c0216790e19642ea907555ad94505c7bb1fae29a6992000474375edf93b37c69",
+    "source_evidence_zip_name": "ag-qualification-evidence-v1.zip",
+    "source_evidence_zip_sha256": "55910873d6282ce8b98efd2726d2630bfed4f1c706eb4ec6484adb8a66885926"
+  },
+  "failure": {
+    "captured_at": "2026-07-19T19:46:08+00:00",
+    "duplicate_filename": "offline_dataset_manifest.json",
+    "exception_type": "RuntimeError",
+    "failure_class": "INPUT_DISCOVERY_FAILURE",
+    "failure_code": "CONTROL_OUTPUT_NAMESPACE_COLLISION",
+    "first_divergence": "global filename uniqueness was enforced before the governed control-output root was resolved",
+    "safe_message": "control output must expose exactly one authorization, manifest, control manifest, and receipt",
+    "stage": "control_output_discovery",
+    "status": "FAILED"
+  },
+  "harness_rebuild_required": false,
+  "model_identity_changed": false,
+  "next_gate": "merge_control_root_scoped_launcher_then_issue_fresh_authorization",
+  "non_claims": [
+    "the target Kaggle environment is qualified",
+    "vLLM installation compatibility is proven",
+    "the model or tokenizer loaded successfully",
+    "two workers became healthy",
+    "cache reuse, isolation, or reset behavior is proven",
+    "measured execution is authorized",
+    "production readiness is proven"
+  ],
+  "record_id": "auragateway-full-abc-local-environment-qualification-control-output-discovery-remediation-v1",
+  "remediation": {
+    "control_notebook_token": "ag-qualification-control-materializer-v1",
+    "control_output_directory_name": "ag_qualification_control_v1",
+    "discovery_scope": "governed_control_output_root",
+    "exact_flat_file_set": [
+      "auragateway_full_abc_local_full_run_environment_qualification_execution_authorization_v1.json",
+      "control_package_manifest.json",
+      "materialization_receipt.json",
+      "offline_dataset_manifest.json"
+    ],
+    "global_filename_uniqueness_required": false,
+    "launcher_notebook_sha256": "33e85b6982d9a07328854e922d1a4a0dadc15a92bebf6805e9c2dfa21c18624e",
+    "multiple_governed_roots_rejected": true,
+    "nested_archives_accepted": false,
+    "reviewed_core_sha256": "b5f9b3ab7534f3a17b6b82c214edbac8bdcce650b4572721abdb054c35d0c613",
+    "symbolic_links_accepted": false,
+    "unrelated_input_filename_collisions_ignored": true,
+    "wrapper_directories_accepted": false
+  },
+  "safety": {
+    "authorization_committed": false,
+    "benchmark_trajectory_requests_performed": 0,
+    "credentials_used": false,
+    "customer_data_used": false,
+    "external_spend": 0,
+    "hosted_provider_calls_performed": false,
+    "kaggle_gpu_session_started": true,
+    "model_requests_performed": 0,
+    "model_runtime_started": false,
+    "network_access_performed": false,
+    "runtime_evidence_generated": false,
+    "worker_started": false
+  },
+  "schema_version": "1.0.0",
+  "vllm_wheel_identity_changed": false
+}

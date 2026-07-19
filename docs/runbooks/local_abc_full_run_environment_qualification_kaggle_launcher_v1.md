@@ -142,6 +142,50 @@ The launcher adds only the missing operational harness:
 4. execution of the unchanged reviewed code cell;
 5. bounded success or failure evidence packaging.
 
+## Control-output discovery boundary
+
+The first rematerialized-harness retry failed safely at `control_output_discovery`.
+The launcher searched all attached inputs by filename and therefore observed both:
+
+- the control package copy of `offline_dataset_manifest.json`; and
+- the same committed filename inside the expanded harness repository.
+
+Preserved failure evidence:
+
+```text
+failure code:
+CONTROL_OUTPUT_NAMESPACE_COLLISION
+
+evidence ZIP SHA-256:
+55910873d6282ce8b98efd2726d2630bfed4f1c706eb4ec6484adb8a66885926
+
+provider calls:
+false
+
+model requests:
+0
+
+external spend:
+0
+```
+
+The corrected launcher first resolves exactly one directory named:
+
+```text
+ag_qualification_control_v1
+```
+
+under an input path containing the governed notebook token:
+
+```text
+ag-qualification-control-materializer-v1
+```
+
+It then validates the exact flat four-file allowlist inside that root. Identically named
+files in unrelated harness, model, or wheel inputs do not participate in control-package
+resolution. Multiple governed roots, wrapper directories, extra files, nested archives,
+symlinks, and non-regular members remain fail-closed conditions.
+
 ## Stale-state policy
 
 Each stage uses a separate saved notebook version and a fresh session.

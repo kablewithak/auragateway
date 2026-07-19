@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/tmp/ipykernel_23/3462191480.py", line 422, in <cell line: 0>
+    raise RuntimeError(
+RuntimeError: control output must expose exactly one authorization, manifest, control manifest, and receipt
