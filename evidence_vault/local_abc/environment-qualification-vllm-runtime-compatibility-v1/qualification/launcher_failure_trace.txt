@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/tmp/ipykernel_24/1846388446.py", line 578, in <cell line: 0>
+    exec(
+  File "auragateway_reviewed_qualification_core_v1.py", line 212, in <module>
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py", line 1128, in execute_from_environment
+    return execute_from_paths(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py", line 1097, in execute_from_paths
+    return execute_qualification(
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py", line 1046, in execute_qualification
+    capture = adapter.capture(request, dataset_manifest)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_runtime_adapter.py", line 368, in capture
+    dependency_lock = self._capture_dependency_lock(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_runtime_adapter.py", line 685, in _capture_dependency_lock
+    raise RuntimeError("runtime dependency lock capture failed")
+RuntimeError: runtime dependency lock capture failed
