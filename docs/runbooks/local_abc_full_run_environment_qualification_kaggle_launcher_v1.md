@@ -401,3 +401,17 @@ The launcher implementation and a successful notebook import do not prove:
 - quality non-inferiority;
 - measured benchmark authorization;
 - production readiness.
+
+
+## Authorization source-authority parity
+
+The launcher deliberately binds two different commits:
+
+```text
+harness source commit: be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50
+authorization source-main merge commit: 211a10757999b1b110cb1d9df172938cf6ed7969
+```
+
+The first identifies the rematerialized harness contents. The second identifies
+the authorization schema authority accepted by that frozen harness. The control
+manifest and authorization must preserve both values without conflating them.

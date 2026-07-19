@@ -291,6 +291,13 @@ def test_launcher_notebook_verification_rejects_drift(
         )
 
 
+def test_launcher_separates_harness_and_authorization_source_authorities() -> None:
+    assert launcher.SOURCE_MAIN_MERGE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
+    assert launcher.AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT == (
+        "211a10757999b1b110cb1d9df172938cf6ed7969"
+    )
+
+
 def test_control_materializer_source_is_flat_and_archive_free() -> None:
     authorization = {
         "decision": "AUTHORIZED",

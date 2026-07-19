@@ -15,6 +15,7 @@ from typing import Final, Literal, Never, Self, cast
 from pydantic import Field, ValidationError, field_validator, model_validator
 
 from auragateway.local_abc import (
+    full_abc_local_environment_qualification_authorization_source_authority_parity,
     full_abc_local_environment_qualification_execution_authorization_contracts,
     full_abc_local_environment_qualification_execution_authorization_issuance_review,
     full_abc_local_environment_qualification_harness_rematerialization,
@@ -32,6 +33,9 @@ from auragateway.local_abc.full_abc_local_environment_qualification_execution_co
     QualificationRuntimeFactoryBinding,
 )
 
+source_authority_parity = (
+    full_abc_local_environment_qualification_authorization_source_authority_parity
+)
 authorization_contracts = full_abc_local_environment_qualification_execution_authorization_contracts
 issuance_review = full_abc_local_environment_qualification_execution_authorization_issuance_review
 rematerialization = full_abc_local_environment_qualification_harness_rematerialization
@@ -40,7 +44,8 @@ MATERIALIZED_DATASET_MANIFEST_PATH = authorization_contracts.MATERIALIZED_DATASE
 RUNTIME_ADAPTER_PATH = authorization_contracts.RUNTIME_ADAPTER_PATH
 REVIEW_PATH = issuance_review.REVIEW_PATH
 
-SOURCE_MAIN_MERGE_COMMIT: Final = "be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"
+SOURCE_MAIN_MERGE_COMMIT: Final = "211a10757999b1b110cb1d9df172938cf6ed7969"
+HARNESS_SOURCE_COMMIT: Final = "be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"
 REVIEW_SOURCE_MAIN_MERGE_COMMIT: Final = "211a10757999b1b110cb1d9df172938cf6ed7969"
 AUTHORIZATION_ID: Final = (
     "auragateway-full-abc-local-environment-qualification-execution-authorization-v1"
@@ -210,7 +215,7 @@ def _require_source_authority(repo_root: Path) -> None:
                 str(repo_root),
                 "merge-base",
                 "--is-ancestor",
-                SOURCE_MAIN_MERGE_COMMIT,
+                HARNESS_SOURCE_COMMIT,
                 "HEAD",
             ],
             check=False,
@@ -227,7 +232,7 @@ def _require_source_authority(repo_root: Path) -> None:
         raise AuthorizationIssuanceError(
             "AUTHORIZATION_ISSUANCE_SOURCE_MISSING",
             "PR 112 must be an ancestor before authorization issuance",
-            details=(SOURCE_MAIN_MERGE_COMMIT,),
+            details=(HARNESS_SOURCE_COMMIT,),
         )
     observed_blob = _run_git(
         repo_root,
@@ -353,7 +358,7 @@ def _build_authorization(
 
     issued_at = confirmation.confirmed_at
     expires_at = issued_at + timedelta(minutes=confirmation.authorization_window_minutes)
-    return QualificationExecutionAuthorization(
+    authorization = QualificationExecutionAuthorization(
         authorization_id=AUTHORIZATION_ID,
         decision=AuthorizationDecision.AUTHORIZED,
         source_main_merge_commit=SOURCE_MAIN_MERGE_COMMIT,
@@ -383,6 +388,24 @@ def _build_authorization(
         operator_confirmation_recorded=True,
         measured_execution_authorized=False,
     )
+    _validate_frozen_loader_parity(authorization)
+    return authorization
+
+
+def _validate_frozen_loader_parity(
+    authorization: QualificationExecutionAuthorization,
+) -> None:
+    try:
+        source_authority_parity.validate_authorization_payload(
+            authorization.model_dump(mode="json")
+        )
+    except source_authority_parity.FrozenLoaderParityError as exc:
+        raise AuthorizationIssuanceError(
+            "CURRENT_ISSUANCE_FROZEN_LOADER_PARITY_FAILED",
+            "current authorization is incompatible with the frozen runtime loader",
+            AUTHORIZATION_PATH.as_posix(),
+            details=exc.details,
+        ) from exc
 
 
 def _write_authorization(
@@ -533,6 +556,7 @@ def verify_authorization(
             "the final authorization is outside its validity window",
             AUTHORIZATION_PATH.as_posix(),
         )
+    _validate_frozen_loader_parity(authorization)
     review = issuance_review.load_review(repo_root / REVIEW_PATH)
     request, manifest = _load_operational_inputs(repo_root)
     materialization_path = repo_root / MATERIALIZATION_RECORD_PATH

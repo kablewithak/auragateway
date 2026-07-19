@@ -549,7 +549,7 @@ class QualificationExecutionAuthorization(LocalABCContract):
     schema_version: Literal["1.0.0"] = "1.0.0"
     authorization_id: str
     decision: Literal[AuthorizationDecision.AUTHORIZED]
-    source_main_merge_commit: Literal["be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"]
+    source_main_merge_commit: Literal["211a10757999b1b110cb1d9df172938cf6ed7969"]
     request_sha256: str
     review_git_blob_sha: Literal["61590be7fe1d10e8e9b38405cf634f4a0cae3e31"]
     authorization_issuance_review_sha256: str

@@ -11,11 +11,11 @@ perform model requests, generate runtime evidence, or authorize the 342-request 
 ## Governing authority
 
 ```text
-Current source authority:
+Harness source authority:
 PR #112 merge:
 be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50
 
-Historical authorization-review authority:
+Authorization source authority and historical review authority:
 PR #110 merge:
 211a10757999b1b110cb1d9df172938cf6ed7969
 
@@ -41,6 +41,22 @@ customer data permitted: false
 external spend: R0 / $0
 measured execution authorized: false
 ```
+
+## Source-authority semantics
+
+`source_main_merge_commit` in the final authorization identifies the merged main
+commit that approved the authorization contract consumed by the frozen runtime
+loader. It is therefore bound to PR #110 (`211a107...`).
+
+The harness build lineage is independent and remains bound to PR #112
+(`be1bfad...`) through the harness rematerialization record and launcher input
+contract. The harness source commit must never be substituted into the
+authorization source-authority field.
+
+Before any authorization file is written, the issuance runner serializes the
+candidate and validates it through the exact preserved frozen-loader
+compatibility model. A mismatch fails with
+`CURRENT_ISSUANCE_FROZEN_LOADER_PARITY_FAILED`.
 
 ## Harness rematerialization prerequisite
 

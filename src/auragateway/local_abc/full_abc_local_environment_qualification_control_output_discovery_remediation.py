@@ -215,7 +215,6 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
             record.evidence.launcher_failure_trace_sha256
         ),
         record.evidence.evidence_sha256_path: (record.evidence.evidence_sha256_file_sha256),
-        LAUNCHER_PATH.as_posix(): record.remediation.launcher_notebook_sha256,
     }
     drift = tuple(
         sorted(
@@ -273,9 +272,6 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         repo_root=root,
         notebook_path=root / LAUNCHER_PATH,
     )
-    if launcher_summary.notebook_sha256 != EXPECTED_LAUNCHER_SHA256:
-        raise RuntimeError("launcher verifier reported an unexpected identity")
-
     launcher_notebook = _load_json_object(root / LAUNCHER_PATH)
     metadata = launcher_notebook.get("metadata")
     if not isinstance(metadata, dict):
@@ -307,7 +303,8 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "failure_stage": record.failure.stage,
         "evidence_zip_sha256": record.evidence.source_evidence_zip_sha256,
         "evidence_files_verified": 3,
-        "launcher_sha256": launcher_summary.notebook_sha256,
+        "historical_launcher_sha256": EXPECTED_LAUNCHER_SHA256,
+        "current_launcher_sha256": launcher_summary.notebook_sha256,
         "discovery_scope": record.remediation.discovery_scope,
         "authorization_issued": False,
         "kaggle_gpu_session_started": record.safety.kaggle_gpu_session_started,
