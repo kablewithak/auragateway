@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import StrEnum
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Final, Literal, Protocol, Self, runtime_checkable
 
 from pydantic import Field, field_validator, model_validator
@@ -25,6 +25,7 @@ REVIEW_PATH: Final = Path(
     "auragateway_full_abc_local_full_run_environment_qualification_execution_review_v1.json"
 )
 REVIEW_GIT_BLOB_SHA: Final = "0b5fe5dc497080974b27e0720d0fab51baa77851"
+AUTHORIZATION_ISSUANCE_REVIEW_GIT_BLOB_SHA: Final = "61590be7fe1d10e8e9b38405cf634f4a0cae3e31"
 REVIEW_SOURCE_PATH: Final = Path(
     "src/auragateway/local_abc/full_abc_local_environment_qualification_execution_review.py"
 )
@@ -459,8 +460,11 @@ class DatasetManifestEntry(LocalABCContract):
     @field_validator("mounted_path")
     @classmethod
     def validate_mounted_path(cls, value: str) -> str:
-        path = Path(value)
-        if not path.is_absolute() or ".." in path.parts:
+        posix_path = PurePosixPath(value)
+        windows_path = PureWindowsPath(value)
+        if ".." in posix_path.parts or ".." in windows_path.parts:
+            raise ValueError("dataset entries must not traverse parent directories")
+        if not (posix_path.is_absolute() or windows_path.is_absolute()):
             raise ValueError("dataset entries require absolute bounded mounted paths")
         return value
 
@@ -540,17 +544,21 @@ class QualificationRuntimeFactoryBinding(LocalABCContract):
 
 
 class QualificationExecutionAuthorization(LocalABCContract):
-    """Future operational authority required before any environment activity."""
+    """Time-bounded operational authority for one qualification session."""
 
     schema_version: Literal["1.0.0"] = "1.0.0"
     authorization_id: str
     decision: Literal[AuthorizationDecision.AUTHORIZED]
+    source_main_merge_commit: Literal["211a10757999b1b110cb1d9df172938cf6ed7969"]
     request_sha256: str
-    review_git_blob_sha: Literal["0b5fe5dc497080974b27e0720d0fab51baa77851"]
+    review_git_blob_sha: Literal["61590be7fe1d10e8e9b38405cf634f4a0cae3e31"]
+    authorization_issuance_review_sha256: str
+    materialization_record_sha256: str
     dataset_manifest_sha256: str
     runtime_factory: QualificationRuntimeFactoryBinding
     issued_at: datetime
     expires_at: datetime
+    maximum_workers: Literal[2] = 2
     maximum_kaggle_sessions: Literal[1] = 1
     maximum_model_requests: Literal[8] = 8
     maximum_output_tokens_per_request: Literal[32] = 32
@@ -559,6 +567,7 @@ class QualificationExecutionAuthorization(LocalABCContract):
     credentials_permitted: Literal[False] = False
     network_access_permitted: Literal[False] = False
     external_spend: Literal[0] = 0
+    operator_confirmation_recorded: Literal[True]
     measured_execution_authorized: Literal[False] = False
 
     @field_validator("authorization_id")
@@ -568,7 +577,12 @@ class QualificationExecutionAuthorization(LocalABCContract):
             raise ValueError("authorization IDs must use stable lowercase characters")
         return value
 
-    @field_validator("request_sha256", "dataset_manifest_sha256")
+    @field_validator(
+        "request_sha256",
+        "authorization_issuance_review_sha256",
+        "materialization_record_sha256",
+        "dataset_manifest_sha256",
+    )
     @classmethod
     def validate_sha256(cls, value: str) -> str:
         if _SHA256_PATTERN.fullmatch(value) is None:
@@ -586,6 +600,8 @@ class QualificationExecutionAuthorization(LocalABCContract):
     def validate_window(self) -> Self:
         if self.expires_at <= self.issued_at:
             raise ValueError("authorization expiry must follow issuance")
+        if self.expires_at - self.issued_at > timedelta(minutes=240):
+            raise ValueError("authorization window cannot exceed 240 minutes")
         return self
 
 
