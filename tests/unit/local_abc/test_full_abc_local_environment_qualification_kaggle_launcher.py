@@ -4,6 +4,9 @@ import ast
 import hashlib
 import json
 import os
+import tempfile
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, cast
 
@@ -28,6 +31,57 @@ def _code_source(notebook: dict[str, object]) -> str:
     return "".join(cast(list[str], source))
 
 
+def _launcher_runtime_namespace(
+    tmp_path: Path,
+) -> dict[str, object]:
+    repo_root = tmp_path / "repo"
+    _copy_reviewed_notebook(repo_root)
+    source = _code_source(launcher.build_launcher_notebook(repo_root))
+
+    input_root = tmp_path / "kaggle" / "input"
+    work_root = tmp_path / "kaggle" / "working"
+    input_root.mkdir(parents=True)
+    work_root.mkdir(parents=True)
+
+    source = source.replace(
+        'Path("/kaggle/input").resolve()',
+        f"Path({str(input_root)!r}).resolve()",
+        1,
+    )
+    source = source.replace(
+        'Path("/kaggle/working").resolve()',
+        f"Path({str(work_root)!r}).resolve()",
+        1,
+    )
+
+    preamble, separator, _ = source.partition('\ntry:\n    stage = "fresh_session_guard"')
+    assert separator
+
+    namespace: dict[str, object] = {}
+    exec(
+        compile(preamble, "launcher_runtime_preamble.py", "exec"),
+        namespace,
+    )
+    return namespace
+
+
+def _write_control_output(root: Path) -> None:
+    root.mkdir(parents=True)
+    for filename in (
+        launcher.AUTHORIZATION_FILENAME,
+        launcher.DATASET_MANIFEST_FILENAME,
+        launcher.CONTROL_MANIFEST_NAME,
+        launcher.CONTROL_RECEIPT_NAME,
+    ):
+        (root / filename).write_text("{}", encoding="utf-8")
+
+
+@contextmanager
+def _short_windows_safe_temp_root() -> Iterator[Path]:
+    with tempfile.TemporaryDirectory(prefix="ag-") as directory:
+        yield Path(directory)
+
+
 def test_build_launcher_notebook_is_deterministic(
     tmp_path: Path,
 ) -> None:
@@ -44,6 +98,12 @@ def test_build_launcher_notebook_is_deterministic(
     assert auragateway["notebook_name"] == ("ag-full-abc-env-qualification-v1")
     assert auragateway["control_notebook_name"] == ("ag-qualification-control-materializer-v1")
     assert auragateway["evidence_zip_name"] == ("ag-qualification-evidence-v1.zip")
+    assert auragateway["control_output_directory_name"] == ("ag_qualification_control_v1")
+    assert auragateway["control_output_discovery_scope"] == ("governed_control_output_root")
+    assert auragateway["control_discovery_failure_code"] == ("CONTROL_OUTPUT_NAMESPACE_COLLISION")
+    assert auragateway["control_discovery_failure_evidence_sha256"] == (
+        "55910873d6282ce8b98efd2726d2630bfed4f1c706eb4ec6484adb8a66885926"
+    )
     assert auragateway["maximum_evidence_zip_bytes"] == (2 * 1024 * 1024)
     assert auragateway["benchmark_trajectory_requests_permitted"] == 0
     notebook_name = auragateway["notebook_name"]
@@ -94,6 +154,9 @@ def test_launcher_binds_reviewed_core_and_cold_session_guards(
     assert "vLLM worker ports are already open" in source
     assert "writable harness destination already exists" in source
 
+    assert "resolve_control_output" in source
+    assert "INPUT_ROOT.rglob(CONTROL_OUTPUT_DIRECTORY_NAME)" in source
+    assert "exact_candidates" not in source
     assert "maximum_workers" in source
     assert "maximum_kaggle_sessions" in source
     assert "benchmark_trajectory_requests_permitted" in source
@@ -109,6 +172,90 @@ def test_launcher_binds_reviewed_core_and_cold_session_guards(
         "archive.write(path, arcname=archive_name)",
         "",
     )
+
+
+def test_control_output_discovery_scopes_duplicate_manifest_to_governed_root() -> None:
+    with _short_windows_safe_temp_root() as tmp_path:
+        namespace = _launcher_runtime_namespace(tmp_path)
+        input_root = cast(Path, namespace["INPUT_ROOT"])
+        control_root = (
+            input_root
+            / "notebooks"
+            / "kabomolefe"
+            / launcher.CONTROL_NOTEBOOK_NAME
+            / launcher.CONTROL_OUTPUT_DIRECTORY_NAME
+        )
+        _write_control_output(control_root)
+
+        duplicate_manifest = (
+            input_root
+            / "notebooks"
+            / "kabomolefe"
+            / "ag-harness-materializer-input-v3"
+            / "auragateway_qualification_harness_be1bfad_v1"
+            / launcher.DATASET_MANIFEST_PATH
+        )
+        duplicate_manifest.parent.mkdir(parents=True)
+        duplicate_manifest.write_text("{}", encoding="utf-8")
+
+        resolver = cast(
+            Callable[[], tuple[Path, Path, Path, Path]],
+            namespace["resolve_control_output"],
+        )
+        observed = resolver()
+
+        assert all(path.parent == control_root for path in observed)
+        assert observed[1] == control_root / launcher.DATASET_MANIFEST_FILENAME
+        assert duplicate_manifest.is_file()
+
+
+def test_control_output_discovery_rejects_multiple_governed_roots() -> None:
+    with _short_windows_safe_temp_root() as tmp_path:
+        namespace = _launcher_runtime_namespace(tmp_path)
+        input_root = cast(Path, namespace["INPUT_ROOT"])
+
+        for owner in ("kabomolefe", "duplicate-owner"):
+            _write_control_output(
+                input_root
+                / "notebooks"
+                / owner
+                / launcher.CONTROL_NOTEBOOK_NAME
+                / launcher.CONTROL_OUTPUT_DIRECTORY_NAME
+            )
+
+        resolver = cast(
+            Callable[[], tuple[Path, Path, Path, Path]],
+            namespace["resolve_control_output"],
+        )
+
+        with pytest.raises(
+            RuntimeError,
+            match=r"governed control-output root; observed=2",
+        ):
+            resolver()
+
+
+def test_control_output_discovery_rejects_non_flat_file_set() -> None:
+    with _short_windows_safe_temp_root() as tmp_path:
+        namespace = _launcher_runtime_namespace(tmp_path)
+        input_root = cast(Path, namespace["INPUT_ROOT"])
+        control_root = (
+            input_root
+            / "notebooks"
+            / "kabomolefe"
+            / launcher.CONTROL_NOTEBOOK_NAME
+            / launcher.CONTROL_OUTPUT_DIRECTORY_NAME
+        )
+        _write_control_output(control_root)
+        (control_root / "unexpected.json").write_text("{}", encoding="utf-8")
+
+        resolver = cast(
+            Callable[[], tuple[Path, Path, Path, Path]],
+            namespace["resolve_control_output"],
+        )
+
+        with pytest.raises(RuntimeError, match="control output file set drifted"):
+            resolver()
 
 
 def test_launcher_notebook_verification_rejects_drift(
