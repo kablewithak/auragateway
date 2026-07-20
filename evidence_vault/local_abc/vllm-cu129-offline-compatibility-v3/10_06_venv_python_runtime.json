@@ -1,0 +1,1 @@
+{"blocked_by":"base_ensurepip_import","command_role":"venv_python_runtime","reason":"base interpreter bootstrap prerequisite failed","returncode":null,"schema_version":"2.0.0","status":"BLOCKED_BY_UPSTREAM_FAILURE","stderr_excerpt":"","stdout_excerpt":"","timed_out":false}
