@@ -20,6 +20,7 @@ def test_repository_runtime_compatibility_package_validates() -> None:
     assert summary["failure_code"] == "VLLM_TORCH_ABI_MISMATCH"
     assert summary["materializer_failure_code"] == "VLLM_CU128_RELEASE_ASSET_ABSENT"
     assert summary["materializer_cdn_failure_code"] == "PYTORCH_CDN_HOST_NOT_ALLOWED"
+    assert summary["materializer_nvidia_failure_code"] == "NVIDIA_PACKAGE_HOST_NOT_ALLOWED"
     assert summary["selected_vllm"] == "0.19.1"
     assert summary["selected_torch"] == "2.10.0+cu129"
     assert summary["selected_cuda_variant"] == "cu129"
@@ -28,6 +29,10 @@ def test_repository_runtime_compatibility_package_validates() -> None:
         runtime.EXPECTED_MATERIALIZER_NOTEBOOK_SHA256
     )
     assert summary["verifier_notebook_sha256"] == (runtime.EXPECTED_VERIFIER_NOTEBOOK_SHA256)
+    assert summary["reconnaissance_notebook_sha256"] == (
+        runtime.EXPECTED_RECONNAISSANCE_NOTEBOOK_SHA256
+    )
+    assert summary["materializer_paused"] is True
     assert summary["authorization_issued"] is False
     assert summary["model_requests_performed"] == 0
     assert summary["qualification_claimed"] is False
@@ -36,8 +41,8 @@ def test_repository_runtime_compatibility_package_validates() -> None:
 def test_decision_record_binds_cu129_artifact_identities() -> None:
     payload = json.loads((ROOT / runtime.RECORD_PATH).read_text(encoding="utf-8"))
 
-    assert payload["schema_version"] == "1.4.0"
-    assert payload["decision"] == ("APPROVED_FOR_ISOLATED_CU129_WHEELHOUSE_MATERIALIZATION")
+    assert payload["schema_version"] == "1.5.0"
+    assert payload["decision"] == "PAUSED_FOR_CU129_RESOLUTION_RECONNAISSANCE"
     assert payload["artifacts"] == {
         "materializer_kaggle_name": runtime.MATERIALIZER_NOTEBOOK_NAME,
         "materializer_notebook": runtime.MATERIALIZER_NOTEBOOK_PATH.as_posix(),
@@ -45,6 +50,9 @@ def test_decision_record_binds_cu129_artifact_identities() -> None:
         "verifier_evidence_directory": runtime.VERIFIER_EVIDENCE_DIRECTORY_NAME,
         "verifier_kaggle_name": runtime.VERIFIER_NOTEBOOK_NAME,
         "verifier_notebook": runtime.VERIFIER_NOTEBOOK_PATH.as_posix(),
+        "reconnaissance_kaggle_name": runtime.RECONNAISSANCE_NOTEBOOK_NAME,
+        "reconnaissance_notebook": runtime.RECONNAISSANCE_NOTEBOOK_PATH.as_posix(),
+        "reconnaissance_output_directory": runtime.RECONNAISSANCE_OUTPUT_DIRECTORY_NAME,
     }
 
 
@@ -92,6 +100,27 @@ def test_failed_cu129_cdn_allowlist_identity_is_preserved() -> None:
     assert failure["qualification_claimed"] is False
 
 
+def test_failed_cu129_nvidia_host_identity_is_preserved() -> None:
+    payload = json.loads((ROOT / runtime.RECORD_PATH).read_text(encoding="utf-8"))
+    failure = payload["materializer_nvidia_failure"]
+
+    assert failure["classification"] == "MATERIALIZER_ACQUISITION_POLICY_FAILURE"
+    assert failure["code"] == "NVIDIA_PACKAGE_HOST_NOT_ALLOWED"
+    assert failure["historical_kaggle_title"] == (
+        "auragateway-cu129-wheelhouse-nvidia-host-mismatch-v1"
+    )
+    assert failure["execution_log_sha256"] == (
+        runtime.EXPECTED_MATERIALIZER_NVIDIA_FAILURE_LOG_SHA256
+    )
+    assert failure["observed_distribution"] == "nvidia-cublas-cu12"
+    assert failure["observed_host"] == "pypi.nvidia.com"
+    assert failure["dependency_resolution_completed"] is True
+    assert failure["output_generated"] is False
+    assert failure["wheel_downloads_performed"] == 0
+    assert failure["model_requests_performed"] == 0
+    assert failure["qualification_claimed"] is False
+
+
 def test_source_identity_preserves_prior_uploaded_evidence() -> None:
     identity = json.loads((ROOT / runtime.SOURCE_IDENTITY_PATH).read_text(encoding="utf-8"))
 
@@ -113,6 +142,7 @@ def test_cu128_runtime_artifact_paths_are_retired() -> None:
     assert not (ROOT / runtime.LEGACY_RUNBOOK_PATH).exists()
     assert (ROOT / runtime.MATERIALIZER_NOTEBOOK_PATH).is_file()
     assert (ROOT / runtime.VERIFIER_NOTEBOOK_PATH).is_file()
+    assert (ROOT / runtime.RECONNAISSANCE_NOTEBOOK_PATH).is_file()
     assert (ROOT / runtime.SUPERSEDED_ADR_PATH).is_file()
     assert (ROOT / runtime.ADR_PATH).is_file()
     assert (ROOT / runtime.RUNBOOK_PATH).is_file()
@@ -124,6 +154,9 @@ def test_notebook_raw_identities_are_locked() -> None:
     )
     assert _sha256(ROOT / runtime.VERIFIER_NOTEBOOK_PATH) == (
         runtime.EXPECTED_VERIFIER_NOTEBOOK_SHA256
+    )
+    assert _sha256(ROOT / runtime.RECONNAISSANCE_NOTEBOOK_PATH) == (
+        runtime.EXPECTED_RECONNAISSANCE_NOTEBOOK_SHA256
     )
 
 
@@ -148,6 +181,30 @@ def test_materializer_notebook_binds_exact_official_release_asset() -> None:
     assert '"download-r2.pytorch.org"' in source
     assert '"failure_code": "RESOLVED_ARTIFACT_URL_NOT_ALLOWED"' in source
     assert '"--require-hashes"' in source
+
+
+def test_reconnaissance_notebook_collects_complete_policy_surface() -> None:
+    payload = json.loads((ROOT / runtime.RECONNAISSANCE_NOTEBOOK_PATH).read_text(encoding="utf-8"))
+    source = "".join(payload["cells"][1]["source"])
+
+    assert payload["metadata"]["auragateway"]["notebook_name"] == (
+        runtime.RECONNAISSANCE_NOTEBOOK_NAME
+    )
+    assert payload["metadata"]["auragateway"]["internet_required"] is True
+    assert payload["metadata"]["auragateway"]["accelerator"] == "none"
+    assert payload["metadata"]["auragateway"]["model_requests_permitted"] == 0
+    assert payload["cells"][1]["execution_count"] is None
+    assert payload["cells"][1]["outputs"] == []
+    assert f'NOTEBOOK_NAME = "{runtime.RECONNAISSANCE_NOTEBOOK_NAME}"' in source
+    assert (f'OUTPUT_DIRECTORY_NAME = "{runtime.RECONNAISSANCE_OUTPUT_DIRECTORY_NAME}"') in source
+    assert '"--dry-run"' in source
+    assert '"--report"' in source
+    assert '"pypi.nvidia.com": "nvidia"' in source
+    assert '"ARTIFACT_HOST_REVIEW_REQUIRED"' in source
+    assert '"wheel_files_written": len(tuple(OUTPUT_ROOT.rglob("*.whl")))' in source
+    assert '"package_installation_performed": False' in source
+    assert '"model_requests_performed": 0' in source
+    assert '"qualification_claimed": False' in source
 
 
 def test_offline_verifier_uses_isolated_cu129_runtime_contract() -> None:

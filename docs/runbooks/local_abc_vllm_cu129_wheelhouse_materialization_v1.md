@@ -1,5 +1,21 @@
 # AuraGateway vLLM CUDA 12.9 wheelhouse materialization and verification
 
+## Current pause
+
+Do not run this materializer.
+
+```text
+next_gate=auragateway-cu129-resolution-reconnaissance-v1
+code=NVIDIA_PACKAGE_HOST_NOT_ALLOWED
+execution_log_sha256=f6e6f844ebfb7ede0aab428e4766af4123622fb2f3092933e4070e26d6831fa4
+observed_host=pypi.nvidia.com
+known_static_finding=MATERIALIZER_REQUIRED_PREFIX_VARIANT_DRIFT
+```
+
+The reconnaissance gate must collect all policy violations and the full exact-host inventory before this
+materializer is repaired and rerun.
+
+
 ## Purpose
 
 Produce one complete Python 3.12 CUDA 12.9 wheelhouse for the official vLLM `0.19.1` release and

@@ -33,6 +33,9 @@ MATERIALIZER_NOTEBOOK_PATH: Final = Path(
 VERIFIER_NOTEBOOK_PATH: Final = Path(
     "notebooks/auragateway_vllm_cu129_offline_runtime_compatibility_v1.ipynb"
 )
+RECONNAISSANCE_NOTEBOOK_PATH: Final = Path(
+    "notebooks/auragateway_vllm_cu129_resolution_reconnaissance_v1.ipynb"
+)
 LEGACY_NOTEBOOK_PATHS: Final = (
     Path("notebooks/ag-vllm-cu128-wheelhouse-materializer-v1.ipynb"),
     Path("notebooks/ag-vllm-cu128-offline-compatibility-v1.ipynb"),
@@ -58,6 +61,9 @@ EXPECTED_MATERIALIZER_FAILURE_LOG_SHA256: Final = (
 EXPECTED_MATERIALIZER_CDN_FAILURE_LOG_SHA256: Final = (
     "69c7656374fc5313becb44684f1b11eac950db7c79eed5b62572eaefec3640a3"
 )
+EXPECTED_MATERIALIZER_NVIDIA_FAILURE_LOG_SHA256: Final = (
+    "f6e6f844ebfb7ede0aab428e4766af4123622fb2f3092933e4070e26d6831fa4"
+)
 EXPECTED_VLLM_ASSET_SHA256: Final = (
     "71a87f46cafab4489c69a5c5c83b870d0235e5694d8222303d460576293dc719"
 )
@@ -67,11 +73,16 @@ EXPECTED_MATERIALIZER_NOTEBOOK_SHA256: Final = (
 EXPECTED_VERIFIER_NOTEBOOK_SHA256: Final = (
     "692f83fd8a6fa7398ee9fabb0ecbf62640c82d6582a96a552f47e4f8b3b1b189"
 )
+EXPECTED_RECONNAISSANCE_NOTEBOOK_SHA256: Final = (
+    "541e92aa0b509d0966911904d1c6bb951819aa98abb69f4f7964b724c55afd6a"
+)
 
 MATERIALIZER_NOTEBOOK_NAME: Final = "auragateway-cu129-wheelhouse-materializer-v1"
 VERIFIER_NOTEBOOK_NAME: Final = "auragateway-cu129-offline-verifier-v1"
+RECONNAISSANCE_NOTEBOOK_NAME: Final = "auragateway-cu129-resolution-reconnaissance-v1"
 OUTPUT_DIRECTORY_NAME: Final = "auragateway_vllm_cu129_wheelhouse_v1"
 VERIFIER_EVIDENCE_DIRECTORY_NAME: Final = "auragateway_vllm_cu129_offline_compatibility_evidence_v1"
+RECONNAISSANCE_OUTPUT_DIRECTORY_NAME: Final = "auragateway_vllm_cu129_resolution_reconnaissance_v1"
 
 
 class VllmRuntimeStackV1(LocalABCContract):
@@ -172,6 +183,26 @@ class VllmMaterializerCdnFailureV1(LocalABCContract):
     qualification_claimed: Literal[False]
 
 
+class VllmMaterializerNvidiaFailureV1(LocalABCContract):
+    """Preserved first divergence from the third materializer attempt."""
+
+    classification: Literal["MATERIALIZER_ACQUISITION_POLICY_FAILURE"]
+    code: Literal["NVIDIA_PACKAGE_HOST_NOT_ALLOWED"]
+    failed_requested_kaggle_title: Literal["auragateway-cu129-wheelhouse-materializer-v1"]
+    historical_kaggle_title: Literal["auragateway-cu129-wheelhouse-nvidia-host-mismatch-v1"]
+    execution_log_sha256: Literal[
+        "f6e6f844ebfb7ede0aab428e4766af4123622fb2f3092933e4070e26d6831fa4"
+    ]
+    first_divergence: Literal["resolved_nvidia_cublas_wheel_uses_pypi.nvidia.com"]
+    observed_distribution: Literal["nvidia-cublas-cu12"]
+    observed_host: Literal["pypi.nvidia.com"]
+    dependency_resolution_completed: Literal[True]
+    output_generated: Literal[False]
+    wheel_downloads_performed: Literal[0]
+    model_requests_performed: Literal[0]
+    qualification_claimed: Literal[False]
+
+
 class VllmRuntimeArtifactsV1(LocalABCContract):
     """Repository and Kaggle artifact identities for the next two gates."""
 
@@ -185,8 +216,17 @@ class VllmRuntimeArtifactsV1(LocalABCContract):
     verifier_evidence_directory: Literal["auragateway_vllm_cu129_offline_compatibility_evidence_v1"]
     materializer_kaggle_name: Literal["auragateway-cu129-wheelhouse-materializer-v1"]
     verifier_kaggle_name: Literal["auragateway-cu129-offline-verifier-v1"]
+    reconnaissance_notebook: Literal[
+        "notebooks/auragateway_vllm_cu129_resolution_reconnaissance_v1.ipynb"
+    ]
+    reconnaissance_kaggle_name: Literal["auragateway-cu129-resolution-reconnaissance-v1"]
+    reconnaissance_output_directory: Literal["auragateway_vllm_cu129_resolution_reconnaissance_v1"]
 
-    @field_validator("materializer_notebook", "verifier_notebook")
+    @field_validator(
+        "materializer_notebook",
+        "verifier_notebook",
+        "reconnaissance_notebook",
+    )
     @classmethod
     def validate_repository_path(cls, value: str) -> str:
         path = PurePosixPath(value)
@@ -211,21 +251,23 @@ class VllmRuntimeSafetyV1(LocalABCContract):
 class VllmRuntimeCompatibilityRemediationV1(LocalABCContract):
     """Typed decision record for the complete isolated wheelhouse approach."""
 
-    schema_version: Literal["1.4.0"]
+    schema_version: Literal["1.5.0"]
     record_id: Literal["auragateway-vllm-runtime-compatibility-remediation-v1"]
-    decision: Literal["APPROVED_FOR_ISOLATED_CU129_WHEELHOUSE_MATERIALIZATION"]
+    decision: Literal["PAUSED_FOR_CU129_RESOLUTION_RECONNAISSANCE"]
     failure: VllmRuntimeFailureV1
     materializer_failure: VllmMaterializerFailureV1
     materializer_cdn_failure: VllmMaterializerCdnFailureV1
+    materializer_nvidia_failure: VllmMaterializerNvidiaFailureV1
     selected_runtime: VllmRuntimeStackV1
     artifacts: VllmRuntimeArtifactsV1
     gates: tuple[str, ...]
     safety: VllmRuntimeSafetyV1
-    next_gate: Literal["materialize_complete_cu129_wheelhouse_then_verify_offline"]
+    next_gate: Literal["run_cu129_resolution_reconnaissance"]
 
     @model_validator(mode="after")
     def validate_gates(self) -> Self:
         expected = (
+            "resolution_reconnaissance_policy_complete",
             "exact_vllm_release_asset_identity_verified",
             "wheelhouse_materialization_successful",
             "wheelhouse_hash_manifest_valid",
@@ -360,7 +402,10 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "torch 2.10.0+cu129",
         "CUDA 12.9",
         EXPECTED_MATERIALIZER_CDN_FAILURE_LOG_SHA256,
+        EXPECTED_MATERIALIZER_NVIDIA_FAILURE_LOG_SHA256,
         "download-r2.pytorch.org",
+        "pypi.nvidia.com",
+        RECONNAISSANCE_NOTEBOOK_NAME,
     )
     if any(fragment not in active_adr for fragment in required_adr_fragments):
         raise RuntimeError("active cu129 ADR drifted")
@@ -373,7 +418,10 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         VERIFIER_EVIDENCE_DIRECTORY_NAME,
         EXPECTED_MATERIALIZER_FAILURE_LOG_SHA256,
         EXPECTED_MATERIALIZER_CDN_FAILURE_LOG_SHA256,
+        EXPECTED_MATERIALIZER_NVIDIA_FAILURE_LOG_SHA256,
         "download-r2.pytorch.org",
+        "pypi.nvidia.com",
+        RECONNAISSANCE_NOTEBOOK_NAME,
     )
     if any(fragment not in runbook for fragment in required_runbook_fragments):
         raise RuntimeError("cu129 materialization runbook drifted")
@@ -385,10 +433,16 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         raise RuntimeError("materializer repository path drifted")
     if record.artifacts.verifier_notebook != VERIFIER_NOTEBOOK_PATH.as_posix():
         raise RuntimeError("verifier repository path drifted")
+    if record.artifacts.reconnaissance_notebook != RECONNAISSANCE_NOTEBOOK_PATH.as_posix():
+        raise RuntimeError("reconnaissance repository path drifted")
     if record.artifacts.materializer_kaggle_name != MATERIALIZER_NOTEBOOK_NAME:
         raise RuntimeError("materializer Kaggle title drifted")
     if record.artifacts.verifier_kaggle_name != VERIFIER_NOTEBOOK_NAME:
         raise RuntimeError("verifier Kaggle title drifted")
+    if record.artifacts.reconnaissance_kaggle_name != RECONNAISSANCE_NOTEBOOK_NAME:
+        raise RuntimeError("reconnaissance Kaggle title drifted")
+    if record.artifacts.reconnaissance_output_directory != RECONNAISSANCE_OUTPUT_DIRECTORY_NAME:
+        raise RuntimeError("reconnaissance output identity drifted")
     if record.artifacts.output_directory != OUTPUT_DIRECTORY_NAME:
         raise RuntimeError("wheelhouse output identity drifted")
     if record.artifacts.verifier_evidence_directory != VERIFIER_EVIDENCE_DIRECTORY_NAME:
@@ -402,6 +456,13 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         raise RuntimeError("materializer CDN failure-log identity drifted")
     if record.materializer_cdn_failure.observed_host != "download-r2.pytorch.org":
         raise RuntimeError("materializer CDN failure host drifted")
+    if (
+        record.materializer_nvidia_failure.execution_log_sha256
+        != EXPECTED_MATERIALIZER_NVIDIA_FAILURE_LOG_SHA256
+    ):
+        raise RuntimeError("materializer NVIDIA failure-log identity drifted")
+    if record.materializer_nvidia_failure.observed_host != "pypi.nvidia.com":
+        raise RuntimeError("materializer NVIDIA failure host drifted")
     if record.selected_runtime.vllm_asset_sha256 != EXPECTED_VLLM_ASSET_SHA256:
         raise RuntimeError("selected vLLM release-asset identity drifted")
 
@@ -520,6 +581,24 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
             '"qualification_claimed=false"',
         ),
     )
+    reconnaissance = _validate_notebook(
+        root / RECONNAISSANCE_NOTEBOOK_PATH,
+        expected_name=RECONNAISSANCE_NOTEBOOK_NAME,
+        expected_sha256=EXPECTED_RECONNAISSANCE_NOTEBOOK_SHA256,
+        expected_internet=True,
+        expected_accelerator="none",
+        required_fragments=(
+            'NOTEBOOK_NAME = "auragateway-cu129-resolution-reconnaissance-v1"',
+            ('OUTPUT_DIRECTORY_NAME = "auragateway_vllm_cu129_resolution_reconnaissance_v1"'),
+            '"--dry-run"',
+            '"--report"',
+            '"pypi.nvidia.com": "nvidia"',
+            '"ARTIFACT_HOST_REVIEW_REQUIRED"',
+            '"wheel_files_written": len(tuple(OUTPUT_ROOT.rglob("*.whl")))',
+            '"model_requests_performed": 0',
+            '"qualification_claimed": False',
+        ),
+    )
 
     return {
         "status": "VLLM_RUNTIME_COMPATIBILITY_PACKAGE_VALID",
@@ -530,11 +609,14 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "failure_code": record.failure.primary_code,
         "materializer_failure_code": record.materializer_failure.code,
         "materializer_cdn_failure_code": record.materializer_cdn_failure.code,
+        "materializer_nvidia_failure_code": record.materializer_nvidia_failure.code,
         "selected_vllm": record.selected_runtime.vllm,
         "selected_torch": record.selected_runtime.torch,
         "selected_cuda_variant": record.selected_runtime.cuda_variant,
         "materializer_notebook_sha256": materializer["notebook_sha256"],
         "verifier_notebook_sha256": verifier["notebook_sha256"],
+        "reconnaissance_notebook_sha256": reconnaissance["notebook_sha256"],
+        "materializer_paused": True,
         "authorization_issued": record.safety.authorization_issued,
         "model_requests_performed": record.safety.model_requests_performed,
         "qualification_claimed": record.safety.qualification_claimed,
