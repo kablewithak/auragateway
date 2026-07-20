@@ -9,11 +9,20 @@ This is a two-notebook compatibility campaign. It is not an environment qualific
 
 ## Phase A: materializer
 
-Notebook:
+Repository notebook:
 
 ```text
-ag-vllm-cu128-wheelhouse-materializer-v1
+notebooks/auragateway_vllm_cu128_wheelhouse_materialization_v1.ipynb
 ```
+
+Requested Kaggle title:
+
+```text
+auragateway-vllm-cu128-wheelhouse-materialization-v1
+```
+
+The actual Kaggle slug is unresolved until Version 1 is saved. Do not infer it from the requested
+title.
 
 Settings:
 
@@ -65,15 +74,25 @@ qualification_claimed=false
 save_this_notebook_output=true
 ```
 
-Preserve Version 1. Do not edit or rerun a successful materialization.
+Preserve Version 1. Record the observed Kaggle slug and saved-output identity. Do not edit or rerun a
+successful materialization.
 
 ## Phase B: offline compatibility verifier
 
-Notebook:
+Repository notebook:
 
 ```text
-ag-vllm-cu128-offline-compatibility-v1
+notebooks/auragateway_vllm_cu128_offline_runtime_compatibility_v1.ipynb
 ```
+
+Requested Kaggle title:
+
+```text
+auragateway-vllm-cu128-offline-runtime-compatibility-v1
+```
+
+The actual Kaggle slug is unresolved until the executed notebook is saved. Do not infer it from the
+requested title.
 
 Settings:
 
@@ -94,10 +113,16 @@ Save Version
 
 Do not choose `Save & Run All` after the native run because that would execute it a second time.
 
+Required evidence root:
+
+```text
+/kaggle/working/auragateway_vllm_cu128_offline_compatibility_evidence_v1/
+```
+
 Required artifact:
 
 ```text
-/kaggle/working/ag-vllm-cu128-offline-compatibility-v1.zip
+/kaggle/working/auragateway_vllm_cu128_offline_compatibility_evidence_v1.zip
 ```
 
 Required terminal fields:
