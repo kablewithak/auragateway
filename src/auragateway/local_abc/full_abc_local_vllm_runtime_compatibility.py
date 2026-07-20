@@ -19,24 +19,28 @@ _VERSION_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.+-]{0,79}$")
 RECORD_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_vllm_runtime_compatibility_remediation_v1.json"
 )
-ADR_PATH: Final = Path("docs/adr/2026-07-20-local-abc-vllm-cu128-offline-wheelhouse.md")
-RUNBOOK_PATH: Final = Path("docs/runbooks/local_abc_vllm_cu128_wheelhouse_materialization_v1.md")
+SUPERSEDED_ADR_PATH: Final = Path("docs/adr/2026-07-20-local-abc-vllm-cu128-offline-wheelhouse.md")
+ADR_PATH: Final = Path("docs/adr/2026-07-20-local-abc-vllm-cu129-isolated-wheelhouse.md")
+RUNBOOK_PATH: Final = Path("docs/runbooks/local_abc_vllm_cu129_wheelhouse_materialization_v1.md")
 EVIDENCE_DIRECTORY: Final = Path(
     "evidence_vault/local_abc/environment-qualification-vllm-runtime-compatibility-v1"
 )
 EVIDENCE_SHA256_PATH: Final = EVIDENCE_DIRECTORY / "evidence_sha256.json"
 SOURCE_IDENTITY_PATH: Final = EVIDENCE_DIRECTORY / "source_evidence_identity.json"
 MATERIALIZER_NOTEBOOK_PATH: Final = Path(
-    "notebooks/auragateway_vllm_cu128_wheelhouse_materialization_v1.ipynb"
+    "notebooks/auragateway_vllm_cu129_wheelhouse_materialization_v1.ipynb"
 )
 VERIFIER_NOTEBOOK_PATH: Final = Path(
-    "notebooks/auragateway_vllm_cu128_offline_runtime_compatibility_v1.ipynb"
+    "notebooks/auragateway_vllm_cu129_offline_runtime_compatibility_v1.ipynb"
 )
-LEGACY_MATERIALIZER_NOTEBOOK_PATH: Final = Path(
-    "notebooks/ag-vllm-cu128-wheelhouse-materializer-v1.ipynb"
+LEGACY_NOTEBOOK_PATHS: Final = (
+    Path("notebooks/ag-vllm-cu128-wheelhouse-materializer-v1.ipynb"),
+    Path("notebooks/ag-vllm-cu128-offline-compatibility-v1.ipynb"),
+    Path("notebooks/auragateway_vllm_cu128_wheelhouse_materialization_v1.ipynb"),
+    Path("notebooks/auragateway_vllm_cu128_offline_runtime_compatibility_v1.ipynb"),
 )
-LEGACY_VERIFIER_NOTEBOOK_PATH: Final = Path(
-    "notebooks/ag-vllm-cu128-offline-compatibility-v1.ipynb"
+LEGACY_RUNBOOK_PATH: Final = Path(
+    "docs/runbooks/local_abc_vllm_cu128_wheelhouse_materialization_v1.md"
 )
 
 EXPECTED_QUALIFICATION_EVIDENCE_ZIP_SHA256: Final = (
@@ -48,36 +52,47 @@ EXPECTED_QUALIFICATION_LOG_SHA256: Final = (
 EXPECTED_DIAGNOSTIC_EVIDENCE_ZIP_SHA256: Final = (
     "e13eb8051798dd79b96900e69e9d5a657a80b884b9e5a0a5eba3cf6904103aee"
 )
+EXPECTED_MATERIALIZER_FAILURE_LOG_SHA256: Final = (
+    "b45bee3fd286f35d367ee25639100eb33b9244251d5a921dedd84c998e785a2d"
+)
+EXPECTED_VLLM_ASSET_SHA256: Final = (
+    "71a87f46cafab4489c69a5c5c83b870d0235e5694d8222303d460576293dc719"
+)
 EXPECTED_MATERIALIZER_NOTEBOOK_SHA256: Final = (
-    "d49d78c939eac596fa0895189cac6bfd6d248b838efc790c71263334598eb6da"
+    "67b9a066319c3fc05b093484087b9bf888876113360c92ee868c9789058e2e95"
 )
 EXPECTED_VERIFIER_NOTEBOOK_SHA256: Final = (
-    "e4b8564baf3d6738ff02e2bf3b299d53910cee1d44c6934806272f2e6fb81070"
+    "692f83fd8a6fa7398ee9fabb0ecbf62640c82d6582a96a552f47e4f8b3b1b189"
 )
 
-MATERIALIZER_NOTEBOOK_NAME: Final = "auragateway-vllm-cu128-wheelhouse-materialization-v1"
-VERIFIER_NOTEBOOK_NAME: Final = "auragateway-vllm-cu128-offline-runtime-compatibility-v1"
-OUTPUT_DIRECTORY_NAME: Final = "auragateway_vllm_cu128_wheelhouse_v1"
-VERIFIER_EVIDENCE_DIRECTORY_NAME: Final = "auragateway_vllm_cu128_offline_compatibility_evidence_v1"
+MATERIALIZER_NOTEBOOK_NAME: Final = "auragateway-cu129-wheelhouse-materializer-v1"
+VERIFIER_NOTEBOOK_NAME: Final = "auragateway-cu129-offline-verifier-v1"
+OUTPUT_DIRECTORY_NAME: Final = "auragateway_vllm_cu129_wheelhouse_v1"
+VERIFIER_EVIDENCE_DIRECTORY_NAME: Final = "auragateway_vllm_cu129_offline_compatibility_evidence_v1"
 
 
 class VllmRuntimeStackV1(LocalABCContract):
-    """Exact target stack for the bounded CUDA 12.8 compatibility campaign."""
+    """Exact isolated target stack for the CUDA 12.9 compatibility campaign."""
 
     python: Literal["3.12"]
-    cuda_variant: Literal["cu128"]
+    cuda_variant: Literal["cu129"]
+    vllm_binary_cuda: Literal["12.9"]
     vllm_release: Literal["0.19.1"]
-    vllm: Literal["0.19.1+cu128"]
-    torch: Literal["2.10.0+cu128"]
-    torchaudio: Literal["2.10.0+cu128"]
-    torchvision: Literal["0.25.0+cu128"]
+    vllm: Literal["0.19.1"]
+    vllm_asset_name: Literal["vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl"]
+    vllm_asset_sha256: Literal["71a87f46cafab4489c69a5c5c83b870d0235e5694d8222303d460576293dc719"]
+    torch: Literal["2.10.0+cu129"]
+    torchaudio: Literal["2.10.0+cu129"]
+    torchvision: Literal["0.25.0+cu129"]
     transformers: Literal["5.5.3"]
     installation_mode: Literal["isolated_virtual_environment"]
+    base_environment_torch_is_runtime_authority: Literal[False]
     network_installation_permitted_during_materialization: Literal[True]
     network_installation_permitted_during_verification: Literal[False]
 
     @field_validator(
         "python",
+        "vllm_binary_cuda",
         "vllm_release",
         "vllm",
         "torch",
@@ -89,6 +104,13 @@ class VllmRuntimeStackV1(LocalABCContract):
     def validate_version(cls, value: str) -> str:
         if _VERSION_PATTERN.fullmatch(value) is None:
             raise ValueError("runtime versions must use stable bounded identifiers")
+        return value
+
+    @field_validator("vllm_asset_sha256")
+    @classmethod
+    def validate_asset_sha256(cls, value: str) -> str:
+        if _SHA256_PATTERN.fullmatch(value) is None:
+            raise ValueError("vLLM asset SHA-256 must be lowercase hexadecimal")
         return value
 
 
@@ -111,19 +133,36 @@ class VllmRuntimeFailureV1(LocalABCContract):
     compute_capability: Literal["7.5"]
 
 
+class VllmMaterializerFailureV1(LocalABCContract):
+    """Preserved first divergence from the failed cu128 materializer."""
+
+    classification: Literal["MATERIALIZER_RELEASE_ASSET_CONTRACT_FAILURE"]
+    code: Literal["VLLM_CU128_RELEASE_ASSET_ABSENT"]
+    failed_requested_kaggle_title: Literal["auragateway-cu128-wheelhouse-materializer-v1"]
+    historical_kaggle_title: Literal["auragateway-cu128-wheelhouse-asset-mismatch-v1"]
+    execution_log_sha256: Literal[
+        "b45bee3fd286f35d367ee25639100eb33b9244251d5a921dedd84c998e785a2d"
+    ]
+    first_divergence: Literal["official_v0.19.1_release_has_no_explicit_cu128_x86_64_wheel"]
+    output_generated: Literal[False]
+    wheel_downloads_performed: Literal[0]
+    model_requests_performed: Literal[0]
+    qualification_claimed: Literal[False]
+
+
 class VllmRuntimeArtifactsV1(LocalABCContract):
     """Repository and Kaggle artifact identities for the next two gates."""
 
     materializer_notebook: Literal[
-        "notebooks/auragateway_vllm_cu128_wheelhouse_materialization_v1.ipynb"
+        "notebooks/auragateway_vllm_cu129_wheelhouse_materialization_v1.ipynb"
     ]
     verifier_notebook: Literal[
-        "notebooks/auragateway_vllm_cu128_offline_runtime_compatibility_v1.ipynb"
+        "notebooks/auragateway_vllm_cu129_offline_runtime_compatibility_v1.ipynb"
     ]
-    output_directory: Literal["auragateway_vllm_cu128_wheelhouse_v1"]
-    verifier_evidence_directory: Literal["auragateway_vllm_cu128_offline_compatibility_evidence_v1"]
-    materializer_kaggle_name: Literal["auragateway-vllm-cu128-wheelhouse-materialization-v1"]
-    verifier_kaggle_name: Literal["auragateway-vllm-cu128-offline-runtime-compatibility-v1"]
+    output_directory: Literal["auragateway_vllm_cu129_wheelhouse_v1"]
+    verifier_evidence_directory: Literal["auragateway_vllm_cu129_offline_compatibility_evidence_v1"]
+    materializer_kaggle_name: Literal["auragateway-cu129-wheelhouse-materializer-v1"]
+    verifier_kaggle_name: Literal["auragateway-cu129-offline-verifier-v1"]
 
     @field_validator("materializer_notebook", "verifier_notebook")
     @classmethod
@@ -148,28 +187,30 @@ class VllmRuntimeSafetyV1(LocalABCContract):
 
 
 class VllmRuntimeCompatibilityRemediationV1(LocalABCContract):
-    """Typed decision record for the complete offline wheelhouse approach."""
+    """Typed decision record for the complete isolated wheelhouse approach."""
 
-    schema_version: Literal["1.2.0"]
+    schema_version: Literal["1.3.0"]
     record_id: Literal["auragateway-vllm-runtime-compatibility-remediation-v1"]
-    decision: Literal["APPROVED_FOR_WHEELHOUSE_MATERIALIZATION"]
+    decision: Literal["APPROVED_FOR_ISOLATED_CU129_WHEELHOUSE_MATERIALIZATION"]
     failure: VllmRuntimeFailureV1
+    materializer_failure: VllmMaterializerFailureV1
     selected_runtime: VllmRuntimeStackV1
     artifacts: VllmRuntimeArtifactsV1
     gates: tuple[str, ...]
     safety: VllmRuntimeSafetyV1
-    next_gate: Literal["materialize_complete_cu128_wheelhouse_then_verify_offline"]
+    next_gate: Literal["materialize_complete_cu129_wheelhouse_then_verify_offline"]
 
     @model_validator(mode="after")
     def validate_gates(self) -> Self:
         expected = (
+            "exact_vllm_release_asset_identity_verified",
             "wheelhouse_materialization_successful",
             "wheelhouse_hash_manifest_valid",
             "offline_isolated_install_successful",
             "offline_pip_check_successful",
-            "torch_cuda_runtime_matches_cu128",
+            "torch_cuda_runtime_matches_cu129",
             "two_t4_gpus_visible",
-            "vllm_distribution_matches_0.19.1+cu128",
+            "vllm_distribution_matches_0.19.1",
             "vllm_module_import_successful",
             "vllm_native_extension_import_successful",
             "zero_model_requests",
@@ -278,12 +319,37 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
     """Validate preserved evidence, typed decision, and both unexecuted notebooks."""
 
     root = repo_root.resolve()
-    legacy_paths = (
-        LEGACY_MATERIALIZER_NOTEBOOK_PATH,
-        LEGACY_VERIFIER_NOTEBOOK_PATH,
+    if any((root / path).exists() for path in LEGACY_NOTEBOOK_PATHS):
+        raise RuntimeError("legacy cu128 notebook identity remains in the repository")
+    if (root / LEGACY_RUNBOOK_PATH).exists():
+        raise RuntimeError("legacy cu128 runbook remains in the repository")
+
+    superseded_adr = (root / SUPERSEDED_ADR_PATH).read_text(encoding="utf-8")
+    if "Status: Superseded after failed materialization" not in superseded_adr:
+        raise RuntimeError("superseded cu128 ADR lacks its correction state")
+    if EXPECTED_MATERIALIZER_FAILURE_LOG_SHA256 not in superseded_adr:
+        raise RuntimeError("superseded cu128 ADR lacks the failed-run identity")
+
+    active_adr = (root / ADR_PATH).read_text(encoding="utf-8")
+    required_adr_fragments = (
+        "vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl",
+        EXPECTED_VLLM_ASSET_SHA256,
+        "torch 2.10.0+cu129",
+        "CUDA 12.9",
     )
-    if any((root / path).exists() for path in legacy_paths):
-        raise RuntimeError("legacy temporary notebook identity remains in the repository")
+    if any(fragment not in active_adr for fragment in required_adr_fragments):
+        raise RuntimeError("active cu129 ADR drifted")
+
+    runbook = (root / RUNBOOK_PATH).read_text(encoding="utf-8")
+    required_runbook_fragments = (
+        MATERIALIZER_NOTEBOOK_NAME,
+        VERIFIER_NOTEBOOK_NAME,
+        OUTPUT_DIRECTORY_NAME,
+        VERIFIER_EVIDENCE_DIRECTORY_NAME,
+        EXPECTED_MATERIALIZER_FAILURE_LOG_SHA256,
+    )
+    if any(fragment not in runbook for fragment in required_runbook_fragments):
+        raise RuntimeError("cu129 materialization runbook drifted")
 
     record = VllmRuntimeCompatibilityRemediationV1.model_validate(
         _load_json_object(root / RECORD_PATH)
@@ -300,6 +366,10 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         raise RuntimeError("wheelhouse output identity drifted")
     if record.artifacts.verifier_evidence_directory != VERIFIER_EVIDENCE_DIRECTORY_NAME:
         raise RuntimeError("verifier evidence output identity drifted")
+    if record.materializer_failure.execution_log_sha256 != EXPECTED_MATERIALIZER_FAILURE_LOG_SHA256:
+        raise RuntimeError("materializer failure-log identity drifted")
+    if record.selected_runtime.vllm_asset_sha256 != EXPECTED_VLLM_ASSET_SHA256:
+        raise RuntimeError("selected vLLM release-asset identity drifted")
 
     source_identity = _load_json_object(root / SOURCE_IDENTITY_PATH)
     expected_source = {
@@ -375,11 +445,13 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         expected_internet=True,
         expected_accelerator="none",
         required_fragments=(
-            'NOTEBOOK_NAME = "auragateway-vllm-cu128-wheelhouse-materialization-v1"',
-            'OUTPUT_DIRECTORY_NAME = "auragateway_vllm_cu128_wheelhouse_v1"',
+            'NOTEBOOK_NAME = "auragateway-cu129-wheelhouse-materializer-v1"',
+            'OUTPUT_DIRECTORY_NAME = "auragateway_vllm_cu129_wheelhouse_v1"',
             'VLLM_RELEASE = "0.19.1"',
-            'VLLM_DISTRIBUTION = "0.19.1+cu128"',
-            '"torch==2.10.0+cu128"',
+            'VLLM_DISTRIBUTION = "0.19.1"',
+            'VLLM_ASSET_NAME = "vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl"',
+            EXPECTED_VLLM_ASSET_SHA256,
+            '"torch==2.10.0+cu129"',
             '"transformers==5.5.3"',
             '"--require-hashes"',
             '"materialization_status=PASSED"',
@@ -392,16 +464,19 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         expected_internet=False,
         expected_accelerator="T4 x2",
         required_fragments=(
-            'NOTEBOOK_NAME = "auragateway-vllm-cu128-offline-runtime-compatibility-v1"',
+            'NOTEBOOK_NAME = "auragateway-cu129-offline-verifier-v1"',
             (
                 'OUTPUT_ZIP = Path("/kaggle/working/'
-                'auragateway_vllm_cu128_offline_compatibility_evidence_v1.zip")'
+                'auragateway_vllm_cu129_offline_compatibility_evidence_v1.zip")'
             ),
             (
                 'EVIDENCE_ROOT = Path("/kaggle/working/'
-                'auragateway_vllm_cu128_offline_compatibility_evidence_v1")'
+                'auragateway_vllm_cu129_offline_compatibility_evidence_v1")'
             ),
-            '"diagnostic_id": "auragateway-vllm-cu128-offline-runtime-compatibility-v1"',
+            '"diagnostic_id": "auragateway-cu129-offline-verifier-v1"',
+            '"torch": "2.10.0+cu129"',
+            '"cuda": "12.9"',
+            '"vllm_distribution": "0.19.1"',
             '"--no-index"',
             '"offline_isolated_install"',
             '"vllm_native_extension"',
@@ -417,6 +492,7 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "qualification_evidence_zip_sha256": EXPECTED_QUALIFICATION_EVIDENCE_ZIP_SHA256,
         "diagnostic_evidence_zip_sha256": EXPECTED_DIAGNOSTIC_EVIDENCE_ZIP_SHA256,
         "failure_code": record.failure.primary_code,
+        "materializer_failure_code": record.materializer_failure.code,
         "selected_vllm": record.selected_runtime.vllm,
         "selected_torch": record.selected_runtime.torch,
         "selected_cuda_variant": record.selected_runtime.cuda_variant,
