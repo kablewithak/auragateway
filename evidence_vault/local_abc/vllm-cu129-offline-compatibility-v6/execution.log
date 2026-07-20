@@ -1,0 +1,35 @@
+12.3s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+12.3s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+12.3s 3 0.00s - to python to disable frozen modules.
+12.3s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+13.1s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+13.1s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+13.1s 7 0.00s - to python to disable frozen modules.
+13.1s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+83.1s 9 artifact=/kaggle/working/auragateway_vllm_cu129_offline_compatibility_evidence_v6.zip
+83.1s 10 size_bytes=14350
+83.1s 11 sha256=852b6d497adf620eca90c3719fe6dee1e607528ace6ac76cdf24907c009ada1f
+83.1s 12 offline_compatibility_status=FAILED
+83.1s 13 first_divergence=base_pip_python_target_support
+83.1s 14 failed_required_roles=["base_pip_python_target_support"]
+83.1s 15 blocked_required_roles=["canonical_cusparse_direct_load","canonical_nvjitlink_resolution","canonical_nvjitlink_symbol","canonical_process_environment","inherited_nvjitlink_resolution","offline_hash_locked_install_via_base_pip","python_runtime","target_cuda_library_inventory","target_dependency_check_via_base_pip","target_distribution_inventory","target_process_environment","torch_family_runtime","transformers_runtime","vllm_distribution","vllm_module","vllm_native_extension"]
+83.1s 16 not_executed_required_roles=[]
+83.1s 17 canonical_nvjitlink_resolved_to_target=false
+83.1s 18 target_process_environment_isolated=false
+83.1s 19 base_distribution_metadata_unchanged=true
+83.1s 20 model_requests_performed=0
+83.1s 21 qualification_claimed=false
+83.1s 22 upload_only_this_file=true
+83.1s 23 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+83.1s 24 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+83.1s 25 
+83.1s 26 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+83.1s 27 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+85.7s 28 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+85.7s 29 cells[i][c] = re.sub('\\\\\|', '|', cell)
+85.9s 30 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+85.9s 31 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+86.5s 32 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+86.8s 33 [NbConvertApp] Writing 102725 bytes to __notebook__.ipynb
+89.2s 34 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+90.3s 35 [NbConvertApp] Writing 536455 bytes to __results__.html

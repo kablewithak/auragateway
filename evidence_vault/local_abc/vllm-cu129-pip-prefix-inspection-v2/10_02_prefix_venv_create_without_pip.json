@@ -1,0 +1,1 @@
+{"argv":["/usr/bin/python3","-m","venv","--without-pip","<working>/auragateway_cu129_prefix_probe_venv_v2"],"command_role":"prefix_venv_create_without_pip","duration_ms":127,"returncode":0,"schema_version":"1.0.0","started_at":"2026-07-20T23:20:35+00:00","status":"PASSED","stderr_excerpt":"","stdout_excerpt":"","timed_out":false}

@@ -1,0 +1,1 @@
+{"blocked_by":"target_distribution_inventory","command_role":"python_runtime","reason":"canonical runtime prerequisites failed","returncode":null,"schema_version":"3.0.0","status":"BLOCKED_BY_UPSTREAM_FAILURE","stderr_excerpt":"","stdout_excerpt":"","timed_out":false}
