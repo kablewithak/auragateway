@@ -1,0 +1,1 @@
+{"blocked_by":"canonical_process_environment","command_role":"canonical_nvjitlink_resolution","reason":"canonical target environment failed","returncode":null,"schema_version":"3.0.0","status":"BLOCKED_BY_UPSTREAM_FAILURE","stderr_excerpt":"","stdout_excerpt":"","timed_out":false}

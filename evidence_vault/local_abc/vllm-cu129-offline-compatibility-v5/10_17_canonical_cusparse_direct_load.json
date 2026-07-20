@@ -1,0 +1,1 @@
+{"blocked_by":"canonical_nvjitlink_resolution","command_role":"canonical_cusparse_direct_load","reason":"canonical loader proof did not pass","returncode":null,"schema_version":"3.0.0","status":"BLOCKED_BY_UPSTREAM_FAILURE","stderr_excerpt":"","stdout_excerpt":"","timed_out":false}
