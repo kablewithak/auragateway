@@ -2,121 +2,132 @@
 
 ## Current authorization
 
-The resolution reconnaissance and exact-lock review are complete. One fresh CPU-only materializer run is
-authorized against the reviewed 176-package closure.
+The exact-lock CPU materializer completed successfully and its small control-plane evidence has been
+integrated. The next authorized action is one fresh offline runtime compatibility verifier v2.
 
 ```text
-decision=APPROVED_FOR_EXACT_LOCKED_CU129_WHEELHOUSE_MATERIALIZATION
-next_gate=materialize_exact_locked_cu129_wheelhouse
+decision=APPROVED_FOR_OFFLINE_CU129_RUNTIME_COMPATIBILITY_VERIFICATION_V2
+next_gate=run_cu129_offline_runtime_compatibility_verifier_v2
+materialization_receipt_sha256=52aa42b940dd606ab5685686ab893eb085efed2a7466989f654e870f4b360589
+sha256_manifest_sha256=789fb23ab7d9c4f28dd909e808a53a65d692c0d7b43bc44da9e974817d771b8d
 resolution_lock_sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
 package_count=176
-host_count=5
-wildcard_domains_permitted=false
-materializer_notebook_sha256=d836a61bc7ed7a0d6c26eca68a28ed22e685e5a6705bf16ce4f6dbb8168f7ba2
+manifest_entry_count=182
+wheel_entry_count=176
+non_wheel_entry_count=6
+total_wheel_bytes=5727339111
+active_verifier_notebook_sha256=86db695b463a97d021c7d45a3cd31284d404d618c968ffd18837631f7221d5f2
 ```
 
-Completed prerequisite evidence:
+The verifier remains diagnostic only. It may install the wheelhouse into a fresh isolated virtual
+environment and test imports, but it may not load a model, start workers, issue requests, create an
+authorization, or claim qualification.
+
+## Materialization result
+
+```text
+notebook=notebooks/auragateway_vllm_cu129_wheelhouse_materialization_v1.ipynb
+kaggle_title=auragateway-cu129-wheelhouse-materializer-v1
+output_directory=auragateway_vllm_cu129_wheelhouse_v1
+materializer_notebook_sha256=d836a61bc7ed7a0d6c26eca68a28ed22e685e5a6705bf16ce4f6dbb8168f7ba2
+execution_log_sha256=65387a9952bce57d1802ebd8e39dc58dd897d50680debb70f3422c52c4ef5538
+materialization_status=PASSED
+package_installation_performed=false
+model_requests_performed=0
+qualification_claimed=false
+```
+
+The wheelhouse contains 176 exact locked distributions and 5,727,339,111 wheel bytes. The
+`sha256_manifest.json` contains exactly 182 unique entries:
+
+```text
+176 wheel entries
+6 governed non-wheel entries
+```
+
+The six non-wheel manifest entries are:
+
+```text
+requirements.in
+resolution_lock.json
+materialization.lock.txt
+requirements.lock.txt
+install_runtime.py
+runtime_manifest.json
+```
+
+The receipt and SHA-256 manifest are top-level control artifacts and are validated by exact external
+identities rather than recursively including themselves.
+
+Do not rerun the successful materializer.
+
+## Preserved reconnaissance evidence
 
 ```text
 reconnaissance_notebook=auragateway-cu129-resolution-reconnaissance-v1
 reconnaissance_result=RECONNAISSANCE_ACCEPTED_AND_LOCKED
+resolution_lock_sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
 historical_failure_code=NVIDIA_PACKAGE_HOST_NOT_ALLOWED
 historical_failure_log_sha256=f6e6f844ebfb7ede0aab428e4766af4123622fb2f3092933e4070e26d6831fa4
 historical_observed_host=pypi.nvidia.com
 ```
 
-Run only a fresh Version 1 of the governed notebook. Do not rerun any failed materializer or the completed
-reconnaissance notebook.
-## Purpose
+The approved exact-host closure includes `download-r2.pytorch.org` and `pypi.nvidia.com` only for
+the exact locked artifacts. Wildcard domains remain prohibited.
 
-Produce one complete Python 3.12 CUDA 12.9 wheelhouse for the official vLLM `0.19.1` release and
-validate it in a fresh T4 x2 Kaggle environment without loading a model or issuing requests.
+Do not summarize this evidence as zero downloads. Resolution-time artifact transfer and persistent
+wheel downloads are recorded as separate events.
 
-This supersedes the failed cu128 asset-selection campaign and is now bound to the reviewed exact
-176-package resolution lock. It is not environment qualification.
+## Superseded offline verifier v1
 
-## Preserved failed attempt
+The unexecuted verifier v1 is preserved as static defect evidence:
 
 ```text
-historical_notebook_title=auragateway-cu128-wheelhouse-asset-mismatch-v1
-execution_log_sha256=b45bee3fd286f35d367ee25639100eb33b9244251d5a921dedd84c998e785a2d
-failure_code=VLLM_CU128_RELEASE_ASSET_ABSENT
-wheel_downloads_performed=0
-model_requests_performed=0
-qualification_claimed=false
+repository_notebook=notebooks/auragateway_vllm_cu129_offline_runtime_compatibility_v1.ipynb
+kaggle_title=auragateway-cu129-offline-verifier-v1
+evidence_directory=auragateway_vllm_cu129_offline_compatibility_evidence_v1
+notebook_sha256=692f83fd8a6fa7398ee9fabb0ecbf62640c82d6582a96a552f47e4f8b3b1b189
+execution_authority=SUPERSEDED_BEFORE_EXECUTION
+diagnostic_admissibility=STATIC_DEFECT_EVIDENCE_ONLY
+defect_code=OFFLINE_VERIFIER_TOPOLOGY_CONTRACT_OMITS_RESOLUTION_LOCK
 ```
 
-Do not rerun that notebook.
+Its exact top-level topology omitted `resolution_lock.json`, although the successful materializer
+output necessarily contains that file. Running it would fail before installation with
+`wheelhouse top-level topology drifted`.
 
+Do not import or run verifier v1.
 
-## Approved resolution lock
-
-```text
-path=benchmarks/local_abc/auragateway_vllm_cu129_resolution_lock_v1.json
-sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
-package_count=176
-host_count=5
-wildcard_domains_permitted=false
-```
-
-The materializer must recompute resolution and match every distribution, version, exact hostname, artifact
-filename, raw URL SHA-256, and artifact SHA-256 before retaining any wheelhouse. Any drift blocks the run.
-
-The reconnaissance evidence established that pip's dry run transferred temporary artifacts. Therefore:
-
-```text
-pip_download_subcommand_performed=false
-artifact_transfer_observed_during_resolution=true
-wheel_files_retained_in_reconnaissance_output=0
-package_installation_performed=false
-```
-
-These are separate claims and must not be collapsed into "zero downloads."
-
-## Phase A: materializer
+## Active offline verifier v2
 
 Repository notebook:
 
 ```text
-notebooks/auragateway_vllm_cu129_wheelhouse_materialization_v1.ipynb
+notebooks/auragateway_vllm_cu129_offline_runtime_compatibility_v2.ipynb
 ```
 
 Requested Kaggle title:
 
 ```text
-auragateway-cu129-wheelhouse-materializer-v1
+auragateway-cu129-offline-verifier-v2
 ```
 
-This title is within Kaggle's observed 50-character limit. Record the actual platform-assigned slug
-after Version 1 is saved.
+Character count:
+
+```text
+37
+```
 
 Settings:
 
 ```text
-Accelerator: None
-Internet: On
+Accelerator: T4 x2
+Internet: Off
 Secrets: None
-Inputs: none
+Inputs: exactly the successful Version 1 materializer output
 ```
 
-The notebook binds this exact official release asset:
-
-```text
-vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl
-sha256=71a87f46cafab4489c69a5c5c83b870d0235e5694d8222303d460576293dc719
-```
-
-It resolves the full CUDA 12.9 dependency closure, verifies the exact reviewed closure, downloads binary wheels, and writes hash-locked
-acquisition and runtime files.
-
-Run exactly once with:
-
-```text
-Save Version
-→ Save & Run All
-```
-
-Required saved output:
+Attach exactly one input containing:
 
 ```text
 auragateway_vllm_cu129_wheelhouse_v1/
@@ -131,78 +142,76 @@ auragateway_vllm_cu129_wheelhouse_v1/
 └── materialization_receipt.json
 ```
 
-Required terminal fields:
+Do not attach a model snapshot, harness, qualification authorization, control output, rejected
+wheelhouse, or any customer data.
+
+The verifier first performs a full streaming SHA-256 and size check of all 182 manifest entries,
+validates the exact 176-package resolution closure, validates both locks and all control identities,
+and confirms sufficient writable disk. It then executes:
 
 ```text
-vllm_distribution=0.19.1
-package_count=176
-resolution_lock_sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
-materialization_status=PASSED
-package_installation_performed=false
-model_requests_performed=0
-qualification_claimed=false
-save_this_notebook_output=true
-```
-
-Preserve Version 1, download the output and execution log, record the actual slug, close the session,
-and stop before the verifier.
-
-## Phase B: offline compatibility verifier
-
-Repository notebook:
-
-```text
-notebooks/auragateway_vllm_cu129_offline_runtime_compatibility_v1.ipynb
-```
-
-Requested Kaggle title:
-
-```text
-auragateway-cu129-offline-verifier-v1
-```
-
-Settings:
-
-```text
-Accelerator: T4 x2
-Internet: Off
-Secrets: None
-Inputs: exactly the successful Version 1 materializer output
-```
-
-Do not attach the model snapshot, harness, authorization, control output, or rejected wheels.
-
-Required evidence root:
-
-```text
-/kaggle/working/auragateway_vllm_cu129_offline_compatibility_evidence_v1/
-```
-
-Required artifact:
-
-```text
-/kaggle/working/auragateway_vllm_cu129_offline_compatibility_evidence_v1.zip
-```
-
-The verifier must independently pass:
-
-```text
-offline isolated installation
+offline isolated installation with --no-index
 pip check
-two-T4 topology
-Python 3.12
-torch 2.10.0+cu129
-CUDA 12.9
-Transformers 5.5.3
-vLLM distribution 0.19.1
+two-T4 topology check
+Python 3.12 check
+torch 2.10.0+cu129 check
+torchaudio 2.10.0+cu129 check
+torchvision 0.25.0+cu129 check
+CUDA 12.9 check
+Transformers 5.5.3 check
+vLLM distribution 0.19.1 check
 vLLM module import
 vLLM native-extension import
 ```
 
+Run exactly once:
+
+```text
+Save Version
+→ Save & Run All
+```
+
+Suggested version description:
+
+```text
+Verify exact-locked CUDA 12.9 wheelhouse offline
+```
+
+Required output directory:
+
+```text
+/kaggle/working/auragateway_vllm_cu129_offline_compatibility_evidence_v2/
+```
+
+Required output artifact:
+
+```text
+/kaggle/working/auragateway_vllm_cu129_offline_compatibility_evidence_v2.zip
+```
+
+Required terminal fields:
+
+```text
+offline_compatibility_status=PASSED
+failed_required_roles=[]
+model_requests_performed=0
+qualification_claimed=false
+upload_only_this_file=true
+```
+
+If any input or runtime gate fails, preserve Version 1 and upload the evidence ZIP and execution log.
+Do not edit or rerun the notebook to force a pass.
+
 ## Stop policy
 
-Do not load the model, start workers, issue prompts, create an authorization, run qualification, or make
-cache, latency, quality, cost, or production-readiness claims.
+After the verifier finishes:
+
+1. Preserve immutable Version 1.
+2. Download only the verifier evidence ZIP and complete execution log.
+3. Close the Kaggle session and turn GPUs off.
+4. Stop before model loading, worker startup, or measured A/B/C execution.
+
+No model requests or qualification are authorized by this runbook.
 
 ## Preserved failed materializer attempts
 
@@ -211,6 +220,9 @@ cache, latency, quality, cost, or production-readiness claims.
 ```text
 code=VLLM_CU128_RELEASE_ASSET_ABSENT
 execution_log_sha256=b45bee3fd286f35d367ee25639100eb33b9244251d5a921dedd84c998e785a2d
+wheel_downloads_performed=0
+model_requests_performed=0
+qualification_claimed=false
 ```
 
 ### Attempt 2: PyTorch CDN host omitted
@@ -226,5 +238,15 @@ model_requests_performed=0
 qualification_claimed=false
 ```
 
-A fresh materializer notebook version may run only after the exact CDN host remediation is merged.
-Do not rerun either failed saved version.
+### Attempt 3: NVIDIA package host omitted
+
+```text
+code=NVIDIA_PACKAGE_HOST_NOT_ALLOWED
+historical_kaggle_title=auragateway-cu129-wheelhouse-nvidia-host-mismatch-v1
+observed_host=pypi.nvidia.com
+execution_log_sha256=f6e6f844ebfb7ede0aab428e4766af4123622fb2f3092933e4070e26d6831fa4
+dependency_resolution_completed=true
+wheel_downloads_performed=0
+model_requests_performed=0
+qualification_claimed=false
+```

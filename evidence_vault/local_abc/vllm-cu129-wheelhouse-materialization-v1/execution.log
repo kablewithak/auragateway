@@ -1,0 +1,27 @@
+8.6s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.6s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.6s 3 0.00s - to python to disable frozen modules.
+8.6s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+9.4s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+9.4s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+9.4s 7 0.00s - to python to disable frozen modules.
+9.4s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+334.9s 9 output_directory=/kaggle/working/auragateway_vllm_cu129_wheelhouse_v1
+334.9s 10 vllm_asset_name=vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl
+334.9s 11 vllm_distribution=0.19.1
+334.9s 12 package_count=176
+334.9s 13 resolution_lock_sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
+334.9s 14 total_wheel_bytes=5727339111
+334.9s 15 materialization_status=PASSED
+334.9s 16 package_installation_performed=false
+334.9s 17 model_requests_performed=0
+334.9s 18 qualification_claimed=false
+334.9s 19 save_this_notebook_output=true
+338.7s 20 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+338.7s 21 cells[i][c] = re.sub('\\\\\|', '|', cell)
+339.0s 22 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+339.0s 23 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+339.7s 24 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+340.2s 25 [NbConvertApp] Writing 64629 bytes to __notebook__.ipynb
+343.5s 26 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+344.8s 27 [NbConvertApp] Writing 393690 bytes to __results__.html
