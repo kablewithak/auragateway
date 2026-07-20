@@ -1,21 +1,32 @@
 # AuraGateway vLLM CUDA 12.9 wheelhouse materialization and verification
 
-## Current pause
+## Current authorization
 
-Do not run this materializer.
+The resolution reconnaissance and exact-lock review are complete. One fresh CPU-only materializer run is
+authorized against the reviewed 176-package closure.
 
 ```text
-next_gate=auragateway-cu129-resolution-reconnaissance-v1
-code=NVIDIA_PACKAGE_HOST_NOT_ALLOWED
-execution_log_sha256=f6e6f844ebfb7ede0aab428e4766af4123622fb2f3092933e4070e26d6831fa4
-observed_host=pypi.nvidia.com
-known_static_finding=MATERIALIZER_REQUIRED_PREFIX_VARIANT_DRIFT
+decision=APPROVED_FOR_EXACT_LOCKED_CU129_WHEELHOUSE_MATERIALIZATION
+next_gate=materialize_exact_locked_cu129_wheelhouse
+resolution_lock_sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
+package_count=176
+host_count=5
+wildcard_domains_permitted=false
+materializer_notebook_sha256=d836a61bc7ed7a0d6c26eca68a28ed22e685e5a6705bf16ce4f6dbb8168f7ba2
 ```
 
-The reconnaissance gate must collect all policy violations and the full exact-host inventory before this
-materializer is repaired and rerun.
+Completed prerequisite evidence:
 
+```text
+reconnaissance_notebook=auragateway-cu129-resolution-reconnaissance-v1
+reconnaissance_result=RECONNAISSANCE_ACCEPTED_AND_LOCKED
+historical_failure_code=NVIDIA_PACKAGE_HOST_NOT_ALLOWED
+historical_failure_log_sha256=f6e6f844ebfb7ede0aab428e4766af4123622fb2f3092933e4070e26d6831fa4
+historical_observed_host=pypi.nvidia.com
+```
 
+Run only a fresh Version 1 of the governed notebook. Do not rerun any failed materializer or the completed
+reconnaissance notebook.
 ## Purpose
 
 Produce one complete Python 3.12 CUDA 12.9 wheelhouse for the official vLLM `0.19.1` release and
