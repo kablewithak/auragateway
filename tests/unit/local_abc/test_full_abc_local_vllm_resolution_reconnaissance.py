@@ -41,20 +41,22 @@ def _record(
 def test_repository_reconnaissance_package_validates() -> None:
     summary = reconnaissance.validate_repository_package(ROOT)
 
-    assert summary["status"] == "VLLM_RESOLUTION_RECONNAISSANCE_PACKAGE_VALID"
+    assert summary["status"] == "VLLM_RESOLUTION_RECONNAISSANCE_RESULT_VALID"
     assert summary["notebook_sha256"] == reconnaissance.EXPECTED_NOTEBOOK_SHA256
     assert summary["historical_failure_count"] == 3
     assert summary["nvidia_failure_log_sha256"] == (
         reconnaissance.EXPECTED_NVIDIA_FAILURE_LOG_SHA256
     )
-    assert summary["candidate_host_count"] == 1
-    assert summary["approved_host_count"] == 6
-    assert summary["materializer_paused"] is True
+    assert summary["resolved_distribution_count"] == 176
+    assert summary["host_count"] == 5
+    assert summary["policy_violation_count"] == 26
+    assert summary["artifact_transfer_observed_during_pip_dry_run"] is True
+    assert summary["materializer_paused"] is False
     assert summary["package_installation_performed"] is False
     assert summary["model_requests_performed"] == 0
     assert summary["qualification_claimed"] is False
     assert summary["authorization_issued"] is False
-    assert summary["next_gate"] == "review_complete_source_authority_inventory"
+    assert summary["next_gate"] == "materialize_exact_locked_cu129_wheelhouse"
 
 
 def test_plan_binds_all_three_failures_and_static_materializer_finding() -> None:

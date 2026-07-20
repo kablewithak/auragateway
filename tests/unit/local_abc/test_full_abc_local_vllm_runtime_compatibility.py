@@ -32,7 +32,9 @@ def test_repository_runtime_compatibility_package_validates() -> None:
     assert summary["reconnaissance_notebook_sha256"] == (
         runtime.EXPECTED_RECONNAISSANCE_NOTEBOOK_SHA256
     )
-    assert summary["materializer_paused"] is True
+    assert summary["materializer_paused"] is False
+    assert summary["approved_package_count"] == 176
+    assert summary["resolution_lock_sha256"] == runtime.EXPECTED_RESOLUTION_LOCK_SHA256
     assert summary["authorization_issued"] is False
     assert summary["model_requests_performed"] == 0
     assert summary["qualification_claimed"] is False
@@ -41,19 +43,21 @@ def test_repository_runtime_compatibility_package_validates() -> None:
 def test_decision_record_binds_cu129_artifact_identities() -> None:
     payload = json.loads((ROOT / runtime.RECORD_PATH).read_text(encoding="utf-8"))
 
-    assert payload["schema_version"] == "1.5.0"
-    assert payload["decision"] == "PAUSED_FOR_CU129_RESOLUTION_RECONNAISSANCE"
-    assert payload["artifacts"] == {
-        "materializer_kaggle_name": runtime.MATERIALIZER_NOTEBOOK_NAME,
-        "materializer_notebook": runtime.MATERIALIZER_NOTEBOOK_PATH.as_posix(),
-        "output_directory": runtime.OUTPUT_DIRECTORY_NAME,
-        "verifier_evidence_directory": runtime.VERIFIER_EVIDENCE_DIRECTORY_NAME,
-        "verifier_kaggle_name": runtime.VERIFIER_NOTEBOOK_NAME,
-        "verifier_notebook": runtime.VERIFIER_NOTEBOOK_PATH.as_posix(),
-        "reconnaissance_kaggle_name": runtime.RECONNAISSANCE_NOTEBOOK_NAME,
-        "reconnaissance_notebook": runtime.RECONNAISSANCE_NOTEBOOK_PATH.as_posix(),
-        "reconnaissance_output_directory": runtime.RECONNAISSANCE_OUTPUT_DIRECTORY_NAME,
-    }
+    assert payload["schema_version"] == "1.6.0"
+    assert payload["decision"] == "APPROVED_FOR_EXACT_LOCKED_CU129_WHEELHOUSE_MATERIALIZATION"
+    artifacts = payload["artifacts"]
+    assert artifacts["materializer_kaggle_name"] == runtime.MATERIALIZER_NOTEBOOK_NAME
+    assert artifacts["materializer_notebook"] == runtime.MATERIALIZER_NOTEBOOK_PATH.as_posix()
+    assert artifacts["output_directory"] == runtime.OUTPUT_DIRECTORY_NAME
+    assert artifacts["verifier_evidence_directory"] == runtime.VERIFIER_EVIDENCE_DIRECTORY_NAME
+    assert artifacts["verifier_kaggle_name"] == runtime.VERIFIER_NOTEBOOK_NAME
+    assert artifacts["verifier_notebook"] == runtime.VERIFIER_NOTEBOOK_PATH.as_posix()
+    assert artifacts["reconnaissance_kaggle_name"] == runtime.RECONNAISSANCE_NOTEBOOK_NAME
+    assert artifacts["reconnaissance_notebook"] == runtime.RECONNAISSANCE_NOTEBOOK_PATH.as_posix()
+    assert artifacts["reconnaissance_output_directory"] == (
+        runtime.RECONNAISSANCE_OUTPUT_DIRECTORY_NAME
+    )
+    assert artifacts["resolution_lock_sha256"] == runtime.EXPECTED_RESOLUTION_LOCK_SHA256
 
 
 def test_decision_record_preserves_observed_and_selected_stacks() -> None:
@@ -179,7 +183,11 @@ def test_materializer_notebook_binds_exact_official_release_asset() -> None:
     assert '"torch==2.10.0+cu129"' in source
     assert '"transformers==5.5.3"' in source
     assert '"download-r2.pytorch.org"' in source
-    assert '"failure_code": "RESOLVED_ARTIFACT_URL_NOT_ALLOWED"' in source
+    assert '"pypi.nvidia.com"' in source
+    assert runtime.EXPECTED_RESOLUTION_LOCK_SHA256 in source
+    assert '"RESOLUTION_LOCK_MISMATCH"' in source
+    assert '"torch-2.10.0+cu129-"' in source
+    assert '"torch-2.10.0+cu128-"' not in source
     assert '"--require-hashes"' in source
 
 

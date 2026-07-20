@@ -21,7 +21,8 @@ materializer is repaired and rerun.
 Produce one complete Python 3.12 CUDA 12.9 wheelhouse for the official vLLM `0.19.1` release and
 validate it in a fresh T4 x2 Kaggle environment without loading a model or issuing requests.
 
-This supersedes the failed cu128 asset-selection campaign. It is not environment qualification.
+This supersedes the failed cu128 asset-selection campaign and is now bound to the reviewed exact
+176-package resolution lock. It is not environment qualification.
 
 ## Preserved failed attempt
 
@@ -35,6 +36,31 @@ qualification_claimed=false
 ```
 
 Do not rerun that notebook.
+
+
+## Approved resolution lock
+
+```text
+path=benchmarks/local_abc/auragateway_vllm_cu129_resolution_lock_v1.json
+sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
+package_count=176
+host_count=5
+wildcard_domains_permitted=false
+```
+
+The materializer must recompute resolution and match every distribution, version, exact hostname, artifact
+filename, raw URL SHA-256, and artifact SHA-256 before retaining any wheelhouse. Any drift blocks the run.
+
+The reconnaissance evidence established that pip's dry run transferred temporary artifacts. Therefore:
+
+```text
+pip_download_subcommand_performed=false
+artifact_transfer_observed_during_resolution=true
+wheel_files_retained_in_reconnaissance_output=0
+package_installation_performed=false
+```
+
+These are separate claims and must not be collapsed into "zero downloads."
 
 ## Phase A: materializer
 
@@ -69,7 +95,7 @@ vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl
 sha256=71a87f46cafab4489c69a5c5c83b870d0235e5694d8222303d460576293dc719
 ```
 
-It resolves the full CUDA 12.9 dependency closure, downloads binary wheels, and writes hash-locked
+It resolves the full CUDA 12.9 dependency closure, verifies the exact reviewed closure, downloads binary wheels, and writes hash-locked
 acquisition and runtime files.
 
 Run exactly once with:
@@ -85,6 +111,7 @@ Required saved output:
 auragateway_vllm_cu129_wheelhouse_v1/
 ├── wheels/
 ├── requirements.in
+├── resolution_lock.json
 ├── materialization.lock.txt
 ├── requirements.lock.txt
 ├── install_runtime.py
@@ -97,7 +124,10 @@ Required terminal fields:
 
 ```text
 vllm_distribution=0.19.1
+package_count=176
+resolution_lock_sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
 materialization_status=PASSED
+package_installation_performed=false
 model_requests_performed=0
 qualification_claimed=false
 save_this_notebook_output=true

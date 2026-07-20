@@ -31,13 +31,18 @@ RUNBOOK_PATH: Final = Path("docs/runbooks/local_abc_vllm_cu129_resolution_reconn
 RUNTIME_RECORD_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_vllm_runtime_compatibility_remediation_v1.json"
 )
+RESULT_PATH: Final = Path(
+    "benchmarks/local_abc/auragateway_vllm_resolution_reconnaissance_result_v1.json"
+)
+LOCK_PATH: Final = Path("benchmarks/local_abc/auragateway_vllm_cu129_resolution_lock_v1.json")
 
 NOTEBOOK_NAME: Final = "auragateway-cu129-resolution-reconnaissance-v1"
 OUTPUT_DIRECTORY_NAME: Final = "auragateway_vllm_cu129_resolution_reconnaissance_v1"
 EXPECTED_NOTEBOOK_SHA256: Final = "541e92aa0b509d0966911904d1c6bb951819aa98abb69f4f7964b724c55afd6a"
 EXPECTED_MATERIALIZER_SHA256: Final = (
-    "a3e043ba6c2caf982a0ebe14ddd1d102e0b5066a46ff17f6fdbf7e0bf876cf79"
+    "d836a61bc7ed7a0d6c26eca68a28ed22e685e5a6705bf16ce4f6dbb8168f7ba2"
 )
+EXPECTED_LOCK_SHA256: Final = "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"
 EXPECTED_NVIDIA_FAILURE_LOG_SHA256: Final = (
     "f6e6f844ebfb7ede0aab428e4766af4123622fb2f3092933e4070e26d6831fa4"
 )
@@ -473,23 +478,50 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         raise RuntimeError("reconnaissance notebook raw identity drifted")
 
     materializer_source = _notebook_source(_load_json_object(root / MATERIALIZER_PATH))
-    materializer_findings = (
-        '"vllm-0.19.1+cu128-"',
-        '"torch-2.10.0+cu128-"',
-        '"torchaudio-2.10.0+cu128-"',
-        '"torchvision-0.25.0+cu128-"',
+    required_materializer_fragments = (
+        (
+            "RESOLUTION_LOCK_SHA256 = "
+            '"1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"'
+        ),
+        '"RESOLUTION_LOCK_MISMATCH"',
+        '"torch-2.10.0+cu129-"',
+        '"torchaudio-2.10.0+cu129-"',
+        '"torchvision-0.25.0+cu129-"',
+        '"pip_resolution_artifact_transfer_observed"',
     )
     if _file_sha256(root / MATERIALIZER_PATH) != EXPECTED_MATERIALIZER_SHA256:
-        raise RuntimeError("paused materializer identity drifted")
-    if any(fragment not in materializer_source for fragment in materializer_findings):
-        raise RuntimeError("known materializer prefix drift is no longer represented by the plan")
+        raise RuntimeError("exact-lock materializer identity drifted")
+    if any(fragment not in materializer_source for fragment in required_materializer_fragments):
+        raise RuntimeError("exact-lock materializer contract drifted")
+    if any(
+        fragment in materializer_source
+        for fragment in (
+            '"vllm-0.19.1+cu128-"',
+            '"torch-2.10.0+cu128-"',
+            '"torchaudio-2.10.0+cu128-"',
+            '"torchvision-0.25.0+cu128-"',
+        )
+    ):
+        raise RuntimeError("stale cu128 materializer prefix remains")
+
+    result = _load_json_object(root / RESULT_PATH)
+    if result.get("decision") != "RECONNAISSANCE_ACCEPTED_AND_LOCKED":
+        raise RuntimeError("reconnaissance result decision drifted")
+    review = result.get("review_resolution")
+    if not isinstance(review, dict) or review.get("resolution_lock_sha256") != EXPECTED_LOCK_SHA256:
+        raise RuntimeError("reconnaissance result lock identity drifted")
+    if _file_sha256(root / LOCK_PATH) != EXPECTED_LOCK_SHA256:
+        raise RuntimeError("resolution lock raw identity drifted")
 
     runtime_record = _load_json_object(root / RUNTIME_RECORD_PATH)
-    if runtime_record.get("schema_version") != "1.5.0":
+    if runtime_record.get("schema_version") != "1.6.0":
         raise RuntimeError("runtime remediation schema version drifted")
-    if runtime_record.get("decision") != "PAUSED_FOR_CU129_RESOLUTION_RECONNAISSANCE":
-        raise RuntimeError("runtime materialization pause decision drifted")
-    if runtime_record.get("next_gate") != "run_cu129_resolution_reconnaissance":
+    if (
+        runtime_record.get("decision")
+        != "APPROVED_FOR_EXACT_LOCKED_CU129_WHEELHOUSE_MATERIALIZATION"
+    ):
+        raise RuntimeError("runtime materialization decision drifted")
+    if runtime_record.get("next_gate") != "materialize_exact_locked_cu129_wheelhouse":
         raise RuntimeError("runtime next gate drifted")
 
     nvidia_failure = runtime_record.get("materializer_nvidia_failure")
@@ -515,19 +547,24 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         raise RuntimeError("reconnaissance runbook drifted")
 
     return {
-        "status": "VLLM_RESOLUTION_RECONNAISSANCE_PACKAGE_VALID",
+        "status": "VLLM_RESOLUTION_RECONNAISSANCE_RESULT_VALID",
         "plan_sha256": _file_sha256(root / PLAN_PATH),
+        "result_sha256": _file_sha256(root / RESULT_PATH),
+        "resolution_lock_sha256": EXPECTED_LOCK_SHA256,
         "notebook_sha256": _file_sha256(root / NOTEBOOK_PATH),
+        "materializer_notebook_sha256": EXPECTED_MATERIALIZER_SHA256,
         "historical_failure_count": len(plan.historical_failures),
         "nvidia_failure_log_sha256": EXPECTED_NVIDIA_FAILURE_LOG_SHA256,
-        "candidate_host_count": len(CANDIDATE_HOST_AUTHORITIES),
-        "approved_host_count": len(APPROVED_HOST_AUTHORITIES),
-        "materializer_paused": True,
+        "resolved_distribution_count": 176,
+        "host_count": 5,
+        "policy_violation_count": 26,
+        "artifact_transfer_observed_during_pip_dry_run": True,
+        "materializer_paused": False,
         "package_installation_performed": False,
         "model_requests_performed": 0,
         "qualification_claimed": False,
         "authorization_issued": False,
-        "next_gate": plan.next_gate,
+        "next_gate": "materialize_exact_locked_cu129_wheelhouse",
     }
 
 

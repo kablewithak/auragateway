@@ -1,6 +1,6 @@
 # ADR: Materialize the official isolated CUDA 12.9 vLLM runtime for Kaggle T4
 
-- Status: Accepted for materialization
+- Status: Accepted for exact-lock materialization
 - Date: 2026-07-20
 - Scope: AuraGateway local A/B/C environment qualification remediation
 - Supersedes: `2026-07-20-local-abc-vllm-cu128-offline-wheelhouse.md`
@@ -136,3 +136,40 @@ The remediation adds only the exact official `download-r2.pytorch.org` host. HTT
 credential rejection, fragment rejection, and exact-host matching remain unchanged. Wildcard PyTorch
 domains are not permitted. Rejected URL evidence is bounded to a normalized distribution name,
 failure code, and hostname.
+
+
+## Resolution reconnaissance decision
+
+The governed resolution-only run completed successfully and resolved exactly 176 unique distributions across
+five exact artifact hosts. The saved evidence is bound by:
+
+```text
+results_zip_sha256=a035b21fe5795816e888886003c3dd6c73dbda162370805be687b28f8cef4399
+execution_log_sha256=3455a8e631157a0c4e4c66e3e5e23c0e4cb41236e6b7d1016811b357488a2269
+resolution_lock_sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
+```
+
+The run retained zero wheel files in its governed output, installed no packages, loaded no model, issued zero
+model requests, and made no qualification claim. The pip dry run did transfer temporary artifacts while
+building metadata, so the repository no longer equates "no pip download subcommand" with "zero network
+artifact transfer."
+
+The 26 policy findings were reviewed as one closure:
+
+- 15 artifacts came from `pypi.nvidia.com`;
+- 11 findings came from incorrect package-family authority assumptions;
+- all 176 artifacts had HTTPS URLs and SHA-256 identities;
+- the closure contained no duplicate distribution identity or duplicate artifact digest.
+
+The authority heuristic is superseded by an exact artifact lock. Each approved record binds distribution,
+version, exact hostname, artifact filename, raw URL SHA-256, and artifact SHA-256. Host approval applies only
+to those exact locked records and does not authorize wildcard domains or arbitrary future artifacts.
+
+The materializer now fails before wheelhouse download if the live resolution differs from the reviewed lock.
+It also repairs the stale cu128 filename-prefix checks for vLLM, Torch, torchaudio, and torchvision.
+
+## Remaining gate
+
+The next run is a fresh CPU-only materializer. Passing it proves only that the exact reviewed wheel closure can
+be retained as a hash-locked wheelhouse. It does not prove offline installation, native extension compatibility,
+model loading, cache behavior, qualification, or production readiness.

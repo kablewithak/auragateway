@@ -1,0 +1,5 @@
+vllm @ https://github.com/vllm-project/vllm/releases/download/v0.19.1/vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl
+torch==2.10.0+cu129
+torchaudio==2.10.0+cu129
+torchvision==0.25.0+cu129
+transformers==5.5.3

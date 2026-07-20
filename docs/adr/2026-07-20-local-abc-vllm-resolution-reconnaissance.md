@@ -147,3 +147,24 @@ This ADR does not establish:
 - that `vllm` or `vllm._C` imports;
 - that model loading, workers, cache behavior, or A/B/C execution are authorized;
 - that AuraGateway is production-ready.
+
+
+## Completed Version 1 result
+
+```text
+status=RESOLUTION_RECONNAISSANCE_REVIEW_REQUIRED
+resolved_distribution_count=176
+host_count=5
+policy_violation_count=26
+results_zip_sha256=a035b21fe5795816e888886003c3dd6c73dbda162370805be687b28f8cef4399
+execution_log_sha256=3455a8e631157a0c4e4c66e3e5e23c0e4cb41236e6b7d1016811b357488a2269
+```
+
+All 26 findings were reviewed together and converted into the exact artifact lock:
+
+```text
+resolution_lock_sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
+review_decision=APPROVED_AS_EXACT_LOCKED_CLOSURE
+```
+
+The historical notebook must not be rerun. The next gate is the fresh exact-lock materializer.
