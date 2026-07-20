@@ -1,0 +1,34 @@
+8.0s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.0s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.0s 3 0.00s - to python to disable frozen modules.
+8.0s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+8.7s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.7s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.7s 7 0.00s - to python to disable frozen modules.
+8.7s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+286.8s 9 artifact=/kaggle/working/auragateway_vllm_cu129_offline_compatibility_evidence_v4.zip
+286.8s 10 size_bytes=15130
+286.8s 11 sha256=9a4bd10a66c440ffb2628f98ce143e38a1b5cdb06a745497b7b386910816e0fe
+286.8s 12 offline_compatibility_status=FAILED
+286.8s 13 first_divergence=torch_family_runtime
+286.8s 14 failed_required_roles=["torch_family_runtime","vllm_module","vllm_native_extension"]
+286.8s 15 blocked_required_roles=[]
+286.8s 16 not_executed_required_roles=[]
+286.8s 17 base_distribution_metadata_unchanged=true
+286.8s 18 target_environment_isolated=true
+286.8s 19 model_requests_performed=0
+286.8s 20 qualification_claimed=false
+286.8s 21 upload_only_this_file=true
+286.8s 22 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+286.8s 23 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+286.8s 24 
+286.8s 25 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+286.8s 26 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+289.9s 27 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+289.9s 28 cells[i][c] = re.sub('\\\\\|', '|', cell)
+290.1s 29 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+290.1s 30 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+290.8s 31 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+291.2s 32 [NbConvertApp] Writing 62256 bytes to __notebook__.ipynb
+294.0s 33 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+295.2s 34 [NbConvertApp] Writing 460069 bytes to __results__.html
