@@ -2,26 +2,28 @@
 
 ## Current authorization
 
-The exact-lock CPU materializer completed successfully and its small control-plane evidence has been
-integrated. The next authorized action is one fresh offline runtime compatibility verifier v2.
+Offline verifier v2 Version 1 is preserved as valid diagnostic failure evidence. Its complete input
+validation passed, but virtual-environment creation failed while the new interpreter ran `ensurepip`.
+The nested `ensurepip` stdout and stderr were not captured, so the underlying cause remains unassigned.
 
 ```text
-decision=APPROVED_FOR_OFFLINE_CU129_RUNTIME_COMPATIBILITY_VERIFICATION_V2
-next_gate=run_cu129_offline_runtime_compatibility_verifier_v2
+decision=APPROVED_FOR_OFFLINE_CU129_BOOTSTRAP_DIAGNOSTIC_VERIFICATION_V3
+next_gate=run_cu129_offline_runtime_compatibility_verifier_v3
+verifier_v2_evidence_zip_sha256=01019ce577f2bc7bfaaa8810d19161157f1dbc15b3c8817c2ba7836c4b0158d4
 materialization_receipt_sha256=52aa42b940dd606ab5685686ab893eb085efed2a7466989f654e870f4b360589
 sha256_manifest_sha256=789fb23ab7d9c4f28dd909e808a53a65d692c0d7b43bc44da9e974817d771b8d
-resolution_lock_sha256=1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c
 package_count=176
-manifest_entry_count=182
-wheel_entry_count=176
-non_wheel_entry_count=6
-total_wheel_bytes=5727339111
-active_verifier_notebook_sha256=86db695b463a97d021c7d45a3cd31284d404d618c968ffd18837631f7221d5f2
+verifier_v2_status=FAILED
+verifier_v2_input_validation=PASSED
+verifier_v2_first_divergence=offline_isolated_install
+verifier_v2_failure_code=ENSUREPIP_BOOTSTRAP_FAILED
+package_installation_started=false
+wheelhouse_rematerialization_justified=false
+active_verifier_notebook_sha256=d9cd2218fb7fc995ecd205127d979154c9700d26e7432abfefc6a0a7af1af36f
 ```
 
-The verifier remains diagnostic only. It may install the wheelhouse into a fresh isolated virtual
-environment and test imports, but it may not load a model, start workers, issue requests, create an
-authorization, or claim qualification.
+The next action is one fresh verifier v3 run. It remains diagnostic only and may not load a model,
+start workers, issue requests, create qualification authorization, or claim qualification.
 
 ## Materialization result
 
@@ -98,7 +100,28 @@ output necessarily contains that file. Running it would fail before installation
 
 Do not import or run verifier v1.
 
-## Active offline verifier v2
+## Consumed offline verifier v2
+
+Verifier v2 Version 1 is immutable and must not be rerun.
+
+```text
+decision=APPROVED_FOR_OFFLINE_CU129_RUNTIME_COMPATIBILITY_VERIFICATION_V2
+next_gate=run_cu129_offline_runtime_compatibility_verifier_v2
+kaggle_title=auragateway-cu129-offline-verifier-v2
+notebook_sha256=86db695b463a97d021c7d45a3cd31284d404d618c968ffd18837631f7221d5f2
+evidence_zip_sha256=01019ce577f2bc7bfaaa8810d19161157f1dbc15b3c8817c2ba7836c4b0158d4
+input_validation=PASSED
+observed_failed_roles=["offline_isolated_install"]
+first_divergence=venv.EnvBuilder(with_pip=True) -> ensurepip
+failure_code=ENSUREPIP_BOOTSTRAP_FAILED
+nested_ensurepip_output_captured=false
+package_installation_started=false
+```
+
+The eight downstream required roles were not independently observed failures. They were absent because
+the verifier scheduled them only after a successful isolated installation.
+
+Do not rerun verifier v2.
 
 Repository notebook:
 
@@ -201,6 +224,71 @@ upload_only_this_file=true
 
 If any input or runtime gate fails, preserve Version 1 and upload the evidence ZIP and execution log.
 Do not edit or rerun the notebook to force a pass.
+
+## Active offline verifier v3
+
+Repository notebook:
+
+```text
+notebooks/auragateway_vllm_cu129_offline_runtime_compatibility_v3.ipynb
+```
+
+Requested Kaggle title:
+
+```text
+auragateway-cu129-offline-verifier-v3
+```
+
+Character count:
+
+```text
+37
+```
+
+Settings:
+
+```text
+Accelerator: T4 x2
+Internet: Off
+Secrets: None
+Inputs: exactly the successful Version 1 materializer output
+```
+
+Verifier v3 preserves the exact wheelhouse validation from v2, then separates bootstrap into explicit
+captured roles:
+
+```text
+base_python_runtime
+base_venv_import
+base_ensurepip_import
+base_ensurepip_cli
+venv_create_without_pip
+venv_python_runtime
+venv_ensurepip_bootstrap
+venv_pip_version
+offline_hash_locked_install
+```
+
+It creates the environment with `--without-pip`, invokes the new interpreter's `ensurepip` as a
+separately captured subprocess, and starts the exact `--no-index --require-hashes` installation only
+after bootstrap passes.
+
+Downstream roles use this taxonomy:
+
+```text
+FAILED
+BLOCKED_BY_UPSTREAM_FAILURE
+NOT_EXECUTED
+```
+
+Required output artifact:
+
+```text
+/kaggle/working/auragateway_vllm_cu129_offline_compatibility_evidence_v3.zip
+```
+
+Run exactly once with `Save Version -> Save & Run All`. Preserve Version 1 whether the result passes or
+fails. Upload only the evidence ZIP and complete execution log, then turn both GPUs off.
 
 ## Stop policy
 
