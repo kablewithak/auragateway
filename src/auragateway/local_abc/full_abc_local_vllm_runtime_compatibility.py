@@ -55,11 +55,14 @@ EXPECTED_DIAGNOSTIC_EVIDENCE_ZIP_SHA256: Final = (
 EXPECTED_MATERIALIZER_FAILURE_LOG_SHA256: Final = (
     "b45bee3fd286f35d367ee25639100eb33b9244251d5a921dedd84c998e785a2d"
 )
+EXPECTED_MATERIALIZER_CDN_FAILURE_LOG_SHA256: Final = (
+    "69c7656374fc5313becb44684f1b11eac950db7c79eed5b62572eaefec3640a3"
+)
 EXPECTED_VLLM_ASSET_SHA256: Final = (
     "71a87f46cafab4489c69a5c5c83b870d0235e5694d8222303d460576293dc719"
 )
 EXPECTED_MATERIALIZER_NOTEBOOK_SHA256: Final = (
-    "67b9a066319c3fc05b093484087b9bf888876113360c92ee868c9789058e2e95"
+    "a3e043ba6c2caf982a0ebe14ddd1d102e0b5066a46ff17f6fdbf7e0bf876cf79"
 )
 EXPECTED_VERIFIER_NOTEBOOK_SHA256: Final = (
     "692f83fd8a6fa7398ee9fabb0ecbf62640c82d6582a96a552f47e4f8b3b1b189"
@@ -150,6 +153,25 @@ class VllmMaterializerFailureV1(LocalABCContract):
     qualification_claimed: Literal[False]
 
 
+class VllmMaterializerCdnFailureV1(LocalABCContract):
+    # Preserved first divergence from the failed cu129 CDN allowlist run.
+
+    classification: Literal["MATERIALIZER_DOWNLOAD_HOST_ALLOWLIST_FAILURE"]
+    code: Literal["PYTORCH_CDN_HOST_NOT_ALLOWED"]
+    failed_requested_kaggle_title: Literal["auragateway-cu129-wheelhouse-materializer-v1"]
+    historical_kaggle_title: Literal["auragateway-cu129-wheelhouse-cdn-mismatch-v1"]
+    execution_log_sha256: Literal[
+        "69c7656374fc5313becb44684f1b11eac950db7c79eed5b62572eaefec3640a3"
+    ]
+    first_divergence: Literal["resolved_torch_wheel_uses_download-r2.pytorch.org"]
+    observed_host: Literal["download-r2.pytorch.org"]
+    dependency_resolution_completed: Literal[True]
+    output_generated: Literal[False]
+    wheel_downloads_performed: Literal[0]
+    model_requests_performed: Literal[0]
+    qualification_claimed: Literal[False]
+
+
 class VllmRuntimeArtifactsV1(LocalABCContract):
     """Repository and Kaggle artifact identities for the next two gates."""
 
@@ -189,11 +211,12 @@ class VllmRuntimeSafetyV1(LocalABCContract):
 class VllmRuntimeCompatibilityRemediationV1(LocalABCContract):
     """Typed decision record for the complete isolated wheelhouse approach."""
 
-    schema_version: Literal["1.3.0"]
+    schema_version: Literal["1.4.0"]
     record_id: Literal["auragateway-vllm-runtime-compatibility-remediation-v1"]
     decision: Literal["APPROVED_FOR_ISOLATED_CU129_WHEELHOUSE_MATERIALIZATION"]
     failure: VllmRuntimeFailureV1
     materializer_failure: VllmMaterializerFailureV1
+    materializer_cdn_failure: VllmMaterializerCdnFailureV1
     selected_runtime: VllmRuntimeStackV1
     artifacts: VllmRuntimeArtifactsV1
     gates: tuple[str, ...]
@@ -336,6 +359,8 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         EXPECTED_VLLM_ASSET_SHA256,
         "torch 2.10.0+cu129",
         "CUDA 12.9",
+        EXPECTED_MATERIALIZER_CDN_FAILURE_LOG_SHA256,
+        "download-r2.pytorch.org",
     )
     if any(fragment not in active_adr for fragment in required_adr_fragments):
         raise RuntimeError("active cu129 ADR drifted")
@@ -347,6 +372,8 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         OUTPUT_DIRECTORY_NAME,
         VERIFIER_EVIDENCE_DIRECTORY_NAME,
         EXPECTED_MATERIALIZER_FAILURE_LOG_SHA256,
+        EXPECTED_MATERIALIZER_CDN_FAILURE_LOG_SHA256,
+        "download-r2.pytorch.org",
     )
     if any(fragment not in runbook for fragment in required_runbook_fragments):
         raise RuntimeError("cu129 materialization runbook drifted")
@@ -368,6 +395,13 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         raise RuntimeError("verifier evidence output identity drifted")
     if record.materializer_failure.execution_log_sha256 != EXPECTED_MATERIALIZER_FAILURE_LOG_SHA256:
         raise RuntimeError("materializer failure-log identity drifted")
+    if (
+        record.materializer_cdn_failure.execution_log_sha256
+        != EXPECTED_MATERIALIZER_CDN_FAILURE_LOG_SHA256
+    ):
+        raise RuntimeError("materializer CDN failure-log identity drifted")
+    if record.materializer_cdn_failure.observed_host != "download-r2.pytorch.org":
+        raise RuntimeError("materializer CDN failure host drifted")
     if record.selected_runtime.vllm_asset_sha256 != EXPECTED_VLLM_ASSET_SHA256:
         raise RuntimeError("selected vLLM release-asset identity drifted")
 
@@ -453,6 +487,8 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
             EXPECTED_VLLM_ASSET_SHA256,
             '"torch==2.10.0+cu129"',
             '"transformers==5.5.3"',
+            '"download-r2.pytorch.org"',
+            '"failure_code": "RESOLVED_ARTIFACT_URL_NOT_ALLOWED"',
             '"--require-hashes"',
             '"materialization_status=PASSED"',
         ),
@@ -493,6 +529,7 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "diagnostic_evidence_zip_sha256": EXPECTED_DIAGNOSTIC_EVIDENCE_ZIP_SHA256,
         "failure_code": record.failure.primary_code,
         "materializer_failure_code": record.materializer_failure.code,
+        "materializer_cdn_failure_code": record.materializer_cdn_failure.code,
         "selected_vllm": record.selected_runtime.vllm,
         "selected_torch": record.selected_runtime.torch,
         "selected_cuda_variant": record.selected_runtime.cuda_variant,

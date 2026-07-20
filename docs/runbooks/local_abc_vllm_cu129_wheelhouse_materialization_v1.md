@@ -146,3 +146,28 @@ vLLM native-extension import
 
 Do not load the model, start workers, issue prompts, create an authorization, run qualification, or make
 cache, latency, quality, cost, or production-readiness claims.
+
+## Preserved failed materializer attempts
+
+### Attempt 1: explicit cu128 asset absent
+
+```text
+code=VLLM_CU128_RELEASE_ASSET_ABSENT
+execution_log_sha256=b45bee3fd286f35d367ee25639100eb33b9244251d5a921dedd84c998e785a2d
+```
+
+### Attempt 2: PyTorch CDN host omitted
+
+```text
+code=PYTORCH_CDN_HOST_NOT_ALLOWED
+historical_kaggle_title=auragateway-cu129-wheelhouse-cdn-mismatch-v1
+observed_host=download-r2.pytorch.org
+execution_log_sha256=69c7656374fc5313becb44684f1b11eac950db7c79eed5b62572eaefec3640a3
+dependency_resolution_completed=true
+wheel_downloads_performed=0
+model_requests_performed=0
+qualification_claimed=false
+```
+
+A fresh materializer notebook version may run only after the exact CDN host remediation is merged.
+Do not rerun either failed saved version.
