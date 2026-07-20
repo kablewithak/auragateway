@@ -1,0 +1,1 @@
+{"argv":["/usr/bin/python3","-c","import venv;print('ok')"],"command_role":"base_venv_import","duration_ms":97,"returncode":0,"schema_version":"3.0.0","started_at":"2026-07-20T22:51:46+00:00","status":"PASSED","stderr_excerpt":"","stdout_excerpt":"ok\n","timed_out":false}

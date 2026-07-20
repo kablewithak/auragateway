@@ -1,0 +1,35 @@
+8.2s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.2s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.2s 3 0.00s - to python to disable frozen modules.
+8.2s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+8.9s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.9s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.9s 7 0.00s - to python to disable frozen modules.
+8.9s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+10.4s 9 artifact=/kaggle/working/auragateway_cu129_pip_prefix_inspection_evidence_v1.zip
+10.4s 10 size_bytes=1302
+10.4s 11 sha256=b5f169d039544dcf304076b98613ff4b35525e1962daf9ff41f9ab275566c9e1
+10.4s 12 inspection_status=COMPLETED
+10.4s 13 disposition=NO_SAFE_BASE_PIP_INSTALL_EXECUTOR_CONFIRMED
+10.4s 14 selected_installation_executor=None
+10.4s 15 prefix_install_confirmed=false
+10.4s 16 target_directory_install_confirmed=false
+10.4s 17 base_distribution_metadata_unchanged=false
+10.4s 18 next_gate=inspect_offline_wheel_installation_executor
+10.4s 19 full_closure_installation_performed=false
+10.4s 20 model_requests_performed=0
+10.4s 21 qualification_claimed=false
+10.4s 22 upload_only_this_file=true
+10.4s 23 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+10.4s 24 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+10.4s 25 
+10.4s 26 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+10.4s 27 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+12.9s 28 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+12.9s 29 cells[i][c] = re.sub('\\\\\|', '|', cell)
+13.0s 30 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+13.0s 31 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+13.6s 32 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+13.9s 33 [NbConvertApp] Writing 40144 bytes to __notebook__.ipynb
+16.2s 34 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+17.0s 35 [NbConvertApp] Writing 381778 bytes to __results__.html
