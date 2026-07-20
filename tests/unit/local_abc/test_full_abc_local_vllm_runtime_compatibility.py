@@ -19,6 +19,7 @@ def test_repository_runtime_compatibility_package_validates() -> None:
     assert summary["status"] == "VLLM_RUNTIME_COMPATIBILITY_PACKAGE_VALID"
     assert summary["failure_code"] == "VLLM_TORCH_ABI_MISMATCH"
     assert summary["materializer_failure_code"] == "VLLM_CU128_RELEASE_ASSET_ABSENT"
+    assert summary["materializer_cdn_failure_code"] == "PYTORCH_CDN_HOST_NOT_ALLOWED"
     assert summary["selected_vllm"] == "0.19.1"
     assert summary["selected_torch"] == "2.10.0+cu129"
     assert summary["selected_cuda_variant"] == "cu129"
@@ -35,7 +36,7 @@ def test_repository_runtime_compatibility_package_validates() -> None:
 def test_decision_record_binds_cu129_artifact_identities() -> None:
     payload = json.loads((ROOT / runtime.RECORD_PATH).read_text(encoding="utf-8"))
 
-    assert payload["schema_version"] == "1.3.0"
+    assert payload["schema_version"] == "1.4.0"
     assert payload["decision"] == ("APPROVED_FOR_ISOLATED_CU129_WHEELHOUSE_MATERIALIZATION")
     assert payload["artifacts"] == {
         "materializer_kaggle_name": runtime.MATERIALIZER_NOTEBOOK_NAME,
@@ -69,6 +70,22 @@ def test_failed_cu128_materializer_identity_is_preserved() -> None:
     assert failure["code"] == "VLLM_CU128_RELEASE_ASSET_ABSENT"
     assert failure["historical_kaggle_title"] == ("auragateway-cu128-wheelhouse-asset-mismatch-v1")
     assert failure["execution_log_sha256"] == (runtime.EXPECTED_MATERIALIZER_FAILURE_LOG_SHA256)
+    assert failure["output_generated"] is False
+    assert failure["wheel_downloads_performed"] == 0
+    assert failure["model_requests_performed"] == 0
+    assert failure["qualification_claimed"] is False
+
+
+def test_failed_cu129_cdn_allowlist_identity_is_preserved() -> None:
+    payload = json.loads((ROOT / runtime.RECORD_PATH).read_text(encoding="utf-8"))
+    failure = payload["materializer_cdn_failure"]
+
+    assert failure["classification"] == ("MATERIALIZER_DOWNLOAD_HOST_ALLOWLIST_FAILURE")
+    assert failure["code"] == "PYTORCH_CDN_HOST_NOT_ALLOWED"
+    assert failure["historical_kaggle_title"] == ("auragateway-cu129-wheelhouse-cdn-mismatch-v1")
+    assert failure["execution_log_sha256"] == (runtime.EXPECTED_MATERIALIZER_CDN_FAILURE_LOG_SHA256)
+    assert failure["observed_host"] == "download-r2.pytorch.org"
+    assert failure["dependency_resolution_completed"] is True
     assert failure["output_generated"] is False
     assert failure["wheel_downloads_performed"] == 0
     assert failure["model_requests_performed"] == 0
@@ -128,6 +145,8 @@ def test_materializer_notebook_binds_exact_official_release_asset() -> None:
     assert runtime.EXPECTED_VLLM_ASSET_SHA256 in source
     assert '"torch==2.10.0+cu129"' in source
     assert '"transformers==5.5.3"' in source
+    assert '"download-r2.pytorch.org"' in source
+    assert '"failure_code": "RESOLVED_ARTIFACT_URL_NOT_ALLOWED"' in source
     assert '"--require-hashes"' in source
 
 

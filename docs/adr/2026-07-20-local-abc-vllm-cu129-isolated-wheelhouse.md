@@ -93,3 +93,26 @@ boundaries are crossed.
 - The T4 verifier remains a separate fresh session with Internet off.
 - Passing the verifier proves runtime compatibility only, not model load, worker health, cache behavior,
   measured improvement, or production readiness.
+
+## Materializer attempt 2: PyTorch CDN allowlist mismatch
+
+The isolated CUDA 12.9 materializer resolved the complete dependency graph, then failed closed before
+downloading wheels because the PyTorch cu129 index returned an artifact URL hosted at the official
+`download-r2.pytorch.org` CDN. The exact-host allowlist included `download.pytorch.org` but omitted the
+download CDN used by the resolved wheel URL.
+
+```text
+classification=MATERIALIZER_DOWNLOAD_HOST_ALLOWLIST_FAILURE
+code=PYTORCH_CDN_HOST_NOT_ALLOWED
+observed_host=download-r2.pytorch.org
+execution_log_sha256=69c7656374fc5313becb44684f1b11eac950db7c79eed5b62572eaefec3640a3
+dependency_resolution_completed=true
+wheel_downloads_performed=0
+model_requests_performed=0
+qualification_claimed=false
+```
+
+The remediation adds only the exact official `download-r2.pytorch.org` host. HTTPS-only validation,
+credential rejection, fragment rejection, and exact-host matching remain unchanged. Wildcard PyTorch
+domains are not permitted. Rejected URL evidence is bounded to a normalized distribution name,
+failure code, and hostname.
