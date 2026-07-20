@@ -1,6 +1,6 @@
 # ADR: Materialize a complete CUDA 12.8 vLLM wheelhouse for Kaggle T4
 
-- Status: Accepted for materialization
+- Status: Superseded after failed materialization
 - Date: 2026-07-20
 - Scope: AuraGateway local A/B/C environment qualification
 - Lifecycle claim: production-shaped design, not yet target-environment qualified
@@ -16,6 +16,25 @@ one vLLM wheel rather than a complete dependency closure.
 The defect is not resolved by installing the same wheel again. A successful package copy is weaker than
 native extension compatibility, and vLLM's compiled extensions must remain aligned with the PyTorch and
 CUDA build used at runtime.
+
+## Supersession correction
+
+The first CPU materializer run failed before any wheel download because the official vLLM `v0.19.1`
+release did not contain the exact `vllm-0.19.1+cu128-...-x86_64.whl` asset required by this ADR.
+
+Failure identity:
+
+```text
+classification=MATERIALIZER_RELEASE_ASSET_CONTRACT_FAILURE
+code=VLLM_CU128_RELEASE_ASSET_ABSENT
+execution_log_sha256=b45bee3fd286f35d367ee25639100eb33b9244251d5a921dedd84c998e785a2d
+wheel_downloads_performed=0
+model_requests_performed=0
+qualification_claimed=false
+```
+
+This ADR remains historical evidence of the rejected assumption. It is superseded by
+`2026-07-20-local-abc-vllm-cu129-isolated-wheelhouse.md`.
 
 ## Decision
 
