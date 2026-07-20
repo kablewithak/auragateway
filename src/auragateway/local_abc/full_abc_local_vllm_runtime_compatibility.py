@@ -68,7 +68,10 @@ EXPECTED_VLLM_ASSET_SHA256: Final = (
     "71a87f46cafab4489c69a5c5c83b870d0235e5694d8222303d460576293dc719"
 )
 EXPECTED_MATERIALIZER_NOTEBOOK_SHA256: Final = (
-    "a3e043ba6c2caf982a0ebe14ddd1d102e0b5066a46ff17f6fdbf7e0bf876cf79"
+    "d836a61bc7ed7a0d6c26eca68a28ed22e685e5a6705bf16ce4f6dbb8168f7ba2"
+)
+EXPECTED_RESOLUTION_LOCK_SHA256: Final = (
+    "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"
 )
 EXPECTED_VERIFIER_NOTEBOOK_SHA256: Final = (
     "692f83fd8a6fa7398ee9fabb0ecbf62640c82d6582a96a552f47e4f8b3b1b189"
@@ -221,6 +224,13 @@ class VllmRuntimeArtifactsV1(LocalABCContract):
     ]
     reconnaissance_kaggle_name: Literal["auragateway-cu129-resolution-reconnaissance-v1"]
     reconnaissance_output_directory: Literal["auragateway_vllm_cu129_resolution_reconnaissance_v1"]
+    resolution_lock: Literal["benchmarks/local_abc/auragateway_vllm_cu129_resolution_lock_v1.json"]
+    resolution_lock_sha256: Literal[
+        "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"
+    ]
+    reconnaissance_result: Literal[
+        "benchmarks/local_abc/auragateway_vllm_resolution_reconnaissance_result_v1.json"
+    ]
 
     @field_validator(
         "materializer_notebook",
@@ -233,6 +243,40 @@ class VllmRuntimeArtifactsV1(LocalABCContract):
         if path.is_absolute() or ".." in path.parts or len(value) > 220:
             raise ValueError("notebook paths must be bounded repository-relative paths")
         return value
+
+
+class VllmReconnaissanceResultV1(LocalABCContract):
+    """Reviewed resolution-only evidence used to construct the exact lock."""
+
+    results_zip_sha256: Literal["a035b21fe5795816e888886003c3dd6c73dbda162370805be687b28f8cef4399"]
+    execution_log_sha256: Literal[
+        "3455a8e631157a0c4e4c66e3e5e23c0e4cb41236e6b7d1016811b357488a2269"
+    ]
+    resolved_distribution_count: Literal[176]
+    host_count: Literal[5]
+    policy_violation_count: Literal[26]
+    review_resolution: Literal["exact_artifact_lock_replaces_family_authority_heuristics"]
+    artifact_transfer_observed_during_pip_dry_run: Literal[True]
+    package_installation_performed: Literal[False]
+    wheel_files_retained_in_output: Literal[0]
+    model_requests_performed: Literal[0]
+    qualification_claimed: Literal[False]
+
+
+class VllmMaterializerContractV1(LocalABCContract):
+    """Exact-lock materializer contract after reconnaissance review."""
+
+    notebook_sha256: Literal["d836a61bc7ed7a0d6c26eca68a28ed22e685e5a6705bf16ce4f6dbb8168f7ba2"]
+    resolution_lock_sha256: Literal[
+        "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"
+    ]
+    expected_package_count: Literal[176]
+    exact_host_count: Literal[5]
+    prefix_variant_drift_repaired: Literal[True]
+    wildcard_domains_permitted: Literal[False]
+    package_installation_performed: Literal[False]
+    model_requests_performed: Literal[0]
+    qualification_claimed: Literal[False]
 
 
 class VllmRuntimeSafetyV1(LocalABCContract):
@@ -251,23 +295,25 @@ class VllmRuntimeSafetyV1(LocalABCContract):
 class VllmRuntimeCompatibilityRemediationV1(LocalABCContract):
     """Typed decision record for the complete isolated wheelhouse approach."""
 
-    schema_version: Literal["1.5.0"]
+    schema_version: Literal["1.6.0"]
     record_id: Literal["auragateway-vllm-runtime-compatibility-remediation-v1"]
-    decision: Literal["PAUSED_FOR_CU129_RESOLUTION_RECONNAISSANCE"]
+    decision: Literal["APPROVED_FOR_EXACT_LOCKED_CU129_WHEELHOUSE_MATERIALIZATION"]
     failure: VllmRuntimeFailureV1
     materializer_failure: VllmMaterializerFailureV1
     materializer_cdn_failure: VllmMaterializerCdnFailureV1
     materializer_nvidia_failure: VllmMaterializerNvidiaFailureV1
     selected_runtime: VllmRuntimeStackV1
     artifacts: VllmRuntimeArtifactsV1
+    reconnaissance_result: VllmReconnaissanceResultV1
+    materializer_contract: VllmMaterializerContractV1
     gates: tuple[str, ...]
     safety: VllmRuntimeSafetyV1
-    next_gate: Literal["run_cu129_resolution_reconnaissance"]
+    next_gate: Literal["materialize_exact_locked_cu129_wheelhouse"]
 
     @model_validator(mode="after")
     def validate_gates(self) -> Self:
         expected = (
-            "resolution_reconnaissance_policy_complete",
+            "exact_resolution_lock_verified",
             "exact_vllm_release_asset_identity_verified",
             "wheelhouse_materialization_successful",
             "wheelhouse_hash_manifest_valid",
@@ -443,6 +489,12 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         raise RuntimeError("reconnaissance Kaggle title drifted")
     if record.artifacts.reconnaissance_output_directory != RECONNAISSANCE_OUTPUT_DIRECTORY_NAME:
         raise RuntimeError("reconnaissance output identity drifted")
+    if record.artifacts.resolution_lock_sha256 != EXPECTED_RESOLUTION_LOCK_SHA256:
+        raise RuntimeError("resolution lock identity drifted")
+    if record.materializer_contract.notebook_sha256 != EXPECTED_MATERIALIZER_NOTEBOOK_SHA256:
+        raise RuntimeError("materializer contract identity drifted")
+    if record.materializer_contract.expected_package_count != 176:
+        raise RuntimeError("materializer package count drifted")
     if record.artifacts.output_directory != OUTPUT_DIRECTORY_NAME:
         raise RuntimeError("wheelhouse output identity drifted")
     if record.artifacts.verifier_evidence_directory != VERIFIER_EVIDENCE_DIRECTORY_NAME:
@@ -549,7 +601,14 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
             '"torch==2.10.0+cu129"',
             '"transformers==5.5.3"',
             '"download-r2.pytorch.org"',
-            '"failure_code": "RESOLVED_ARTIFACT_URL_NOT_ALLOWED"',
+            '"pypi.nvidia.com"',
+            (
+                "RESOLUTION_LOCK_SHA256 = "
+                '"1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"'
+            ),
+            '"RESOLUTION_LOCK_MISMATCH"',
+            '"torch-2.10.0+cu129-"',
+            '"pip_resolution_artifact_transfer_observed"',
             '"--require-hashes"',
             '"materialization_status=PASSED"',
         ),
@@ -614,9 +673,11 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "selected_torch": record.selected_runtime.torch,
         "selected_cuda_variant": record.selected_runtime.cuda_variant,
         "materializer_notebook_sha256": materializer["notebook_sha256"],
+        "resolution_lock_sha256": EXPECTED_RESOLUTION_LOCK_SHA256,
+        "approved_package_count": 176,
         "verifier_notebook_sha256": verifier["notebook_sha256"],
         "reconnaissance_notebook_sha256": reconnaissance["notebook_sha256"],
-        "materializer_paused": True,
+        "materializer_paused": False,
         "authorization_issued": record.safety.authorization_issued,
         "model_requests_performed": record.safety.model_requests_performed,
         "qualification_claimed": record.safety.qualification_claimed,
