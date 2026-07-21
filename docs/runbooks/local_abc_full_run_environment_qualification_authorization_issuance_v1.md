@@ -1,32 +1,155 @@
 # Local A/B/C Environment Qualification Authorization Issuance v1
 
-## Purpose
+## CURRENT STATUS: ISSUANCE BLOCKED
 
-Issue one short-lived authorization for the existing six-probe Kaggle environment
-qualification package.
+The historical PR #109 authorization-issuance review does **not** authorize the
+current CUDA 12.9 wheelhouse runtime.
 
-This runbook does not execute Kaggle, install packages, start workers, load a model,
-perform model requests, generate runtime evidence, or authorize the 342-request benchmark.
-
-## Governing authority
+The repository now binds:
 
 ```text
-Harness source authority:
-PR #112 merge:
-be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50
-
-Authorization source authority and historical review authority:
-PR #110 merge:
-211a10757999b1b110cb1d9df172938cf6ed7969
-
-Authorization-issuance review artifact Git blob:
-61590be7fe1d10e8e9b38405cf634f4a0cae3e31
-
-Authorization-issuance review SHA-256:
-73e9a4f0642cce40ce6bc6ef875ee13ab81900f0bc7e768e0c4a9a6b6f0ec859
+runtime role: vllm_runtime
+artifact format: python_wheelhouse_directory
+runtime output directory: auragateway_vllm_cu129_wheelhouse_v1
+package count: 176
+installation executor: BASE_PIP_TARGET_DIRECTORY
+Python startup: NO_SITE_WITH_CONTROLLED_SITE_BOOTSTRAP
+loader policy: TARGET_NVIDIA_LIBRARIES_PREPENDED
+vLLM: 0.19.1
+Torch: 2.10.0+cu129
+Transformers: 5.5.3
 ```
 
-The issuance implementation must preserve:
+PR #109 reviewed the retired single-wheel runtime. It remains historical evidence and
+must be validated at its original source commit. It must not be interpreted as current
+operational authority.
+
+Attempting to issue a qualification authorization before a fresh CUDA 12.9 review must
+fail with:
+
+```text
+FRESH_CU129_AUTHORIZATION_REVIEW_REQUIRED
+```
+
+## Purpose
+
+Preserve the issuance procedure and hard safety limits while explicitly blocking final
+authorization until a fresh review binds the merged CUDA 12.9 authority graph.
+
+This runbook does not:
+
+- issue authorization;
+- start Kaggle;
+- install the wheelhouse;
+- load a model or tokenizer;
+- start workers;
+- perform model requests;
+- generate runtime evidence;
+- authorize measured A/B/C execution.
+
+## Historical authority
+
+The historical issuance-review boundary remains:
+
+```text
+PR #109 source commit:
+58e448228abcf9b83e1a6d165094bbec61dcf02c
+
+Historical authorization contract source:
+211a10757999b1b110cb1d9df172938cf6ed7969
+
+Historical harness source:
+4dfd799590195d842f2382bb882fba9b8c4e2422
+```
+
+Those identities are retained for audit and provenance. Historical files are loaded
+from their revision rather than validated through current live runtime enums.
+
+## Current repository boundary
+
+The current repository may validate all non-operational inputs, but it may not create a
+final authorization. The expected state is:
+
+```text
+CUDA 12.9 integration: repository-only
+final authorization: absent
+Kaggle session: not started
+runtime installation: not performed
+model loaded: false
+workers started: false
+model requests: 0
+measured execution authorized: false
+external spend: 0
+```
+
+## Validate the current authority graph
+
+Run from the repository root:
+
+```powershell
+python -m auragateway.local_abc.full_abc_local_environment_qualification_cu129_authority_graph `
+    --repo-root .
+```
+
+Required output includes:
+
+```text
+status=CURRENT_AUTHORITY_GRAPH_VALID_HISTORICAL_AUTHORITIES_REVISION_BOUND
+current_runtime_role=vllm_runtime
+current_runtime_format=python_wheelhouse_directory
+runtime_package_count=176
+fresh_cu129_authorization_review_required=true
+authorization_issued=false
+runtime_execution_performed=false
+model_requests_performed=0
+```
+
+## Validate current issuance inputs
+
+This validates the materialization record, portable manifest, exact wheelhouse
+authority, harness ancestry, and adapter safety without issuing authorization:
+
+```powershell
+python -m auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization `
+    inspect-issuance-inputs `
+    --repo-root . `
+    --materialization-record `
+        data/evals/benchmark/environment-qualification-v1/offline_dataset_materialization_record.json `
+    --runtime-manifest `
+        data/evals/benchmark/environment-qualification-v1/offline_dataset_manifest.json
+```
+
+A successful inspection proves input consistency only. It does not grant execution
+authority.
+
+## Prohibited issuance command
+
+Do not run the historical issuance command against the CUDA 12.9 runtime:
+
+```text
+python -m ...execution_authorization_issuance issue ...
+```
+
+Until a fresh review is merged, the issuance runner must reject the current request with
+`FRESH_CU129_AUTHORIZATION_REVIEW_REQUIRED`.
+
+## Fresh-review requirements
+
+A new issuance review must bind the merged current-state identities for:
+
+- CUDA 12.9 runtime integration record;
+- qualification execution request;
+- offline dataset manifest request;
+- materialization record;
+- portable runtime manifest;
+- runtime adapter;
+- worker startup plan;
+- reviewed qualification notebook;
+- launcher notebook;
+- current execution and authorization contracts;
+- current Git blobs and canonical raw-file hashes.
+
+The fresh review must preserve these limits:
 
 ```text
 maximum authorization window: 240 minutes
@@ -38,175 +161,54 @@ benchmark trajectory requests permitted: 0
 network access permitted: false
 credentials permitted: false
 customer data permitted: false
-external spend: R0 / $0
+external spend: 0
 measured execution authorized: false
 ```
 
-## Source-authority semantics
+## Post-review issuance gate
 
-`source_main_merge_commit` in the final authorization identifies the merged main
-commit that approved the authorization contract consumed by the frozen runtime
-loader. It is therefore bound to PR #110 (`211a107...`).
+Only after the fresh CUDA 12.9 review merges may the operator receive a new issuance
+workflow. That workflow must:
 
-The harness build lineage is independent and remains bound to PR #112
-(`be1bfad...`) through the harness rematerialization record and launcher input
-contract. The harness source commit must never be substituted into the
-authorization source-authority field.
+1. require synchronized clean `main`;
+2. bind the merge commit containing the runtime integration and authority migration;
+3. verify exact current Git blobs and canonical file hashes;
+4. require explicit operator confirmation;
+5. create one short-lived authorization without overwrite;
+6. retain zero benchmark trajectory requests;
+7. preserve a rollback and expiry path.
 
-Before any authorization file is written, the issuance runner serializes the
-candidate and validates it through the exact preserved frozen-loader
-compatibility model. A mismatch fails with
-`CURRENT_ISSUANCE_FROZEN_LOADER_PARITY_FAILED`.
+## Fail-closed conditions
 
-## Harness rematerialization prerequisite
+The current workflow stops if:
 
-The stale `4dfd799` harness dataset is not eligible for another qualification run.
+- the materialization projection differs from the portable manifest;
+- any current JSON authority is noncanonical;
+- a live runtime authority contains the retired wheel role, format, or version;
+- a historical validator reads current live files instead of its original revision;
+- current execution source identities drift;
+- the current request is presented to the historical PR #109 issuance review;
+- a final authorization artifact already exists;
+- authorization, Kaggle, model, worker, request, credential, customer-data, or spend
+  boundaries are crossed.
 
-Authorization issuance now requires the canonical repository record:
-
-```text
-benchmarks/local_abc/
-auragateway_full_abc_local_environment_qualification_
-harness_rematerialization_v1.json
-```
-
-That record binds:
-
-```text
-replacement producer:
-kabomolefe/ag-harness-materializer-input-v3
-
-producer version:
-1
-
-replacement directory SHA-256:
-4a371c80aef605c4f1ab5617c21ce43bd0939ad449ffcbcadab656878d785a2e
-
-parity evidence SHA-256:
-b986f3b82785f86dea2c8fb368dd8ae4def7ee3d7b00f44637f77f3d28b1971b
-
-parity status:
-HARNESS_AUTHORIZATION_PARITY_PASSED
-```
-
-The model snapshot and vLLM wheel remain unchanged.
-
-## Implementation boundary
-
-The repository implementation PR adds the issuance runner, typed contract changes,
-tests, and this runbook.
-
-It must not contain a pre-generated final authorization. The final artifact is generated
-only after the implementation PR is merged, the operator is on synchronized clean
-`main`, and explicit operator confirmation is supplied. This prevents a stale
-authorization window from being embedded in an implementation ZIP or pull request.
-
-## Pre-issuance checks
-
-Run from the repository root:
-
-```powershell
-git switch main
-git pull --ff-only origin main
-git status
-git --no-pager log -1 --oneline
-```
-
-Required state:
+## Next gate
 
 ```text
-branch: main
-working tree: clean
-PR #112 is an ancestor of HEAD
-historical PR #110 review blob remains intact
-harness rematerialization record validates
-final authorization artifact: absent
-runtime evidence: absent
+review_fresh_qualification_authorization_and_control_output_regeneration
 ```
 
-## Issue one authorization
-
-The operator confirmation flag is mandatory.
-
-```powershell
-python -m auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization_issuance `
-    issue `
-    --repo-root . `
-    --operator-confirm `
-    --window-minutes 240
-```
-
-The runner:
-
-1. requires clean `main`;
-2. verifies PR #112 ancestry;
-3. verifies the exact historical PR #110 review Git blob;
-4. validates the parity-approved harness rematerialization record;
-5. revalidates repository-native issuance inputs;
-6. binds the execution request, refreshed materialization record, runtime manifest, and adapter;
-7. writes one canonical authorization without overwriting an existing artifact;
-8. records the confirmation time as `issued_at`;
-9. limits `expires_at` to no more than 240 minutes later.
-
-## Verify before any Kaggle activity
-
-```powershell
-python -m auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization_issuance `
-    verify `
-    --repo-root .
-```
-
-Verification must report:
-
-```text
-authorization_valid=true
-maximum_workers=2
-maximum_kaggle_sessions=1
-maximum_model_requests=8
-maximum_output_tokens_per_request=32
-benchmark_trajectory_requests_permitted=0
-network_access_permitted=false
-credentials_permitted=false
-customer_data_permitted=false
-external_spend=0
-kaggle_session_started=false
-runtime_evidence_generated=false
-measured_execution_authorized=false
-```
-
-## Fail-closed behavior
-
-Issuance stops if:
-
-- the current branch is not `main`;
-- the working tree is not clean;
-- PR #112 is not an ancestor;
-- the historical review blob or review content drifts;
-- the harness rematerialization record or parity-approved identities drift;
-- the final authorization already exists;
-- runtime evidence already exists;
-- any immutable input fails validation;
-- the requested window exceeds 240 minutes;
-- operator confirmation is absent.
-
-The runner never overwrites an existing authorization.
-
-## Expiry and recovery
-
-An expired authorization is invalid.
-
-Do not edit timestamps manually. Delete the expired local artifact only after confirming
-that no Kaggle session used it, restore a clean `main`, and perform a separately governed
-re-issuance. Never extend the window by modifying JSON.
+The next gate is repository review and identity regeneration. It is not Kaggle
+execution.
 
 ## Non-claims
 
-Authorization issuance does not prove:
+This authority migration does not prove:
 
-- vLLM installation compatibility;
+- wheelhouse installation on a fresh Kaggle image;
 - model or tokenizer load;
 - worker health;
-- cache metric availability;
+- cache telemetry availability;
 - reset correctness;
 - environment qualification;
 - cache reuse;

@@ -14,6 +14,11 @@ ROOT = Path(__file__).resolve().parents[3]
 EXPECTED_RECORD_SHA256 = "18a2055d26e83dd3d7ac1f67c680a7e1f6ff29841af5883a3e400444de51f218"
 
 
+def test_harness_provenance_and_artifact_revision_are_distinct() -> None:
+    assert remat.SOURCE_MAIN_MERGE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
+    assert remat.HISTORICAL_AUTHORITY_COMMIT == ("84ab2634f548cc60d8aaeef31cdf4fd1e227ad73")
+
+
 def test_repository_record_has_expected_identity() -> None:
     record = remat.load_record(ROOT / remat.RECORD_PATH)
 
@@ -71,7 +76,7 @@ def test_parity_evidence_bundle_is_committed_and_hash_bound() -> None:
     assert (ROOT / remat.PARITY_EVIDENCE_SHA256_PATH).is_file()
 
 
-def test_model_and_vllm_inputs_remain_unchanged() -> None:
+def test_historical_model_and_vllm_inputs_remain_unchanged() -> None:
     inputs = remat.load_record(ROOT / remat.RECORD_PATH).unchanged_runtime_inputs
 
     assert tuple(item.role for item in inputs) == (
@@ -104,11 +109,11 @@ def test_repository_package_validates_exact_updated_authorities() -> None:
     }
 
 
-def test_runtime_manifest_uses_refreshed_notebook_output() -> None:
-    manifest = json.loads((ROOT / remat.RUNTIME_MANIFEST_PATH).read_text())
-    harness = manifest["entries"][0]
+def test_historical_runtime_manifest_uses_refreshed_notebook_output() -> None:
+    manifest = remat.load_historical_runtime_manifest(ROOT)
+    harness = manifest.entries[0]
 
-    assert harness == {
+    assert harness.model_dump(mode="json") == {
         "artifact_format": "source_tree_directory",
         "mounted_path": remat.REPLACEMENT_HARNESS_PATH,
         "role": "harness_source",
@@ -116,15 +121,15 @@ def test_runtime_manifest_uses_refreshed_notebook_output() -> None:
     }
 
 
-def test_materialization_record_binds_runtime_manifest() -> None:
-    payload = json.loads((ROOT / remat.MATERIALIZATION_RECORD_PATH).read_text())
-    harness = payload["entries"][0]
+def test_historical_materialization_record_binds_runtime_manifest() -> None:
+    record = remat.load_historical_materialization_record(ROOT)
+    harness = record.entries[0]
 
-    assert payload["harness_source_commit"] == remat.SOURCE_MAIN_MERGE_COMMIT
-    assert payload["runtime_manifest_sha256"] == remat.RUNTIME_MANIFEST_SHA256
-    assert harness["kaggle_dataset_slug"] == remat.REPLACEMENT_PRODUCER_SLUG
-    assert harness["mounted_path"] == remat.REPLACEMENT_HARNESS_PATH
-    assert harness["sha256"] == remat.REPLACEMENT_HARNESS_SHA256
+    assert record.harness_source_commit == remat.SOURCE_MAIN_MERGE_COMMIT
+    assert record.runtime_manifest_sha256 == remat.RUNTIME_MANIFEST_SHA256
+    assert harness.kaggle_dataset_slug == remat.REPLACEMENT_PRODUCER_SLUG
+    assert harness.mounted_path == remat.REPLACEMENT_HARNESS_PATH
+    assert harness.sha256 == remat.REPLACEMENT_HARNESS_SHA256
 
 
 def test_record_rejects_enabling_operational_activity() -> None:
@@ -144,13 +149,21 @@ def test_record_rejects_replacement_identity_drift() -> None:
 
 
 def test_json_authorities_are_canonical_single_line() -> None:
-    for relative_path in (
-        remat.RECORD_PATH,
-        remat.RUNTIME_MANIFEST_PATH,
-        remat.MATERIALIZATION_RECORD_PATH,
-    ):
-        path = ROOT / relative_path
-        text = path.read_text(encoding="utf-8")
+    record_text = (ROOT / remat.RECORD_PATH).read_text(encoding="utf-8")
+    historical_texts = (
+        remat._git_file_bytes_at_revision(
+            ROOT,
+            remat.RUNTIME_MANIFEST_PATH,
+            remat.HISTORICAL_AUTHORITY_COMMIT,
+        ).decode("utf-8"),
+        remat._git_file_bytes_at_revision(
+            ROOT,
+            remat.MATERIALIZATION_RECORD_PATH,
+            remat.HISTORICAL_AUTHORITY_COMMIT,
+        ).decode("utf-8"),
+    )
+
+    for text in (record_text, *historical_texts):
         payload = json.loads(text)
         expected = json.dumps(
             payload,

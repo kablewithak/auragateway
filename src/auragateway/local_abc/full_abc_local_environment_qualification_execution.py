@@ -37,9 +37,9 @@ from auragateway.local_abc.full_abc_local_environment_qualification_execution_co
     REVIEW_SOURCE_PATH,
     RUNBOOK_PATH,
     RUNTIME_EVIDENCE_PATHS,
+    RUNTIME_INTEGRATION_REVIEW_GIT_BLOB_SHA,
+    RUNTIME_INTEGRATION_REVIEW_PATH,
     SOURCE_MAIN_MERGE_COMMIT,
-    STATIC_REQUEST_GIT_BLOB_SHA,
-    STATIC_REQUEST_PATH,
     WORKER_STARTUP_PLAN_GIT_BLOB_SHA,
     WORKER_STARTUP_PLAN_PATH,
     AuthorizationDecision,
@@ -162,14 +162,22 @@ def _load_json_object(path: Path) -> dict[str, object]:
 
 
 def _git_blob_sha(repo_root: Path, relative_path: Path) -> str:
+    artifact_path = repo_root / relative_path
+    if not artifact_path.is_file():
+        raise FullABCLocalEnvironmentQualificationExecutionError(
+            "REQUIRED_GIT_AUTHORITY_UNREADABLE",
+            "required qualification-execution Git authority could not be resolved",
+            relative_path.as_posix(),
+        )
     try:
         result = subprocess.run(
             [
                 "git",
                 "-C",
                 str(repo_root),
-                "rev-parse",
-                f"HEAD:{relative_path.as_posix()}",
+                "hash-object",
+                f"--path={relative_path.as_posix()}",
+                str(artifact_path),
             ],
             check=True,
             capture_output=True,
@@ -227,7 +235,7 @@ def _validate_repository_authorities(repo_root: Path) -> None:
     expected = {
         REVIEW_PATH: REVIEW_GIT_BLOB_SHA,
         REVIEW_SOURCE_PATH: REVIEW_SOURCE_GIT_BLOB_SHA,
-        STATIC_REQUEST_PATH: STATIC_REQUEST_GIT_BLOB_SHA,
+        RUNTIME_INTEGRATION_REVIEW_PATH: RUNTIME_INTEGRATION_REVIEW_GIT_BLOB_SHA,
         WORKER_STARTUP_PLAN_PATH: WORKER_STARTUP_PLAN_GIT_BLOB_SHA,
     }
     drift = tuple(
@@ -259,6 +267,22 @@ def _validate_repository_authorities(repo_root: Path) -> None:
             REVIEW_PATH.as_posix(),
         )
 
+    runtime_review = _load_json_object(repo_root / RUNTIME_INTEGRATION_REVIEW_PATH)
+    required_runtime_review = {
+        "decision": "APPROVED_FOR_BOUNDED_CU129_QUALIFICATION_RUNTIME_INTEGRATION",
+        "next_gate": "implement_atomic_cu129_qualification_runtime_integration",
+        "repository_base_commit": "daa8df9",
+    }
+    if any(
+        runtime_review.get(field) != expected_value
+        for field, expected_value in required_runtime_review.items()
+    ):
+        raise FullABCLocalEnvironmentQualificationExecutionError(
+            "CU129_RUNTIME_INTEGRATION_REVIEW_DRIFT",
+            "the merged runtime integration review no longer authorizes this package",
+            RUNTIME_INTEGRATION_REVIEW_PATH.as_posix(),
+        )
+
 
 def _source_authorities() -> tuple[SourceAuthorityBinding, ...]:
     return tuple(
@@ -275,9 +299,9 @@ def _source_authorities() -> tuple[SourceAuthorityBinding, ...]:
                     git_blob_sha=REVIEW_SOURCE_GIT_BLOB_SHA,
                 ),
                 SourceAuthorityBinding(
-                    authority_id="qualification-request",
-                    path=STATIC_REQUEST_PATH.as_posix(),
-                    git_blob_sha=STATIC_REQUEST_GIT_BLOB_SHA,
+                    authority_id="cu129-runtime-integration-review",
+                    path=RUNTIME_INTEGRATION_REVIEW_PATH.as_posix(),
+                    git_blob_sha=RUNTIME_INTEGRATION_REVIEW_GIT_BLOB_SHA,
                 ),
                 SourceAuthorityBinding(
                     authority_id="worker-startup-plan",
@@ -398,7 +422,7 @@ def build_execution_request() -> QualificationExecutionRequest:
         dataset_roles=(
             DatasetRoleRequirement(role="harness_source"),
             DatasetRoleRequirement(role="model_artifacts"),
-            DatasetRoleRequirement(role="vllm_wheel"),
+            DatasetRoleRequirement(role="vllm_runtime"),
         ),
         required_runtime_lock_fields=REQUIRED_RUNTIME_LOCK_FIELDS,
         required_metric_semantics=REQUIRED_METRIC_SEMANTICS,
@@ -542,7 +566,7 @@ entries = manifest.get("entries")
 expected_entry_shapes = (
     ("harness_source", "source_tree_directory"),
     ("model_artifacts", "hugging_face_snapshot_directory"),
-    ("vllm_wheel", "python_wheel"),
+    ("vllm_runtime", "python_wheelhouse_directory"),
 )
 if not isinstance(entries, list) or len(entries) != len(expected_entry_shapes):
     raise RuntimeError("dataset manifest entry set drifted")
@@ -552,10 +576,13 @@ for entry, expected_shape in zip(entries, expected_entry_shapes, strict=True):
     observed_shape = (entry.get("role"), entry.get("artifact_format"))
     if observed_shape != expected_shape:
         raise RuntimeError("dataset manifest role or artifact format drifted")
-    _bounded_input_path(
-        entry.get("mounted_path"),
-        expected_kind=f"{{expected_shape[0]}} input",
-    )
+    if expected_shape[0] != "vllm_runtime":
+        _bounded_input_path(
+            entry.get("mounted_path"),
+            expected_kind=f"{{expected_shape[0]}} input",
+        )
+    elif entry.get("mounted_path") is not None:
+        raise RuntimeError("vLLM runtime must use bounded output-directory discovery")
 if any(
     (
         manifest.get("network_access_permitted") is not False,
@@ -819,12 +846,14 @@ def _load_dataset_manifest(path: Path) -> QualificationDatasetManifest:
 def _validate_dataset_files(dataset_manifest: QualificationDatasetManifest) -> None:
     drift: list[str] = []
     for entry in dataset_manifest.entries:
+        if entry.role == "vllm_runtime":
+            continue
+        if entry.mounted_path is None:
+            drift.append(f"{entry.role}:shape")
+            continue
         mounted_path = Path(entry.mounted_path)
         try:
-            if entry.artifact_format == "python_wheel":
-                observed_sha256 = file_sha256(mounted_path)
-            else:
-                observed_sha256 = directory_sha256(mounted_path)
+            observed_sha256 = directory_sha256(mounted_path)
         except (ArtifactIdentityError, OSError):
             drift.append(f"{entry.role}:shape")
             continue

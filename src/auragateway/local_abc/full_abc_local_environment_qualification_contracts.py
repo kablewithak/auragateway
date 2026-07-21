@@ -12,6 +12,18 @@ from typing import Final, Literal, Self
 from pydantic import field_validator, model_validator
 
 from auragateway.local_abc.contracts import LocalABCContract
+from auragateway.local_abc.full_abc_local_environment_qualification_cu129_runtime import (
+    CONTROLLED_BOOTSTRAP,
+    DEPENDENCY_VALIDATION,
+    EXPECTED_PACKAGE_COUNT,
+    INSTALLATION_EXECUTOR,
+    LOADER_POLICY,
+    PYTHON_STARTUP_POLICY,
+    RUNTIME_OUTPUT_DIRECTORY,
+    TARGET_INTERPRETER_TOKEN,
+    TARGET_RUNTIME_ROOT_TOKEN,
+    TARGET_SITE_PACKAGES_TOKEN,
+)
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 _GIT_OBJECT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
@@ -58,7 +70,17 @@ _REQUIRED_RUNTIME_LOCK_FIELDS: Final = (
     "transformers_version",
     "vllm_distribution_version",
     "vllm_module_version",
-    "vllm_wheel_sha256",
+    "runtime_output_directory",
+    "runtime_resolution_lock_sha256",
+    "runtime_manifest_sha256",
+    "runtime_sha256_manifest_sha256",
+    "runtime_materialization_receipt_sha256",
+    "runtime_package_count",
+    "installation_executor",
+    "dependency_validation",
+    "python_startup_policy",
+    "loader_policy",
+    "target_python_sha256",
     "worker_startup_command_sha256",
 )
 
@@ -97,7 +119,7 @@ _REQUIRED_STOP_CONDITIONS: Final = (
     "reset_capability_unproven",
     "route_realization_mismatch",
     "tokenizer_identity_mismatch",
-    "vllm_wheel_mismatch",
+    "vllm_runtime_mismatch",
     "worker_health_failure",
     "worker_port_conflict",
 )
@@ -230,15 +252,13 @@ class MetricRequirement(LocalABCContract):
 class EnvironmentBinding(LocalABCContract):
     """One non-secret environment variable required by a startup plan."""
 
-    name: Literal["CUDA_VISIBLE_DEVICES", "HF_HUB_OFFLINE"]
-    value: str
-
-    @field_validator("value")
-    @classmethod
-    def validate_value(cls, value: str) -> str:
-        if value not in {"0", "1"}:
-            raise ValueError("startup environment values must remain zero or one")
-        return value
+    name: Literal[
+        "CUDA_VISIBLE_DEVICES",
+        "HF_HUB_OFFLINE",
+        "TRANSFORMERS_OFFLINE",
+        "PYTHONNOUSERSITE",
+    ]
+    value: Literal["0", "1"]
 
 
 class WorkerStartupCommand(LocalABCContract):
@@ -251,7 +271,12 @@ class WorkerStartupCommand(LocalABCContract):
     health_endpoint: Literal["/health"] = "/health"
     models_endpoint: Literal["/v1/models"] = "/v1/models"
     transport_endpoint: Literal["/v1/chat/completions"] = "/v1/chat/completions"
-    environment: tuple[EnvironmentBinding, EnvironmentBinding]
+    environment: tuple[
+        EnvironmentBinding,
+        EnvironmentBinding,
+        EnvironmentBinding,
+        EnvironmentBinding,
+    ]
     command_argv: tuple[str, ...]
     command_sha256: str
     shell_execution_permitted: Literal[False] = False
@@ -260,10 +285,21 @@ class WorkerStartupCommand(LocalABCContract):
     @field_validator("command_argv")
     @classmethod
     def validate_command_argv(cls, value: tuple[str, ...]) -> tuple[str, ...]:
-        if len(value) < 16:
+        if len(value) < 20:
             raise ValueError("worker startup command is incomplete")
-        if any(_SAFE_ARG_PATTERN.fullmatch(item) is None for item in value):
-            raise ValueError("worker startup command contains unsupported characters")
+        if any(not item or "\x00" in item or len(item) > 4096 for item in value):
+            raise ValueError("worker startup command contains unsafe arguments")
+        expected_prefix = (
+            TARGET_INTERPRETER_TOKEN,
+            "-S",
+            "-c",
+            CONTROLLED_BOOTSTRAP,
+            TARGET_RUNTIME_ROOT_TOKEN,
+            TARGET_SITE_PACKAGES_TOKEN,
+            "vllm.entrypoints.openai.api_server",
+        )
+        if value[: len(expected_prefix)] != expected_prefix:
+            raise ValueError("worker startup command must use controlled target Python")
         forbidden = {
             "--api-key",
             "--token",
@@ -298,6 +334,8 @@ class WorkerStartupCommand(LocalABCContract):
         if env != {
             "CUDA_VISIBLE_DEVICES": expected_visible_gpu,
             "HF_HUB_OFFLINE": "1",
+            "TRANSFORMERS_OFFLINE": "1",
+            "PYTHONNOUSERSITE": "1",
         }:
             raise ValueError("worker environment must be deterministic and offline")
         required_pairs = {
@@ -319,13 +357,9 @@ class WorkerStartupCommand(LocalABCContract):
         if "--enable-prefix-caching" not in argv:
             raise ValueError("worker startup command must enable prefix caching")
         canonical = json.dumps(
-            {
-                "command_argv": list(self.command_argv),
-                "environment": [item.model_dump(mode="json") for item in self.environment],
-            },
+            list(self.command_argv),
             ensure_ascii=True,
             separators=(",", ":"),
-            sort_keys=True,
         )
         expected_sha = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
         if self.command_sha256 != expected_sha:
@@ -349,6 +383,7 @@ class WorkerStartupPlan(LocalABCContract):
     model_repository: Literal["Qwen/Qwen2.5-0.5B-Instruct"]
     model_revision: Literal["7ae557604adf67be50417f59c2c2f167def9a775"]
     tokenizer_revision: Literal["7ae557604adf67be50417f59c2c2f167def9a775"]
+    runtime_integration: dict[str, object]
     workers: tuple[WorkerStartupCommand, WorkerStartupCommand]
     required_prelaunch_checks: tuple[str, ...]
     requires_fresh_runtime_dependency_lock: Literal[True] = True
@@ -366,7 +401,10 @@ class WorkerStartupPlan(LocalABCContract):
             "model_and_tokenizer_identity_available",
             "ports_8001_and_8002_closed",
             "runtime_dependency_lock_captured",
-            "vllm_wheel_sha256_captured",
+            "runtime_resolution_lock_verified",
+            "runtime_checksum_manifest_verified",
+            "target_python_startup_controlled",
+            "target_nvidia_loader_precedence_verified",
         )
         if value != expected:
             raise ValueError("worker prelaunch checks drifted")
@@ -380,6 +418,19 @@ class WorkerStartupPlan(LocalABCContract):
             raise ValueError("startup plan requires independent GPUs")
         if len({worker.port for worker in self.workers}) != 2:
             raise ValueError("startup plan requires distinct ports")
+        expected_runtime = {
+            "runtime_output_directory": RUNTIME_OUTPUT_DIRECTORY,
+            "package_count": EXPECTED_PACKAGE_COUNT,
+            "installation_executor": INSTALLATION_EXECUTOR,
+            "dependency_validation": DEPENDENCY_VALIDATION,
+            "python_startup_policy": PYTHON_STARTUP_POLICY,
+            "loader_policy": LOADER_POLICY,
+            "vllm_distribution": "0.19.1",
+            "torch_distribution": "2.10.0+cu129",
+            "transformers_distribution": "5.5.3",
+        }
+        if self.runtime_integration != expected_runtime:
+            raise ValueError("worker startup runtime integration drifted")
         return self
 
 
@@ -498,21 +549,13 @@ class EnvironmentQualificationStaticBundle(LocalABCContract):
         return self
 
 
-def canonical_command_sha256(
-    command_argv: tuple[str, ...],
-    environment: tuple[EnvironmentBinding, EnvironmentBinding],
-) -> str:
-    """Hash a non-shell worker startup command and its deterministic environment."""
+def canonical_command_sha256(command_argv: tuple[str, ...]) -> str:
+    """Hash one canonical non-shell target-runtime worker argv."""
 
-    payload = {
-        "command_argv": list(command_argv),
-        "environment": [item.model_dump(mode="json") for item in environment],
-    }
     encoded = json.dumps(
-        payload,
+        list(command_argv),
         ensure_ascii=True,
         separators=(",", ":"),
-        sort_keys=True,
     ).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
 

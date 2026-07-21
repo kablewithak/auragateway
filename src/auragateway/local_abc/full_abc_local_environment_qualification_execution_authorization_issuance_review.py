@@ -16,9 +16,6 @@ from auragateway.local_abc import (
     full_abc_local_environment_qualification_execution_authorization_contracts as auth_contracts,
 )
 from auragateway.local_abc.contracts import LocalABCContract
-from auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization import (
-    build_portable_runtime_manifest,
-)
 
 _GIT_OBJECT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
@@ -241,6 +238,172 @@ _IMPLEMENTATION_ARTIFACTS: Final = (
         "generate",
     ),
 )
+
+
+class HistoricalQualificationAuthorizationRequest(LocalABCContract):
+    """Exact authorization request accepted at the PR 109 review boundary."""
+
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    request_id: Literal[
+        "auragateway-full-abc-local-environment-qualification-authorization-request-v1"
+    ]
+    source_main_merge_commit: Literal["2d6e20a952a14df806d7166c7de276405fa4c7e7"]
+    status: Literal["INPUT_PACKAGE_GENERATED_ISSUANCE_BLOCKED"]
+    source_authorities: tuple[auth_contracts.SourceAuthorityBinding, ...]
+    execution_request_path: Literal[
+        "data/evals/benchmark/environment-qualification-v1/qualification_execution_request.json"
+    ]
+    execution_request_sha256: Literal[
+        "dcef7e7243f4de16955bccdfc36dbd0194b51a602d1fc67f5c6fa375ca529e28"
+    ]
+    dataset_manifest_request_path: Literal[
+        "data/evals/benchmark/environment-qualification-v1/offline_dataset_manifest_request.json"
+    ]
+    dataset_manifest_request_sha256: str
+    materialization_record_path: Literal[
+        "data/evals/benchmark/environment-qualification-v1/"
+        "offline_dataset_materialization_record.json"
+    ]
+    materialization_record_sha256_required: Literal[True] = True
+    runtime_dataset_manifest_path: Literal[
+        "data/evals/benchmark/environment-qualification-v1/offline_dataset_manifest.json"
+    ]
+    runtime_dataset_manifest_sha256_required: Literal[True] = True
+    exact_kaggle_slug_and_version_binding_required: Literal[True] = True
+    issuance_review_git_blob_sha_required: Literal[True] = True
+    runtime_adapter: auth_contracts.RuntimeAdapterImplementationBinding
+    final_authorization_path: Literal[
+        "benchmarks/local_abc/"
+        "auragateway_full_abc_local_full_run_environment_qualification_"
+        "execution_authorization_v1.json"
+    ]
+    operator_confirmation_required: Literal[True] = True
+    maximum_authorization_window_minutes: Literal[240] = 240
+    maximum_kaggle_sessions: Literal[1] = 1
+    maximum_workers: Literal[2] = 2
+    maximum_model_requests: Literal[8] = 8
+    maximum_output_tokens_per_request: Literal[32] = 32
+    benchmark_trajectory_requests_permitted: Literal[0] = 0
+    customer_data_permitted: Literal[False] = False
+    credentials_permitted: Literal[False] = False
+    network_access_permitted: Literal[False] = False
+    external_spend: Literal[0] = 0
+    final_authorization_generated: Literal[False] = False
+    safety: auth_contracts.AuthorizationPackageSafetyEnvelope
+    next_gate: Literal[
+        "full_abc_local_full_run_environment_qualification_execution_authorization_issuance_review"
+    ]
+
+    @field_validator("dataset_manifest_request_sha256")
+    @classmethod
+    def validate_dataset_request_sha256(cls, value: str) -> str:
+        if _SHA256_PATTERN.fullmatch(value) is None:
+            raise ValueError("historical dataset request identity must be lowercase SHA-256")
+        return value
+
+    @field_validator("source_authorities")
+    @classmethod
+    def validate_source_authorities(
+        cls,
+        value: tuple[auth_contracts.SourceAuthorityBinding, ...],
+    ) -> tuple[auth_contracts.SourceAuthorityBinding, ...]:
+        identifiers = tuple(item.authority_id for item in value)
+        if identifiers != tuple(sorted(identifiers)):
+            raise ValueError("historical source authorities must be canonically sorted")
+        if len(identifiers) != len(set(identifiers)):
+            raise ValueError("historical source authority IDs must be unique")
+        return value
+
+
+class HistoricalDatasetRole(StrEnum):
+    """Dataset roles valid at the PR 109 review boundary."""
+
+    HARNESS_SOURCE = "harness_source"
+    MODEL_ARTIFACTS = "model_artifacts"
+    VLLM_WHEEL = "vllm_wheel"
+
+
+class HistoricalArtifactFormat(StrEnum):
+    """Artifact formats valid at the PR 109 review boundary."""
+
+    SOURCE_TREE_DIRECTORY = "source_tree_directory"
+    HUGGING_FACE_SNAPSHOT_DIRECTORY = "hugging_face_snapshot_directory"
+    PYTHON_WHEEL = "python_wheel"
+
+
+class HistoricalPortableManifestEntry(LocalABCContract):
+    """One portable offline input at the historical issuance-review commit."""
+
+    role: HistoricalDatasetRole
+    artifact_format: HistoricalArtifactFormat
+    mounted_path: str
+    sha256: str
+
+
+class HistoricalPortableManifest(LocalABCContract):
+    """Historical portable manifest detached from the current live runtime enums."""
+
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    manifest_id: Literal["auragateway-environment-qualification-offline-dataset-v1"]
+    entries: tuple[
+        HistoricalPortableManifestEntry,
+        HistoricalPortableManifestEntry,
+        HistoricalPortableManifestEntry,
+    ]
+    network_access_permitted: Literal[False] = False
+    credentials_present: Literal[False] = False
+    customer_data_present: Literal[False] = False
+    hosted_provider_inputs_present: Literal[False] = False
+
+
+class HistoricalMaterializedEntry(LocalABCContract):
+    """One materialized offline input at the historical issuance-review commit."""
+
+    role: HistoricalDatasetRole
+    artifact_format: HistoricalArtifactFormat
+    kaggle_dataset_slug: str
+    kaggle_dataset_version: Literal[1] = 1
+    mounted_path: str
+    sha256: str
+    network_fallback_permitted: Literal[False] = False
+
+
+class HistoricalMaterializationRecord(LocalABCContract):
+    """Historical materialization record detached from current live runtime enums."""
+
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    record_id: Literal["auragateway-environment-qualification-offline-materialization-v1"]
+    harness_source_commit: Literal["4dfd799590195d842f2382bb882fba9b8c4e2422"]
+    entries: tuple[
+        HistoricalMaterializedEntry,
+        HistoricalMaterializedEntry,
+        HistoricalMaterializedEntry,
+    ]
+    runtime_manifest_path: Literal[
+        "data/evals/benchmark/environment-qualification-v1/offline_dataset_manifest.json"
+    ]
+    runtime_manifest_sha256: str
+    network_access_permitted: Literal[False] = False
+    credentials_present: Literal[False] = False
+    customer_data_present: Literal[False] = False
+    hosted_provider_inputs_present: Literal[False] = False
+
+
+def _build_historical_portable_runtime_manifest(
+    record: HistoricalMaterializationRecord,
+) -> HistoricalPortableManifest:
+    return HistoricalPortableManifest(
+        manifest_id="auragateway-environment-qualification-offline-dataset-v1",
+        entries=tuple(
+            HistoricalPortableManifestEntry(
+                role=item.role,
+                artifact_format=item.artifact_format,
+                mounted_path=item.mounted_path,
+                sha256=item.sha256,
+            )
+            for item in record.entries
+        ),
+    )
 
 
 class AuthorizationIssuanceReviewError(RuntimeError):
@@ -956,18 +1119,18 @@ def write_default_review(
 def _validate_typed_authorities(
     repo_root: Path,
 ) -> tuple[
-    auth_contracts.QualificationAuthorizationRequest,
-    auth_contracts.MaterializedOfflineDatasetRecord,
-    auth_contracts.PortableQualificationDatasetManifest,
+    HistoricalQualificationAuthorizationRequest,
+    HistoricalMaterializationRecord,
+    HistoricalPortableManifest,
 ]:
     try:
-        request = auth_contracts.QualificationAuthorizationRequest.model_validate(
+        request = HistoricalQualificationAuthorizationRequest.model_validate(
             _load_json_object_at_revision(repo_root, _AUTHORIZATION_REQUEST_PATH)
         )
-        record = auth_contracts.MaterializedOfflineDatasetRecord.model_validate(
+        record = HistoricalMaterializationRecord.model_validate(
             _load_json_object_at_revision(repo_root, _MATERIALIZATION_RECORD_PATH)
         )
-        manifest = auth_contracts.PortableQualificationDatasetManifest.model_validate(
+        manifest = HistoricalPortableManifest.model_validate(
             _load_json_object_at_revision(repo_root, _RUNTIME_MANIFEST_PATH)
         )
     except ValidationError as exc:
@@ -1053,7 +1216,7 @@ def validate_repository_review_package(repo_root: Path) -> dict[str, object]:
         )
 
     request, record, manifest = _validate_typed_authorities(repo_root)
-    expected_manifest = build_portable_runtime_manifest(record)
+    expected_manifest = _build_historical_portable_runtime_manifest(record)
     if manifest.canonical_json() != expected_manifest.canonical_json():
         raise AuthorizationIssuanceReviewError(
             "AUTHORIZATION_ISSUANCE_MANIFEST_PROJECTION_DRIFT",

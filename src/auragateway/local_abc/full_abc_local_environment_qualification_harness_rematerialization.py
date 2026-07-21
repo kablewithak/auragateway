@@ -5,14 +5,12 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess
 from pathlib import Path
 from typing import Final, Literal, Self, cast
 
 from pydantic import ValidationError, field_validator, model_validator
 
-from auragateway.local_abc import (
-    full_abc_local_environment_qualification_execution_authorization_contracts as auth_contracts,
-)
 from auragateway.local_abc.contracts import LocalABCContract
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
@@ -20,6 +18,7 @@ _GIT_SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 _PATH_PATTERN = re.compile(r"^[A-Za-z0-9._/()+ -]{3,320}$")
 
 SOURCE_MAIN_MERGE_COMMIT: Final = "be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"
+HISTORICAL_AUTHORITY_COMMIT: Final = "84ab2634f548cc60d8aaeef31cdf4fd1e227ad73"
 SUPERSEDED_HARNESS_SOURCE_COMMIT: Final = "4dfd799590195d842f2382bb882fba9b8c4e2422"
 REPLACEMENT_HARNESS_SHA256: Final = (
     "4a371c80aef605c4f1ab5617c21ce43bd0939ad449ffcbcadab656878d785a2e"
@@ -247,6 +246,114 @@ class UnchangedRuntimeInputBinding(LocalABCContract):
         return value
 
 
+class HistoricalPortableManifestEntry(LocalABCContract):
+    """One exact offline input as represented at the rematerialization commit."""
+
+    role: Literal["harness_source", "model_artifacts", "vllm_wheel"]
+    artifact_format: Literal[
+        "source_tree_directory",
+        "hugging_face_snapshot_directory",
+        "python_wheel",
+    ]
+    mounted_path: str
+    sha256: str
+
+    @field_validator("mounted_path")
+    @classmethod
+    def validate_mounted_path(cls, value: str) -> str:
+        if not value.startswith("/kaggle/input/") or ".." in Path(value).parts:
+            raise ValueError("historical mounted path must remain below /kaggle/input")
+        return value
+
+    @field_validator("sha256")
+    @classmethod
+    def validate_entry_sha256(cls, value: str) -> str:
+        if _SHA256_PATTERN.fullmatch(value) is None:
+            raise ValueError("historical manifest entry requires lowercase SHA-256")
+        return value
+
+
+class HistoricalPortableManifest(LocalABCContract):
+    """Typed historical runtime manifest detached from current live enums."""
+
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    manifest_id: Literal["auragateway-environment-qualification-offline-dataset-v1"]
+    entries: tuple[
+        HistoricalPortableManifestEntry,
+        HistoricalPortableManifestEntry,
+        HistoricalPortableManifestEntry,
+    ]
+    network_access_permitted: Literal[False] = False
+    credentials_present: Literal[False] = False
+    customer_data_present: Literal[False] = False
+    hosted_provider_inputs_present: Literal[False] = False
+
+
+class HistoricalMaterializedEntry(LocalABCContract):
+    """One exact materialized input at the historical rematerialization boundary."""
+
+    role: Literal["harness_source", "model_artifacts", "vllm_wheel"]
+    artifact_format: Literal[
+        "source_tree_directory",
+        "hugging_face_snapshot_directory",
+        "python_wheel",
+    ]
+    kaggle_dataset_slug: str
+    kaggle_dataset_version: Literal[1] = 1
+    mounted_path: str
+    sha256: str
+    network_fallback_permitted: Literal[False] = False
+
+    @field_validator("kaggle_dataset_slug")
+    @classmethod
+    def validate_dataset_slug(cls, value: str) -> str:
+        if value.count("/") != 1 or value.startswith("/") or value.endswith("/"):
+            raise ValueError("historical Kaggle slug must use owner/resource syntax")
+        return value
+
+    @field_validator("mounted_path")
+    @classmethod
+    def validate_materialized_path(cls, value: str) -> str:
+        if not value.startswith("/kaggle/input/") or ".." in Path(value).parts:
+            raise ValueError("historical materialized path must remain below /kaggle/input")
+        return value
+
+    @field_validator("sha256")
+    @classmethod
+    def validate_materialized_sha256(cls, value: str) -> str:
+        if _SHA256_PATTERN.fullmatch(value) is None:
+            raise ValueError("historical materialized entry requires lowercase SHA-256")
+        return value
+
+
+class HistoricalMaterializationRecord(LocalABCContract):
+    """Typed historical materialization record detached from current live enums."""
+
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    record_id: Literal["auragateway-environment-qualification-offline-materialization-v1"]
+    harness_source_commit: Literal["be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"]
+    entries: tuple[
+        HistoricalMaterializedEntry,
+        HistoricalMaterializedEntry,
+        HistoricalMaterializedEntry,
+    ]
+    runtime_manifest_path: Literal[
+        "data/evals/benchmark/environment-qualification-v1/offline_dataset_manifest.json"
+    ]
+    runtime_manifest_sha256: str
+    network_access_permitted: Literal[False] = False
+    credentials_present: Literal[False] = False
+    customer_data_present: Literal[False] = False
+    hosted_provider_inputs_present: Literal[False] = False
+
+    @field_validator("runtime_manifest_sha256")
+    @classmethod
+    def validate_manifest_sha256(cls, value: str) -> str:
+        if _SHA256_PATTERN.fullmatch(value) is None:
+            raise ValueError("historical runtime manifest identity must be lowercase SHA-256")
+        return value
+
+
 class HarnessRematerializationSafety(LocalABCContract):
     """No operational runtime activity is permitted in this binding slice."""
 
@@ -366,6 +473,95 @@ def _load_json_object(path: Path) -> dict[str, object]:
     return cast(dict[str, object], payload)
 
 
+def _git_file_bytes_at_revision(
+    repo_root: Path,
+    relative_path: Path,
+    revision: str,
+) -> bytes:
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(repo_root),
+                "show",
+                f"{revision}:{relative_path.as_posix()}",
+            ],
+            check=True,
+            capture_output=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        raise HarnessRematerializationError(
+            "HARNESS_REMATERIALIZATION_HISTORICAL_AUTHORITY_UNREADABLE",
+            "a historical rematerialization authority could not be read",
+            relative_path.as_posix(),
+            details=(revision,),
+        ) from exc
+    return result.stdout
+
+
+def _load_historical_json_object(
+    repo_root: Path,
+    relative_path: Path,
+) -> dict[str, object]:
+    try:
+        payload = json.loads(
+            _git_file_bytes_at_revision(
+                repo_root,
+                relative_path,
+                HISTORICAL_AUTHORITY_COMMIT,
+            ).decode("utf-8")
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HarnessRematerializationError(
+            "HARNESS_REMATERIALIZATION_HISTORICAL_JSON_INVALID",
+            "a historical rematerialization authority is not valid JSON",
+            relative_path.as_posix(),
+        ) from exc
+    if not isinstance(payload, dict):
+        raise HarnessRematerializationError(
+            "HARNESS_REMATERIALIZATION_HISTORICAL_JSON_INVALID",
+            "a historical rematerialization authority must contain one JSON object",
+            relative_path.as_posix(),
+        )
+    return cast(dict[str, object], payload)
+
+
+def load_historical_runtime_manifest(
+    repo_root: Path,
+) -> HistoricalPortableManifest:
+    """Load the exact runtime manifest at the rematerialization commit."""
+
+    try:
+        return HistoricalPortableManifest.model_validate(
+            _load_historical_json_object(repo_root, RUNTIME_MANIFEST_PATH)
+        )
+    except ValidationError as exc:
+        raise HarnessRematerializationError(
+            "HARNESS_REMATERIALIZATION_HISTORICAL_MANIFEST_INVALID",
+            "the historical runtime manifest failed typed validation",
+            RUNTIME_MANIFEST_PATH.as_posix(),
+        ) from exc
+
+
+def load_historical_materialization_record(
+    repo_root: Path,
+) -> HistoricalMaterializationRecord:
+    """Load the exact materialization record at the rematerialization commit."""
+
+    try:
+        return HistoricalMaterializationRecord.model_validate(
+            _load_historical_json_object(repo_root, MATERIALIZATION_RECORD_PATH)
+        )
+    except ValidationError as exc:
+        raise HarnessRematerializationError(
+            "HARNESS_REMATERIALIZATION_HISTORICAL_RECORD_INVALID",
+            "the historical materialization record failed typed validation",
+            MATERIALIZATION_RECORD_PATH.as_posix(),
+        ) from exc
+
+
 def build_default_record() -> HarnessRematerializationRecord:
     """Build the canonical repository record without issuing authorization."""
 
@@ -471,8 +667,6 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
 
     repo_root = repo_root.resolve()
     record = load_record(repo_root / RECORD_PATH)
-    manifest_path = repo_root / RUNTIME_MANIFEST_PATH
-    materialization_path = repo_root / MATERIALIZATION_RECORD_PATH
     parity_evidence_files = (
         (
             repo_root / PARITY_INSPECTION_REPORT_PATH,
@@ -507,31 +701,34 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
             PARITY_EVIDENCE_SHA256_PATH.as_posix(),
         )
 
-    if _file_sha256(manifest_path) != RUNTIME_MANIFEST_SHA256:
+    historical_manifest_bytes = _git_file_bytes_at_revision(
+        repo_root,
+        RUNTIME_MANIFEST_PATH,
+        HISTORICAL_AUTHORITY_COMMIT,
+    )
+    historical_materialization_bytes = _git_file_bytes_at_revision(
+        repo_root,
+        MATERIALIZATION_RECORD_PATH,
+        HISTORICAL_AUTHORITY_COMMIT,
+    )
+    if hashlib.sha256(historical_manifest_bytes).hexdigest() != RUNTIME_MANIFEST_SHA256:
         raise HarnessRematerializationError(
             "HARNESS_REMATERIALIZATION_MANIFEST_DRIFT",
-            "the rematerialized runtime manifest identity drifted",
+            "the historical rematerialized runtime manifest identity drifted",
             RUNTIME_MANIFEST_PATH.as_posix(),
         )
-    if _file_sha256(materialization_path) != MATERIALIZATION_RECORD_SHA256:
+    if (
+        hashlib.sha256(historical_materialization_bytes).hexdigest()
+        != MATERIALIZATION_RECORD_SHA256
+    ):
         raise HarnessRematerializationError(
             "HARNESS_REMATERIALIZATION_RECORD_DRIFT",
-            "the rematerialized materialization record identity drifted",
+            "the historical rematerialization record identity drifted",
             MATERIALIZATION_RECORD_PATH.as_posix(),
         )
 
-    try:
-        manifest = auth_contracts.PortableQualificationDatasetManifest.model_validate(
-            _load_json_object(manifest_path)
-        )
-        materialization = auth_contracts.MaterializedOfflineDatasetRecord.model_validate(
-            _load_json_object(materialization_path)
-        )
-    except ValidationError as exc:
-        raise HarnessRematerializationError(
-            "HARNESS_REMATERIALIZATION_AUTHORITY_INVALID",
-            "the rematerialized offline-input authorities failed typed validation",
-        ) from exc
+    manifest = load_historical_runtime_manifest(repo_root)
+    materialization = load_historical_materialization_record(repo_root)
 
     expected_manifest_entries = (
         (
@@ -605,7 +802,9 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         ),
         "parity_evidence_files_verified": len(parity_evidence_files) + 1,
         "runtime_manifest_sha256": manifest.fingerprint(),
-        "materialization_record_sha256": _file_sha256(materialization_path),
+        "materialization_record_sha256": hashlib.sha256(
+            historical_materialization_bytes
+        ).hexdigest(),
         "authorization_issued": False,
         "gpu_execution_performed": False,
         "model_requests_performed": 0,

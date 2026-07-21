@@ -325,8 +325,9 @@ def _build_authorization(
         )
     if request.fingerprint() != EXECUTION_REQUEST_SHA256:
         raise AuthorizationIssuanceError(
-            "AUTHORIZATION_ISSUANCE_REQUEST_DRIFT",
-            "the execution request identity drifted",
+            "FRESH_CU129_AUTHORIZATION_REVIEW_REQUIRED",
+            "the current CUDA 12.9 execution request is not covered by "
+            "the historical authorization-issuance review",
             EXECUTION_REQUEST_PATH.as_posix(),
         )
     if manifest.fingerprint() != RUNTIME_MANIFEST_SHA256:

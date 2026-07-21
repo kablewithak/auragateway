@@ -9,7 +9,6 @@ import shutil
 import socket
 import stat
 import subprocess
-import sys
 import tarfile
 import tempfile
 import time
@@ -27,6 +26,28 @@ from uuid import uuid4
 from auragateway.local_abc.full_abc_local_environment_qualification_artifact_identity import (
     directory_sha256,
     file_sha256,
+)
+from auragateway.local_abc.full_abc_local_environment_qualification_cu129_runtime import (
+    DEPENDENCY_LOCK_SCRIPT,
+    DEPENDENCY_VALIDATION,
+    EXPECTED_CONTROL_HASHES,
+    EXPECTED_PACKAGE_COUNT,
+    INSTALLATION_EXECUTOR,
+    LOADER_POLICY,
+    PYTHON_STARTUP_POLICY,
+    RUNTIME_OUTPUT_DIRECTORY,
+    Cu129RuntimeManifestBinding,
+    Cu129TargetRuntime,
+    build_install_argv,
+    build_target_environment,
+    canonical_command_sha256,
+    controlled_python_argv,
+    discover_target_library_directories,
+    discover_wheelhouse,
+    realize_worker_command,
+    target_site_packages,
+    validate_wheelhouse,
+    worker_command_template,
 )
 from auragateway.local_abc.full_abc_local_environment_qualification_execution import (
     synthetic_probe_payload,
@@ -60,47 +81,19 @@ _STARTUP_PLAN_PATH: Final = Path(
 _MODEL_REPOSITORY: Final = "Qwen/Qwen2.5-0.5B-Instruct"
 _MODEL_REVISION: Final = "7ae557604adf67be50417f59c2c2f167def9a775"
 _SERVED_MODEL_NAME: Final = "local-qwen2.5-0.5b-instruct"
-_EXPECTED_VLLM_VERSION: Final = "0.25.1"
+_EXPECTED_VLLM_VERSION: Final = "0.19.1"
 _MAX_HEALTH_POLLS: Final = 90
 _HEALTH_POLL_SECONDS: Final = 2.0
 _REQUEST_TIMEOUT_SECONDS: Final = 120.0
 _MAX_MODEL_EXTRACT_BYTES: Final = 16 * 1024**3
 _EXPECTED_COMMAND_SHA256: Final = {
-    "worker_1": "b89bb09ac28407d1fb0e32c88f75422ce4e7e437d0d4db732bdc85a4982d0fda",
-    "worker_2": "40ed11132c6e1106fba26339b7210f95effac37cf1ecebddb287754ad76c738d",
+    "worker_1": canonical_command_sha256(worker_command_template(8001)),
+    "worker_2": canonical_command_sha256(worker_command_template(8002)),
 }
 
 
 def _expected_worker_command(port: int) -> tuple[str, ...]:
-    return (
-        "python",
-        "-m",
-        "vllm.entrypoints.openai.api_server",
-        "--model",
-        _MODEL_REPOSITORY,
-        "--revision",
-        _MODEL_REVISION,
-        "--tokenizer",
-        _MODEL_REPOSITORY,
-        "--tokenizer-revision",
-        _MODEL_REVISION,
-        "--served-model-name",
-        _SERVED_MODEL_NAME,
-        "--host",
-        "127.0.0.1",
-        "--port",
-        str(port),
-        "--dtype",
-        "auto",
-        "--max-model-len",
-        "4096",
-        "--gpu-memory-utilization",
-        "0.85",
-        "--max-num-seqs",
-        "8",
-        "--enable-prefix-caching",
-        "--disable-log-requests",
-    )
+    return worker_command_template(port)
 
 
 _CREDENTIAL_ENV_NAMES: Final = (
@@ -343,9 +336,18 @@ class KaggleQualificationRuntimeAdapter:
         """Run six fixed probes and return one complete in-memory evidence bundle."""
 
         self._require_private_offline_environment()
-        entries = {entry.role: Path(entry.mounted_path) for entry in dataset_manifest.entries}
+        entries = {entry.role: entry for entry in dataset_manifest.entries}
         repo_root = self._repo_root()
         plans = self._load_worker_plans(repo_root / _STARTUP_PLAN_PATH)
+        runtime_entry = entries["vllm_runtime"]
+        runtime_binding = Cu129RuntimeManifestBinding(
+            output_directory_name=str(runtime_entry.runtime_output_directory),
+            resolution_lock_sha256=str(runtime_entry.resolution_lock_sha256),
+            runtime_manifest_sha256=str(runtime_entry.runtime_manifest_sha256),
+            sha256_manifest_sha256=str(runtime_entry.sha256_manifest_sha256),
+            materialization_receipt_sha256=str(runtime_entry.materialization_receipt_sha256),
+            package_count=int(runtime_entry.package_count or 0),
+        )
         session_id = f"kaggle-qualification-{uuid4().hex}"
         request_sha256 = request.fingerprint()
         dataset_sha256 = dataset_manifest.fingerprint()
@@ -354,11 +356,17 @@ class KaggleQualificationRuntimeAdapter:
 
         with tempfile.TemporaryDirectory(prefix="auragateway-qualification-") as raw_workspace:
             workspace = Path(raw_workspace)
+            model_entry = entries["model_artifacts"]
+            if model_entry.mounted_path is None:
+                raise RuntimeError("model artifact mounted path is missing")
+            model_artifact = Path(model_entry.mounted_path)
             model_cache_root, snapshot_path = self._prepare_model_cache(
-                entries["model_artifacts"],
+                model_artifact,
                 workspace,
             )
-            self._install_local_vllm(entries["vllm_wheel"])
+            wheelhouse = discover_wheelhouse(Path("/kaggle/input"), runtime_binding)
+            validate_wheelhouse(wheelhouse, runtime_binding)
+            runtime = self._build_target_runtime(wheelhouse, workspace)
             gpu_topology = self._capture_gpu_topology(
                 session_id,
                 captured_at,
@@ -366,7 +374,7 @@ class KaggleQualificationRuntimeAdapter:
                 dataset_sha256,
             )
             dependency_lock = self._capture_dependency_lock(
-                entries["vllm_wheel"],
+                runtime,
                 plans,
                 session_id,
                 captured_at,
@@ -374,7 +382,7 @@ class KaggleQualificationRuntimeAdapter:
                 dataset_sha256,
             )
             model_identity = self._capture_model_identity(
-                entries["model_artifacts"],
+                model_artifact,
                 snapshot_path,
                 session_id,
                 captured_at,
@@ -386,7 +394,7 @@ class KaggleQualificationRuntimeAdapter:
             metric_evidence: list[ProbeMetricEvidence] = []
             reset_step_payloads: dict[str, str] = {}
             try:
-                processes = self._start_workers(plans, model_cache_root)
+                processes = self._start_workers(plans, runtime, model_cache_root)
                 self._wait_for_workers(plans)
                 self._validate_models(plans)
                 worker_health = self._build_worker_health_report(
@@ -408,7 +416,7 @@ class KaggleQualificationRuntimeAdapter:
                 reset_step_payloads["confirm_worker_ports_closed"] = "ports=8001,8002:closed"
                 reset_step_payloads["record_reset_start"] = self._operations.now().isoformat()
 
-                processes = self._start_workers(plans, model_cache_root)
+                processes = self._start_workers(plans, runtime, model_cache_root)
                 reset_step_payloads["restart_workers_from_bound_startup_plan"] = ",".join(
                     plan.command_sha256 for plan in plans
                 )
@@ -592,29 +600,49 @@ class KaggleQualificationRuntimeAdapter:
                     raise RuntimeError("model archive exceeds the extraction budget")
             handle.extractall(target)
 
-    def _install_local_vllm(self, wheel_path: Path) -> None:
+    def _build_target_runtime(
+        self,
+        wheelhouse: Path,
+        workspace: Path,
+    ) -> Cu129TargetRuntime:
+        runtime_root = workspace / "auragateway_vllm_runtime_cu129_qualification"
+        base_python = Path(__import__("sys").executable).resolve()
+        venv_result = self._operations.run(
+            (str(base_python), "-m", "venv", "--without-pip", str(runtime_root)),
+            env=dict(os.environ),
+            timeout=120.0,
+        )
+        if venv_result.returncode != 0:
+            raise RuntimeError("isolated CUDA 12.9 target-runtime creation failed")
+        target_python = runtime_root / "bin" / "python"
+        if not target_python.exists() or not target_python.resolve().is_file():
+            raise RuntimeError("isolated CUDA 12.9 target interpreter is unavailable")
+        site_packages = target_site_packages(runtime_root)
+        site_packages.mkdir(parents=True, exist_ok=True)
         env = dict(os.environ)
         env.update(
             {
                 "PIP_DISABLE_PIP_VERSION_CHECK": "1",
                 "PIP_NO_INDEX": "1",
+                "PIP_NO_CACHE_DIR": "1",
             }
         )
         result = self._operations.run(
-            [
-                sys.executable,
-                "-m",
-                "pip",
-                "install",
-                "--no-index",
-                "--no-deps",
-                str(wheel_path),
-            ],
+            build_install_argv(base_python, wheelhouse, site_packages),
             env=env,
-            timeout=300.0,
+            timeout=900.0,
         )
         if result.returncode != 0:
-            raise RuntimeError("local vLLM wheel installation failed")
+            raise RuntimeError("offline CUDA 12.9 target-runtime installation failed")
+        target_libraries = discover_target_library_directories(site_packages)
+        return Cu129TargetRuntime(
+            wheelhouse_root=wheelhouse,
+            runtime_root=runtime_root,
+            site_packages=site_packages,
+            base_python=base_python,
+            target_python=target_python,
+            target_library_directories=target_libraries,
+        )
 
     def _capture_gpu_topology(
         self,
@@ -665,29 +693,35 @@ class KaggleQualificationRuntimeAdapter:
 
     def _capture_dependency_lock(
         self,
-        wheel_path: Path,
+        runtime: Cu129TargetRuntime,
         plans: tuple[WorkerPlan, WorkerPlan],
         session_id: str,
         captured_at: datetime,
         request_sha256: str,
         dataset_sha256: str,
     ) -> KaggleRuntimeDependencyLock:
-        script = (
-            "import importlib.metadata,json,os,platform,torch,transformers,vllm;"
-            "print(json.dumps({'python':platform.python_version(),"
-            "'torch':torch.__version__,'cuda':torch.version.cuda or 'unavailable',"
-            "'transformers':transformers.__version__,'vllm_module':vllm.__version__,"
-            "'vllm_distribution':importlib.metadata.version('vllm'),"
-            "'attention_backend':os.getenv('VLLM_ATTENTION_BACKEND','auto')}))"
+        env = build_target_environment(runtime, os.environ)
+        argv = controlled_python_argv(
+            runtime,
+            DEPENDENCY_LOCK_SCRIPT,
+            str(runtime.site_packages),
         )
-        result = self._operations.run([sys.executable, "-c", script], timeout=30.0)
+        result = self._operations.run(argv, env=env, timeout=60.0)
         if result.returncode != 0:
-            raise RuntimeError("runtime dependency lock capture failed")
+            raise RuntimeError("controlled runtime dependency lock capture failed")
         payload = json.loads(result.stdout)
         if not isinstance(payload, dict):
             raise RuntimeError("runtime dependency lock output is invalid")
-        if payload.get("vllm_distribution") != _EXPECTED_VLLM_VERSION:
-            raise RuntimeError("installed vLLM distribution version does not match 0.25.1")
+        expected = {
+            "torch": "2.10.0+cu129",
+            "cuda": "12.9",
+            "transformers": "5.5.3",
+            "vllm_module": _EXPECTED_VLLM_VERSION,
+            "vllm_distribution": _EXPECTED_VLLM_VERSION,
+            "distribution_count": EXPECTED_PACKAGE_COUNT,
+        }
+        if any(payload.get(key) != value for key, value in expected.items()):
+            raise RuntimeError("controlled CUDA 12.9 runtime identity drifted")
         return KaggleRuntimeDependencyLock(
             evidence_id="kaggle-runtime-dependency-lock",
             runtime_session_id=session_id,
@@ -700,7 +734,19 @@ class KaggleQualificationRuntimeAdapter:
             transformers_version=str(payload["transformers"]),
             vllm_module_version=str(payload["vllm_module"]),
             vllm_distribution_version=str(payload["vllm_distribution"]),
-            vllm_wheel_sha256=self._file_sha256(wheel_path),
+            runtime_output_directory=RUNTIME_OUTPUT_DIRECTORY,
+            runtime_resolution_lock_sha256=EXPECTED_CONTROL_HASHES["resolution_lock.json"],
+            runtime_manifest_sha256=EXPECTED_CONTROL_HASHES["runtime_manifest.json"],
+            runtime_sha256_manifest_sha256=EXPECTED_CONTROL_HASHES["sha256_manifest.json"],
+            runtime_materialization_receipt_sha256=EXPECTED_CONTROL_HASHES[
+                "materialization_receipt.json"
+            ],
+            runtime_package_count=EXPECTED_PACKAGE_COUNT,
+            installation_executor=INSTALLATION_EXECUTOR,
+            dependency_validation=DEPENDENCY_VALIDATION,
+            python_startup_policy=PYTHON_STARTUP_POLICY,
+            loader_policy=LOADER_POLICY,
+            target_python_sha256=self._file_sha256(runtime.target_python.resolve()),
             attention_backend=str(payload["attention_backend"]),
             automatic_prefix_cache_configuration="enabled",
             dtype="auto",
@@ -793,6 +839,8 @@ class KaggleQualificationRuntimeAdapter:
             expected_environment = (
                 ("CUDA_VISIBLE_DEVICES", str(gpu_index)),
                 ("HF_HUB_OFFLINE", "1"),
+                ("TRANSFORMERS_OFFLINE", "1"),
+                ("PYTHONNOUSERSITE", "1"),
             )
             if environment != expected_environment:
                 raise RuntimeError("worker startup environment drifted")
@@ -814,21 +862,21 @@ class KaggleQualificationRuntimeAdapter:
     def _start_workers(
         self,
         plans: tuple[WorkerPlan, WorkerPlan],
+        runtime: Cu129TargetRuntime,
         model_cache_root: Path,
     ) -> list[WorkerProcess]:
         processes: list[WorkerProcess] = []
         try:
             for plan in plans:
-                env = dict(os.environ)
-                env.update(dict(plan.environment))
-                env.update(
-                    {
-                        "HF_HOME": str(model_cache_root),
-                        "HF_HUB_OFFLINE": "1",
-                        "TRANSFORMERS_OFFLINE": "1",
-                    }
+                env = build_target_environment(
+                    runtime,
+                    os.environ,
+                    gpu_index=plan.gpu_index,
+                    model_cache_root=model_cache_root,
                 )
-                processes.append(self._operations.spawn(plan.command_argv, env=env))
+                env.update(dict(plan.environment))
+                argv = realize_worker_command(plan.command_argv, runtime)
+                processes.append(self._operations.spawn(argv, env=env))
         except Exception:
             self._stop_workers(processes)
             raise

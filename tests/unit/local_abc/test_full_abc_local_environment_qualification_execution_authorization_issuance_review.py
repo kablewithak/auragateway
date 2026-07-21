@@ -48,6 +48,26 @@ def _payload() -> dict[str, Any]:
     )
 
 
+def test_historical_request_model_is_detached_from_current_execution_hash() -> None:
+    authorization_module = importlib.import_module(
+        "auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization"
+    )
+    payload = authorization_module.build_qualification_authorization_request().model_dump(
+        mode="json"
+    )
+    payload["execution_request_sha256"] = (
+        "dcef7e7243f4de16955bccdfc36dbd0194b51a602d1fc67f5c6fa375ca529e28"
+    )
+
+    historical = review_module.HistoricalQualificationAuthorizationRequest.model_validate(payload)
+
+    assert historical.execution_request_sha256 == (
+        "dcef7e7243f4de16955bccdfc36dbd0194b51a602d1fc67f5c6fa375ca529e28"
+    )
+    with pytest.raises(ValidationError):
+        review_module.auth_contracts.QualificationAuthorizationRequest.model_validate(payload)
+
+
 def test_default_review_is_deterministic() -> None:
     first = build_default_review()
     second = build_default_review()

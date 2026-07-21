@@ -1,10 +1,10 @@
-"""Validate the bounded CUDA 12.9 qualification runtime integration review."""
+"""Validate the historical CUDA 12.9 runtime-integration review and its supersession."""
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
+import subprocess
 from pathlib import Path
 from typing import Final, Never, cast
 
@@ -13,6 +13,9 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 BASE_COMMIT: Final = "daa8df9"
 REVIEW_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_qualification_runtime_integration_review_v1.json"
+)
+INTEGRATION_PATH: Final = Path(
+    "benchmarks/local_abc/auragateway_cu129_qualification_runtime_integration_v1.json"
 )
 LAUNCHER_PATH: Final = Path(
     "src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_launcher.py"
@@ -30,12 +33,12 @@ WORKER_PLAN_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/worker_startup_plan.json"
 )
 
-EXPECTED_CURRENT_SHA256: Final = {
-    LAUNCHER_PATH: "523868330501721513f5ea1317d162e408da89486d2ea03ef8cd2a451a94e638",
-    ADAPTER_PATH: "78870b1a7e27de9931f0f58e11613110dc642ba0d4a934ca149576e4e86412d8",
-    CONTRACTS_PATH: "69c0412b6bf89ad5eed2bb174f55c1fb621d126767c48147bbc2287a323adcd0",
-    MANIFEST_PATH: "9ffd335fad6ac660782be7881625a1fb99a39f5d4a1446f31504154634c91eb7",
-    WORKER_PLAN_PATH: "e0385a61f877be2913c4be87813e52ccff50378e65c95160d425a4abce1b3fde",
+EXPECTED_HISTORICAL_GIT_BLOBS: Final = {
+    LAUNCHER_PATH: "c8021c9a0688f689c49a4828110dd1c96911cb5c",
+    ADAPTER_PATH: "2f832c487e338d6233fa774dc6a4069f31cfcc30",
+    CONTRACTS_PATH: "8f6219793e33096fe02fa7340a7e85fd484c297d",
+    MANIFEST_PATH: "a28229afb04b745a901f99d1c04172feed7752f2",
+    WORKER_PLAN_PATH: "4729f9668e3c331185fd7c4f191d2e171f5ecad8",
 }
 
 
@@ -84,10 +87,6 @@ class _ArgumentParser(argparse.ArgumentParser):
         raise RuntimeError(message)
 
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
 def _load_json(path: Path) -> dict[str, object]:
     payload = json.loads(path.read_text(encoding="utf-8-sig"))
     if not isinstance(payload, dict):
@@ -95,82 +94,133 @@ def _load_json(path: Path) -> dict[str, object]:
     return cast(dict[str, object], payload)
 
 
+def _git_blob_at_revision(repo_root: Path, relative_path: Path, revision: str) -> str:
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo_root),
+            "rev-parse",
+            f"{revision}:{relative_path.as_posix()}",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"historical authority is unavailable: {relative_path.as_posix()}")
+    identity = result.stdout.strip()
+    if len(identity) != 40 or any(character not in "0123456789abcdef" for character in identity):
+        raise RuntimeError(
+            f"historical authority returned an invalid Git blob: {relative_path.as_posix()}"
+        )
+    return identity
+
+
+def _require_base_ancestor(repo_root: Path) -> None:
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo_root),
+            "merge-base",
+            "--is-ancestor",
+            BASE_COMMIT,
+            "HEAD",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+    if result.returncode != 0:
+        raise RuntimeError("runtime integration review base commit is not an ancestor")
+
+
 def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
     root = Path(repo_root).resolve()
     review = RuntimeIntegrationReview.model_validate(_load_json(root / REVIEW_PATH))
+    _require_base_ancestor(root)
 
-    for relative_path, expected_sha256 in EXPECTED_CURRENT_SHA256.items():
-        observed = _sha256(root / relative_path)
-        if observed != expected_sha256:
-            raise RuntimeError(
-                f"captured pre-integration authority drifted: {relative_path.as_posix()}"
-            )
+    historical_drift = tuple(
+        sorted(
+            relative_path.as_posix()
+            for relative_path, expected_blob in EXPECTED_HISTORICAL_GIT_BLOBS.items()
+            if _git_blob_at_revision(root, relative_path, BASE_COMMIT) != expected_blob
+        )
+    )
+    if historical_drift:
+        raise RuntimeError(
+            "one or more pre-integration Git authorities drifted: " + ", ".join(historical_drift)
+        )
 
-    launcher = (root / LAUNCHER_PATH).read_text(encoding="utf-8")
-    adapter = (root / ADAPTER_PATH).read_text(encoding="utf-8")
-    contracts = (root / CONTRACTS_PATH).read_text(encoding="utf-8")
+    integration = _load_json(root / INTEGRATION_PATH)
+    required_integration = {
+        "decision": "INTEGRATED_REPOSITORY_ONLY_AUTHORIZATION_BLOCKED",
+        "repository_base_commit": "e6659de",
+        "next_gate": "review_fresh_qualification_authorization_and_control_output_regeneration",
+    }
+    if any(integration.get(field) != expected for field, expected in required_integration.items()):
+        raise RuntimeError("current CUDA 12.9 runtime integration disposition drifted")
+
+    safety = integration.get("safety")
+    if not isinstance(safety, dict):
+        raise RuntimeError("current runtime integration safety record is invalid")
+    prohibited = (
+        "authorization_issued",
+        "credentials_present",
+        "customer_data_present",
+        "kaggle_execution_performed",
+        "measured_execution_authorized",
+        "model_loaded",
+        "worker_started",
+    )
+    if any(safety.get(field) is not False for field in prohibited):
+        raise RuntimeError("current runtime integration crossed a prohibited boundary")
+    if safety.get("model_requests_performed") != 0:
+        raise RuntimeError("current runtime integration performed model requests")
+
     manifest = _load_json(root / MANIFEST_PATH)
-    worker_plan = _load_json(root / WORKER_PLAN_PATH)
-
-    required_stale_launcher = (
-        "VLLM_WHEEL_PATH",
-        "vllm-0.25.1+cu129",
-        '"vllm_wheel": EXPECTED_VLLM_WHEEL.as_posix()',
-    )
-    if any(fragment not in launcher for fragment in required_stale_launcher):
-        raise RuntimeError("launcher no longer matches the reviewed pre-integration state")
-
-    required_stale_adapter = (
-        '_EXPECTED_VLLM_VERSION: Final = "0.25.1"',
-        'entries["vllm_wheel"]',
-        '"pip",',
-        '"--no-deps",',
-        '[sys.executable, "-c", script]',
-    )
-    if any(fragment not in adapter for fragment in required_stale_adapter):
-        raise RuntimeError("adapter no longer matches the reviewed pre-integration state")
-
-    if 'Literal["harness_source", "model_artifacts", "vllm_wheel"]' not in contracts:
-        raise RuntimeError("dataset role contract no longer matches the reviewed state")
-    if '"python_wheel",' not in contracts:
-        raise RuntimeError("dataset format contract no longer matches the reviewed state")
-
     entries = manifest.get("entries")
     if not isinstance(entries, list) or len(entries) != 3:
-        raise RuntimeError("offline dataset manifest entry set drifted")
+        raise RuntimeError("current offline dataset manifest entry set drifted")
     runtime_entry = entries[2]
     if not isinstance(runtime_entry, dict):
-        raise RuntimeError("offline runtime dataset entry is invalid")
+        raise RuntimeError("current runtime dataset entry is invalid")
     if (
-        runtime_entry.get("role") != "vllm_wheel"
-        or runtime_entry.get("artifact_format") != "python_wheel"
-        or runtime_entry.get("sha256")
-        != "9e206f370c934a2d4b6b1f05d3d09708d344e05d80260189ef19f60755709431"
+        runtime_entry.get("role") != "vllm_runtime"
+        or runtime_entry.get("artifact_format") != "python_wheelhouse_directory"
+        or runtime_entry.get("package_count") != 176
     ):
-        raise RuntimeError("historical single-wheel manifest authority drifted")
+        raise RuntimeError("current wheelhouse runtime authority drifted")
 
-    workers = worker_plan.get("workers")
+    workers = _load_json(root / WORKER_PLAN_PATH).get("workers")
     if not isinstance(workers, list) or len(workers) != 2:
-        raise RuntimeError("worker startup plan drifted")
+        raise RuntimeError("current worker startup plan drifted")
     for worker in workers:
         if not isinstance(worker, dict):
-            raise RuntimeError("worker startup plan entry is invalid")
+            raise RuntimeError("current worker startup plan entry is invalid")
         argv = worker.get("command_argv")
-        if not isinstance(argv, list) or not argv or argv[0] != "python":
-            raise RuntimeError("historical generic worker interpreter drifted")
+        if (
+            not isinstance(argv, list)
+            or len(argv) < 3
+            or argv[0] != "${AURAGATEWAY_TARGET_PYTHON}"
+            or argv[1] != "-S"
+        ):
+            raise RuntimeError("current worker command is not target-runtime controlled")
 
     return {
         "review_id": review.review_id,
-        "decision": review.decision,
-        "current_runtime_input": "single_vllm_0_25_1_cu129_wheel",
-        "required_runtime_input": "exact_176_package_cu129_wheelhouse",
-        "required_installation_executor": "BASE_PIP_TARGET_DIRECTORY",
-        "required_python_startup": "NO_SITE_WITH_CONTROLLED_SITE_BOOTSTRAP",
-        "required_loader_policy": "TARGET_NVIDIA_LIBRARIES_PREPENDED",
-        "next_gate": review.next_gate,
+        "review_decision": review.decision,
+        "review_disposition": "HISTORICAL_PREINTEGRATION_AUTHORITY",
+        "historical_runtime_input": "single_vllm_0_25_1_cu129_wheel",
+        "current_runtime_input": "exact_176_package_cu129_wheelhouse",
+        "current_integration_status": integration["decision"],
         "authorization_issued": False,
         "runtime_execution_performed": False,
         "model_requests_performed": 0,
+        "next_gate": integration["next_gate"],
     }
 
 
