@@ -72,12 +72,18 @@ MODEL_SNAPSHOT_PATH: Final = (
     "hf_home/hub/models--Qwen--Qwen2.5-0.5B-Instruct/"
     "snapshots/7ae557604adf67be50417f59c2c2f167def9a775"
 )
-VLLM_WHEEL_PATH: Final = (
-    "/kaggle/input/notebooks/kabomolefe/"
-    "auragateway-vllm-wheel-recovery-v1/"
-    "auragateway_vllm_wheels_v1/"
-    "vllm-0.25.1+cu129-cp38-abi3-manylinux_2_28_x86_64.whl"
+RUNTIME_OUTPUT_DIRECTORY: Final = "auragateway_vllm_cu129_wheelhouse_v1"
+RUNTIME_RESOLUTION_LOCK_SHA256: Final = (
+    "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"
 )
+RUNTIME_MANIFEST_SHA256: Final = "b424d2b952d726b2f7451ebd8f48d604985f650dbe2f6d146969625618b7fc51"
+RUNTIME_SHA256_MANIFEST_SHA256: Final = (
+    "789fb23ab7d9c4f28dd909e808a53a65d692c0d7b43bc44da9e974817d771b8d"
+)
+RUNTIME_MATERIALIZATION_RECEIPT_SHA256: Final = (
+    "52aa42b940dd606ab5685686ab893eb085efed2a7466989f654e870f4b360589"
+)
+RUNTIME_PACKAGE_COUNT: Final = 176
 
 MAXIMUM_KAGGLE_NAME_CHARACTERS: Final = 50
 MAXIMUM_EVIDENCE_ZIP_BYTES: Final = 2 * 1024 * 1024
@@ -157,12 +163,12 @@ class KaggleControlPackageManifest(_StrictModel):
         "hf_home/hub/models--Qwen--Qwen2.5-0.5B-Instruct/"
         "snapshots/7ae557604adf67be50417f59c2c2f167def9a775"
     ]
-    vllm_wheel_path: Literal[
-        "/kaggle/input/notebooks/kabomolefe/"
-        "auragateway-vllm-wheel-recovery-v1/"
-        "auragateway_vllm_wheels_v1/"
-        "vllm-0.25.1+cu129-cp38-abi3-manylinux_2_28_x86_64.whl"
-    ]
+    runtime_output_directory: Literal["auragateway_vllm_cu129_wheelhouse_v1"]
+    runtime_resolution_lock_sha256: str
+    runtime_manifest_sha256: str
+    runtime_sha256_manifest_sha256: str
+    runtime_materialization_receipt_sha256: str
+    runtime_package_count: Literal[176]
     network_access_permitted: Literal[False] = False
     credentials_present: Literal[False] = False
     customer_data_present: Literal[False] = False
@@ -174,6 +180,10 @@ class KaggleControlPackageManifest(_StrictModel):
         "authorization_contract_sha256",
         "dataset_manifest_file_sha256",
         "dataset_manifest_contract_sha256",
+        "runtime_resolution_lock_sha256",
+        "runtime_manifest_sha256",
+        "runtime_sha256_manifest_sha256",
+        "runtime_materialization_receipt_sha256",
     )
     @classmethod
     def validate_sha256(cls, value: str) -> str:
@@ -189,6 +199,14 @@ class KaggleControlPackageManifest(_StrictModel):
             raise ValueError("control package timestamps must be timezone-aware")
         if expires_at <= issued_at:
             raise ValueError("control package expiry must follow issuance")
+        expected_runtime = {
+            "runtime_resolution_lock_sha256": RUNTIME_RESOLUTION_LOCK_SHA256,
+            "runtime_manifest_sha256": RUNTIME_MANIFEST_SHA256,
+            "runtime_sha256_manifest_sha256": RUNTIME_SHA256_MANIFEST_SHA256,
+            "runtime_materialization_receipt_sha256": (RUNTIME_MATERIALIZATION_RECEIPT_SHA256),
+        }
+        if any(getattr(self, key) != value for key, value in expected_runtime.items()):
+            raise ValueError("control package CUDA 12.9 runtime identity drifted")
         return self
 
 
@@ -395,9 +413,20 @@ __HARNESS_SOURCE_PATH_LITERAL__
 EXPECTED_MODEL_SNAPSHOT = Path(
 __MODEL_SNAPSHOT_PATH_LITERAL__
 )
-EXPECTED_VLLM_WHEEL = Path(
-__VLLM_WHEEL_PATH_LITERAL__
+EXPECTED_RUNTIME_OUTPUT_DIRECTORY = "__RUNTIME_OUTPUT_DIRECTORY__"
+EXPECTED_RUNTIME_RESOLUTION_LOCK_SHA256 = (
+    "__RUNTIME_RESOLUTION_LOCK_SHA256__"
 )
+EXPECTED_RUNTIME_MANIFEST_SHA256 = (
+    "__RUNTIME_MANIFEST_SHA256__"
+)
+EXPECTED_RUNTIME_SHA256_MANIFEST_SHA256 = (
+    "__RUNTIME_SHA256_MANIFEST_SHA256__"
+)
+EXPECTED_RUNTIME_MATERIALIZATION_RECEIPT_SHA256 = (
+    "__RUNTIME_MATERIALIZATION_RECEIPT_SHA256__"
+)
+EXPECTED_RUNTIME_PACKAGE_COUNT = __RUNTIME_PACKAGE_COUNT__
 
 MINIMUM_LAUNCH_WINDOW_MINUTES = __MINIMUM_LAUNCH_WINDOW_MINUTES__
 MAXIMUM_EVIDENCE_ZIP_BYTES = __MAXIMUM_EVIDENCE_ZIP_BYTES__
@@ -632,7 +661,6 @@ try:
     for expected_path in (
         EXPECTED_HARNESS_SOURCE,
         EXPECTED_MODEL_SNAPSHOT,
-        EXPECTED_VLLM_WHEEL,
     ):
         resolved = expected_path.resolve()
         if INPUT_ROOT not in resolved.parents:
@@ -728,18 +756,39 @@ try:
     entries = dataset_manifest.get("entries")
     if not isinstance(entries, list) or len(entries) != 3:
         raise RuntimeError("dataset manifest entry set drifted")
-    observed_mounts = {
-        str(entry.get("role")): str(entry.get("mounted_path"))
+    entries_by_role = {
+        str(entry.get("role")): entry
         for entry in entries
         if isinstance(entry, dict)
     }
     expected_mounts = {
         "harness_source": EXPECTED_HARNESS_SOURCE.as_posix(),
         "model_artifacts": EXPECTED_MODEL_SNAPSHOT.as_posix(),
-        "vllm_wheel": EXPECTED_VLLM_WHEEL.as_posix(),
+    }
+    observed_mounts = {
+        role: str(entries_by_role.get(role, {}).get("mounted_path"))
+        for role in expected_mounts
     }
     if observed_mounts != expected_mounts:
-        raise RuntimeError("dataset manifest mount bindings drifted")
+        raise RuntimeError("dataset manifest static mount bindings drifted")
+    runtime_entry = entries_by_role.get("vllm_runtime")
+    if not isinstance(runtime_entry, dict):
+        raise RuntimeError("dataset manifest CUDA 12.9 runtime entry is missing")
+    expected_runtime = {
+        "artifact_format": "python_wheelhouse_directory",
+        "mounted_path": None,
+        "sha256": EXPECTED_RUNTIME_SHA256_MANIFEST_SHA256,
+        "runtime_output_directory": EXPECTED_RUNTIME_OUTPUT_DIRECTORY,
+        "resolution_lock_sha256": EXPECTED_RUNTIME_RESOLUTION_LOCK_SHA256,
+        "runtime_manifest_sha256": EXPECTED_RUNTIME_MANIFEST_SHA256,
+        "sha256_manifest_sha256": EXPECTED_RUNTIME_SHA256_MANIFEST_SHA256,
+        "materialization_receipt_sha256": (
+            EXPECTED_RUNTIME_MATERIALIZATION_RECEIPT_SHA256
+        ),
+        "package_count": EXPECTED_RUNTIME_PACKAGE_COUNT,
+    }
+    if any(runtime_entry.get(key) != value for key, value in expected_runtime.items()):
+        raise RuntimeError("dataset manifest CUDA 12.9 runtime authority drifted")
 
     stage = "reviewed_core_execution"
 
@@ -882,7 +931,12 @@ except BaseException as error:
         "__REVIEWED_CORE_B64_LITERAL__": _string_literal_block(encoded_core),
         "__HARNESS_SOURCE_PATH_LITERAL__": _string_literal_block(HARNESS_SOURCE_PATH),
         "__MODEL_SNAPSHOT_PATH_LITERAL__": _string_literal_block(MODEL_SNAPSHOT_PATH),
-        "__VLLM_WHEEL_PATH_LITERAL__": _string_literal_block(VLLM_WHEEL_PATH),
+        "__RUNTIME_OUTPUT_DIRECTORY__": RUNTIME_OUTPUT_DIRECTORY,
+        "__RUNTIME_RESOLUTION_LOCK_SHA256__": RUNTIME_RESOLUTION_LOCK_SHA256,
+        "__RUNTIME_MANIFEST_SHA256__": RUNTIME_MANIFEST_SHA256,
+        "__RUNTIME_SHA256_MANIFEST_SHA256__": RUNTIME_SHA256_MANIFEST_SHA256,
+        "__RUNTIME_MATERIALIZATION_RECEIPT_SHA256__": (RUNTIME_MATERIALIZATION_RECEIPT_SHA256),
+        "__RUNTIME_PACKAGE_COUNT__": str(RUNTIME_PACKAGE_COUNT),
         "__MINIMUM_LAUNCH_WINDOW_MINUTES__": str(MINIMUM_LAUNCH_WINDOW_MINUTES),
         "__MAXIMUM_EVIDENCE_ZIP_BYTES__": str(MAXIMUM_EVIDENCE_ZIP_BYTES),
         "__RUNTIME_EVIDENCE_TUPLE__": "\n".join(
@@ -1114,9 +1168,14 @@ __HARNESS_SOURCE_PATH_LITERAL__
 MODEL_SNAPSHOT_PATH = (
 __MODEL_SNAPSHOT_PATH_LITERAL__
 )
-VLLM_WHEEL_PATH = (
-__VLLM_WHEEL_PATH_LITERAL__
+RUNTIME_OUTPUT_DIRECTORY = "__RUNTIME_OUTPUT_DIRECTORY__"
+RUNTIME_RESOLUTION_LOCK_SHA256 = "__RUNTIME_RESOLUTION_LOCK_SHA256__"
+RUNTIME_MANIFEST_SHA256 = "__RUNTIME_MANIFEST_SHA256__"
+RUNTIME_SHA256_MANIFEST_SHA256 = "__RUNTIME_SHA256_MANIFEST_SHA256__"
+RUNTIME_MATERIALIZATION_RECEIPT_SHA256 = (
+    "__RUNTIME_MATERIALIZATION_RECEIPT_SHA256__"
 )
+RUNTIME_PACKAGE_COUNT = __RUNTIME_PACKAGE_COUNT__
 
 
 def sha256_bytes(payload: bytes) -> str:
@@ -1230,18 +1289,37 @@ if remaining_minutes < MINIMUM_CONTROL_WINDOW_MINUTES:
 entries = dataset_manifest.get("entries")
 if not isinstance(entries, list) or len(entries) != 3:
     raise RuntimeError("embedded dataset manifest entry set drifted")
-observed_mounts = {
-    str(entry.get("role")): str(entry.get("mounted_path"))
+entries_by_role = {
+    str(entry.get("role")): entry
     for entry in entries
     if isinstance(entry, dict)
 }
 expected_mounts = {
     "harness_source": HARNESS_SOURCE_PATH,
     "model_artifacts": MODEL_SNAPSHOT_PATH,
-    "vllm_wheel": VLLM_WHEEL_PATH,
+}
+observed_mounts = {
+    role: str(entries_by_role.get(role, {}).get("mounted_path"))
+    for role in expected_mounts
 }
 if observed_mounts != expected_mounts:
-    raise RuntimeError("embedded dataset manifest mount bindings drifted")
+    raise RuntimeError("embedded dataset manifest static mount bindings drifted")
+runtime_entry = entries_by_role.get("vllm_runtime")
+if not isinstance(runtime_entry, dict):
+    raise RuntimeError("embedded CUDA 12.9 runtime entry is missing")
+expected_runtime = {
+    "artifact_format": "python_wheelhouse_directory",
+    "mounted_path": None,
+    "sha256": RUNTIME_SHA256_MANIFEST_SHA256,
+    "runtime_output_directory": RUNTIME_OUTPUT_DIRECTORY,
+    "resolution_lock_sha256": RUNTIME_RESOLUTION_LOCK_SHA256,
+    "runtime_manifest_sha256": RUNTIME_MANIFEST_SHA256,
+    "sha256_manifest_sha256": RUNTIME_SHA256_MANIFEST_SHA256,
+    "materialization_receipt_sha256": RUNTIME_MATERIALIZATION_RECEIPT_SHA256,
+    "package_count": RUNTIME_PACKAGE_COUNT,
+}
+if any(runtime_entry.get(key) != value for key, value in expected_runtime.items()):
+    raise RuntimeError("embedded CUDA 12.9 runtime authority drifted")
 
 OUTPUT_ROOT.mkdir(parents=True)
 authorization_path = OUTPUT_ROOT / AUTHORIZATION_FILENAME
@@ -1269,7 +1347,14 @@ control_manifest = {
     "expires_at": authorization["expires_at"],
     "harness_source_path": HARNESS_SOURCE_PATH,
     "model_snapshot_path": MODEL_SNAPSHOT_PATH,
-    "vllm_wheel_path": VLLM_WHEEL_PATH,
+    "runtime_output_directory": RUNTIME_OUTPUT_DIRECTORY,
+    "runtime_resolution_lock_sha256": RUNTIME_RESOLUTION_LOCK_SHA256,
+    "runtime_manifest_sha256": RUNTIME_MANIFEST_SHA256,
+    "runtime_sha256_manifest_sha256": RUNTIME_SHA256_MANIFEST_SHA256,
+    "runtime_materialization_receipt_sha256": (
+        RUNTIME_MATERIALIZATION_RECEIPT_SHA256
+    ),
+    "runtime_package_count": RUNTIME_PACKAGE_COUNT,
     "network_access_permitted": False,
     "credentials_present": False,
     "customer_data_present": False,
@@ -1340,7 +1425,12 @@ print("save_this_notebook_output=true")
         "__MINIMUM_CONTROL_WINDOW_MINUTES__": str(MINIMUM_CONTROL_WINDOW_MINUTES),
         "__HARNESS_SOURCE_PATH_LITERAL__": _string_literal_block(HARNESS_SOURCE_PATH),
         "__MODEL_SNAPSHOT_PATH_LITERAL__": _string_literal_block(MODEL_SNAPSHOT_PATH),
-        "__VLLM_WHEEL_PATH_LITERAL__": _string_literal_block(VLLM_WHEEL_PATH),
+        "__RUNTIME_OUTPUT_DIRECTORY__": RUNTIME_OUTPUT_DIRECTORY,
+        "__RUNTIME_RESOLUTION_LOCK_SHA256__": RUNTIME_RESOLUTION_LOCK_SHA256,
+        "__RUNTIME_MANIFEST_SHA256__": RUNTIME_MANIFEST_SHA256,
+        "__RUNTIME_SHA256_MANIFEST_SHA256__": RUNTIME_SHA256_MANIFEST_SHA256,
+        "__RUNTIME_MATERIALIZATION_RECEIPT_SHA256__": (RUNTIME_MATERIALIZATION_RECEIPT_SHA256),
+        "__RUNTIME_PACKAGE_COUNT__": str(RUNTIME_PACKAGE_COUNT),
     }
     for marker, value in replacements.items():
         template = template.replace(marker, value)

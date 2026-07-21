@@ -64,14 +64,34 @@ auragateway-qwen2.5-0.5b-instruct-7ae557604adf67be50417f59c2c2f167def9a775/
 hf_home/hub/models--Qwen--Qwen2.5-0.5B-Instruct/
 snapshots/7ae557604adf67be50417f59c2c2f167def9a775
 
-vLLM wheel:
-/kaggle/input/notebooks/kabomolefe/auragateway-vllm-wheel-recovery-v1/
-auragateway_vllm_wheels_v1/
-vllm-0.25.1+cu129-cp38-abi3-manylinux_2_28_x86_64.whl
+CUDA 12.9 runtime input:
+exactly one `auragateway_vllm_cu129_wheelhouse_v1` output directory discovered beneath
+`/kaggle/input` and bound by its resolution lock, runtime manifest, checksum manifest,
+materialization receipt, and 176-package closure.
 ```
 
 The line breaks above are for readability. Runtime bindings use the complete uninterrupted
 paths.
+
+
+## CUDA 12.9 runtime integration
+
+The launcher control package carries the logical runtime authority rather than an invented
+platform slug or a hard-coded mounted path. The runtime adapter discovers exactly one
+governed output directory and then enforces:
+
+```text
+installation executor: BASE_PIP_TARGET_DIRECTORY
+dependency validation: CONTROLLED_TARGET_METADATA_AND_PACKAGING
+Python startup: NO_SITE_WITH_CONTROLLED_SITE_BOOTSTRAP
+loader policy: TARGET_NVIDIA_LIBRARIES_PREPENDED
+vLLM: 0.19.1
+Torch: 2.10.0+cu129
+Transformers: 5.5.3
+```
+
+No model process starts until the target environment, package closure, target Python, and
+NVIDIA loader order have passed validation.
 
 ## Harness rematerialization authority
 
@@ -121,7 +141,8 @@ status:
 HARNESS_AUTHORIZATION_PARITY_PASSED
 ```
 
-The model snapshot and vLLM wheel identities remain unchanged.
+The model snapshot identity remains unchanged. The historical single-wheel runtime is
+superseded by the exact CUDA 12.9 wheelhouse authority.
 
 ## Execution boundary
 
@@ -363,7 +384,7 @@ The archive is capped at 2 MiB. The launcher never archives:
 
 - `/kaggle/input`;
 - the model snapshot;
-- the vLLM wheel;
+- the CUDA 12.9 wheelhouse;
 - the harness source tree;
 - Hugging Face caches;
 - pip caches;

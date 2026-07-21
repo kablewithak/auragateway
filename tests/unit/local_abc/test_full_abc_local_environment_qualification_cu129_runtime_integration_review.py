@@ -1,8 +1,9 @@
-"""Regression tests for the CUDA 12.9 qualification runtime integration review."""
+"""Regression tests for the historical CUDA 12.9 runtime-integration review."""
 
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 from typing import Any, cast
 
@@ -21,15 +22,36 @@ def _load_json(path: Path) -> dict[str, Any]:
     return cast(dict[str, Any], payload)
 
 
-def test_repository_review_binds_exact_preintegration_state() -> None:
-    result = review.validate_repository_package(Path.cwd())
+def test_repository_review_preserves_history_and_binds_current_supersession() -> None:
+    root = Path.cwd()
+    if not (root / ".git").exists():
+        pytest.skip("full Git checkout is required for historical authority validation")
+    ancestry = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "merge-base",
+            "--is-ancestor",
+            review.BASE_COMMIT,
+            "HEAD",
+        ],
+        check=False,
+    )
+    if ancestry.returncode != 0:
+        pytest.skip("runtime integration review base commit is unavailable")
 
-    assert result["decision"] == ("APPROVED_FOR_BOUNDED_CU129_QUALIFICATION_RUNTIME_INTEGRATION")
-    assert result["current_runtime_input"] == "single_vllm_0_25_1_cu129_wheel"
-    assert result["required_runtime_input"] == "exact_176_package_cu129_wheelhouse"
-    assert result["required_installation_executor"] == "BASE_PIP_TARGET_DIRECTORY"
-    assert result["required_python_startup"] == ("NO_SITE_WITH_CONTROLLED_SITE_BOOTSTRAP")
-    assert result["required_loader_policy"] == "TARGET_NVIDIA_LIBRARIES_PREPENDED"
+    result = review.validate_repository_package(root)
+
+    assert result["review_decision"] == (
+        "APPROVED_FOR_BOUNDED_CU129_QUALIFICATION_RUNTIME_INTEGRATION"
+    )
+    assert result["review_disposition"] == "HISTORICAL_PREINTEGRATION_AUTHORITY"
+    assert result["historical_runtime_input"] == "single_vllm_0_25_1_cu129_wheel"
+    assert result["current_runtime_input"] == "exact_176_package_cu129_wheelhouse"
+    assert result["current_integration_status"] == (
+        "INTEGRATED_REPOSITORY_ONLY_AUTHORIZATION_BLOCKED"
+    )
     assert result["authorization_issued"] is False
     assert result["runtime_execution_performed"] is False
     assert result["model_requests_performed"] == 0

@@ -327,8 +327,16 @@ def test_control_materializer_source_is_flat_and_archive_free() -> None:
                 "mounted_path": launcher.MODEL_SNAPSHOT_PATH,
             },
             {
-                "role": "vllm_wheel",
-                "mounted_path": launcher.VLLM_WHEEL_PATH,
+                "role": "vllm_runtime",
+                "artifact_format": "python_wheelhouse_directory",
+                "mounted_path": None,
+                "sha256": launcher.RUNTIME_SHA256_MANIFEST_SHA256,
+                "runtime_output_directory": launcher.RUNTIME_OUTPUT_DIRECTORY,
+                "resolution_lock_sha256": launcher.RUNTIME_RESOLUTION_LOCK_SHA256,
+                "runtime_manifest_sha256": launcher.RUNTIME_MANIFEST_SHA256,
+                "sha256_manifest_sha256": launcher.RUNTIME_SHA256_MANIFEST_SHA256,
+                "materialization_receipt_sha256": (launcher.RUNTIME_MATERIALIZATION_RECEIPT_SHA256),
+                "package_count": launcher.RUNTIME_PACKAGE_COUNT,
             },
         ]
     }
@@ -376,7 +384,12 @@ def test_control_manifest_rejects_digest_drift() -> None:
         "expires_at": "2026-07-19T16:00:00+00:00",
         "harness_source_path": launcher.HARNESS_SOURCE_PATH,
         "model_snapshot_path": launcher.MODEL_SNAPSHOT_PATH,
-        "vllm_wheel_path": launcher.VLLM_WHEEL_PATH,
+        "runtime_output_directory": launcher.RUNTIME_OUTPUT_DIRECTORY,
+        "runtime_resolution_lock_sha256": launcher.RUNTIME_RESOLUTION_LOCK_SHA256,
+        "runtime_manifest_sha256": launcher.RUNTIME_MANIFEST_SHA256,
+        "runtime_sha256_manifest_sha256": launcher.RUNTIME_SHA256_MANIFEST_SHA256,
+        "runtime_materialization_receipt_sha256": (launcher.RUNTIME_MATERIALIZATION_RECEIPT_SHA256),
+        "runtime_package_count": launcher.RUNTIME_PACKAGE_COUNT,
     }
 
     with pytest.raises(

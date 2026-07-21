@@ -33,11 +33,16 @@ REVIEW_SOURCE_GIT_BLOB_SHA: Final = "ebc1a28e97333f6f0a55d42f9c37b42701c75fa8"
 STATIC_REQUEST_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/qualification_request.json"
 )
-STATIC_REQUEST_GIT_BLOB_SHA: Final = "f545405a35bbb01e617c582c81fe32b89c605ed4"
+STATIC_REQUEST_GIT_BLOB_SHA: Final = "ac2dc5a9082b9befb55c8ced8a7d58f926808987"
 WORKER_STARTUP_PLAN_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/worker_startup_plan.json"
 )
-WORKER_STARTUP_PLAN_GIT_BLOB_SHA: Final = "4729f9668e3c331185fd7c4f191d2e171f5ecad8"
+WORKER_STARTUP_PLAN_GIT_BLOB_SHA: Final = "25392d5ec7cce9740688457a7aa91358039554eb"
+
+RUNTIME_INTEGRATION_REVIEW_PATH: Final = Path(
+    "benchmarks/local_abc/auragateway_cu129_qualification_runtime_integration_review_v1.json"
+)
+RUNTIME_INTEGRATION_REVIEW_GIT_BLOB_SHA: Final = "a1fba29e34934b96f516c3cd966c3c6dfe31c1e1"
 
 EXECUTION_REQUEST_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/qualification_execution_request.json"
@@ -92,7 +97,17 @@ REQUIRED_RUNTIME_LOCK_FIELDS: Final = (
     "transformers_version",
     "vllm_distribution_version",
     "vllm_module_version",
-    "vllm_wheel_sha256",
+    "runtime_output_directory",
+    "runtime_resolution_lock_sha256",
+    "runtime_manifest_sha256",
+    "runtime_sha256_manifest_sha256",
+    "runtime_materialization_receipt_sha256",
+    "runtime_package_count",
+    "installation_executor",
+    "dependency_validation",
+    "python_startup_policy",
+    "loader_policy",
+    "target_python_sha256",
     "worker_startup_command_sha256",
 )
 
@@ -137,7 +152,7 @@ REQUIRED_STOP_CONDITIONS: Final = (
     "route_realization_mismatch",
     "runtime_adapter_drift",
     "tokenizer_identity_mismatch",
-    "vllm_wheel_mismatch",
+    "vllm_runtime_mismatch",
     "worker_health_failure",
     "worker_port_conflict",
 )
@@ -280,7 +295,7 @@ class QualificationProbeBudget(LocalABCContract):
 class DatasetRoleRequirement(LocalABCContract):
     """One exact offline dataset role required before authorization."""
 
-    role: Literal["harness_source", "model_artifacts", "vllm_wheel"]
+    role: Literal["harness_source", "model_artifacts", "vllm_runtime"]
     exact_manifest_entry_required: Literal[True] = True
     sha256_required: Literal[True] = True
     network_fallback_permitted: Literal[False] = False
@@ -398,7 +413,7 @@ class QualificationExecutionRequest(LocalABCContract):
         value: tuple[DatasetRoleRequirement, ...],
     ) -> tuple[DatasetRoleRequirement, ...]:
         roles = tuple(item.role for item in value)
-        if roles != ("harness_source", "model_artifacts", "vllm_wheel"):
+        if roles != ("harness_source", "model_artifacts", "vllm_runtime"):
             raise ValueError("offline dataset roles drifted")
         return value
 
@@ -448,18 +463,26 @@ class QualificationExecutionRequest(LocalABCContract):
 class DatasetManifestEntry(LocalABCContract):
     """One exact mounted input artifact for an authorized offline run."""
 
-    role: Literal["harness_source", "model_artifacts", "vllm_wheel"]
+    role: Literal["harness_source", "model_artifacts", "vllm_runtime"]
     artifact_format: Literal[
         "source_tree_directory",
         "hugging_face_snapshot_directory",
-        "python_wheel",
+        "python_wheelhouse_directory",
     ]
-    mounted_path: str
+    mounted_path: str | None = None
     sha256: str
+    runtime_output_directory: str | None = None
+    resolution_lock_sha256: str | None = None
+    runtime_manifest_sha256: str | None = None
+    sha256_manifest_sha256: str | None = None
+    materialization_receipt_sha256: str | None = None
+    package_count: int | None = Field(default=None, ge=1)
 
     @field_validator("mounted_path")
     @classmethod
-    def validate_mounted_path(cls, value: str) -> str:
+    def validate_mounted_path(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
         posix_path = PurePosixPath(value)
         windows_path = PureWindowsPath(value)
         if ".." in posix_path.parts or ".." in windows_path.parts:
@@ -467,6 +490,30 @@ class DatasetManifestEntry(LocalABCContract):
         if not (posix_path.is_absolute() or windows_path.is_absolute()):
             raise ValueError("dataset entries require absolute bounded mounted paths")
         return value
+
+    @model_validator(mode="after")
+    def validate_runtime_binding(self) -> Self:
+        runtime_fields = (
+            self.runtime_output_directory,
+            self.resolution_lock_sha256,
+            self.runtime_manifest_sha256,
+            self.sha256_manifest_sha256,
+            self.materialization_receipt_sha256,
+            self.package_count,
+        )
+        if self.role == "vllm_runtime":
+            if self.mounted_path is not None:
+                raise ValueError("vLLM runtime must use bounded output-directory discovery")
+            if any(value is None for value in runtime_fields):
+                raise ValueError("vLLM runtime requires complete wheelhouse authority")
+            if self.sha256 != self.sha256_manifest_sha256:
+                raise ValueError("vLLM runtime digest must bind the checksum manifest")
+            return self
+        if self.mounted_path is None:
+            raise ValueError("non-runtime dataset entries require a mounted path")
+        if any(value is not None for value in runtime_fields):
+            raise ValueError("runtime authority fields belong only to vllm_runtime")
+        return self
 
     @field_validator("sha256")
     @classmethod
@@ -497,16 +544,19 @@ class QualificationDatasetManifest(LocalABCContract):
     @model_validator(mode="after")
     def validate_roles(self) -> Self:
         roles = tuple(item.role for item in self.entries)
-        if roles != ("harness_source", "model_artifacts", "vllm_wheel"):
+        if roles != ("harness_source", "model_artifacts", "vllm_runtime"):
             raise ValueError("dataset manifest must preserve the exact role order")
         formats = tuple(item.artifact_format for item in self.entries)
         if formats != (
             "source_tree_directory",
             "hugging_face_snapshot_directory",
-            "python_wheel",
+            "python_wheelhouse_directory",
         ):
             raise ValueError("dataset manifest artifact formats drifted")
-        if len({item.mounted_path for item in self.entries}) != 3:
+        mounted_paths = tuple(
+            item.mounted_path for item in self.entries if item.mounted_path is not None
+        )
+        if len(mounted_paths) != len(set(mounted_paths)):
             raise ValueError("dataset manifest mounted paths must be unique")
         return self
 
@@ -651,7 +701,17 @@ class KaggleRuntimeDependencyLock(RuntimeEvidenceBase):
     transformers_version: str
     vllm_module_version: str
     vllm_distribution_version: str
-    vllm_wheel_sha256: str
+    runtime_output_directory: str
+    runtime_resolution_lock_sha256: str
+    runtime_manifest_sha256: str
+    runtime_sha256_manifest_sha256: str
+    runtime_materialization_receipt_sha256: str
+    runtime_package_count: Literal[176]
+    installation_executor: Literal["BASE_PIP_TARGET_DIRECTORY"]
+    dependency_validation: Literal["CONTROLLED_TARGET_METADATA_AND_PACKAGING"]
+    python_startup_policy: Literal["NO_SITE_WITH_CONTROLLED_SITE_BOOTSTRAP"]
+    loader_policy: Literal["TARGET_NVIDIA_LIBRARIES_PREPENDED"]
+    target_python_sha256: str
     attention_backend: str
     automatic_prefix_cache_configuration: Literal["enabled"]
     dtype: str
@@ -683,11 +743,17 @@ class KaggleRuntimeDependencyLock(RuntimeEvidenceBase):
             raise ValueError("runtime lock values must use stable version characters")
         return value
 
-    @field_validator("vllm_wheel_sha256")
+    @field_validator(
+        "runtime_resolution_lock_sha256",
+        "runtime_manifest_sha256",
+        "runtime_sha256_manifest_sha256",
+        "runtime_materialization_receipt_sha256",
+        "target_python_sha256",
+    )
     @classmethod
-    def validate_wheel_sha256(cls, value: str) -> str:
+    def validate_runtime_sha256(cls, value: str) -> str:
         if _SHA256_PATTERN.fullmatch(value) is None:
-            raise ValueError("vLLM wheel digest must be lowercase SHA-256")
+            raise ValueError("runtime identities must be lowercase SHA-256")
         return value
 
     @field_validator("worker_startup_command_sha256")

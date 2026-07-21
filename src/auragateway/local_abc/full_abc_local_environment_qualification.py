@@ -40,6 +40,15 @@ from auragateway.local_abc.full_abc_local_environment_qualification_contracts im
     WorkerStartupPlan,
     canonical_command_sha256,
 )
+from auragateway.local_abc.full_abc_local_environment_qualification_cu129_runtime import (
+    DEPENDENCY_VALIDATION,
+    EXPECTED_PACKAGE_COUNT,
+    INSTALLATION_EXECUTOR,
+    LOADER_POLICY,
+    PYTHON_STARTUP_POLICY,
+    RUNTIME_OUTPUT_DIRECTORY,
+    worker_command_template,
+)
 
 _RUNTIME_EVIDENCE_IDS = (
     "cache-metric-capability-report",
@@ -262,41 +271,15 @@ def _validate_review_boundary(review: dict[str, object], path: Path) -> None:
 
 
 def _worker_command_argv(port: int) -> tuple[str, ...]:
-    return (
-        "python",
-        "-m",
-        "vllm.entrypoints.openai.api_server",
-        "--model",
-        "Qwen/Qwen2.5-0.5B-Instruct",
-        "--revision",
-        "7ae557604adf67be50417f59c2c2f167def9a775",
-        "--tokenizer",
-        "Qwen/Qwen2.5-0.5B-Instruct",
-        "--tokenizer-revision",
-        "7ae557604adf67be50417f59c2c2f167def9a775",
-        "--served-model-name",
-        "local-qwen2.5-0.5b-instruct",
-        "--host",
-        "127.0.0.1",
-        "--port",
-        str(port),
-        "--dtype",
-        "auto",
-        "--max-model-len",
-        "4096",
-        "--gpu-memory-utilization",
-        "0.85",
-        "--max-num-seqs",
-        "8",
-        "--enable-prefix-caching",
-        "--disable-log-requests",
-    )
+    return worker_command_template(port)
 
 
 def _build_worker(worker_id: str, gpu_index: int, port: int) -> WorkerStartupCommand:
     environment = (
         EnvironmentBinding(name="CUDA_VISIBLE_DEVICES", value=str(gpu_index)),
         EnvironmentBinding(name="HF_HUB_OFFLINE", value="1"),
+        EnvironmentBinding(name="TRANSFORMERS_OFFLINE", value="1"),
+        EnvironmentBinding(name="PYTHONNOUSERSITE", value="1"),
     )
     command_argv = _worker_command_argv(port)
     return WorkerStartupCommand(
@@ -305,7 +288,7 @@ def _build_worker(worker_id: str, gpu_index: int, port: int) -> WorkerStartupCom
         port=cast(Literal[8001, 8002], port),
         environment=environment,
         command_argv=command_argv,
-        command_sha256=canonical_command_sha256(command_argv, environment),
+        command_sha256=canonical_command_sha256(command_argv),
     )
 
 
@@ -322,6 +305,17 @@ def build_worker_startup_plan() -> WorkerStartupPlan:
         model_repository="Qwen/Qwen2.5-0.5B-Instruct",
         model_revision="7ae557604adf67be50417f59c2c2f167def9a775",
         tokenizer_revision="7ae557604adf67be50417f59c2c2f167def9a775",
+        runtime_integration={
+            "runtime_output_directory": RUNTIME_OUTPUT_DIRECTORY,
+            "package_count": EXPECTED_PACKAGE_COUNT,
+            "installation_executor": INSTALLATION_EXECUTOR,
+            "dependency_validation": DEPENDENCY_VALIDATION,
+            "python_startup_policy": PYTHON_STARTUP_POLICY,
+            "loader_policy": LOADER_POLICY,
+            "vllm_distribution": "0.19.1",
+            "torch_distribution": "2.10.0+cu129",
+            "transformers_distribution": "5.5.3",
+        },
         workers=(
             _build_worker("worker_1", 0, 8001),
             _build_worker("worker_2", 1, 8002),
@@ -333,7 +327,10 @@ def build_worker_startup_plan() -> WorkerStartupPlan:
             "model_and_tokenizer_identity_available",
             "ports_8001_and_8002_closed",
             "runtime_dependency_lock_captured",
-            "vllm_wheel_sha256_captured",
+            "runtime_resolution_lock_verified",
+            "runtime_checksum_manifest_verified",
+            "target_python_startup_controlled",
+            "target_nvidia_loader_precedence_verified",
         ),
         next_gate=NEXT_GATE,
     )

@@ -33,12 +33,12 @@ REVIEW_SOURCE_GIT_BLOB_SHA: Final = "593757e84bb69342f29806e62c8d250a40fb950f"
 EXECUTION_REQUEST_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/qualification_execution_request.json"
 )
-EXECUTION_REQUEST_GIT_BLOB_SHA: Final = "38733262351846442ee55828a136e42016a7f54e"
-EXECUTION_REQUEST_SHA256: Final = "dcef7e7243f4de16955bccdfc36dbd0194b51a602d1fc67f5c6fa375ca529e28"
+EXECUTION_REQUEST_GIT_BLOB_SHA: Final = "d69a7b75b952932123bc8c23b0294e0f8d266947"
+EXECUTION_REQUEST_SHA256: Final = "ca77a04481cb672a0bd19aa8978ef98a950ef66af69f4fad1ddc94a514b4607a"
 EXECUTION_RUNNER_PATH: Final = Path(
     "src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py"
 )
-EXECUTION_RUNNER_GIT_BLOB_SHA: Final = "dc218d98194b2166a034087c600bcf65f5606388"
+EXECUTION_RUNNER_GIT_BLOB_SHA: Final = "ea4fa2df31ad326be2d294581286faaa7bd9b9a6"
 ARTIFACT_IDENTITY_PATH: Final = Path(
     "src/auragateway/local_abc/full_abc_local_environment_qualification_artifact_identity.py"
 )
@@ -46,19 +46,23 @@ ARTIFACT_IDENTITY_GIT_BLOB_SHA: Final = "60189de0e17c52db52610dd4b32a1babc59033a
 EXECUTION_CONTRACTS_PATH: Final = Path(
     "src/auragateway/local_abc/full_abc_local_environment_qualification_execution_contracts.py"
 )
-EXECUTION_CONTRACTS_GIT_BLOB_SHA: Final = "f1d7201e5af0d67275126be20edba80ef8d14fda"
+EXECUTION_CONTRACTS_GIT_BLOB_SHA: Final = "e03156686bba7c2a74d6d25c1fd911d406581625"
 EXECUTION_NOTEBOOK_PATH: Final = Path(
     "notebooks/auragateway_full_abc_environment_qualification_v1.ipynb"
 )
-EXECUTION_NOTEBOOK_GIT_BLOB_SHA: Final = "1fd89440e46250862596f7202382e9ba5c70230a"
+EXECUTION_NOTEBOOK_GIT_BLOB_SHA: Final = "482fef766509bd457ba267514bd6671b1ef0de36"
 EXECUTION_RUNBOOK_PATH: Final = Path(
     "docs/runbooks/local_abc_full_run_environment_qualification_v1.md"
 )
-EXECUTION_RUNBOOK_GIT_BLOB_SHA: Final = "e20563ca924e926c1a7d33cd5f31140fde5aaecc"
+EXECUTION_RUNBOOK_GIT_BLOB_SHA: Final = "fde4ba09f3eab4fd119ee181755f4e05d42d9620"
 WORKER_STARTUP_PLAN_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/worker_startup_plan.json"
 )
-WORKER_STARTUP_PLAN_GIT_BLOB_SHA: Final = "4729f9668e3c331185fd7c4f191d2e171f5ecad8"
+WORKER_STARTUP_PLAN_GIT_BLOB_SHA: Final = "25392d5ec7cce9740688457a7aa91358039554eb"
+RUNTIME_INTEGRATION_REVIEW_PATH: Final = Path(
+    "benchmarks/local_abc/auragateway_cu129_qualification_runtime_integration_review_v1.json"
+)
+RUNTIME_INTEGRATION_REVIEW_GIT_BLOB_SHA: Final = "a1fba29e34934b96f516c3cd966c3c6dfe31c1e1"
 
 AUTHORIZATION_REQUEST_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/qualification_authorization_request.json"
@@ -80,6 +84,11 @@ FINAL_AUTHORIZATION_PATH: Final = Path(
 RUNTIME_ADAPTER_PATH: Final = Path(
     "src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_runtime_adapter.py"
 )
+RUNTIME_ADAPTER_GIT_BLOB_SHA: Final = "46c82e83d05bb80b48c05dd33fd9c4c8c771721d"
+RUNTIME_MODULE_PATH: Final = Path(
+    "src/auragateway/local_abc/full_abc_local_environment_qualification_cu129_runtime.py"
+)
+RUNTIME_MODULE_GIT_BLOB_SHA: Final = "0ed94ef12de8d5bd1d40e39e05fed49238e76544"
 RUNTIME_FACTORY_PATH: Final = (
     "auragateway.local_abc."
     "full_abc_local_environment_qualification_kaggle_runtime_adapter:"
@@ -145,7 +154,7 @@ class DatasetRole(StrEnum):
 
     HARNESS_SOURCE = "harness_source"
     MODEL_ARTIFACTS = "model_artifacts"
-    VLLM_WHEEL = "vllm_wheel"
+    VLLM_RUNTIME = "vllm_runtime"
 
 
 class DatasetArtifactFormat(StrEnum):
@@ -154,7 +163,7 @@ class DatasetArtifactFormat(StrEnum):
     SOURCE_TREE_DIRECTORY = "source_tree_directory"
     ZIP_ARCHIVE = "zip_archive"
     HUGGING_FACE_SNAPSHOT_DIRECTORY = "hugging_face_snapshot_directory"
-    PYTHON_WHEEL = "python_wheel"
+    PYTHON_WHEELHOUSE_DIRECTORY = "python_wheelhouse_directory"
 
 
 class SourceAuthorityBinding(LocalABCContract):
@@ -194,10 +203,20 @@ class DatasetRoleMaterializationRequest(LocalABCContract):
     required_content: str = Field(min_length=12, max_length=360)
     dataset_slug_required: Literal[True] = True
     dataset_version_required: Literal[True] = True
-    mounted_path_required: Literal[True] = True
+    mounted_path_required: bool = True
     sha256_required: Literal[True] = True
     network_fallback_permitted: Literal[False] = False
     materialized: Literal[False] = False
+
+    @model_validator(mode="after")
+    def validate_materialization_boundary(self) -> Self:
+        if self.role is DatasetRole.VLLM_RUNTIME:
+            if self.mounted_path_required:
+                raise ValueError("vLLM runtime must use output-directory discovery")
+            return self
+        if not self.mounted_path_required:
+            raise ValueError("non-runtime dataset roles require exact mounted paths")
+        return self
 
 
 class OfflineDatasetManifestRequest(LocalABCContract):
@@ -251,7 +270,7 @@ class OfflineDatasetManifestRequest(LocalABCContract):
         expected = (
             DatasetRole.HARNESS_SOURCE,
             DatasetRole.MODEL_ARTIFACTS,
-            DatasetRole.VLLM_WHEEL,
+            DatasetRole.VLLM_RUNTIME,
         )
         if roles != expected:
             raise ValueError("offline dataset roles drifted")
@@ -267,8 +286,14 @@ class MaterializedDatasetEntry(LocalABCContract):
     artifact_format: DatasetArtifactFormat
     kaggle_dataset_slug: str
     kaggle_dataset_version: int = Field(ge=1)
-    mounted_path: str
+    mounted_path: str | None = None
     sha256: str
+    runtime_output_directory: str | None = None
+    resolution_lock_sha256: str | None = None
+    runtime_manifest_sha256: str | None = None
+    sha256_manifest_sha256: str | None = None
+    materialization_receipt_sha256: str | None = None
+    package_count: int | None = Field(default=None, ge=1)
     network_fallback_permitted: Literal[False] = False
 
     @field_validator("kaggle_dataset_slug")
@@ -280,13 +305,39 @@ class MaterializedDatasetEntry(LocalABCContract):
 
     @field_validator("mounted_path")
     @classmethod
-    def validate_mounted_path(cls, value: str) -> str:
+    def validate_mounted_path(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
         path = PurePosixPath(value)
         if not path.is_absolute() or path.parts[:3] != ("/", "kaggle", "input"):
             raise ValueError("mounted paths must remain under /kaggle/input")
         if ".." in path.parts:
             raise ValueError("mounted paths must not traverse parent directories")
         return value
+
+    @model_validator(mode="after")
+    def validate_runtime_binding(self) -> Self:
+        runtime_values = (
+            self.runtime_output_directory,
+            self.resolution_lock_sha256,
+            self.runtime_manifest_sha256,
+            self.sha256_manifest_sha256,
+            self.materialization_receipt_sha256,
+            self.package_count,
+        )
+        if self.role is DatasetRole.VLLM_RUNTIME:
+            if self.mounted_path is not None:
+                raise ValueError("vLLM runtime uses bounded output-directory discovery")
+            if any(value is None for value in runtime_values):
+                raise ValueError("vLLM runtime materialization authority is incomplete")
+            if self.sha256 != self.sha256_manifest_sha256:
+                raise ValueError("vLLM runtime digest must bind its checksum manifest")
+            return self
+        if self.mounted_path is None:
+            raise ValueError("non-runtime materialized inputs require a mounted path")
+        if any(value is not None for value in runtime_values):
+            raise ValueError("runtime authority fields belong only to vllm_runtime")
+        return self
 
     @field_validator("sha256")
     @classmethod
@@ -343,7 +394,7 @@ class MaterializedOfflineDatasetRecord(LocalABCContract):
         expected = (
             DatasetRole.HARNESS_SOURCE,
             DatasetRole.MODEL_ARTIFACTS,
-            DatasetRole.VLLM_WHEEL,
+            DatasetRole.VLLM_RUNTIME,
         )
         if roles != expected:
             raise ValueError("materialized dataset roles drifted")
@@ -351,14 +402,14 @@ class MaterializedOfflineDatasetRecord(LocalABCContract):
         expected_formats = (
             DatasetArtifactFormat.SOURCE_TREE_DIRECTORY,
             DatasetArtifactFormat.HUGGING_FACE_SNAPSHOT_DIRECTORY,
-            DatasetArtifactFormat.PYTHON_WHEEL,
+            DatasetArtifactFormat.PYTHON_WHEELHOUSE_DIRECTORY,
         )
         if formats != expected_formats:
             raise ValueError("materialized dataset artifact formats drifted")
         slugs = tuple(item.kaggle_dataset_slug for item in self.entries)
         if len(slugs) != len(set(slugs)):
             raise ValueError("materialized dataset slugs must be unique")
-        paths = tuple(item.mounted_path for item in self.entries)
+        paths = tuple(item.mounted_path for item in self.entries if item.mounted_path is not None)
         if len(paths) != len(set(paths)):
             raise ValueError("materialized mounted paths must be unique")
         return self
@@ -367,24 +418,56 @@ class MaterializedOfflineDatasetRecord(LocalABCContract):
 class PortableDatasetManifestEntry(LocalABCContract):
     """Runtime-compatible manifest entry validated with POSIX path semantics."""
 
-    role: Literal["harness_source", "model_artifacts", "vllm_wheel"]
+    role: Literal["harness_source", "model_artifacts", "vllm_runtime"]
     artifact_format: Literal[
         "source_tree_directory",
         "hugging_face_snapshot_directory",
-        "python_wheel",
+        "python_wheelhouse_directory",
     ]
-    mounted_path: str
+    mounted_path: str | None = None
     sha256: str
+    runtime_output_directory: str | None = None
+    resolution_lock_sha256: str | None = None
+    runtime_manifest_sha256: str | None = None
+    sha256_manifest_sha256: str | None = None
+    materialization_receipt_sha256: str | None = None
+    package_count: int | None = Field(default=None, ge=1)
 
     @field_validator("mounted_path")
     @classmethod
-    def validate_mounted_path(cls, value: str) -> str:
+    def validate_mounted_path(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
         path = PurePosixPath(value)
         if not path.is_absolute() or path.parts[:3] != ("/", "kaggle", "input"):
             raise ValueError("runtime mounted paths must remain under /kaggle/input")
         if ".." in path.parts:
             raise ValueError("runtime mounted paths must not traverse parent directories")
         return value
+
+    @model_validator(mode="after")
+    def validate_runtime_binding(self) -> Self:
+        runtime_values = (
+            self.runtime_output_directory,
+            self.resolution_lock_sha256,
+            self.runtime_manifest_sha256,
+            self.sha256_manifest_sha256,
+            self.materialization_receipt_sha256,
+            self.package_count,
+        )
+        if self.role == "vllm_runtime":
+            if self.mounted_path is not None:
+                raise ValueError("vLLM runtime uses bounded output-directory discovery")
+            if any(value is None for value in runtime_values):
+                raise ValueError("portable vLLM runtime authority is incomplete")
+            if self.sha256 != self.sha256_manifest_sha256:
+                raise ValueError("vLLM runtime digest must bind its checksum manifest")
+            return self
+        if self.mounted_path is None:
+            raise ValueError("non-runtime manifest entries require a mounted path")
+        if any(value is not None for value in runtime_values):
+            raise ValueError("runtime authority fields belong only to vllm_runtime")
+        return self
 
     @field_validator("sha256")
     @classmethod
@@ -419,13 +502,13 @@ class PortableQualificationDatasetManifest(LocalABCContract):
     @model_validator(mode="after")
     def validate_roles(self) -> Self:
         roles = tuple(item.role for item in self.entries)
-        if roles != ("harness_source", "model_artifacts", "vllm_wheel"):
+        if roles != ("harness_source", "model_artifacts", "vllm_runtime"):
             raise ValueError("runtime dataset roles drifted")
         formats = tuple(item.artifact_format for item in self.entries)
         if formats != (
             "source_tree_directory",
             "hugging_face_snapshot_directory",
-            "python_wheel",
+            "python_wheelhouse_directory",
         ):
             raise ValueError("runtime dataset artifact formats drifted")
         return self
@@ -500,7 +583,7 @@ class QualificationAuthorizationRequest(LocalABCContract):
         "data/evals/benchmark/environment-qualification-v1/qualification_execution_request.json"
     ]
     execution_request_sha256: Literal[
-        "dcef7e7243f4de16955bccdfc36dbd0194b51a602d1fc67f5c6fa375ca529e28"
+        "ca77a04481cb672a0bd19aa8978ef98a950ef66af69f4fad1ddc94a514b4607a"
     ]
     dataset_manifest_request_path: Literal[
         "data/evals/benchmark/environment-qualification-v1/offline_dataset_manifest_request.json"

@@ -27,6 +27,12 @@ from auragateway.local_abc import (
 from auragateway.local_abc.full_abc_local_environment_qualification_artifact_identity import (
     directory_sha256,
 )
+from auragateway.local_abc.full_abc_local_environment_qualification_cu129_runtime import (
+    EXPECTED_CONTROL_HASHES,
+    EXPECTED_PACKAGE_COUNT,
+    RUNTIME_OUTPUT_DIRECTORY,
+    Cu129TargetRuntime,
+)
 from auragateway.local_abc.full_abc_local_environment_qualification_execution import (
     build_execution_request,
 )
@@ -73,9 +79,9 @@ SOURCE_PATHS = (
     Path(__file__).resolve(),
 )
 
-EXPECTED_DATASET_REQUEST_SHA256 = "7171c340a6015d962375223d083f62196454ad0097aa7dd72aef402f4ed13e1e"
+EXPECTED_DATASET_REQUEST_SHA256 = "7c165ef96bdd656c5b1ca3ccb75fe66c4a40548b2531f1d622099a44b17005ea"
 EXPECTED_AUTHORIZATION_REQUEST_SHA256 = (
-    "671b593f90af0d4a8331764f90a61b090738fb39bd7026f39236ef7eb519496e"
+    "9e2115163f43f37a1be30562ed7856492151936259b2d9b04f0745acd52367b8"
 )
 
 
@@ -139,12 +145,13 @@ class _FakeOperations:
         if "pip" in argv:
             return adapter_module.CommandResult(returncode=0, stdout="", stderr="")
         payload = {
-            "python": "3.11.9",
-            "torch": "2.7.0+cu126",
-            "cuda": "12.6",
-            "transformers": "4.51.0",
-            "vllm_module": "0.25.1",
-            "vllm_distribution": "0.25.1",
+            "python": "3.12.13",
+            "torch": "2.10.0+cu129",
+            "cuda": "12.9",
+            "transformers": "5.5.3",
+            "vllm_module": "0.19.1",
+            "vllm_distribution": "0.19.1",
+            "distribution_count": 176,
             "attention_backend": "auto",
         }
         return adapter_module.CommandResult(
@@ -243,6 +250,8 @@ def _write_startup_plan(repo_root: Path) -> None:
                 "environment": [
                     {"name": "CUDA_VISIBLE_DEVICES", "value": str(index)},
                     {"name": "HF_HUB_OFFLINE", "value": "1"},
+                    {"name": "TRANSFORMERS_OFFLINE", "value": "1"},
+                    {"name": "PYTHONNOUSERSITE", "value": "1"},
                 ],
             }
         )
@@ -283,8 +292,6 @@ def _dataset_manifest(tmp_path: Path) -> QualificationDatasetManifest:
     (harness / "src/auragateway").mkdir(parents=True)
     (harness / "src/auragateway/__init__.py").write_text("", encoding="utf-8")
     model = _write_model_snapshot_directory(tmp_path)
-    wheel = tmp_path / "vllm-0.25.1.whl"
-    wheel.write_bytes(b"wheel")
     return QualificationDatasetManifest(
         manifest_id="qualification-dataset-v1",
         entries=(
@@ -301,12 +308,39 @@ def _dataset_manifest(tmp_path: Path) -> QualificationDatasetManifest:
                 sha256=directory_sha256(model),
             ),
             DatasetManifestEntry(
-                role="vllm_wheel",
-                artifact_format="python_wheel",
-                mounted_path=str(wheel.resolve()),
-                sha256=_sha256(wheel),
+                role="vllm_runtime",
+                artifact_format="python_wheelhouse_directory",
+                mounted_path=None,
+                sha256=EXPECTED_CONTROL_HASHES["sha256_manifest.json"],
+                runtime_output_directory=RUNTIME_OUTPUT_DIRECTORY,
+                resolution_lock_sha256=EXPECTED_CONTROL_HASHES["resolution_lock.json"],
+                runtime_manifest_sha256=EXPECTED_CONTROL_HASHES["runtime_manifest.json"],
+                sha256_manifest_sha256=EXPECTED_CONTROL_HASHES["sha256_manifest.json"],
+                materialization_receipt_sha256=EXPECTED_CONTROL_HASHES[
+                    "materialization_receipt.json"
+                ],
+                package_count=EXPECTED_PACKAGE_COUNT,
             ),
         ),
+    )
+
+
+def _target_runtime(tmp_path: Path) -> Cu129TargetRuntime:
+    runtime_root = tmp_path / "runtime"
+    target_python = runtime_root / "bin/python"
+    target_python.parent.mkdir(parents=True)
+    target_python.write_text("python", encoding="utf-8")
+    site_packages = runtime_root / "lib/python3.12/site-packages"
+    site_packages.mkdir(parents=True)
+    target_lib = site_packages / "nvidia/nvjitlink/lib"
+    target_lib.mkdir(parents=True)
+    return Cu129TargetRuntime(
+        wheelhouse_root=tmp_path / "wheelhouse",
+        runtime_root=runtime_root,
+        site_packages=site_packages,
+        base_python=Path(sys.executable),
+        target_python=target_python,
+        target_library_directories=(target_lib,),
     )
 
 
@@ -333,12 +367,18 @@ def _materialized_record() -> auth_contracts.MaterializedOfflineDatasetRecord:
             sha256="2" * 64,
         ),
         auth_contracts.MaterializedDatasetEntry(
-            role=DatasetRole.VLLM_WHEEL,
-            artifact_format=DatasetArtifactFormat.PYTHON_WHEEL,
-            kaggle_dataset_slug="kablewithak/vllm-0251-wheel",
-            kaggle_dataset_version=3,
-            mounted_path="/kaggle/input/vllm-0251-wheel/vllm-0.25.1.whl",
-            sha256="3" * 64,
+            role=DatasetRole.VLLM_RUNTIME,
+            artifact_format=DatasetArtifactFormat.PYTHON_WHEELHOUSE_DIRECTORY,
+            kaggle_dataset_slug="kablewithak/auragateway-cu129-wheelhouse",
+            kaggle_dataset_version=1,
+            mounted_path=None,
+            sha256=EXPECTED_CONTROL_HASHES["sha256_manifest.json"],
+            runtime_output_directory=RUNTIME_OUTPUT_DIRECTORY,
+            resolution_lock_sha256=EXPECTED_CONTROL_HASHES["resolution_lock.json"],
+            runtime_manifest_sha256=EXPECTED_CONTROL_HASHES["runtime_manifest.json"],
+            sha256_manifest_sha256=EXPECTED_CONTROL_HASHES["sha256_manifest.json"],
+            materialization_receipt_sha256=EXPECTED_CONTROL_HASHES["materialization_receipt.json"],
+            package_count=EXPECTED_PACKAGE_COUNT,
         ),
     )
     manifest = auth_contracts.PortableQualificationDatasetManifest(
@@ -357,10 +397,16 @@ def _materialized_record() -> auth_contracts.MaterializedOfflineDatasetRecord:
                 sha256=entries[1].sha256,
             ),
             auth_contracts.PortableDatasetManifestEntry(
-                role="vllm_wheel",
-                artifact_format="python_wheel",
-                mounted_path=entries[2].mounted_path,
+                role="vllm_runtime",
+                artifact_format="python_wheelhouse_directory",
+                mounted_path=None,
                 sha256=entries[2].sha256,
+                runtime_output_directory=entries[2].runtime_output_directory,
+                resolution_lock_sha256=entries[2].resolution_lock_sha256,
+                runtime_manifest_sha256=entries[2].runtime_manifest_sha256,
+                sha256_manifest_sha256=entries[2].sha256_manifest_sha256,
+                materialization_receipt_sha256=(entries[2].materialization_receipt_sha256),
+                package_count=entries[2].package_count,
             ),
         ),
     )
@@ -394,12 +440,12 @@ def test_dataset_request_preserves_exact_offline_roles() -> None:
     assert tuple(item.role for item in request.roles) == (
         DatasetRole.HARNESS_SOURCE,
         DatasetRole.MODEL_ARTIFACTS,
-        DatasetRole.VLLM_WHEEL,
+        DatasetRole.VLLM_RUNTIME,
     )
     assert tuple(item.artifact_format for item in request.roles) == (
         DatasetArtifactFormat.SOURCE_TREE_DIRECTORY,
         DatasetArtifactFormat.HUGGING_FACE_SNAPSHOT_DIRECTORY,
-        DatasetArtifactFormat.PYTHON_WHEEL,
+        DatasetArtifactFormat.PYTHON_WHEELHOUSE_DIRECTORY,
     )
     assert request.roles[1].artifact_format is (
         DatasetArtifactFormat.HUGGING_FACE_SNAPSHOT_DIRECTORY
@@ -504,8 +550,25 @@ def test_runtime_adapter_completes_six_probe_capture(
     for name in adapter_module._CREDENTIAL_ENV_NAMES:
         monkeypatch.delenv(name, raising=False)
 
+    runtime = _target_runtime(tmp_path)
+    monkeypatch.setattr(
+        adapter_module,
+        "discover_wheelhouse",
+        lambda input_root, binding: runtime.wheelhouse_root,
+    )
+    monkeypatch.setattr(
+        adapter_module,
+        "validate_wheelhouse",
+        lambda wheelhouse, binding: None,
+    )
+
     operations = _FakeOperations()
     adapter = adapter_module.KaggleQualificationRuntimeAdapter(operations)
+    monkeypatch.setattr(
+        adapter,
+        "_build_target_runtime",
+        lambda wheelhouse, workspace: runtime,
+    )
     capture = adapter.capture(build_execution_request(), _dataset_manifest(tmp_path))
 
     assert capture.qualification_report.environment_qualified is True
@@ -584,6 +647,7 @@ def test_materialization_record_retains_exact_kaggle_provenance() -> None:
 
     assert first.kaggle_dataset_slug == ("kablewithak/auragateway-qualification-harness")
     assert first.kaggle_dataset_version == 1
+    assert first.mounted_path is not None
     assert first.mounted_path.startswith("/kaggle/input/")
     assert record.network_access_permitted is False
 
@@ -595,12 +659,12 @@ def test_portable_runtime_manifest_is_exact_projection() -> None:
     assert tuple(item.role for item in manifest.entries) == (
         "harness_source",
         "model_artifacts",
-        "vllm_wheel",
+        "vllm_runtime",
     )
     assert tuple(item.artifact_format for item in manifest.entries) == (
         "source_tree_directory",
         "hugging_face_snapshot_directory",
-        "python_wheel",
+        "python_wheelhouse_directory",
     )
     assert tuple(item.sha256 for item in manifest.entries) == tuple(
         item.sha256 for item in record.entries
@@ -626,7 +690,7 @@ def test_materialized_dataset_artifact_format_drift_is_rejected() -> None:
     payload = _payload(record)
     entries = list(payload["entries"])
     first = dict(entries[0])
-    first["artifact_format"] = "python_wheel"
+    first["artifact_format"] = "python_wheelhouse_directory"
     entries[0] = first
     payload["entries"] = tuple(entries)
 
@@ -799,8 +863,10 @@ def test_partial_worker_start_is_cleaned_up(tmp_path: Path) -> None:
         repo_root / "data/evals/benchmark/environment-qualification-v1/worker_startup_plan.json"
     )
 
+    runtime = _target_runtime(tmp_path)
+
     with pytest.raises(RuntimeError, match="second worker spawn failed"):
-        adapter._start_workers(plans, tmp_path / "model-cache")
+        adapter._start_workers(plans, runtime, tmp_path / "model-cache")
 
     assert len(operations.processes) == 1
     assert operations.processes[0].poll() == 0

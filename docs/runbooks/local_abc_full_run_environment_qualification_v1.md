@@ -18,7 +18,7 @@ the model unless all of the following exist and match the static request:
 
 1. The merged authorization artifact at the exact request-bound path.
 2. An exact offline dataset manifest covering `harness_source`, `model_artifacts`, and
-   `vllm_wheel`.
+   `vllm_runtime`.
 3. A runtime adapter artifact whose SHA-256 and `module:function` factory binding are frozen
    in the authorization.
 4. A current authorization window that binds the request SHA-256, dataset manifest SHA-256,
@@ -57,10 +57,31 @@ The future authorization must bind exactly three mounted inputs:
 |---|---|---|
 | `harness_source` | Exact AuraGateway source tree plus runtime adapter | Tree SHA-256 |
 | `model_artifacts` | Local Qwen model and tokenizer revision | SHA-256 manifest |
-| `vllm_wheel` | Exact local vLLM wheel | SHA-256 |
+| `vllm_runtime` | Exact 176-package CUDA 12.9 wheelhouse | Control hashes and manifest |
 
 Network fallback, credentials, hosted providers, customer data, raw prompt logging, and
 network package installation are prohibited.
+
+
+## Active CUDA 12.9 runtime contract
+
+The qualification adapter must discover exactly one
+`auragateway_vllm_cu129_wheelhouse_v1` directory beneath `/kaggle/input`. It validates
+the exact resolution lock, runtime manifest, checksum manifest, materialization receipt,
+176-wheel closure, and 5,727,339,111-byte wheel total before installation.
+
+Installation and execution policies are fixed:
+
+```text
+BASE_PIP_TARGET_DIRECTORY
+CONTROLLED_TARGET_METADATA_AND_PACKAGING
+NO_SITE_WITH_CONTROLLED_SITE_BOOTSTRAP
+TARGET_NVIDIA_LIBRARIES_PREPENDED
+```
+
+The Kaggle base interpreter remains unchanged. Workers start from the isolated target
+interpreter with offline mode, no user site, target-first NVIDIA libraries, loopback-only
+transport, prefix caching enabled, and request logging disabled.
 
 ## Probe budget
 
@@ -82,7 +103,8 @@ requires exactly six successful probes for qualification.
 
 1. Validate authorization, request, dataset manifest, runtime adapter, and current time.
 2. Confirm network access is disabled and no credentials or customer data are present.
-3. Capture the runtime dependency lock and exact vLLM wheel SHA-256.
+3. Validate the exact CUDA 12.9 wheelhouse, install it through base pip `--target`, and
+   capture the controlled target-runtime dependency lock.
 4. Capture GPU topology and require two Tesla T4 devices at indexes 0 and 1.
 5. Validate model and tokenizer identity before worker startup.
 6. Start exactly two loopback workers from the frozen startup plan.

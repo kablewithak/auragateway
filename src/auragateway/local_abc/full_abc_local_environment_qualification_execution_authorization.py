@@ -37,9 +37,14 @@ from .full_abc_local_environment_qualification_execution_authorization_contracts
     REVIEW_PATH,
     REVIEW_SOURCE_GIT_BLOB_SHA,
     REVIEW_SOURCE_PATH,
+    RUNTIME_ADAPTER_GIT_BLOB_SHA,
     RUNTIME_ADAPTER_PATH,
     RUNTIME_EVIDENCE_PATHS,
     RUNTIME_FACTORY_PATH,
+    RUNTIME_INTEGRATION_REVIEW_GIT_BLOB_SHA,
+    RUNTIME_INTEGRATION_REVIEW_PATH,
+    RUNTIME_MODULE_GIT_BLOB_SHA,
+    RUNTIME_MODULE_PATH,
     SOURCE_MAIN_MERGE_COMMIT,
     WORKER_STARTUP_PLAN_GIT_BLOB_SHA,
     WORKER_STARTUP_PLAN_PATH,
@@ -212,6 +217,21 @@ def _source_authority_specs() -> tuple[tuple[str, Path, str], ...]:
         ("execution-runner", EXECUTION_RUNNER_PATH, EXECUTION_RUNNER_GIT_BLOB_SHA),
         ("execution-runbook", EXECUTION_RUNBOOK_PATH, EXECUTION_RUNBOOK_GIT_BLOB_SHA),
         (
+            "runtime-integration-review",
+            RUNTIME_INTEGRATION_REVIEW_PATH,
+            RUNTIME_INTEGRATION_REVIEW_GIT_BLOB_SHA,
+        ),
+        (
+            "runtime-adapter",
+            RUNTIME_ADAPTER_PATH,
+            RUNTIME_ADAPTER_GIT_BLOB_SHA,
+        ),
+        (
+            "runtime-module",
+            RUNTIME_MODULE_PATH,
+            RUNTIME_MODULE_GIT_BLOB_SHA,
+        ),
+        (
             "worker-startup-plan",
             WORKER_STARTUP_PLAN_PATH,
             WORKER_STARTUP_PLAN_GIT_BLOB_SHA,
@@ -292,12 +312,13 @@ def build_offline_dataset_manifest_request() -> OfflineDatasetManifestRequest:
                 ),
             ),
             DatasetRoleMaterializationRequest(
-                role=DatasetRole.VLLM_WHEEL,
-                artifact_format=DatasetArtifactFormat.PYTHON_WHEEL,
+                role=DatasetRole.VLLM_RUNTIME,
+                artifact_format=DatasetArtifactFormat.PYTHON_WHEELHOUSE_DIRECTORY,
                 required_content=(
-                    "Exact locally installable vLLM 0.25.1 wheel compatible with the "
-                    "authorized Kaggle Python and CUDA runtime."
+                    "Exact 176-package CUDA 12.9 wheelhouse output with governed "
+                    "resolution lock, checksum manifest, receipt, and offline hashes."
                 ),
+                mounted_path_required=False,
             ),
         ),
         materialized_manifest_path=(
@@ -534,6 +555,12 @@ def build_portable_runtime_manifest(
             artifact_format=item.artifact_format.value,
             mounted_path=item.mounted_path,
             sha256=item.sha256,
+            runtime_output_directory=item.runtime_output_directory,
+            resolution_lock_sha256=item.resolution_lock_sha256,
+            runtime_manifest_sha256=item.runtime_manifest_sha256,
+            sha256_manifest_sha256=item.sha256_manifest_sha256,
+            materialization_receipt_sha256=item.materialization_receipt_sha256,
+            package_count=item.package_count,
         )
         for item in record.entries
     )

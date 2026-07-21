@@ -18,6 +18,11 @@ from auragateway.local_abc import (
 from auragateway.local_abc.full_abc_local_environment_qualification_artifact_identity import (
     directory_sha256,
 )
+from auragateway.local_abc.full_abc_local_environment_qualification_cu129_runtime import (
+    EXPECTED_CONTROL_HASHES,
+    EXPECTED_PACKAGE_COUNT,
+    RUNTIME_OUTPUT_DIRECTORY,
+)
 from auragateway.local_abc.full_abc_local_environment_qualification_execution import (
     build_execution_request,
     build_notebook_payload,
@@ -78,8 +83,6 @@ def _dataset_manifest(tmp_path: Path) -> QualificationDatasetManifest:
     model = tmp_path / "model"
     model.mkdir()
     (model / "config.json").write_text("{}", encoding="utf-8")
-    wheel = tmp_path / "wheel.whl"
-    wheel.write_text("vllm_wheel", encoding="utf-8")
     return QualificationDatasetManifest(
         manifest_id="qualification-dataset-v1",
         entries=(
@@ -96,10 +99,18 @@ def _dataset_manifest(tmp_path: Path) -> QualificationDatasetManifest:
                 sha256=directory_sha256(model),
             ),
             DatasetManifestEntry(
-                role="vllm_wheel",
-                artifact_format="python_wheel",
-                mounted_path=str(wheel.resolve()),
-                sha256=_sha256(wheel),
+                role="vllm_runtime",
+                artifact_format="python_wheelhouse_directory",
+                mounted_path=None,
+                sha256=EXPECTED_CONTROL_HASHES["sha256_manifest.json"],
+                runtime_output_directory=RUNTIME_OUTPUT_DIRECTORY,
+                resolution_lock_sha256=EXPECTED_CONTROL_HASHES["resolution_lock.json"],
+                runtime_manifest_sha256=EXPECTED_CONTROL_HASHES["runtime_manifest.json"],
+                sha256_manifest_sha256=EXPECTED_CONTROL_HASHES["sha256_manifest.json"],
+                materialization_receipt_sha256=EXPECTED_CONTROL_HASHES[
+                    "materialization_receipt.json"
+                ],
+                package_count=EXPECTED_PACKAGE_COUNT,
             ),
         ),
     )
@@ -189,13 +200,25 @@ def _capture(
         {
             "evidence_id": "kaggle-runtime-dependency-lock",
             **common,
-            "python_version": "3.11.9",
-            "torch_version": "2.11.0+cu129",
+            "python_version": "3.12.13",
+            "torch_version": "2.10.0+cu129",
             "cuda_version": "12.9",
-            "transformers_version": "4.57.1",
-            "vllm_module_version": "0.25.1",
-            "vllm_distribution_version": "0.25.1+cu129",
-            "vllm_wheel_sha256": _SHA_D,
+            "transformers_version": "5.5.3",
+            "vllm_module_version": "0.19.1",
+            "vllm_distribution_version": "0.19.1",
+            "runtime_output_directory": RUNTIME_OUTPUT_DIRECTORY,
+            "runtime_resolution_lock_sha256": EXPECTED_CONTROL_HASHES["resolution_lock.json"],
+            "runtime_manifest_sha256": EXPECTED_CONTROL_HASHES["runtime_manifest.json"],
+            "runtime_sha256_manifest_sha256": EXPECTED_CONTROL_HASHES["sha256_manifest.json"],
+            "runtime_materialization_receipt_sha256": EXPECTED_CONTROL_HASHES[
+                "materialization_receipt.json"
+            ],
+            "runtime_package_count": EXPECTED_PACKAGE_COUNT,
+            "installation_executor": "BASE_PIP_TARGET_DIRECTORY",
+            "dependency_validation": "CONTROLLED_TARGET_METADATA_AND_PACKAGING",
+            "python_startup_policy": "NO_SITE_WITH_CONTROLLED_SITE_BOOTSTRAP",
+            "loader_policy": "TARGET_NVIDIA_LIBRARIES_PREPENDED",
+            "target_python_sha256": _SHA_D,
             "attention_backend": "flashinfer",
             "automatic_prefix_cache_configuration": "enabled",
             "dtype": "auto",
@@ -479,8 +502,6 @@ def test_notebook_bootstrap_executes_only_verified_harness_source(
     model = tmp_path / "model"
     model.mkdir()
     (model / "config.json").write_text("{}", encoding="utf-8")
-    wheel = tmp_path / "vllm.whl"
-    wheel.write_text("wheel", encoding="utf-8")
     manifest = {
         "schema_version": "1.0.0",
         "manifest_id": "qualification-dataset-v1",
@@ -498,10 +519,18 @@ def test_notebook_bootstrap_executes_only_verified_harness_source(
                 "sha256": directory_sha256(model),
             },
             {
-                "role": "vllm_wheel",
-                "artifact_format": "python_wheel",
-                "mounted_path": str(wheel.resolve()),
-                "sha256": _sha256(wheel),
+                "role": "vllm_runtime",
+                "artifact_format": "python_wheelhouse_directory",
+                "mounted_path": None,
+                "sha256": EXPECTED_CONTROL_HASHES["sha256_manifest.json"],
+                "runtime_output_directory": RUNTIME_OUTPUT_DIRECTORY,
+                "resolution_lock_sha256": EXPECTED_CONTROL_HASHES["resolution_lock.json"],
+                "runtime_manifest_sha256": EXPECTED_CONTROL_HASHES["runtime_manifest.json"],
+                "sha256_manifest_sha256": EXPECTED_CONTROL_HASHES["sha256_manifest.json"],
+                "materialization_receipt_sha256": EXPECTED_CONTROL_HASHES[
+                    "materialization_receipt.json"
+                ],
+                "package_count": EXPECTED_PACKAGE_COUNT,
             },
         ],
         "network_access_permitted": False,
@@ -596,7 +625,7 @@ def test_dataset_manifest_rejects_network_or_credentials(tmp_path: Path) -> None
 def test_dataset_manifest_rejects_artifact_format_drift(tmp_path: Path) -> None:
     manifest = _dataset_manifest(tmp_path)
     payload = manifest.model_dump(mode="python")
-    payload["entries"][0]["artifact_format"] = "python_wheel"
+    payload["entries"][0]["artifact_format"] = "python_wheelhouse_directory"
 
     with pytest.raises(ValidationError, match="artifact formats drifted"):
         QualificationDatasetManifest.model_validate(payload)
@@ -800,6 +829,53 @@ def test_changed_python_lines_do_not_exceed_100_characters() -> None:
             if len(line) > 100:
                 failures.append(f"{path}:{line_number}:{len(line)}")
     assert failures == []
+
+
+def test_git_blob_identity_tracks_working_tree_bytes(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    subprocess.run(["git", "-C", str(repo_root), "init"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo_root), "config", "user.email", "test@example.com"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo_root), "config", "user.name", "Test User"],
+        check=True,
+    )
+    relative_path = Path("authority.txt")
+    authority_path = repo_root / relative_path
+    authority_path.write_text("historical\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo_root), "add", "authority.txt"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo_root), "commit", "-m", "baseline"],
+        check=True,
+    )
+    historical_blob = subprocess.run(
+        ["git", "-C", str(repo_root), "rev-parse", "HEAD:authority.txt"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    authority_path.write_text("current working tree\n", encoding="utf-8")
+    observed = execution_module._git_blob_sha(repo_root, relative_path)
+    expected = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo_root),
+            "hash-object",
+            "--path=authority.txt",
+            str(authority_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    assert observed == expected
+    assert observed != historical_blob
 
 
 def test_repository_package_generation_and_verification() -> None:

@@ -195,7 +195,7 @@ def test_verify_rejects_noncanonical_authorization(
         )
 
 
-def test_build_authorization_binds_reviewed_inputs(
+def test_build_authorization_requires_fresh_cu129_review(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -212,9 +212,6 @@ def test_build_authorization_binds_reviewed_inputs(
             Path(__file__).resolve().parents[3] / issuance_module.MATERIALIZED_DATASET_MANIFEST_PATH
         ).read_text(encoding="utf-8")
     )
-    materialization_path = tmp_path / issuance_module.MATERIALIZATION_RECORD_PATH
-    materialization_path.parent.mkdir(parents=True)
-    materialization_path.write_text("{}", encoding="utf-8")
 
     monkeypatch.setattr(
         issuance_module,
@@ -230,13 +227,8 @@ def test_build_authorization_binds_reviewed_inputs(
         issuance_module,
         "_validate_rematerialization_package",
         lambda repo_root: {
-            "materialization_record_sha256": (issuance_module.MATERIALIZATION_RECORD_SHA256)
+            "materialization_record_sha256": issuance_module.MATERIALIZATION_RECORD_SHA256
         },
-    )
-    monkeypatch.setattr(
-        issuance_module.issuance_review,
-        "validate_repository_review_package",
-        lambda repo_root: {},
     )
     monkeypatch.setattr(
         issuance_module.issuance_review,
@@ -249,18 +241,17 @@ def test_build_authorization_binds_reviewed_inputs(
         lambda repo_root: (request, manifest),
     )
 
-    authorization = issuance_module._build_authorization(
-        repo_root=tmp_path,
-        confirmation=_confirmation(window_minutes=30),
-    )
+    with pytest.raises(
+        issuance_module.AuthorizationIssuanceError,
+        match="not covered by the historical authorization-issuance review",
+    ) as caught:
+        issuance_module._build_authorization(
+            repo_root=tmp_path,
+            confirmation=_confirmation(window_minutes=30),
+        )
 
-    assert authorization.request_sha256 == request.fingerprint()
-    assert authorization.dataset_manifest_sha256 == manifest.fingerprint()
-    assert authorization.review_git_blob_sha == ("61590be7fe1d10e8e9b38405cf634f4a0cae3e31")
-    assert authorization.maximum_workers == 2
-    assert authorization.expires_at - authorization.issued_at == timedelta(minutes=30)
-    assert authorization.benchmark_trajectory_requests_permitted == 0
-    assert authorization.measured_execution_authorized is False
+    assert caught.value.error_code == "FRESH_CU129_AUTHORIZATION_REVIEW_REQUIRED"
+    assert caught.value.path == issuance_module.EXECUTION_REQUEST_PATH.as_posix()
 
 
 def test_verify_rejects_expired_authorization(
