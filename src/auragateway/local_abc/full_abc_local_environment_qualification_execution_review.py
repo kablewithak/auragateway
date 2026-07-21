@@ -350,7 +350,11 @@ def _load_json_object(path: Path) -> dict[str, object]:
     return payload
 
 
-def _git_index_blob_sha(repo_root: Path, relative_path: Path) -> str:
+def _git_blob_sha_at_revision(
+    repo_root: Path,
+    relative_path: Path,
+    revision: str,
+) -> str:
     try:
         result = subprocess.run(
             [
@@ -358,7 +362,7 @@ def _git_index_blob_sha(repo_root: Path, relative_path: Path) -> str:
                 "-C",
                 str(repo_root),
                 "rev-parse",
-                f"HEAD:{relative_path.as_posix()}",
+                f"{revision}:{relative_path.as_posix()}",
             ],
             check=True,
             capture_output=True,
@@ -367,18 +371,79 @@ def _git_index_blob_sha(repo_root: Path, relative_path: Path) -> str:
         )
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
         raise FullABCLocalEnvironmentQualificationExecutionReviewError(
-            "REQUIRED_GIT_AUTHORITY_UNREADABLE",
-            "required qualification-execution Git authority could not be resolved",
+            "REQUIRED_HISTORICAL_GIT_AUTHORITY_UNREADABLE",
+            "required historical qualification-execution authority could not be resolved",
             relative_path.as_posix(),
+            details=(revision,),
         ) from exc
     identity = result.stdout.strip()
     if _GIT_OBJECT_PATTERN.fullmatch(identity) is None:
         raise FullABCLocalEnvironmentQualificationExecutionReviewError(
-            "REQUIRED_GIT_AUTHORITY_INVALID",
-            "required qualification-execution Git authority returned an invalid identity",
+            "REQUIRED_HISTORICAL_GIT_AUTHORITY_INVALID",
+            "historical qualification-execution authority returned an invalid identity",
             relative_path.as_posix(),
+            details=(revision,),
         )
     return identity
+
+
+def _git_text_at_revision(
+    repo_root: Path,
+    relative_path: Path,
+    revision: str,
+) -> str:
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(repo_root),
+                "show",
+                f"{revision}:{relative_path.as_posix()}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        raise FullABCLocalEnvironmentQualificationExecutionReviewError(
+            "REQUIRED_HISTORICAL_FILE_UNREADABLE",
+            "required historical qualification-execution file could not be read",
+            relative_path.as_posix(),
+            details=(revision,),
+        ) from exc
+    return result.stdout
+
+
+def _load_json_object_at_revision(
+    repo_root: Path,
+    relative_path: Path,
+    revision: str,
+) -> dict[str, object]:
+    try:
+        payload = json.loads(
+            _git_text_at_revision(
+                repo_root,
+                relative_path,
+                revision,
+            )
+        )
+    except json.JSONDecodeError as exc:
+        raise FullABCLocalEnvironmentQualificationExecutionReviewError(
+            "REQUIRED_HISTORICAL_JSON_AUTHORITY_INVALID",
+            "historical qualification-execution authority is not valid JSON",
+            relative_path.as_posix(),
+            details=(revision,),
+        ) from exc
+    if not isinstance(payload, dict):
+        raise FullABCLocalEnvironmentQualificationExecutionReviewError(
+            "REQUIRED_HISTORICAL_JSON_AUTHORITY_INVALID",
+            "historical qualification-execution authority must be one JSON object",
+            relative_path.as_posix(),
+            details=(revision,),
+        )
+    return payload
 
 
 def _require_source_ancestor(repo_root: Path) -> None:
@@ -524,7 +589,7 @@ def write_default_review(
 
 
 def validate_repository_review_package(repo_root: Path) -> dict[str, object]:
-    """Validate merged authorities and return a metadata-safe review summary."""
+    """Validate historical authorities and return a metadata-safe review summary."""
 
     _require_source_ancestor(repo_root)
     review = load_full_abc_local_environment_qualification_execution_review(repo_root / REVIEW_PATH)
@@ -539,19 +604,38 @@ def validate_repository_review_package(repo_root: Path) -> dict[str, object]:
         sorted(
             path.as_posix()
             for path, blob_sha in expected.items()
-            if _git_index_blob_sha(repo_root, path) != blob_sha
+            if (
+                _git_blob_sha_at_revision(
+                    repo_root,
+                    path,
+                    SOURCE_MAIN_MERGE_COMMIT,
+                )
+                != blob_sha
+            )
         )
     )
     if drift:
         raise FullABCLocalEnvironmentQualificationExecutionReviewError(
-            "QUALIFICATION_EXECUTION_AUTHORITY_DRIFT",
-            "one or more qualification-execution authorities drifted",
+            "QUALIFICATION_EXECUTION_HISTORICAL_AUTHORITY_DRIFT",
+            "one or more historical qualification-execution authorities drifted",
             details=drift,
         )
 
-    implementation = _load_json_object(repo_root / _IMPLEMENTATION_PLAN_PATH)
-    request = _load_json_object(repo_root / _QUALIFICATION_REQUEST_PATH)
-    startup = _load_json_object(repo_root / _WORKER_STARTUP_PLAN_PATH)
+    implementation = _load_json_object_at_revision(
+        repo_root,
+        _IMPLEMENTATION_PLAN_PATH,
+        SOURCE_MAIN_MERGE_COMMIT,
+    )
+    request = _load_json_object_at_revision(
+        repo_root,
+        _QUALIFICATION_REQUEST_PATH,
+        SOURCE_MAIN_MERGE_COMMIT,
+    )
+    startup = _load_json_object_at_revision(
+        repo_root,
+        _WORKER_STARTUP_PLAN_PATH,
+        SOURCE_MAIN_MERGE_COMMIT,
+    )
     checks = (
         implementation.get("next_gate")
         == "full_abc_local_full_run_environment_qualification_execution_review",
@@ -572,6 +656,9 @@ def validate_repository_review_package(repo_root: Path) -> dict[str, object]:
 
     return {
         "review_sha256": review.fingerprint(),
+        "review_disposition": "HISTORICAL_CONTEXT_ONLY",
+        "historical_revision": SOURCE_MAIN_MERGE_COMMIT,
+        "historical_authorities_verified": len(expected),
         "decision": review.decision,
         "lifecycle_after": review.lifecycle_after,
         "maximum_model_requests": review.probe_budget.maximum_model_requests,

@@ -29,7 +29,7 @@ AUTHORIZATION_ISSUANCE_REVIEW_GIT_BLOB_SHA: Final = "61590be7fe1d10e8e9b38405cf6
 REVIEW_SOURCE_PATH: Final = Path(
     "src/auragateway/local_abc/full_abc_local_environment_qualification_execution_review.py"
 )
-REVIEW_SOURCE_GIT_BLOB_SHA: Final = "ebc1a28e97333f6f0a55d42f9c37b42701c75fa8"
+REVIEW_SOURCE_GIT_BLOB_SHA: Final = "6084ccbe4377d0f02e1cc439dab76af9c7f60534"
 STATIC_REQUEST_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/qualification_request.json"
 )

@@ -7,6 +7,9 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from auragateway.local_abc import (
+    full_abc_local_environment_qualification_execution_review as execution_review,
+)
 from auragateway.local_abc.full_abc_local_environment_qualification_execution_review import (
     NEXT_GATE,
     REVIEW_PATH,
@@ -202,16 +205,51 @@ def test_ruff_version_is_0_15_21() -> None:
     assert result.stdout.strip() == "ruff 0.15.21"
 
 
-def test_repository_package_matches_merged_authorities() -> None:
+def test_repository_package_matches_historical_merged_authorities() -> None:
     repo_root = Path(__file__).resolve().parents[3]
     if not (repo_root / ".git").exists():
         pytest.skip("full Git checkout required")
     summary = validate_repository_review_package(repo_root)
+    assert summary["review_disposition"] == "HISTORICAL_CONTEXT_ONLY"
+    assert summary["historical_revision"] == SOURCE_MAIN_MERGE_COMMIT
+    assert summary["historical_authorities_verified"] == 5
     assert summary["maximum_model_requests"] == 8
     assert summary["benchmark_trajectory_requests_permitted"] == 0
     assert summary["implementation_may_start_kaggle"] is False
     assert summary["environment_qualified"] is False
     assert summary["measured_execution_authorized"] is False
+
+
+def test_historical_authority_drift_is_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    if not (repo_root / ".git").exists():
+        pytest.skip("full Git checkout required")
+
+    original = execution_review._git_blob_sha_at_revision
+
+    def drift_qualification_request(
+        root: Path,
+        relative_path: Path,
+        revision: str,
+    ) -> str:
+        if relative_path == execution_review._QUALIFICATION_REQUEST_PATH:
+            return "0" * 40
+        return original(root, relative_path, revision)
+
+    monkeypatch.setattr(
+        execution_review,
+        "_git_blob_sha_at_revision",
+        drift_qualification_request,
+    )
+
+    with pytest.raises(
+        execution_review.FullABCLocalEnvironmentQualificationExecutionReviewError
+    ) as exc_info:
+        validate_repository_review_package(repo_root)
+
+    assert exc_info.value.error_code == "QUALIFICATION_EXECUTION_HISTORICAL_AUTHORITY_DRIFT"
 
 
 def test_duplicate_authority_bindings_are_rejected() -> None:
