@@ -1,0 +1,36 @@
+7.3s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.3s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.3s 3 0.00s - to python to disable frozen modules.
+7.3s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+7.9s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.9s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.9s 7 0.00s - to python to disable frozen modules.
+7.9s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+316.3s 9 artifact=/kaggle/working/auragateway_vllm_cu129_offline_compatibility_evidence_v7.zip
+316.3s 10 size_bytes=28203
+316.3s 11 sha256=8db01f1dd47a01ce2a1cd180c177af8c12826acdba8694d16893b2119e8633e7
+316.3s 12 offline_compatibility_status=FAILED
+316.3s 13 dependency_validation=CONTROLLED_TARGET_METADATA_AND_PACKAGING
+316.3s 14 first_divergence=canonical_nvjitlink_resolution
+316.3s 15 failed_required_roles=["canonical_nvjitlink_resolution"]
+316.3s 16 blocked_required_roles=[]
+316.3s 17 not_executed_required_roles=[]
+316.3s 18 canonical_nvjitlink_resolved_to_target=false
+316.3s 19 target_process_environment_isolated=true
+316.3s 20 base_distribution_metadata_unchanged=true
+316.3s 21 model_requests_performed=0
+316.3s 22 qualification_claimed=false
+316.3s 23 upload_only_this_file=true
+316.3s 24 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+316.3s 25 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+316.3s 26 
+316.3s 27 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+316.3s 28 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+319.0s 29 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+319.0s 30 cells[i][c] = re.sub('\\\\\|', '|', cell)
+319.2s 31 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+319.2s 32 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+319.8s 33 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+320.2s 34 [NbConvertApp] Writing 106616 bytes to __notebook__.ipynb
+322.6s 35 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+323.6s 36 [NbConvertApp] Writing 542783 bytes to __results__.html

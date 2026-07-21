@@ -1,0 +1,1 @@
+{"argv":["/usr/bin/python3","-m","venv","--without-pip","<working>/auragateway_vllm_runtime_cu129_v7"],"command_role":"venv_create_without_pip","duration_ms":98,"returncode":0,"schema_version":"3.0.0","started_at":"2026-07-21T00:05:16+00:00","status":"PASSED","stderr_excerpt":"","stdout_excerpt":"","timed_out":false}
