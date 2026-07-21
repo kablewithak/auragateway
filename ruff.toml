@@ -1,0 +1,4 @@
+extend = "pyproject.toml"
+
+[lint.per-file-ignores]
+"evidence_vault/local_abc/harness-materializer-input-v3/ag-harness-materializer-input-v3.ipynb" = ["SIM117"]
