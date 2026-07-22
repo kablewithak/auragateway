@@ -1,0 +1,27 @@
+9.5s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+9.5s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+9.5s 3 0.00s - to python to disable frozen modules.
+9.5s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+10.5s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+10.5s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+10.5s 7 0.00s - to python to disable frozen modules.
+10.5s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+18.7s 9 inspection_status=CURRENT_CU129_HARNESS_INPUT_INSPECTION_PASSED
+18.7s 10 operational_input_closure=PASSED
+18.7s 11 source_commit=426f57dd11dddc2fb8e5a703721c2189abc7a0ff
+18.7s 12 harness_directory_sha256=c3ea4ae6d047a8b3f3d5afc517e26c4f13fb4a82e48e3cf28cdfabdc343230e6
+18.7s 13 runtime_package_count=176
+18.7s 14 gpu_execution_performed=false
+18.7s 15 package_installation_performed=false
+18.7s 16 model_requests_performed=0
+18.7s 17 authorization_issued=false
+18.7s 18 evidence_zip=/kaggle/working/ag-harness-input-inspection-cu129-v1.zip
+18.7s 19 save_this_notebook_output=true
+22.1s 20 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+22.1s 21 cells[i][c] = re.sub('\\\\\|', '|', cell)
+22.3s 22 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+22.3s 23 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+23.0s 24 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+23.4s 25 [NbConvertApp] Writing 32194 bytes to __notebook__.ipynb
+26.5s 26 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+27.6s 27 [NbConvertApp] Writing 364787 bytes to __results__.html

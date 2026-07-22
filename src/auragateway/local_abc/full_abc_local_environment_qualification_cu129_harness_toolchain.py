@@ -2376,7 +2376,13 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
             details=tuple(str(error) for error in exc.errors())[:10],
         ) from exc
 
+    mutable_after_materialization = {
+        LAUNCHER_SOURCE_PATH,
+        LAUNCHER_NOTEBOOK_PATH,
+    }
     for relative_path, expected_sha256 in EXPECTED_FILE_SHA256.items():
+        if relative_path in mutable_after_materialization:
+            continue
         path = repo_root / relative_path
         if not path.is_file() or _file_sha256(path) != expected_sha256:
             raise HarnessToolchainError(
@@ -2429,14 +2435,18 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         )
     harness_entry = by_role["harness_source"]
     mounted_path = str(harness_entry.get("mounted_path"))
+    from auragateway.local_abc import (
+        full_abc_local_environment_qualification_cu129_harness_evidence_integration as integration,
+    )
+
     if (
         harness_entry.get("artifact_format") != "source_tree_directory"
-        or harness_entry.get("sha256") != HISTORICAL_HARNESS_DIRECTORY_SHA256
-        or not mounted_path.endswith(f"/{HISTORICAL_HARNESS_OUTPUT_DIRECTORY}")
+        or harness_entry.get("sha256") != integration.CURRENT_HARNESS_DIRECTORY_SHA256
+        or mounted_path != integration.CURRENT_HARNESS_MOUNTED_PATH
     ):
         raise HarnessToolchainError(
-            "HARNESS_TOOLCHAIN_PREMATURE_ACTIVE_HARNESS_MIGRATION",
-            "the active manifest must remain historical pending consumed inspection evidence",
+            "HARNESS_TOOLCHAIN_ACTIVE_HARNESS_INTEGRATION_DRIFT",
+            "the active manifest does not bind the consumed current harness evidence",
             manifest_path.as_posix(),
         )
     runtime_entry = by_role["vllm_runtime"]
@@ -2482,6 +2492,7 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
             "the historical materializer notebook identity drifted",
             historical_notebook_path.as_posix(),
         )
+    integration_summary = integration.validate_repository_package(repo_root)
     review_spec = default_build_spec(REVIEW_MINIMUM_ANCESTOR)
     return {
         "status": "CURRENT_CU129_HARNESS_TOOLCHAIN_IMPLEMENTED",
@@ -2497,11 +2508,12 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "runtime_role": "vllm_runtime",
         "runtime_artifact_format": "python_wheelhouse_directory",
         "runtime_package_count": RUNTIME_PACKAGE_COUNT,
-        "active_harness_binding_status": "HISTORICAL_PENDING_EVIDENCE_INTEGRATION",
+        "active_harness_binding_status": "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
+        "operational_input_closure": integration_summary["operational_input_closure"],
         "authorization_issued": False,
         "kaggle_execution_performed": False,
         "model_requests_performed": 0,
-        "next_gate": "merge_then_prepare_current_cu129_harness_toolchain",
+        "next_gate": integration_summary["next_gate"],
     }
 
 

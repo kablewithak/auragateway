@@ -8,6 +8,9 @@ from pathlib import Path
 from typing import Final, Never, cast
 
 from auragateway.local_abc import (
+    full_abc_local_environment_qualification_cu129_harness_evidence_integration,
+)
+from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_runtime_integration_review as integration_review,
 )
 from auragateway.local_abc import (
@@ -22,6 +25,8 @@ from auragateway.local_abc import (
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_harness_rematerialization as rematerialization,
 )
+
+harness_integration = full_abc_local_environment_qualification_cu129_harness_evidence_integration
 
 INTEGRATION_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_qualification_runtime_integration_v1.json"
@@ -73,6 +78,9 @@ CANONICAL_JSON_PATHS: Final = (
     EXECUTION_REQUEST_PATH,
     QUALIFICATION_REQUEST_PATH,
     WORKER_PLAN_PATH,
+    harness_integration.INTEGRATION_RECORD_PATH,
+    harness_integration.READINESS_REVIEW_PATH,
+    harness_integration.EVIDENCE_IDENTITY_PATH,
 )
 
 LIVE_RUNTIME_PATHS: Final = (
@@ -271,6 +279,12 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         ),
     )
 
+    current_harness = harness_integration.validate_repository_package(root)
+    if current_harness.get("operational_input_closure") != "PASSED":
+        raise AuthorityGraphError("current harness operational input closure drifted")
+    if current_harness.get("authorization_issued") is not False:
+        raise AuthorityGraphError("current harness integration issued authorization")
+
     historical_review = integration_review.validate_repository_package(root)
     if historical_review.get("review_disposition") != "HISTORICAL_PREINTEGRATION_AUTHORITY":
         raise AuthorityGraphError("pre-integration review supersession disposition drifted")
@@ -295,11 +309,16 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         raise AuthorityGraphError("final qualification authorization must remain absent")
 
     return {
-        "status": "CURRENT_AUTHORITY_GRAPH_VALID_HISTORICAL_AUTHORITIES_REVISION_BOUND",
+        "status": "CURRENT_CU129_INPUT_GRAPH_VALID_HISTORICAL_AUTHORITIES_REVISION_BOUND",
         "current_runtime_role": runtime.role,
         "current_runtime_format": runtime.artifact_format,
         "runtime_package_count": runtime.package_count,
         "canonical_json_authorities_verified": len(CANONICAL_JSON_PATHS),
+        "current_harness_evidence_integrated": True,
+        "operational_input_closure": current_harness["operational_input_closure"],
+        "authorization_source_binding_policy": current_harness[
+            "authorization_source_binding_policy"
+        ],
         "historical_preintegration_review_revision_bound": True,
         "historical_pr109_issuance_review_revision_bound": True,
         "historical_rematerialization_revision_bound": True,
@@ -307,7 +326,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         "authorization_issued": False,
         "runtime_execution_performed": False,
         "model_requests_performed": 0,
-        "next_gate": integration["next_gate"],
+        "next_gate": current_harness["next_gate"],
     }
 
 

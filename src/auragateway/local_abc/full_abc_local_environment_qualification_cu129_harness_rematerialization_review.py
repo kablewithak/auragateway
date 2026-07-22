@@ -284,7 +284,7 @@ def _require_base_ancestor(repo_root: Path) -> None:
         raise RuntimeError("review base commit is not an ancestor of HEAD")
 
 
-def _git_file_sha256(repo_root: Path, revision: str, path: Path) -> str:
+def _git_file_bytes(repo_root: Path, revision: str, path: Path) -> bytes:
     result = subprocess.run(
         ["git", "-C", str(repo_root), "show", f"{revision}:{path.as_posix()}"],
         check=False,
@@ -293,7 +293,22 @@ def _git_file_sha256(repo_root: Path, revision: str, path: Path) -> str:
     )
     if result.returncode != 0:
         raise RuntimeError(f"historical authority is unavailable: {path.as_posix()}")
-    return hashlib.sha256(result.stdout).hexdigest()
+    return result.stdout
+
+
+def _git_file_sha256(repo_root: Path, revision: str, path: Path) -> str:
+    return hashlib.sha256(_git_file_bytes(repo_root, revision, path)).hexdigest()
+
+
+def _git_json(repo_root: Path, revision: str, path: Path) -> dict[str, object]:
+    payload = json.loads(_git_file_bytes(repo_root, revision, path).decode("utf-8"))
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"historical JSON root is invalid: {path.as_posix()}")
+    return cast(dict[str, object], payload)
+
+
+def _git_text(repo_root: Path, revision: str, path: Path) -> str:
+    return _git_file_bytes(repo_root, revision, path).decode("utf-8")
 
 
 def _notebook_source(path: Path) -> str:
@@ -342,7 +357,7 @@ def _validate_current_file_identities(repo_root: Path) -> None:
     drift = tuple(
         path.as_posix()
         for path, expected_sha256 in EXPECTED_CURRENT_SHA256.items()
-        if _git_file_sha256(repo_root, "HEAD", path) != expected_sha256
+        if _git_file_sha256(repo_root, BASE_COMMIT, path) != expected_sha256
     )
     if drift:
         raise RuntimeError("current rematerialization authorities drifted: " + ", ".join(drift))
@@ -378,30 +393,32 @@ def _manifest_entries_by_role(entries: object) -> dict[str, dict[str, object]]:
 
 
 def _validate_runtime_boundary(repo_root: Path) -> None:
-    manifest = _load_json(repo_root / MANIFEST_PATH)
+    """Validate the exact reviewed boundary at its immutable base commit."""
+
+    manifest = _git_json(repo_root, BASE_COMMIT, MANIFEST_PATH)
     entries_by_role = _manifest_entries_by_role(manifest.get("entries"))
     harness_entry = entries_by_role["harness_source"]
     runtime_entry = entries_by_role["vllm_runtime"]
 
     if harness_entry.get("artifact_format") != "source_tree_directory":
-        raise RuntimeError("frozen harness artifact format drifted")
+        raise RuntimeError("reviewed frozen harness artifact format drifted")
     if harness_entry.get("sha256") != HISTORICAL_DIRECTORY_SHA256:
-        raise RuntimeError("frozen harness directory identity drifted")
+        raise RuntimeError("reviewed frozen harness directory identity drifted")
     if harness_entry.get("mounted_path") != HISTORICAL_HARNESS_MOUNTED_PATH:
-        raise RuntimeError("frozen harness mounted path drifted")
+        raise RuntimeError("reviewed frozen harness mounted path drifted")
 
     if runtime_entry.get("artifact_format") != "python_wheelhouse_directory":
-        raise RuntimeError("current CUDA 12.9 runtime artifact format drifted")
+        raise RuntimeError("reviewed CUDA 12.9 runtime artifact format drifted")
     if runtime_entry.get("package_count") != 176:
-        raise RuntimeError("current CUDA 12.9 runtime package count drifted")
+        raise RuntimeError("reviewed CUDA 12.9 runtime package count drifted")
     if runtime_entry.get("resolution_lock_sha256") != CURRENT_RUNTIME_RESOLUTION_LOCK_SHA256:
-        raise RuntimeError("current CUDA 12.9 runtime resolution lock drifted")
+        raise RuntimeError("reviewed CUDA 12.9 runtime resolution lock drifted")
 
-    record = _load_json(repo_root / MATERIALIZATION_RECORD_PATH)
+    record = _git_json(repo_root, BASE_COMMIT, MATERIALIZATION_RECORD_PATH)
     if record.get("harness_source_commit") != HISTORICAL_HARNESS_SOURCE_COMMIT:
-        raise RuntimeError("current materialization record no longer binds the frozen harness")
+        raise RuntimeError("reviewed materialization record lost the frozen harness")
 
-    launcher = (repo_root / LAUNCHER_PATH).read_text(encoding="utf-8")
+    launcher = _git_text(repo_root, BASE_COMMIT, LAUNCHER_PATH)
     launcher_fragments = (
         HISTORICAL_HARNESS_SOURCE_COMMIT,
         "ag-harness-materializer-input-v3/",
@@ -409,14 +426,14 @@ def _validate_runtime_boundary(repo_root: Path) -> None:
         "auragateway_vllm_cu129_wheelhouse_v1",
     )
     if any(fragment not in launcher for fragment in launcher_fragments):
-        raise RuntimeError("current launcher boundary drifted")
+        raise RuntimeError("reviewed launcher boundary drifted")
 
-    runbook = (repo_root / LAUNCHER_RUNBOOK_PATH).read_text(encoding="utf-8")
+    runbook = _git_text(repo_root, BASE_COMMIT, LAUNCHER_RUNBOOK_PATH)
     if "auragateway-vllm-wheel-recovery-v1" not in runbook:
-        raise RuntimeError("expected stale launcher runbook instruction is absent")
+        raise RuntimeError("reviewed stale launcher instruction is absent")
 
     if (repo_root / FINAL_AUTHORIZATION_PATH).exists():
-        raise RuntimeError("final authorization exists before rematerialization review closes")
+        raise RuntimeError("final authorization exists before fresh issuance implementation")
 
 
 def _validate_documentation(repo_root: Path) -> None:

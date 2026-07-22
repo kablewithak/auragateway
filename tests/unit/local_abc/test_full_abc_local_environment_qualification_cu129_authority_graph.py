@@ -15,15 +15,22 @@ ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_repository_authority_graph_is_current_and_fail_closed() -> None:
+    if not (ROOT / ".git").exists():
+        pytest.skip("full Git checkout is required for historical authority validation")
     summary = graph.validate_repository_authority_graph(ROOT)
 
     assert summary["status"] == (
-        "CURRENT_AUTHORITY_GRAPH_VALID_HISTORICAL_AUTHORITIES_REVISION_BOUND"
+        "CURRENT_CU129_INPUT_GRAPH_VALID_HISTORICAL_AUTHORITIES_REVISION_BOUND"
     )
     assert summary["current_runtime_role"] == "vllm_runtime"
     assert summary["current_runtime_format"] == "python_wheelhouse_directory"
     assert summary["runtime_package_count"] == 176
-    assert summary["canonical_json_authorities_verified"] == 8
+    assert summary["canonical_json_authorities_verified"] == 11
+    assert summary["current_harness_evidence_integrated"] is True
+    assert summary["operational_input_closure"] == "PASSED"
+    assert summary["authorization_source_binding_policy"] == (
+        "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
+    )
     assert summary["historical_preintegration_review_revision_bound"] is True
     assert summary["historical_pr109_issuance_review_revision_bound"] is True
     assert summary["historical_rematerialization_revision_bound"] is True

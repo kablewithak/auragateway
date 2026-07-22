@@ -262,8 +262,16 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         raise RuntimeError("issuance harness authority drifted")
     if launcher.AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT != (AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT):
         raise RuntimeError("launcher authorization authority drifted")
-    if launcher.SOURCE_MAIN_MERGE_COMMIT != HARNESS_SOURCE_COMMIT:
-        raise RuntimeError("launcher harness authority drifted")
+    from auragateway.local_abc import (
+        full_abc_local_environment_qualification_cu129_harness_evidence_integration as integration,
+    )
+
+    if launcher.SOURCE_MAIN_MERGE_COMMIT != integration.SOURCE_COMMIT:
+        raise RuntimeError("launcher current harness authority drifted")
+    if launcher.HARNESS_SOURCE_PATH != integration.CURRENT_HARNESS_MOUNTED_PATH:
+        raise RuntimeError("launcher current harness mounted path drifted")
+    if launcher.AUTHORIZATION_SOURCE_BINDING_POLICY != ("CONTROL_PACKAGE_AUTHORIZATION_PARITY"):
+        raise RuntimeError("launcher authorization-source parity policy drifted")
 
     launcher_summary = launcher.verify_launcher_notebook(
         repo_root=root,
@@ -279,7 +287,9 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "failure_code": "SOURCE_MAIN_MERGE_COMMIT_LITERAL_DRIFT",
         "failure_stage": "reviewed_core_execution",
         "authorization_source_main_merge_commit": (AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT),
-        "harness_source_commit": HARNESS_SOURCE_COMMIT,
+        "historical_harness_source_commit": HARNESS_SOURCE_COMMIT,
+        "active_launcher_harness_source_commit": integration.SOURCE_COMMIT,
+        "authorization_source_binding_policy": (launcher.AUTHORIZATION_SOURCE_BINDING_POLICY),
         "frozen_execution_contracts_sha256": FROZEN_EXECUTION_CONTRACTS_SHA256,
         "frozen_authorization_schema_sha256": frozen_authorization_schema_sha256(),
         "current_launcher_sha256": launcher_summary.notebook_sha256,

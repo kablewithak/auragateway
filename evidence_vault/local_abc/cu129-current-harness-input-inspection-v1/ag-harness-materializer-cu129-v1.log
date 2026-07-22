@@ -1,0 +1,30 @@
+11.2s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+11.2s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+11.2s 3 0.00s - to python to disable frozen modules.
+11.2s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+12.1s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+12.1s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+12.1s 7 0.00s - to python to disable frozen modules.
+12.1s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+21.3s 9 status=CURRENT_CU129_HARNESS_MATERIALIZED
+21.3s 10 producer_output_directory=ag_harness_materializer_cu129_v1_output
+21.3s 11 source_commit=426f57dd11dddc2fb8e5a703721c2189abc7a0ff
+21.3s 12 output_directory=auragateway_qualification_harness_426f57d_v1
+21.3s 13 file_count=1299
+21.3s 14 total_bytes=11632357
+21.3s 15 directory_sha256=c3ea4ae6d047a8b3f3d5afc517e26c4f13fb4a82e48e3cf28cdfabdc343230e6
+21.3s 16 input_mode=kaggle_expanded_source_recovered_to_exact_archive
+21.3s 17 exact_archive_reconstructed=true
+21.3s 18 gpu_execution_performed=false
+21.3s 19 package_installation_performed=false
+21.3s 20 model_requests_performed=0
+21.3s 21 authorization_issued=false
+21.3s 22 save_this_notebook_output=true
+24.8s 23 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+24.8s 24 cells[i][c] = re.sub('\\\\\|', '|', cell)
+25.0s 25 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+25.0s 26 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+25.8s 27 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+26.2s 28 [NbConvertApp] Writing 37299 bytes to __notebook__.ipynb
+29.5s 29 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+30.7s 30 [NbConvertApp] Writing 383280 bytes to __results__.html
