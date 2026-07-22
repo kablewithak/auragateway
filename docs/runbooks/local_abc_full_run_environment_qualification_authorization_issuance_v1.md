@@ -1,155 +1,92 @@
 # Local A/B/C Environment Qualification Authorization Issuance v1
 
-## CURRENT STATUS: ISSUANCE BLOCKED
+## CURRENT STATUS: ISSUER IMPLEMENTED; AUTHORIZATION ABSENT
 
-The historical PR #109 authorization-issuance review does **not** authorize the
-current CUDA 12.9 wheelhouse runtime.
+The repository now contains a fresh CUDA 12.9 authorization issuer for the current
+operational-input boundary. The implementation must merge without creating the
+short-lived authorization artifact.
 
-The repository now binds:
-
-```text
-runtime role: vllm_runtime
-artifact format: python_wheelhouse_directory
-runtime output directory: auragateway_vllm_cu129_wheelhouse_v1
-package count: 176
-installation executor: BASE_PIP_TARGET_DIRECTORY
-Python startup: NO_SITE_WITH_CONTROLLED_SITE_BOOTSTRAP
-loader policy: TARGET_NVIDIA_LIBRARIES_PREPENDED
-vLLM: 0.19.1
-Torch: 2.10.0+cu129
-Transformers: 5.5.3
-```
-
-PR #109 reviewed the retired single-wheel runtime. It remains historical evidence and
-must be validated at its original source commit. It must not be interpreted as current
-operational authority.
-
-Attempting to issue a qualification authorization before a fresh CUDA 12.9 review must
-fail with:
+Current repository authority:
 
 ```text
-FRESH_CU129_AUTHORIZATION_REVIEW_REQUIRED
+PR #135 integration merge:
+3ea2cf60db7057f94cdbda9060587e5e6881ef28
+
+Current harness source:
+426f57dd11dddc2fb8e5a703721c2189abc7a0ff
+
+Current harness directory SHA-256:
+c3ea4ae6d047a8b3f3d5afc517e26c4f13fb4a82e48e3cf28cdfabdc343230e6
+
+Current runtime manifest SHA-256:
+f7289cee9414d03d88ceb4775198e15ff9446fd99771a58c187de0d4264ef94a
+
+Current materialization record SHA-256:
+284b488dece09e6b17dcf72e4dea69bbdadd440356ce353622b100c38a02100a
+
+Current runtime adapter SHA-256:
+aec461dcd595bfa3af286d88832ec7ef1ca2b416adca6a548f102d9543fb8dba
+
+Current launcher source SHA-256:
+7c0f7f1d466fd68a56d6b77c6e16cf69343491710052818743327b51f1d57f16
+
+Current launcher notebook SHA-256:
+7ec60fd0a162f50961f8ff66a6e3dec3c68a15617109fdc7530b2ec380294de9
+
+Fresh readiness review SHA-256:
+2a0463c48e1a8ffdd4c93f7ed20cc4c60bd7925602a09a59a7b9d9dc3545f00b
 ```
 
 ## Purpose
 
-Preserve the issuance procedure and hard safety limits while explicitly blocking final
-authorization until a fresh review binds the merged CUDA 12.9 authority graph.
+Create one non-overwriting, time-bounded authorization only after:
 
-This runbook does not:
+1. the issuer implementation has merged;
+2. local `main` equals `origin/main`;
+3. the working tree is clean;
+4. the operator gives explicit operator confirmation immediately before use.
 
-- issue authorization;
+The implementation does not:
+
+- issue authorization during the implementation PR;
 - start Kaggle;
-- install the wheelhouse;
+- install the CUDA 12.9 wheelhouse;
 - load a model or tokenizer;
 - start workers;
 - perform model requests;
-- generate runtime evidence;
+- create runtime evidence;
+- authorize benchmark trajectories;
 - authorize measured A/B/C execution.
 
-## Historical authority
+## Frozen runtime compatibility
 
-The historical issuance-review boundary remains:
+The rematerialized harness accepts the preserved version `1.0.0` authorization shape.
+Its payload must retain:
 
 ```text
-PR #109 source commit:
-58e448228abcf9b83e1a6d165094bbec61dcf02c
-
-Historical authorization contract source:
+source_main_merge_commit:
 211a10757999b1b110cb1d9df172938cf6ed7969
 
-Historical harness source:
-4dfd799590195d842f2382bb882fba9b8c4e2422
+review_git_blob_sha:
+61590be7fe1d10e8e9b38405cf634f4a0cae3e31
 ```
 
-Those identities are retained for audit and provenance. Historical files are loaded
-from their revision rather than validated through current live runtime enums.
+Those fields are compatibility authorities, not the current harness identity. The
+issuer separately verifies the PR #135 integration merge, current harness source,
+fresh readiness review, current manifest, current materialization record, current
+runtime adapter, and current launcher before constructing the frozen-compatible
+payload.
 
-## Current repository boundary
-
-The current repository may validate all non-operational inputs, but it may not create a
-final authorization. The expected state is:
+The launcher preserves dynamic authorization provenance through:
 
 ```text
-CUDA 12.9 integration: repository-only
-final authorization: absent
-Kaggle session: not started
-runtime installation: not performed
-model loaded: false
-workers started: false
-model requests: 0
-measured execution authorized: false
-external spend: 0
+CONTROL_PACKAGE_AUTHORIZATION_PARITY
 ```
 
-## Validate the current authority graph
+The control materializer must copy the authorization source field from the actual
+issued payload. It must not replace that field with the current harness commit.
 
-Run from the repository root:
-
-```powershell
-python -m auragateway.local_abc.full_abc_local_environment_qualification_cu129_authority_graph `
-    --repo-root .
-```
-
-Required output includes:
-
-```text
-status=CURRENT_AUTHORITY_GRAPH_VALID_HISTORICAL_AUTHORITIES_REVISION_BOUND
-current_runtime_role=vllm_runtime
-current_runtime_format=python_wheelhouse_directory
-runtime_package_count=176
-fresh_cu129_authorization_review_required=true
-authorization_issued=false
-runtime_execution_performed=false
-model_requests_performed=0
-```
-
-## Validate current issuance inputs
-
-This validates the materialization record, portable manifest, exact wheelhouse
-authority, harness ancestry, and adapter safety without issuing authorization:
-
-```powershell
-python -m auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization `
-    inspect-issuance-inputs `
-    --repo-root . `
-    --materialization-record `
-        data/evals/benchmark/environment-qualification-v1/offline_dataset_materialization_record.json `
-    --runtime-manifest `
-        data/evals/benchmark/environment-qualification-v1/offline_dataset_manifest.json
-```
-
-A successful inspection proves input consistency only. It does not grant execution
-authority.
-
-## Prohibited issuance command
-
-Do not run the historical issuance command against the CUDA 12.9 runtime:
-
-```text
-python -m ...execution_authorization_issuance issue ...
-```
-
-Until a fresh review is merged, the issuance runner must reject the current request with
-`FRESH_CU129_AUTHORIZATION_REVIEW_REQUIRED`.
-
-## Fresh-review requirements
-
-A new issuance review must bind the merged current-state identities for:
-
-- CUDA 12.9 runtime integration record;
-- qualification execution request;
-- offline dataset manifest request;
-- materialization record;
-- portable runtime manifest;
-- runtime adapter;
-- worker startup plan;
-- reviewed qualification notebook;
-- launcher notebook;
-- current execution and authorization contracts;
-- current Git blobs and canonical raw-file hashes.
-
-The fresh review must preserve these limits:
+## Hard limits
 
 ```text
 maximum authorization window: 240 minutes
@@ -165,54 +102,145 @@ external spend: 0
 measured execution authorized: false
 ```
 
-## Post-review issuance gate
+## Validate the implementation boundary
 
-Only after the fresh CUDA 12.9 review merges may the operator receive a new issuance
-workflow. That workflow must:
+Run from the repository root while the final authorization remains absent:
 
-1. require synchronized clean `main`;
-2. bind the merge commit containing the runtime integration and authority migration;
-3. verify exact current Git blobs and canonical file hashes;
-4. require explicit operator confirmation;
-5. create one short-lived authorization without overwrite;
-6. retain zero benchmark trajectory requests;
-7. preserve a rollback and expiry path.
+```powershell
+python -m auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization_issuance `
+    validate-implementation `
+    --repo-root .
+```
+
+Required output includes:
+
+```text
+status=FRESH_CU129_AUTHORIZATION_ISSUER_READY
+authorization_issued=false
+kaggle_session_started=false
+worker_started=false
+model_requests_performed=0
+benchmark_trajectory_requests_permitted=0
+next_gate=explicit_operator_confirmation_then_issue_fresh_authorization
+```
+
+Also validate the complete authority graph:
+
+```powershell
+python -m auragateway.local_abc.full_abc_local_environment_qualification_cu129_authority_graph `
+    --repo-root .
+```
+
+Required output includes:
+
+```text
+status=CURRENT_CU129_AUTHORIZATION_ISSUER_IMPLEMENTED_AUTHORIZATION_ABSENT
+fresh_cu129_authorization_review_required=false
+fresh_cu129_authorization_issuer_implemented=true
+authorization_issued=false
+runtime_execution_performed=false
+model_requests_performed=0
+```
+
+## Implementation-PR prohibition
+
+Do not run the `issue` command while the issuer implementation is unmerged or while
+working on its feature branch. The implementation PR must not contain:
+
+```text
+benchmarks/local_abc/
+auragateway_full_abc_local_full_run_environment_qualification_
+execution_authorization_v1.json
+```
+
+The issuer rejects tracked authorization artifacts and never overwrites an existing
+artifact.
+
+## Post-merge issuance gate
+
+After the issuer merges, synchronize `main` and obtain explicit operator confirmation.
+Issue the authorization only immediately before control materialization:
+
+```powershell
+python -m auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization_issuance `
+    issue `
+    --repo-root . `
+    --operator-confirm `
+    --window-minutes 240
+```
+
+The command must run from clean synchronized `main`. The generated authorization is an
+untracked transient artifact. Do not stage or commit it.
+
+Verify the live window before control materialization:
+
+```powershell
+python -m auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization_issuance `
+    verify `
+    --repo-root .
+```
+
+The verification command permits exactly one working-tree difference: the untracked
+final authorization path. Any additional change fails closed.
+
+## Next gate after issuance
+
+```text
+full_abc_local_full_run_environment_qualification_control_materialization
+```
+
+The next operation is CPU-only control-package materialization. It is not the GPU
+qualification run itself.
+
+## Expiry and cleanup
+
+An expired authorization must not be refreshed in place or overwritten. Preserve its
+identity in the downstream control/evidence lineage, then delete the transient local
+file before issuing a replacement under a separately authorized retry.
+
+```powershell
+$AuthorizationPath = Join-Path (Get-Location) `
+    "benchmarks/local_abc/auragateway_full_abc_local_full_run_environment_qualification_execution_authorization_v1.json"
+
+if (Test-Path -LiteralPath $AuthorizationPath) {
+    Remove-Item -LiteralPath $AuthorizationPath -Force
+}
+```
 
 ## Fail-closed conditions
 
-The current workflow stops if:
+Issuance stops when:
 
-- the materialization projection differs from the portable manifest;
-- any current JSON authority is noncanonical;
-- a live runtime authority contains the retired wheel role, format, or version;
-- a historical validator reads current live files instead of its original revision;
-- current execution source identities drift;
-- the current request is presented to the historical PR #109 issuance review;
-- a final authorization artifact already exists;
-- authorization, Kaggle, model, worker, request, credential, customer-data, or spend
-  boundaries are crossed.
-
-## Next gate
-
-```text
-review_fresh_qualification_authorization_and_control_output_regeneration
-```
-
-The next gate is repository review and identity regeneration. It is not Kaggle
-execution.
+- local `main` differs from `origin/main`;
+- the tree is dirty before issuance;
+- PR #135 is not an ancestor;
+- the current harness source is not an ancestor;
+- the frozen authorization-source parity package fails;
+- current harness evidence integration fails;
+- operational input closure is not `PASSED`;
+- the readiness review, request, manifest, materialization, adapter, or launcher drifts;
+- the materialization record does not project to the portable runtime manifest;
+- the launcher-control authorization-source policy drifts;
+- runtime evidence already exists;
+- the final authorization is tracked or already exists;
+- the requested window exceeds 240 minutes;
+- the payload fails the frozen runtime-loader schema;
+- atomic non-overwriting creation is unavailable.
 
 ## Non-claims
 
-This authority migration does not prove:
+This issuer implementation does not prove:
 
 - wheelhouse installation on a fresh Kaggle image;
 - model or tokenizer load;
 - worker health;
 - cache telemetry availability;
-- reset correctness;
+- cache reset correctness;
 - environment qualification;
-- cache reuse;
-- latency improvement;
+- same-worker cache reuse;
+- cross-worker cache isolation;
+- latency or cost improvement;
 - quality non-inferiority;
-- measured benchmark authorization;
+- measured A/B/C authorization;
+- customer-data readiness;
 - production readiness.

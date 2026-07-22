@@ -17,16 +17,22 @@ from auragateway.local_abc import (
     full_abc_local_environment_qualification_execution_authorization as authorization,
 )
 from auragateway.local_abc import (
+    full_abc_local_environment_qualification_execution_authorization_issuance as issuance,
+)
+from auragateway.local_abc import (
     full_abc_local_environment_qualification_execution_authorization_contracts as contracts,
 )
 from auragateway.local_abc import (
-    full_abc_local_environment_qualification_execution_authorization_issuance_review as issuance_review,  # noqa: E501
+    full_abc_local_environment_qualification_execution_authorization_issuance_review,
 )
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_harness_rematerialization as rematerialization,
 )
 
 harness_integration = full_abc_local_environment_qualification_cu129_harness_evidence_integration
+issuance_review = (
+    full_abc_local_environment_qualification_execution_authorization_issuance_review
+)
 
 INTEGRATION_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_qualification_runtime_integration_v1.json"
@@ -269,21 +275,31 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
     )
     _require_source_markers(
         root / ISSUANCE_SOURCE_PATH,
-        ("FRESH_CU129_AUTHORIZATION_REVIEW_REQUIRED",),
+        (
+            "CURRENT_AUTHORIZATION_BASE_COMMIT",
+            "CURRENT_HARNESS_SOURCE_COMMIT",
+            "READINESS_REVIEW_SHA256",
+            "validate_implementation_package",
+            "CURRENT_ISSUANCE_FROZEN_LOADER_PARITY_FAILED",
+            "AUTHORIZATION_ALREADY_EXISTS",
+        ),
     )
     _require_source_markers(
         root / ISSUANCE_RUNBOOK_PATH,
         (
-            "CURRENT STATUS: ISSUANCE BLOCKED",
-            "FRESH_CU129_AUTHORIZATION_REVIEW_REQUIRED",
+            "CURRENT STATUS: ISSUER IMPLEMENTED; AUTHORIZATION ABSENT",
+            "explicit operator confirmation",
+            "CONTROL_PACKAGE_AUTHORIZATION_PARITY",
         ),
     )
 
-    current_harness = harness_integration.validate_repository_package(root)
-    if current_harness.get("operational_input_closure") != "PASSED":
-        raise AuthorityGraphError("current harness operational input closure drifted")
-    if current_harness.get("authorization_issued") is not False:
-        raise AuthorityGraphError("current harness integration issued authorization")
+    issuer_summary = issuance.validate_implementation_package(root)
+    if issuer_summary.get("status") != "FRESH_CU129_AUTHORIZATION_ISSUER_READY":
+        raise AuthorityGraphError("fresh CUDA 12.9 issuer readiness drifted")
+    if issuer_summary.get("authorization_issued") is not False:
+        raise AuthorityGraphError("fresh CUDA 12.9 issuer created authorization")
+    if issuer_summary.get("model_requests_performed") != 0:
+        raise AuthorityGraphError("fresh CUDA 12.9 issuer performed model requests")
 
     historical_review = integration_review.validate_repository_package(root)
     if historical_review.get("review_disposition") != "HISTORICAL_PREINTEGRATION_AUTHORITY":
@@ -309,24 +325,29 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         raise AuthorityGraphError("final qualification authorization must remain absent")
 
     return {
-        "status": "CURRENT_CU129_INPUT_GRAPH_VALID_HISTORICAL_AUTHORITIES_REVISION_BOUND",
+        "status": "CURRENT_CU129_AUTHORIZATION_ISSUER_IMPLEMENTED_AUTHORIZATION_ABSENT",
         "current_runtime_role": runtime.role,
         "current_runtime_format": runtime.artifact_format,
         "runtime_package_count": runtime.package_count,
         "canonical_json_authorities_verified": len(CANONICAL_JSON_PATHS),
         "current_harness_evidence_integrated": True,
-        "operational_input_closure": current_harness["operational_input_closure"],
-        "authorization_source_binding_policy": current_harness[
-            "authorization_source_binding_policy"
-        ],
+        "operational_input_closure": "PASSED",
+        "authorization_source_binding_policy": (
+            harness_integration.AUTHORIZATION_SOURCE_BINDING_POLICY
+        ),
+        "current_authorization_base_commit": (
+            issuer_summary["current_authorization_base_commit"]
+        ),
+        "current_harness_source_commit": issuer_summary["current_harness_source_commit"],
         "historical_preintegration_review_revision_bound": True,
         "historical_pr109_issuance_review_revision_bound": True,
         "historical_rematerialization_revision_bound": True,
-        "fresh_cu129_authorization_review_required": True,
+        "fresh_cu129_authorization_review_required": False,
+        "fresh_cu129_authorization_issuer_implemented": True,
         "authorization_issued": False,
         "runtime_execution_performed": False,
         "model_requests_performed": 0,
-        "next_gate": current_harness["next_gate"],
+        "next_gate": issuer_summary["next_gate"],
     }
 
 
