@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/tmp/ipykernel_23/1287516569.py", line 617, in <cell line: 0>
+    exec(
+  File "auragateway_reviewed_qualification_core_v1.py", line 215, in <module>
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py", line 1157, in execute_from_environment
+    return execute_from_paths(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py", line 1126, in execute_from_paths
+    return execute_qualification(
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py", line 1075, in execute_qualification
+    capture = adapter.capture(request, dataset_manifest)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_runtime_adapter.py", line 398, in capture
+    self._wait_for_workers(plans)
+  File "/kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_runtime_adapter.py", line 895, in _wait_for_workers
+    raise RuntimeError("worker failed bounded readiness polling")
+RuntimeError: worker failed bounded readiness polling

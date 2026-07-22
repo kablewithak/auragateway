@@ -9,3 +9,6 @@ data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/journal.jsonl -text
 data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/run_records.json -text
 data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/report.json -text
 data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/manifest.json -text
+
+# Preserve immutable qualification-attempt evidence bytes.
+evidence_vault/local_abc/cu129-environment-qualification-attempt-5/execution.log -text -whitespace

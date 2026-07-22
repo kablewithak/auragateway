@@ -1,0 +1,78 @@
+5.9s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+5.9s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+5.9s 3 0.00s - to python to disable frozen modules.
+5.9s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+6.5s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.5s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.5s 7 0.00s - to python to disable frozen modules.
+6.5s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+508.6s 9 artifact=/kaggle/working/ag-qualification-evidence-v1.zip
+508.6s 10 size_bytes=943
+508.6s 11 sha256=7f926ef354678f2dcdd7bcc81854597aadfa3a1a125db4fd0dc2cd388948e92a
+508.6s 12 qualification_status=FAILED
+508.6s 13 upload_only_this_file=true
+508.9s 14 Traceback (most recent call last):
+508.9s 15 File "<string>", line 1, in <module>
+508.9s 16 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+508.9s 17 raise_for_execution_errors(nb, output_path)
+508.9s 18 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+508.9s 19 raise error
+508.9s 20 papermill.exceptions.PapermillExecutionError:
+508.9s 21 ---------------------------------------------------------------------------
+508.9s 22 Exception encountered at "In [1]":
+508.9s 23 ---------------------------------------------------------------------------
+508.9s 24 RuntimeError                              Traceback (most recent call last)
+508.9s 25 /tmp/ipykernel_23/1287516569.py in <cell line: 0>()
+508.9s 26 615
+508.9s 27 616     execution_namespace: dict[str, object] = {}
+508.9s 28 --> 617     exec(
+508.9s 29 618         compile(
+508.9s 30 619             reviewed_core.decode("utf-8"),
+508.9s 31 
+508.9s 32 auragateway_reviewed_qualification_core_v1.py in <module>
+508.9s 33 
+508.9s 34 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py in execute_from_environment()
+508.9s 35 1155             details=missing,
+508.9s 36 1156         )
+508.9s 37 -> 1157     return execute_from_paths(
+508.9s 38 1158         repo_root=Path(cast(str, repo_root_raw)),
+508.9s 39 1159         authorization_path=Path(cast(str, authorization_raw)),
+508.9s 40 
+508.9s 41 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py in execute_from_paths(repo_root, authorization_path, dataset_manifest_path, now)
+508.9s 42 1124     )
+508.9s 43 1125     adapter = _load_runtime_adapter(authorization, repo_root=repo_root)
+508.9s 44 -> 1126     return execute_qualification(
+508.9s 45 1127         repo_root=repo_root,
+508.9s 46 1128         request=request,
+508.9s 47 
+508.9s 48 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py in execute_qualification(repo_root, request, authorization, dataset_manifest, adapter, now)
+508.9s 49 1073         now=now,
+508.9s 50 1074     )
+508.9s 51 -> 1075     capture = adapter.capture(request, dataset_manifest)
+508.9s 52 1076     if capture.qualification_report.source_request_sha256 != request.fingerprint():
+508.9s 53 1077         raise FullABCLocalEnvironmentQualificationExecutionError(
+508.9s 54 
+508.9s 55 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_runtime_adapter.py in capture(self, request, dataset_manifest)
+508.9s 56 396             try:
+508.9s 57 397                 processes = self._start_workers(plans, runtime, model_cache_root)
+508.9s 58 --> 398                 self._wait_for_workers(plans)
+508.9s 59 399                 self._validate_models(plans)
+508.9s 60 400                 worker_health = self._build_worker_health_report(
+508.9s 61 
+508.9s 62 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_runtime_adapter.py in _wait_for_workers(self, plans)
+508.9s 63 893                     pass
+508.9s 64 894                 if poll_index + 1 == _MAX_HEALTH_POLLS:
+508.9s 65 --> 895                     raise RuntimeError("worker failed bounded readiness polling")
+508.9s 66 896                 self._operations.sleep(_HEALTH_POLL_SECONDS)
+508.9s 67 897
+508.9s 68 
+508.9s 69 RuntimeError: worker failed bounded readiness polling
+508.9s 70 
+511.2s 71 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+511.2s 72 cells[i][c] = re.sub('\\\\\|', '|', cell)
+511.4s 73 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+511.4s 74 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+512.0s 75 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+512.3s 76 [NbConvertApp] Writing 53076 bytes to __notebook__.ipynb
+514.7s 77 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+515.6s 78 [NbConvertApp] Writing 379658 bytes to __results__.html
