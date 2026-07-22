@@ -19,7 +19,8 @@ AuthorizationIssuanceError = issuance_module.AuthorizationIssuanceError
 issue_authorization = issuance_module.issue_authorization
 verify_authorization = issuance_module.verify_authorization
 
-_FIXED_NOW = datetime(2026, 7, 19, 18, 0, tzinfo=UTC)
+ROOT = Path(__file__).resolve().parents[3]
+_FIXED_NOW = datetime(2026, 7, 22, 12, 0, tzinfo=UTC)
 
 
 def _confirmation(
@@ -41,28 +42,17 @@ def _confirmation(
 def _authorization_payload() -> dict[str, Any]:
     return {
         "schema_version": "1.0.0",
-        "authorization_id": (
-            "auragateway-full-abc-local-environment-qualification-execution-authorization-v1"
-        ),
+        "authorization_id": issuance_module.AUTHORIZATION_ID,
         "decision": "AUTHORIZED",
         "source_main_merge_commit": issuance_module.SOURCE_MAIN_MERGE_COMMIT,
         "request_sha256": issuance_module.EXECUTION_REQUEST_SHA256,
-        "review_git_blob_sha": ("61590be7fe1d10e8e9b38405cf634f4a0cae3e31"),
-        "authorization_issuance_review_sha256": (
-            issuance_module.AUTHORIZATION_ISSUANCE_REVIEW_SHA256
-        ),
+        "review_git_blob_sha": "61590be7fe1d10e8e9b38405cf634f4a0cae3e31",
+        "authorization_issuance_review_sha256": (issuance_module.READINESS_REVIEW_SHA256),
         "materialization_record_sha256": (issuance_module.MATERIALIZATION_RECORD_SHA256),
         "dataset_manifest_sha256": issuance_module.RUNTIME_MANIFEST_SHA256,
         "runtime_factory": {
-            "factory_path": (
-                "auragateway.local_abc."
-                "full_abc_local_environment_qualification_kaggle_runtime_adapter:"
-                "create_runtime_adapter"
-            ),
-            "artifact_path": (
-                "src/auragateway/local_abc/"
-                "full_abc_local_environment_qualification_kaggle_runtime_adapter.py"
-            ),
+            "factory_path": issuance_module.authorization_contracts.RUNTIME_FACTORY_PATH,
+            "artifact_path": issuance_module.RUNTIME_ADAPTER_PATH.as_posix(),
             "artifact_sha256": issuance_module.RUNTIME_ADAPTER_SHA256,
         },
         "issued_at": _FIXED_NOW.isoformat(),
@@ -81,9 +71,70 @@ def _authorization_payload() -> dict[str, Any]:
     }
 
 
+def _current_inputs() -> Any:
+    readiness_model = issuance_module.harness_integration.FreshAuthorizationReadinessReview
+    readiness = readiness_model.model_validate_json(
+        (ROOT / issuance_module.READINESS_REVIEW_PATH).read_text(encoding="utf-8")
+    )
+    authorization_request_model = (
+        issuance_module.authorization_contracts.QualificationAuthorizationRequest
+    )
+    authorization_request = authorization_request_model.model_validate_json(
+        (ROOT / issuance_module.AUTHORIZATION_REQUEST_PATH).read_text(encoding="utf-8")
+    )
+    execution_request = issuance_module.QualificationExecutionRequest.model_validate_json(
+        (ROOT / issuance_module.EXECUTION_REQUEST_PATH).read_text(encoding="utf-8")
+    )
+    runtime_manifest = issuance_module.QualificationDatasetManifest.model_validate_json(
+        (ROOT / issuance_module.MATERIALIZED_DATASET_MANIFEST_PATH).read_text(encoding="utf-8")
+    )
+    materialization_model = issuance_module.authorization_contracts.MaterializedOfflineDatasetRecord
+    materialization_record = materialization_model.model_validate_json(
+        (ROOT / issuance_module.MATERIALIZATION_RECORD_PATH).read_text(encoding="utf-8")
+    )
+    return issuance_module.CurrentAuthorizationInputs(
+        readiness=readiness,
+        authorization_request=authorization_request,
+        execution_request=execution_request,
+        runtime_manifest=runtime_manifest,
+        materialization_record=materialization_record,
+    )
+
+
+def _patch_verification_prerequisites(
+    monkeypatch: pytest.MonkeyPatch,
+    inputs: Any,
+) -> None:
+    monkeypatch.setattr(
+        issuance_module,
+        "_require_verification_main",
+        lambda repo_root: "f" * 40,
+    )
+    monkeypatch.setattr(
+        issuance_module,
+        "_require_authorization_untracked",
+        lambda repo_root: None,
+    )
+    monkeypatch.setattr(
+        issuance_module,
+        "_require_source_authority",
+        lambda repo_root: None,
+    )
+    monkeypatch.setattr(
+        issuance_module,
+        "_validate_no_runtime_activity",
+        lambda repo_root: None,
+    )
+    monkeypatch.setattr(
+        issuance_module,
+        "_validate_current_input_package",
+        lambda repo_root: inputs,
+    )
+
+
 def test_confirmation_requires_timezone_aware_time() -> None:
     with pytest.raises(ValidationError, match="timezone-aware"):
-        _confirmation(confirmed_at=datetime(2026, 7, 19, 18, 0))
+        _confirmation(confirmed_at=datetime(2026, 7, 22, 12, 0))
 
 
 def test_confirmation_rejects_window_over_review_budget() -> None:
@@ -93,17 +144,54 @@ def test_confirmation_rejects_window_over_review_budget() -> None:
 
 def test_confirmation_normalizes_to_utc_seconds() -> None:
     confirmation = _confirmation(
-        confirmed_at=datetime(2026, 7, 19, 20, 0, 0, 123456, tzinfo=UTC),
+        confirmed_at=datetime(2026, 7, 22, 12, 0, 0, 123456, tzinfo=UTC),
     )
 
-    assert confirmation.confirmed_at == datetime(
-        2026,
-        7,
-        19,
-        20,
-        0,
-        tzinfo=UTC,
+    assert confirmation.confirmed_at == _FIXED_NOW
+
+
+def test_clean_main_requires_local_head_to_equal_origin_main(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    responses = {
+        ("branch", "--show-current"): "main",
+        ("rev-parse", "HEAD"): "a" * 40,
+        ("rev-parse", "origin/main"): "b" * 40,
+    }
+    monkeypatch.setattr(
+        issuance_module,
+        "_run_git",
+        lambda repo_root, arguments, **kwargs: responses[tuple(arguments)],
     )
+
+    with pytest.raises(AuthorizationIssuanceError) as caught:
+        issuance_module._require_clean_main(tmp_path)
+
+    assert caught.value.error_code == "AUTHORIZATION_ISSUANCE_MAIN_NOT_SYNCHRONIZED"
+
+
+def test_verification_allows_only_transient_authorization_status(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    responses = {
+        ("branch", "--show-current"): "main",
+        ("rev-parse", "HEAD"): "a" * 40,
+        ("rev-parse", "origin/main"): "a" * 40,
+        ("status", "--porcelain", "--untracked-files=all"): (
+            f"?? {issuance_module.AUTHORIZATION_PATH.as_posix()}"
+        ),
+    }
+    monkeypatch.setattr(
+        issuance_module,
+        "_run_git",
+        lambda repo_root, arguments, **kwargs: responses[tuple(arguments)],
+    )
+
+    observed = issuance_module._require_verification_main(tmp_path)
+
+    assert observed == "a" * 40
 
 
 def test_issue_requires_clean_main(
@@ -121,30 +209,38 @@ def test_issue_requires_clean_main(
         ),
     )
 
-    with pytest.raises(
-        AuthorizationIssuanceError,
-        match="authorization requires main",
-    ):
+    with pytest.raises(AuthorizationIssuanceError, match="authorization requires main"):
         issue_authorization(
             repo_root=tmp_path,
             confirmation=_confirmation(),
         )
 
 
-def test_existing_authorization_is_never_overwritten(
+def test_tracked_authorization_is_rejected(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(issuance_module, "_require_clean_main", lambda repo_root: None)
-    target = tmp_path / issuance_module.AUTHORIZATION_PATH
-    target.parent.mkdir(parents=True)
+    monkeypatch.setattr(
+        issuance_module,
+        "_run_git",
+        lambda repo_root, arguments, **kwargs: issuance_module.AUTHORIZATION_PATH.as_posix(),
+    )
+
+    with pytest.raises(AuthorizationIssuanceError) as caught:
+        issuance_module._require_authorization_untracked(tmp_path)
+
+    assert caught.value.error_code == "AUTHORIZATION_MUST_REMAIN_UNTRACKED"
+
+
+def test_existing_authorization_is_never_overwritten(tmp_path: Path) -> None:
+    target = tmp_path / "authorization.json"
     target.write_text("existing", encoding="utf-8")
+    authorization = issuance_module.QualificationExecutionAuthorization.model_validate(
+        _authorization_payload()
+    )
 
     with pytest.raises(AuthorizationIssuanceError, match="already exists"):
-        issue_authorization(
-            repo_root=tmp_path,
-            confirmation=_confirmation(),
-        )
+        issuance_module._write_authorization(target, authorization)
 
     assert target.read_text(encoding="utf-8") == "existing"
 
@@ -160,32 +256,72 @@ def test_write_authorization_uses_canonical_json(tmp_path: Path) -> None:
     assert target.read_text(encoding="utf-8") == authorization.canonical_json()
 
 
+def test_build_authorization_binds_current_inputs_and_frozen_loader(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inputs = _current_inputs()
+    monkeypatch.setattr(
+        issuance_module,
+        "_prepare_issuance_inputs",
+        lambda repo_root: inputs,
+    )
+
+    authorization = issuance_module._build_authorization(
+        repo_root=tmp_path,
+        confirmation=_confirmation(window_minutes=30),
+    )
+
+    assert authorization.source_main_merge_commit == issuance_module.SOURCE_MAIN_MERGE_COMMIT
+    assert authorization.request_sha256 == issuance_module.EXECUTION_REQUEST_SHA256
+    assert authorization.authorization_issuance_review_sha256 == (
+        issuance_module.READINESS_REVIEW_SHA256
+    )
+    assert authorization.materialization_record_sha256 == (
+        issuance_module.MATERIALIZATION_RECORD_SHA256
+    )
+    assert authorization.dataset_manifest_sha256 == issuance_module.RUNTIME_MANIFEST_SHA256
+    assert authorization.runtime_factory.artifact_sha256 == issuance_module.RUNTIME_ADAPTER_SHA256
+    assert authorization.expires_at - authorization.issued_at == timedelta(minutes=30)
+    issuance_module._validate_frozen_loader_parity(authorization)
+
+
+def test_implementation_summary_preserves_zero_runtime_boundary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inputs = _current_inputs()
+    monkeypatch.setattr(
+        issuance_module,
+        "_prepare_issuance_inputs",
+        lambda repo_root: inputs,
+    )
+
+    summary = issuance_module.validate_implementation_package(tmp_path)
+
+    assert summary["status"] == "FRESH_CU129_AUTHORIZATION_ISSUER_READY"
+    assert summary["current_authorization_base_commit"] == (
+        issuance_module.CURRENT_AUTHORIZATION_BASE_COMMIT
+    )
+    assert summary["authorization_issued"] is False
+    assert summary["kaggle_session_started"] is False
+    assert summary["worker_started"] is False
+    assert summary["model_requests_performed"] == 0
+    assert summary["benchmark_trajectory_requests_permitted"] == 0
+    assert summary["next_gate"] == issuance_module.IMPLEMENTATION_NEXT_GATE
+
+
 def test_verify_rejects_noncanonical_authorization(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    inputs = _current_inputs()
+    _patch_verification_prerequisites(monkeypatch, inputs)
     authorization_path = tmp_path / issuance_module.AUTHORIZATION_PATH
     authorization_path.parent.mkdir(parents=True)
     authorization_path.write_text(
         json.dumps(_authorization_payload(), indent=2, sort_keys=True),
         encoding="utf-8",
-    )
-    monkeypatch.setattr(
-        issuance_module,
-        "_require_source_authority",
-        lambda repo_root: None,
-    )
-    monkeypatch.setattr(
-        issuance_module,
-        "_validate_no_runtime_activity",
-        lambda repo_root: None,
-    )
-    monkeypatch.setattr(
-        issuance_module,
-        "_validate_rematerialization_package",
-        lambda repo_root: {
-            "materialization_record_sha256": (issuance_module.MATERIALIZATION_RECORD_SHA256)
-        },
     )
 
     with pytest.raises(AuthorizationIssuanceError, match="canonical JSON"):
@@ -195,95 +331,19 @@ def test_verify_rejects_noncanonical_authorization(
         )
 
 
-def test_build_authorization_requires_fresh_cu129_review(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    review = issuance_module.issuance_review.load_review(
-        Path(__file__).resolve().parents[3] / issuance_module.REVIEW_PATH
-    )
-    request = issuance_module.QualificationExecutionRequest.model_validate_json(
-        (Path(__file__).resolve().parents[3] / issuance_module.EXECUTION_REQUEST_PATH).read_text(
-            encoding="utf-8"
-        )
-    )
-    manifest = issuance_module.QualificationDatasetManifest.model_validate_json(
-        (
-            Path(__file__).resolve().parents[3] / issuance_module.MATERIALIZED_DATASET_MANIFEST_PATH
-        ).read_text(encoding="utf-8")
-    )
-
-    monkeypatch.setattr(
-        issuance_module,
-        "_require_source_authority",
-        lambda repo_root: None,
-    )
-    monkeypatch.setattr(
-        issuance_module,
-        "_validate_no_runtime_activity",
-        lambda repo_root: None,
-    )
-    monkeypatch.setattr(
-        issuance_module,
-        "_validate_rematerialization_package",
-        lambda repo_root: {
-            "materialization_record_sha256": issuance_module.MATERIALIZATION_RECORD_SHA256
-        },
-    )
-    monkeypatch.setattr(
-        issuance_module.issuance_review,
-        "load_review",
-        lambda path: review,
-    )
-    monkeypatch.setattr(
-        issuance_module,
-        "_load_operational_inputs",
-        lambda repo_root: (request, manifest),
-    )
-
-    with pytest.raises(
-        issuance_module.AuthorizationIssuanceError,
-        match="not covered by the historical authorization-issuance review",
-    ) as caught:
-        issuance_module._build_authorization(
-            repo_root=tmp_path,
-            confirmation=_confirmation(window_minutes=30),
-        )
-
-    assert caught.value.error_code == "FRESH_CU129_AUTHORIZATION_REVIEW_REQUIRED"
-    assert caught.value.path == issuance_module.EXECUTION_REQUEST_PATH.as_posix()
-
-
 def test_verify_rejects_expired_authorization(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    inputs = _current_inputs()
+    _patch_verification_prerequisites(monkeypatch, inputs)
     authorization_path = tmp_path / issuance_module.AUTHORIZATION_PATH
     authorization_path.parent.mkdir(parents=True)
     authorization = issuance_module.QualificationExecutionAuthorization.model_validate(
         _authorization_payload()
     )
-    authorization_path.write_text(
-        authorization.canonical_json(),
-        encoding="utf-8",
-    )
-    monkeypatch.setattr(
-        issuance_module,
-        "_require_source_authority",
-        lambda repo_root: None,
-    )
-    monkeypatch.setattr(
-        issuance_module,
-        "_validate_no_runtime_activity",
-        lambda repo_root: None,
-    )
-    monkeypatch.setattr(
-        issuance_module,
-        "_validate_rematerialization_package",
-        lambda repo_root: {
-            "materialization_record_sha256": (issuance_module.MATERIALIZATION_RECORD_SHA256)
-        },
-    )
+    authorization_path.write_text(authorization.canonical_json(), encoding="utf-8")
+
     with pytest.raises(AuthorizationIssuanceError, match="validity window"):
         verify_authorization(
             repo_root=tmp_path,
@@ -302,14 +362,17 @@ def test_cli_requires_explicit_operator_confirmation(
     assert payload["error_code"] == "OPERATOR_CONFIRMATION_REQUIRED"
 
 
-def test_source_constants_bind_pr112_and_pr110_review() -> None:
+def test_current_and_frozen_authorities_are_not_conflated() -> None:
+    assert issuance_module.CURRENT_AUTHORIZATION_BASE_COMMIT == (
+        "3ea2cf60db7057f94cdbda9060587e5e6881ef28"
+    )
+    assert issuance_module.CURRENT_HARNESS_SOURCE_COMMIT == (
+        "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
+    )
     assert issuance_module.SOURCE_MAIN_MERGE_COMMIT == ("211a10757999b1b110cb1d9df172938cf6ed7969")
     assert issuance_module.HARNESS_SOURCE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
-    assert issuance_module.REVIEW_SOURCE_MAIN_MERGE_COMMIT == (
-        "211a10757999b1b110cb1d9df172938cf6ed7969"
-    )
-    assert issuance_module.AUTHORIZATION_ISSUANCE_REVIEW_GIT_BLOB_SHA == (
-        "61590be7fe1d10e8e9b38405cf634f4a0cae3e31"
+    assert issuance_module.READINESS_REVIEW_SHA256 == (
+        "2a0463c48e1a8ffdd4c93f7ed20cc4c60bd7925602a09a59a7b9d9dc3545f00b"
     )
     assert issuance_module.MAXIMUM_AUTHORIZATION_WINDOW_MINUTES == 240
 
@@ -322,9 +385,9 @@ def test_current_issuance_payload_round_trips_through_frozen_loader() -> None:
     issuance_module._validate_frozen_loader_parity(authorization)
 
 
-def test_frozen_loader_parity_rejects_harness_commit_as_authorization_source() -> None:
+def test_frozen_loader_rejects_current_harness_commit_as_payload_source() -> None:
     payload = _authorization_payload()
-    payload["source_main_merge_commit"] = issuance_module.HARNESS_SOURCE_COMMIT
+    payload["source_main_merge_commit"] = issuance_module.CURRENT_HARNESS_SOURCE_COMMIT
 
     with pytest.raises(ValidationError):
         issuance_module.QualificationExecutionAuthorization.model_validate(payload)
@@ -346,29 +409,26 @@ def test_frozen_loader_parity_failure_uses_explicit_error_code(
         lambda payload: (_ for _ in ()).throw(parity_error),
     )
 
-    with pytest.raises(AuthorizationIssuanceError) as exc_info:
+    with pytest.raises(AuthorizationIssuanceError) as caught:
         issuance_module._validate_frozen_loader_parity(authorization)
 
-    assert exc_info.value.error_code == ("CURRENT_ISSUANCE_FROZEN_LOADER_PARITY_FAILED")
-    assert exc_info.value.details == ("source_main_merge_commit",)
+    assert caught.value.error_code == "CURRENT_ISSUANCE_FROZEN_LOADER_PARITY_FAILED"
+    assert caught.value.details == ("source_main_merge_commit",)
 
 
 def test_final_authorization_is_not_packaged_in_implementation_slice() -> None:
-    root = Path(__file__).resolve().parents[3]
-
-    assert not (root / issuance_module.AUTHORIZATION_PATH).exists()
+    assert not (ROOT / issuance_module.AUTHORIZATION_PATH).exists()
 
 
 def test_changed_python_lines_do_not_exceed_100_characters() -> None:
-    root = Path(__file__).resolve().parents[3]
     paths = (
-        root / "src/auragateway/local_abc/"
-        "full_abc_local_environment_qualification_execution_"
-        "authorization_issuance.py",
-        root / "src/auragateway/local_abc/"
-        "full_abc_local_environment_qualification_execution_contracts.py",
+        ROOT / "src/auragateway/local_abc/"
+        "full_abc_local_environment_qualification_execution_authorization_issuance.py",
+        ROOT / "src/auragateway/local_abc/"
+        "full_abc_local_environment_qualification_cu129_authority_graph.py",
         Path(__file__),
-        root / "tests/unit/local_abc/test_full_abc_local_environment_qualification_execution.py",
+        ROOT / "tests/unit/local_abc/"
+        "test_full_abc_local_environment_qualification_cu129_authority_graph.py",
     )
     failures: list[str] = []
     for path in paths:
