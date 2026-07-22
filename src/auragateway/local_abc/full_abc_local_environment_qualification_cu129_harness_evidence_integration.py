@@ -14,12 +14,19 @@ from typing import Final, Literal, Never, Self, cast
 from pydantic import Field, ValidationError, field_validator, model_validator
 
 from auragateway.local_abc import (
+    full_abc_local_environment_qualification_cu129_worker_startup_observability_review,
+)
+from auragateway.local_abc import (
     full_abc_local_environment_qualification_execution_authorization_contracts as auth_contracts,
 )
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_execution_contracts as execution_contracts,
 )
 from auragateway.local_abc.contracts import LocalABCContract
+
+observability_review = (
+    full_abc_local_environment_qualification_cu129_worker_startup_observability_review
+)
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 _GIT_SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
@@ -741,7 +748,12 @@ def _validate_active_repository(root: Path) -> tuple[str, str]:
     return manifest.fingerprint(), materialization.fingerprint()
 
 
-def _validate_launcher(root: Path) -> dict[str, object]:
+def _validate_launcher(
+    root: Path,
+    *,
+    expected_source_sha256: str,
+    expected_notebook_sha256: str,
+) -> dict[str, object]:
     from auragateway.local_abc import (
         full_abc_local_environment_qualification_kaggle_launcher as launcher,
     )
@@ -768,13 +780,13 @@ def _validate_launcher(root: Path) -> dict[str, object]:
         repo_root=root,
         notebook_path=root / LAUNCHER_NOTEBOOK_PATH,
     )
-    if _file_sha256(root / LAUNCHER_SOURCE_PATH) != CURRENT_LAUNCHER_SOURCE_SHA256:
+    if _file_sha256(root / LAUNCHER_SOURCE_PATH) != expected_source_sha256:
         raise HarnessEvidenceIntegrationError(
             "HARNESS_EVIDENCE_INTEGRATION_LAUNCHER_SOURCE_IDENTITY_DRIFT",
             "the launcher source identity drifted",
             LAUNCHER_SOURCE_PATH.as_posix(),
         )
-    if verification.notebook_sha256 != CURRENT_LAUNCHER_NOTEBOOK_SHA256:
+    if verification.notebook_sha256 != expected_notebook_sha256:
         raise HarnessEvidenceIntegrationError(
             "HARNESS_EVIDENCE_INTEGRATION_LAUNCHER_NOTEBOOK_IDENTITY_DRIFT",
             "the generated launcher notebook identity drifted",
@@ -878,7 +890,16 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
             "the active materialization-record identity drifted",
             MATERIALIZATION_RECORD_PATH.as_posix(),
         )
-    if _file_sha256(root / auth_contracts.RUNTIME_ADAPTER_PATH) != CURRENT_RUNTIME_ADAPTER_SHA256:
+    implementation_state = observability_review.load_superseding_implementation_state(root)
+    expected_runtime_adapter_sha256 = CURRENT_RUNTIME_ADAPTER_SHA256
+    expected_launcher_source_sha256 = CURRENT_LAUNCHER_SOURCE_SHA256
+    expected_launcher_notebook_sha256 = CURRENT_LAUNCHER_NOTEBOOK_SHA256
+    if implementation_state is not None:
+        expected_runtime_adapter_sha256 = implementation_state.runtime_adapter_sha256
+        expected_launcher_source_sha256 = implementation_state.launcher_source_sha256
+        expected_launcher_notebook_sha256 = implementation_state.launcher_notebook_sha256
+
+    if _file_sha256(root / auth_contracts.RUNTIME_ADAPTER_PATH) != expected_runtime_adapter_sha256:
         raise HarnessEvidenceIntegrationError(
             "HARNESS_EVIDENCE_INTEGRATION_RUNTIME_ADAPTER_IDENTITY_DRIFT",
             "the current runtime adapter identity drifted",
@@ -912,7 +933,11 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
             "HARNESS_EVIDENCE_INTEGRATION_DECISION_HARNESS_DRIFT",
             "integration decisions no longer bind the consumed harness",
         )
-    launcher_summary = _validate_launcher(root)
+    launcher_summary = _validate_launcher(
+        root,
+        expected_source_sha256=expected_launcher_source_sha256,
+        expected_notebook_sha256=expected_launcher_notebook_sha256,
+    )
     expected_decision_identities = (
         integration.runtime_adapter_sha256 == CURRENT_RUNTIME_ADAPTER_SHA256,
         integration.launcher_source_sha256 == CURRENT_LAUNCHER_SOURCE_SHA256,
@@ -938,8 +963,17 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
             FINAL_AUTHORIZATION_PATH.as_posix(),
         )
 
+    status = "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED"
+    next_gate: Literal[
+        "fresh_cu129_authorization_issuance_implementation",
+        "merge_then_build_post_merge_worker_observability_harness_source_package",
+    ] = readiness.next_gate
+    if implementation_state is not None:
+        status = "CURRENT_CU129_HARNESS_HISTORICAL_ACTIVE_WORKER_OBSERVABILITY_IMPLEMENTED"
+        next_gate = implementation_state.next_gate
+
     return {
-        "status": "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
+        "status": status,
         "decision": integration.decision,
         "operational_input_closure": "PASSED",
         "source_commit": SOURCE_COMMIT,
@@ -958,7 +992,9 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         "gpu_execution_performed": False,
         "model_requests_performed": 0,
         "measured_execution_authorized": False,
-        "next_gate": readiness.next_gate,
+        "worker_startup_observability_implemented": (implementation_state is not None),
+        "historical_active_harness": implementation_state is not None,
+        "next_gate": next_gate,
     }
 
 

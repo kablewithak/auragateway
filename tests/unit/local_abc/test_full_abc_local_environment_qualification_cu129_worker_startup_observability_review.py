@@ -51,6 +51,7 @@ def test_repository_review_validates_immutable_failure_and_next_gate() -> None:
     assert result["unchanged_rerun_permitted"] is False
     assert result["authorization_reuse_permitted"] is False
     assert result["model_requests_performed"] == 0
+    assert result["observability_implementation_present"] is True
 
 
 def test_review_rejects_root_cause_invention() -> None:

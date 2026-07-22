@@ -14,13 +14,13 @@ from auragateway.local_abc import (
 ROOT = Path(__file__).resolve().parents[3]
 
 
-def test_repository_authority_graph_has_current_issuer_and_no_authorization() -> None:
+def test_repository_authority_graph_requires_worker_observability_rematerialization() -> None:
     if not (ROOT / ".git").exists():
         pytest.skip("full Git checkout is required for historical authority validation")
     summary = graph.validate_repository_authority_graph(ROOT)
 
     assert summary["status"] == (
-        "CURRENT_CU129_AUTHORIZATION_ISSUER_IMPLEMENTED_AUTHORIZATION_ABSENT"
+        "CURRENT_CU129_WORKER_OBSERVABILITY_IMPLEMENTED_REMATERIALIZATION_REQUIRED"
     )
     assert summary["current_runtime_role"] == "vllm_runtime"
     assert summary["current_runtime_format"] == "python_wheelhouse_directory"
@@ -32,21 +32,22 @@ def test_repository_authority_graph_has_current_issuer_and_no_authorization() ->
         "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
     )
     assert summary["current_authorization_base_commit"] == (
-        "3ea2cf60db7057f94cdbda9060587e5e6881ef28"
+        "997efb4aacf998567a3d92e7202a0054bf473ca4"
     )
-    assert summary["current_harness_source_commit"] == (
-        "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
-    )
+    assert summary["current_harness_source_commit"] == ("426f57dd11dddc2fb8e5a703721c2189abc7a0ff")
     assert summary["historical_preintegration_review_revision_bound"] is True
     assert summary["historical_pr109_issuance_review_revision_bound"] is True
     assert summary["historical_rematerialization_revision_bound"] is True
-    assert summary["fresh_cu129_authorization_review_required"] is False
-    assert summary["fresh_cu129_authorization_issuer_implemented"] is True
+    assert summary["fresh_cu129_authorization_review_required"] is True
+    assert summary["fresh_cu129_authorization_issuer_implemented"] is False
+    assert summary["worker_startup_observability_implemented"] is True
+    assert summary["historical_issuer_usable"] is False
+    assert summary["active_manifest_promoted"] is False
     assert summary["authorization_issued"] is False
     assert summary["runtime_execution_performed"] is False
     assert summary["model_requests_performed"] == 0
     assert summary["next_gate"] == (
-        "explicit_operator_confirmation_then_issue_fresh_authorization"
+        "merge_then_build_post_merge_worker_observability_harness_source_package"
     )
 
 
