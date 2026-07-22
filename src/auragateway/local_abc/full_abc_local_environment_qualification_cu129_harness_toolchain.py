@@ -2379,6 +2379,7 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
     mutable_after_materialization = {
         LAUNCHER_SOURCE_PATH,
         LAUNCHER_NOTEBOOK_PATH,
+        RUNTIME_ADAPTER_PATH,
     }
     for relative_path, expected_sha256 in EXPECTED_FILE_SHA256.items():
         if relative_path in mutable_after_materialization:

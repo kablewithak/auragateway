@@ -9,6 +9,7 @@ from typing import Final, Never, cast
 
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_harness_evidence_integration,
+    full_abc_local_environment_qualification_cu129_worker_startup_observability_implementation,
     full_abc_local_environment_qualification_execution_authorization_issuance_review,
 )
 from auragateway.local_abc import (
@@ -21,10 +22,11 @@ from auragateway.local_abc import (
     full_abc_local_environment_qualification_execution_authorization_contracts as contracts,
 )
 from auragateway.local_abc import (
-    full_abc_local_environment_qualification_execution_authorization_issuance as issuance,
-)
-from auragateway.local_abc import (
     full_abc_local_environment_qualification_harness_rematerialization as rematerialization,
+)
+
+observability_implementation = (
+    full_abc_local_environment_qualification_cu129_worker_startup_observability_implementation
 )
 
 harness_integration = full_abc_local_environment_qualification_cu129_harness_evidence_integration
@@ -283,19 +285,26 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
     _require_source_markers(
         root / ISSUANCE_RUNBOOK_PATH,
         (
-            "CURRENT STATUS: ISSUER IMPLEMENTED; AUTHORIZATION ABSENT",
-            "explicit operator confirmation",
+            "CURRENT STATUS: ISSUANCE BLOCKED",
+            "WORKER STARTUP OBSERVABILITY IMPLEMENTED",
+            "historical issuer",
             "CONTROL_PACKAGE_AUTHORIZATION_PARITY",
         ),
     )
 
-    issuer_summary = issuance.validate_implementation_package(root)
-    if issuer_summary.get("status") != "FRESH_CU129_AUTHORIZATION_ISSUER_READY":
-        raise AuthorityGraphError("fresh CUDA 12.9 issuer readiness drifted")
-    if issuer_summary.get("authorization_issued") is not False:
-        raise AuthorityGraphError("fresh CUDA 12.9 issuer created authorization")
-    if issuer_summary.get("model_requests_performed") != 0:
-        raise AuthorityGraphError("fresh CUDA 12.9 issuer performed model requests")
+    implementation_summary = observability_implementation.validate_repository_package(root)
+    if implementation_summary.get("status") != (
+        "WORKER_STARTUP_OBSERVABILITY_IMPLEMENTED_REMATERIALIZATION_REQUIRED"
+    ):
+        raise AuthorityGraphError("worker-startup observability implementation drifted")
+    if implementation_summary.get("historical_issuer_usable") is not False:
+        raise AuthorityGraphError("historical issuer was incorrectly retained as usable")
+    if implementation_summary.get("active_manifest_promoted") is not False:
+        raise AuthorityGraphError("active manifest moved before rematerialization evidence")
+    if implementation_summary.get("authorization_issued") is not False:
+        raise AuthorityGraphError("worker-observability implementation created authorization")
+    if implementation_summary.get("model_requests_performed") != 0:
+        raise AuthorityGraphError("worker-observability implementation performed requests")
 
     historical_review = integration_review.validate_repository_package(root)
     if historical_review.get("review_disposition") != "HISTORICAL_PREINTEGRATION_AUTHORITY":
@@ -321,7 +330,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         raise AuthorityGraphError("final qualification authorization must remain absent")
 
     return {
-        "status": "CURRENT_CU129_AUTHORIZATION_ISSUER_IMPLEMENTED_AUTHORIZATION_ABSENT",
+        "status": "CURRENT_CU129_WORKER_OBSERVABILITY_IMPLEMENTED_REMATERIALIZATION_REQUIRED",
         "current_runtime_role": runtime.role,
         "current_runtime_format": runtime.artifact_format,
         "runtime_package_count": runtime.package_count,
@@ -331,17 +340,22 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         "authorization_source_binding_policy": (
             harness_integration.AUTHORIZATION_SOURCE_BINDING_POLICY
         ),
-        "current_authorization_base_commit": (issuer_summary["current_authorization_base_commit"]),
-        "current_harness_source_commit": issuer_summary["current_harness_source_commit"],
+        "current_authorization_base_commit": (observability_implementation.BASE_COMMIT),
+        "current_harness_source_commit": (
+            implementation_summary["historical_active_harness_source_commit"]
+        ),
         "historical_preintegration_review_revision_bound": True,
         "historical_pr109_issuance_review_revision_bound": True,
         "historical_rematerialization_revision_bound": True,
-        "fresh_cu129_authorization_review_required": False,
-        "fresh_cu129_authorization_issuer_implemented": True,
+        "fresh_cu129_authorization_review_required": True,
+        "fresh_cu129_authorization_issuer_implemented": False,
+        "worker_startup_observability_implemented": True,
+        "historical_issuer_usable": False,
+        "active_manifest_promoted": False,
         "authorization_issued": False,
         "runtime_execution_performed": False,
         "model_requests_performed": 0,
-        "next_gate": issuer_summary["next_gate"],
+        "next_gate": implementation_summary["next_gate"],
     }
 
 

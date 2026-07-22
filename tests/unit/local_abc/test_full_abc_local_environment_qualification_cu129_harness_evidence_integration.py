@@ -14,6 +14,9 @@ from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_harness_evidence_integration as integration,
 )
 from auragateway.local_abc import (
+    full_abc_local_environment_qualification_cu129_worker_startup_observability_review,
+)
+from auragateway.local_abc import (
     full_abc_local_environment_qualification_execution_authorization_contracts as auth_contracts,
 )
 from auragateway.local_abc import (
@@ -21,6 +24,10 @@ from auragateway.local_abc import (
 )
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_kaggle_launcher as launcher,
+)
+
+observability_review = (
+    full_abc_local_environment_qualification_cu129_worker_startup_observability_review
 )
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -32,10 +39,14 @@ def _load_json(path: Path) -> dict[str, Any]:
     return cast(dict[str, Any], payload)
 
 
-def test_repository_package_integrates_current_harness_evidence() -> None:
+def test_repository_package_preserves_historical_harness_after_observability() -> None:
     summary = integration.validate_repository_package(ROOT)
+    implementation = observability_review.load_superseding_implementation_state(ROOT)
 
-    assert summary["status"] == "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED"
+    assert implementation is not None
+    assert summary["status"] == (
+        "CURRENT_CU129_HARNESS_HISTORICAL_ACTIVE_WORKER_OBSERVABILITY_IMPLEMENTED"
+    )
     assert summary["operational_input_closure"] == "PASSED"
     assert summary["source_commit"] == integration.SOURCE_COMMIT
     assert summary["harness_directory_sha256"] == (integration.CURRENT_HARNESS_DIRECTORY_SHA256)
@@ -46,7 +57,7 @@ def test_repository_package_integrates_current_harness_evidence() -> None:
     assert summary["materialization_record_sha256"] == (
         integration.CURRENT_MATERIALIZATION_RECORD_SHA256
     )
-    assert summary["launcher_notebook_sha256"] == integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256
+    assert summary["launcher_notebook_sha256"] == (implementation.launcher_notebook_sha256)
     assert summary["inspection_evidence_zip_sha256"] == (integration.INSPECTION_EVIDENCE_ZIP_SHA256)
     assert summary["materializer_saved_version_id"] == 337034643
     assert summary["inspection_saved_version_id"] == 337035826
@@ -57,7 +68,9 @@ def test_repository_package_integrates_current_harness_evidence() -> None:
     assert summary["gpu_execution_performed"] is False
     assert summary["model_requests_performed"] == 0
     assert summary["measured_execution_authorized"] is False
-    assert summary["next_gate"] == "fresh_cu129_authorization_issuance_implementation"
+    assert summary["worker_startup_observability_implemented"] is True
+    assert summary["historical_active_harness"] is True
+    assert summary["next_gate"] == implementation.next_gate
 
 
 def test_evidence_identity_binds_exact_saved_versions_and_artifacts() -> None:

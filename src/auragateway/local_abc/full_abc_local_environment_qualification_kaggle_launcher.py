@@ -13,6 +13,10 @@ from typing import Final, Literal, Never, cast
 
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator, model_validator
 
+from auragateway.local_abc import (
+    full_abc_local_environment_qualification_worker_startup_diagnostics as startup_diagnostics,
+)
+
 SOURCE_MAIN_MERGE_COMMIT: Final = "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
 AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT: Final = "211a10757999b1b110cb1d9df172938cf6ed7969"
 AUTHORIZATION_SOURCE_BINDING_POLICY: Final = "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
@@ -102,6 +106,10 @@ RUNTIME_EVIDENCE_PATHS: Final = (
     "data/evals/benchmark/environment-qualification-v1/reset_capability_report.json",
     "data/evals/benchmark/environment-qualification-v1/worker_health_report.json",
 )
+WORKER_STARTUP_DIAGNOSTIC_RELATIVE_PATH: Final = (
+    startup_diagnostics.WORKER_STARTUP_DIAGNOSTIC_PATH.as_posix()
+)
+MAXIMUM_WORKER_STARTUP_DIAGNOSTIC_BYTES: Final = startup_diagnostics.MAXIMUM_DIAGNOSTIC_BYTES
 
 
 class _StrictModel(BaseModel):
@@ -437,6 +445,12 @@ EXPECTED_RUNTIME_PACKAGE_COUNT = __RUNTIME_PACKAGE_COUNT__
 
 MINIMUM_LAUNCH_WINDOW_MINUTES = __MINIMUM_LAUNCH_WINDOW_MINUTES__
 MAXIMUM_EVIDENCE_ZIP_BYTES = __MAXIMUM_EVIDENCE_ZIP_BYTES__
+WORKER_STARTUP_DIAGNOSTIC_RELATIVE_PATH = (
+    "__WORKER_STARTUP_DIAGNOSTIC_RELATIVE_PATH__"
+)
+MAXIMUM_WORKER_STARTUP_DIAGNOSTIC_BYTES = (
+    __MAXIMUM_WORKER_STARTUP_DIAGNOSTIC_BYTES__
+)
 
 RUNTIME_EVIDENCE_PATHS = (
 __RUNTIME_EVIDENCE_TUPLE__
@@ -554,6 +568,79 @@ def validate_regular_file(path: Path, *, maximum_bytes: int) -> None:
         raise RuntimeError(f"bounded file exceeds its size limit: {path.name}")
 
 
+def load_worker_startup_diagnostic() -> bytes | None:
+    path = (
+        MATERIALIZED_HARNESS_ROOT
+        / WORKER_STARTUP_DIAGNOSTIC_RELATIVE_PATH
+    )
+    if not path.exists():
+        return None
+    validate_regular_file(
+        path,
+        maximum_bytes=MAXIMUM_WORKER_STARTUP_DIAGNOSTIC_BYTES,
+    )
+    raw = path.read_bytes()
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise RuntimeError(
+            "worker-startup diagnostic is invalid JSON"
+        ) from error
+    if not isinstance(payload, dict):
+        raise RuntimeError("worker-startup diagnostic root is invalid")
+    expected = {
+        "schema_version": "1.0.0",
+        "diagnostic_id": (
+            "auragateway-environment-qualification-"
+            "worker-startup-diagnostic-v1"
+        ),
+        "status": "FAILED",
+        "raw_environment_included": False,
+        "authorization_payload_included": False,
+        "model_content_included": False,
+        "hidden_retries_performed": 0,
+        "workers_replaced": 0,
+        "model_requests_performed": 0,
+        "benchmark_trajectory_requests_performed": 0,
+    }
+    if any(payload.get(key) != value for key, value in expected.items()):
+        raise RuntimeError("worker-startup diagnostic safety drifted")
+    workers = payload.get("workers")
+    if not isinstance(workers, list) or len(workers) != 2:
+        raise RuntimeError("worker-startup diagnostic worker set drifted")
+    identities = tuple(
+        worker.get("worker_id")
+        for worker in workers
+        if isinstance(worker, dict)
+    )
+    if identities != ("worker_1", "worker_2"):
+        raise RuntimeError("worker-startup diagnostic identity drifted")
+    prohibited_keys = {
+        "environment",
+        "env",
+        "authorization_payload",
+        "model_content",
+        "command_argv",
+    }
+
+    def reject_prohibited_keys(value: object) -> None:
+        if isinstance(value, dict):
+            if prohibited_keys.intersection(value):
+                raise RuntimeError(
+                    "worker-startup diagnostic contains prohibited fields"
+                )
+            for item in value.values():
+                reject_prohibited_keys(item)
+        elif isinstance(value, list):
+            for item in value:
+                reject_prohibited_keys(item)
+
+    reject_prohibited_keys(payload)
+    if raw != canonical_json(payload).encode("utf-8"):
+        raise RuntimeError("worker-startup diagnostic is not canonical JSON")
+    return raw
+
+
 def write_failure_bundle(error: BaseException) -> None:
     evidence_found: list[str] = []
     if MATERIALIZED_HARNESS_ROOT.is_dir():
@@ -562,6 +649,7 @@ def write_failure_bundle(error: BaseException) -> None:
             if path.is_file() and not path.is_symlink():
                 evidence_found.append(relative_path)
 
+    diagnostic_bytes = load_worker_startup_diagnostic()
     failure = {
         "schema_version": "1.0.0",
         "status": "FAILED",
@@ -570,6 +658,9 @@ def write_failure_bundle(error: BaseException) -> None:
         "exception_type": type(error).__name__,
         "safe_message": str(error)[:1000],
         "runtime_evidence_found": sorted(evidence_found),
+        "worker_startup_diagnostic_included": (
+            diagnostic_bytes is not None
+        ),
         "ports_open": [
             port
             for port in (8001, 8002)
@@ -602,6 +693,11 @@ def write_failure_bundle(error: BaseException) -> None:
             "launcher_failure_trace.txt",
             trace,
         )
+        if diagnostic_bytes is not None:
+            archive.writestr(
+                "worker_startup_diagnostic.json",
+                diagnostic_bytes,
+            )
 
     if EVIDENCE_ZIP_PATH.stat().st_size > MAXIMUM_EVIDENCE_ZIP_BYTES:
         EVIDENCE_ZIP_PATH.unlink(missing_ok=True)
@@ -611,6 +707,10 @@ def write_failure_bundle(error: BaseException) -> None:
     print(f"size_bytes={EVIDENCE_ZIP_PATH.stat().st_size}")
     print(f"sha256={file_sha256(EVIDENCE_ZIP_PATH)}")
     print("qualification_status=FAILED")
+    print(
+        "worker_startup_diagnostic_included="
+        + str(diagnostic_bytes is not None).lower()
+    )
     print("upload_only_this_file=true")
 
 
@@ -953,6 +1053,8 @@ except BaseException as error:
         "__RUNTIME_PACKAGE_COUNT__": str(RUNTIME_PACKAGE_COUNT),
         "__MINIMUM_LAUNCH_WINDOW_MINUTES__": str(MINIMUM_LAUNCH_WINDOW_MINUTES),
         "__MAXIMUM_EVIDENCE_ZIP_BYTES__": str(MAXIMUM_EVIDENCE_ZIP_BYTES),
+        "__WORKER_STARTUP_DIAGNOSTIC_RELATIVE_PATH__": (WORKER_STARTUP_DIAGNOSTIC_RELATIVE_PATH),
+        "__MAXIMUM_WORKER_STARTUP_DIAGNOSTIC_BYTES__": str(MAXIMUM_WORKER_STARTUP_DIAGNOSTIC_BYTES),
         "__RUNTIME_EVIDENCE_TUPLE__": "\n".join(
             f'    "{path}",' for path in RUNTIME_EVIDENCE_PATHS
         ),
@@ -1023,6 +1125,12 @@ def build_launcher_notebook(repo_root: Path) -> dict[str, object]:
                 "control_output_discovery_scope": "governed_control_output_root",
                 "evidence_zip_name": EVIDENCE_ZIP_NAME,
                 "maximum_evidence_zip_bytes": MAXIMUM_EVIDENCE_ZIP_BYTES,
+                "maximum_worker_startup_diagnostic_bytes": (
+                    MAXIMUM_WORKER_STARTUP_DIAGNOSTIC_BYTES
+                ),
+                "worker_startup_diagnostic_relative_path": (
+                    WORKER_STARTUP_DIAGNOSTIC_RELATIVE_PATH
+                ),
                 "minimum_launch_window_minutes": (MINIMUM_LAUNCH_WINDOW_MINUTES),
                 "notebook_name": LAUNCHER_NOTEBOOK_NAME,
                 "preflight_artifact_sha256": PREFLIGHT_ARTIFACT_SHA256,

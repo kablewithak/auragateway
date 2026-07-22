@@ -35,6 +35,18 @@ FINAL_AUTHORIZATION_PATH: Final = Path(
     "auragateway_full_abc_local_full_run_environment_qualification_"
     "execution_authorization_v1.json"
 )
+IMPLEMENTATION_PATH: Final = Path(
+    "benchmarks/local_abc/auragateway_cu129_worker_startup_observability_implementation_v1.json"
+)
+DIAGNOSTICS_PATH: Final = Path(
+    "src/auragateway/local_abc/"
+    "full_abc_local_environment_qualification_worker_startup_diagnostics.py"
+)
+HARNESS_TOOLCHAIN_PATH: Final = Path(
+    "src/auragateway/local_abc/"
+    "full_abc_local_environment_qualification_cu129_"
+    "worker_observability_harness_toolchain.py"
+)
 ADR_PATH: Final = Path("docs/adr/2026-07-22-local-abc-cu129-worker-startup-observability.md")
 REPORT_PATH: Final = Path("docs/reports/AuraGateway_CU129_Worker_Startup_Failure_Review.md")
 
@@ -213,6 +225,16 @@ class WorkerStartupObservabilityReview(LocalABCContract):
         return self
 
 
+class SupersedingImplementationState(LocalABCContract):
+    """Validated implementation that supersedes the reviewed live defect."""
+
+    implementation_id: Literal["auragateway-cu129-worker-startup-observability-implementation-v1"]
+    runtime_adapter_sha256: str
+    launcher_source_sha256: str
+    launcher_notebook_sha256: str
+    next_gate: Literal["merge_then_build_post_merge_worker_observability_harness_source_package"]
+
+
 class _ArgumentParser(argparse.ArgumentParser):
     def error(self, message: str) -> Never:
         raise RuntimeError(message)
@@ -345,16 +367,141 @@ def _validate_evidence(repo_root: Path) -> dict[str, object]:
     }
 
 
-def _validate_current_defect(repo_root: Path) -> None:
+def load_superseding_implementation_state(
+    repo_root: Path,
+) -> SupersedingImplementationState | None:
+    """Validate a current implementation without reclassifying Attempt 5 evidence."""
+
+    implementation_path = repo_root / IMPLEMENTATION_PATH
+    if not implementation_path.exists():
+        return None
+
+    payload = _load_json(implementation_path)
+    observed = implementation_path.read_text(encoding="utf-8")
+    canonical = json.dumps(
+        payload,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    if observed != canonical:
+        raise RuntimeError("worker-observability implementation record is not canonical")
+
+    required_top_level = {
+        "implementation_id": ("auragateway-cu129-worker-startup-observability-implementation-v1"),
+        "review_id": "auragateway-cu129-worker-startup-observability-review-v1",
+        "decision": "IMPLEMENTED_AWAITING_POST_MERGE_HARNESS_SOURCE_PACKAGE",
+        "next_gate": ("merge_then_build_post_merge_worker_observability_harness_source_package"),
+    }
+    if any(payload.get(key) != value for key, value in required_top_level.items()):
+        raise RuntimeError("worker-observability implementation identity drifted")
+
+    artifacts_raw = payload.get("implemented_artifacts")
+    if not isinstance(artifacts_raw, list):
+        raise RuntimeError("worker-observability implementation artifacts are invalid")
+
+    artifacts: list[dict[str, object]] = []
+    for item in artifacts_raw:
+        if not isinstance(item, dict):
+            raise RuntimeError("worker-observability implementation artifact is invalid")
+        artifacts.append(cast(dict[str, object], item))
+
+    expected_roles = (
+        "diagnostics",
+        "runtime_adapter",
+        "launcher_source",
+        "launcher_notebook",
+        "post_merge_harness_toolchain",
+    )
+    if tuple(item.get("role") for item in artifacts) != expected_roles:
+        raise RuntimeError("worker-observability implementation artifact order drifted")
+
+    expected_paths = {
+        "diagnostics": DIAGNOSTICS_PATH,
+        "runtime_adapter": RUNTIME_ADAPTER_PATH,
+        "launcher_source": LAUNCHER_PATH,
+        "launcher_notebook": LAUNCHER_NOTEBOOK_PATH,
+        "post_merge_harness_toolchain": HARNESS_TOOLCHAIN_PATH,
+    }
+    artifacts_by_role = {cast(str, item["role"]): item for item in artifacts}
+    observed_sha256: dict[str, str] = {}
+    for role, relative_path in expected_paths.items():
+        artifact = artifacts_by_role[role]
+        digest = artifact.get("sha256")
+        if artifact.get("path") != relative_path.as_posix():
+            raise RuntimeError(f"worker-observability artifact path drifted: {role}")
+        if not isinstance(digest, str):
+            raise RuntimeError(f"worker-observability artifact digest is invalid: {role}")
+        artifact_path = repo_root / relative_path
+        if not artifact_path.is_file() or _sha256(artifact_path) != digest:
+            raise RuntimeError(f"worker-observability artifact identity drifted: {role}")
+        observed_sha256[role] = digest
+
+    historical = payload.get("historical_active_authority")
+    if not isinstance(historical, dict):
+        raise RuntimeError("historical active authority is invalid")
+    historical_record = cast(dict[str, object], historical)
+    expected_historical = {
+        "runtime_adapter_sha256": EXPECTED_RUNTIME_ADAPTER_SHA256,
+        "launcher_source_sha256": EXPECTED_LAUNCHER_SHA256,
+        "launcher_notebook_sha256": EXPECTED_LAUNCHER_NOTEBOOK_SHA256,
+    }
+    if any(historical_record.get(key) != value for key, value in expected_historical.items()):
+        raise RuntimeError("historical reviewed source identities drifted")
+
+    transition = payload.get("authority_transition")
+    if not isinstance(transition, dict):
+        raise RuntimeError("worker-observability authority transition is invalid")
+    transition_record = cast(dict[str, object], transition)
+    required_transition = {
+        "active_manifest_promoted": False,
+        "historical_harness_reused_as_remediated_lineage": False,
+        "existing_authorization_issuer_usable": False,
+        "post_merge_harness_source_package_required": True,
+    }
+    if any(transition_record.get(key) != value for key, value in required_transition.items()):
+        raise RuntimeError("worker-observability authority transition drifted")
+
+    safety = payload.get("safety")
+    if not isinstance(safety, dict):
+        raise RuntimeError("worker-observability safety envelope is invalid")
+    safety_record = cast(dict[str, object], safety)
+    required_safety = {
+        "authorization_issued": False,
+        "kaggle_execution_performed": False,
+        "gpu_execution_performed": False,
+        "model_loaded": False,
+        "worker_started": False,
+        "model_requests_performed": 0,
+    }
+    if any(safety_record.get(key) != value for key, value in required_safety.items()):
+        raise RuntimeError("worker-observability implementation crossed a safety boundary")
+
+    return SupersedingImplementationState(
+        implementation_id=cast(str, payload["implementation_id"]),
+        runtime_adapter_sha256=observed_sha256["runtime_adapter"],
+        launcher_source_sha256=observed_sha256["launcher_source"],
+        launcher_notebook_sha256=observed_sha256["launcher_notebook"],
+        next_gate=cast(str, payload["next_gate"]),
+    )
+
+
+def _validate_current_defect(repo_root: Path) -> bool:
     adapter_path = repo_root / RUNTIME_ADAPTER_PATH
     launcher_path = repo_root / LAUNCHER_PATH
     notebook_path = repo_root / LAUNCHER_NOTEBOOK_PATH
-    if _sha256(adapter_path) != EXPECTED_RUNTIME_ADAPTER_SHA256:
-        raise RuntimeError("current runtime adapter identity drifted")
-    if _sha256(launcher_path) != EXPECTED_LAUNCHER_SHA256:
-        raise RuntimeError("current launcher identity drifted")
-    if _sha256(notebook_path) != EXPECTED_LAUNCHER_NOTEBOOK_SHA256:
-        raise RuntimeError("current launcher notebook identity drifted")
+    historical_identities = (
+        _sha256(adapter_path) == EXPECTED_RUNTIME_ADAPTER_SHA256,
+        _sha256(launcher_path) == EXPECTED_LAUNCHER_SHA256,
+        _sha256(notebook_path) == EXPECTED_LAUNCHER_NOTEBOOK_SHA256,
+    )
+    if not all(historical_identities):
+        implementation = load_superseding_implementation_state(repo_root)
+        if implementation is None:
+            raise RuntimeError(
+                "current worker-startup sources drifted without a valid implementation"
+            )
+        return True
 
     adapter = adapter_path.read_text(encoding="utf-8")
     required_adapter = (
@@ -385,6 +532,7 @@ def _validate_current_defect(repo_root: Path) -> None:
     source = inspect.getsource(_validate_current_defect)
     if "subprocess.DEVNULL" not in source:
         raise RuntimeError("review validator no longer binds the discarded-output defect")
+    return False
 
 
 def _validate_documentation(repo_root: Path) -> None:
@@ -407,7 +555,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         raise RuntimeError("worker-startup observability review identity drifted")
     review = WorkerStartupObservabilityReview.model_validate(_load_json(root / REVIEW_PATH))
     evidence = _validate_evidence(root)
-    _validate_current_defect(root)
+    implementation_present = _validate_current_defect(root)
     _validate_documentation(root)
     if (root / FINAL_AUTHORIZATION_PATH).exists():
         raise RuntimeError("consumed transient authorization must be absent from the review tree")
@@ -423,6 +571,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         "unchanged_rerun_permitted": False,
         "authorization_reuse_permitted": False,
         "model_requests_performed": 0,
+        "observability_implementation_present": implementation_present,
         "next_gate": review.next_gate,
     }
 

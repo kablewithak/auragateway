@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import tempfile
+import zipfile
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -105,6 +106,12 @@ def test_build_launcher_notebook_is_deterministic(
         "55910873d6282ce8b98efd2726d2630bfed4f1c706eb4ec6484adb8a66885926"
     )
     assert auragateway["maximum_evidence_zip_bytes"] == (2 * 1024 * 1024)
+    assert auragateway["maximum_worker_startup_diagnostic_bytes"] == (
+        launcher.MAXIMUM_WORKER_STARTUP_DIAGNOSTIC_BYTES
+    )
+    assert auragateway["worker_startup_diagnostic_relative_path"] == (
+        launcher.WORKER_STARTUP_DIAGNOSTIC_RELATIVE_PATH
+    )
     assert auragateway["benchmark_trajectory_requests_permitted"] == 0
     assert auragateway["authorization_source_binding_policy"] == (
         "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
@@ -171,6 +178,9 @@ def test_launcher_binds_reviewed_core_and_cold_session_guards(
     assert "evidence_bundle_sha256.json" in source
     assert "launcher_summary.json" in source
     assert "launcher_failure.json" in source
+    assert "worker_startup_diagnostic.json" in source
+    assert "load_worker_startup_diagnostic" in source
+    assert "worker_startup_diagnostic_included" in source
     assert "MAXIMUM_EVIDENCE_ZIP_BYTES = 2097152" in source
     assert "archive.write(path, arcname=archive_name)" in source
     assert "archive.write(" not in source.replace(
@@ -473,8 +483,6 @@ def test_launcher_failure_path_writes_one_small_zip(
     assert evidence_zip.is_file()
     assert evidence_zip.stat().st_size < launcher.MAXIMUM_EVIDENCE_ZIP_BYTES
 
-    import zipfile
-
     with zipfile.ZipFile(evidence_zip) as archive:
         assert set(archive.namelist()) == {
             "launcher_failure.json",
@@ -487,6 +495,99 @@ def test_launcher_failure_path_writes_one_small_zip(
     assert failure["customer_data_used"] is False
     assert failure["credentials_used"] is False
     assert failure["provider_calls_performed"] is False
+    assert failure["worker_startup_diagnostic_included"] is False
+
+
+def test_launcher_failure_bundle_embeds_worker_startup_diagnostic(
+    tmp_path: Path,
+) -> None:
+    namespace = _launcher_runtime_namespace(tmp_path)
+    work_root = cast(Path, namespace["WORK_ROOT"])
+    harness_root = cast(Path, namespace["MATERIALIZED_HARNESS_ROOT"])
+    relative = cast(str, namespace["WORKER_STARTUP_DIAGNOSTIC_RELATIVE_PATH"])
+    diagnostic_path = harness_root / relative
+    diagnostic_path.parent.mkdir(parents=True)
+
+    def stream() -> dict[str, object]:
+        return {
+            "available": True,
+            "observed_bytes": 0,
+            "captured_bytes": 0,
+            "truncated": False,
+            "sha256": hashlib.sha256(b"").hexdigest(),
+            "text": "",
+        }
+
+    workers = []
+    for worker_id, gpu_index, port, digest in (
+        ("worker_1", 0, 8001, "a" * 64),
+        ("worker_2", 1, 8002, "b" * 64),
+    ):
+        workers.append(
+            {
+                "worker_id": worker_id,
+                "gpu_index": gpu_index,
+                "host": "127.0.0.1",
+                "port": port,
+                "command_sha256": digest,
+                "ready": False,
+                "process_returncode": 1,
+                "poll_count": 1,
+                "final_error_type": "WorkerProcessExited",
+                "final_safe_error": "worker process exited",
+                "readiness_history": [
+                    {
+                        "poll_index": 1,
+                        "process_returncode": 1,
+                        "http_status": None,
+                        "error_type": "WorkerProcessExited",
+                        "safe_error": "worker process exited",
+                    }
+                ],
+                "stdout": stream(),
+                "stderr": stream(),
+                "hidden_retry_count": 0,
+                "replacement_count": 0,
+            }
+        )
+    diagnostic = {
+        "schema_version": "1.0.0",
+        "diagnostic_id": ("auragateway-environment-qualification-worker-startup-diagnostic-v1"),
+        "status": "FAILED",
+        "phase": "initial_startup",
+        "captured_at": "2026-07-22T13:30:00+00:00",
+        "failed_worker_id": "worker_1",
+        "workers": workers,
+        "raw_environment_included": False,
+        "authorization_payload_included": False,
+        "model_content_included": False,
+        "hidden_retries_performed": 0,
+        "workers_replaced": 0,
+        "model_requests_performed": 0,
+        "benchmark_trajectory_requests_performed": 0,
+    }
+    diagnostic_bytes = json.dumps(
+        diagnostic,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    diagnostic_path.write_bytes(diagnostic_bytes)
+
+    writer = cast(Callable[[BaseException], None], namespace["write_failure_bundle"])
+    writer(RuntimeError("worker failed"))
+
+    evidence_zip = work_root / launcher.EVIDENCE_ZIP_NAME
+    with zipfile.ZipFile(evidence_zip) as archive:
+        assert set(archive.namelist()) == {
+            "launcher_failure.json",
+            "launcher_failure_trace.txt",
+            "worker_startup_diagnostic.json",
+        }
+        assert archive.read("worker_startup_diagnostic.json") == diagnostic_bytes
+        failure = json.loads(archive.read("launcher_failure.json"))
+
+    assert failure["worker_startup_diagnostic_included"] is True
 
 
 def test_committed_launcher_matches_generator() -> None:

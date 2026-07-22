@@ -11,6 +11,7 @@ import stat
 import subprocess
 import tarfile
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -20,9 +21,12 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Final, Literal, Protocol, cast
+from typing import IO, Final, Literal, Protocol, cast
 from uuid import uuid4
 
+from auragateway.local_abc import (
+    full_abc_local_environment_qualification_worker_startup_diagnostics as startup_diagnostics,
+)
 from auragateway.local_abc.full_abc_local_environment_qualification_artifact_identity import (
     directory_sha256,
     file_sha256,
@@ -162,6 +166,124 @@ class CommandResult:
     stderr: str
 
 
+@dataclass(frozen=True)
+class WorkerProcessSnapshot:
+    """Bounded raw process state before diagnostic sanitization."""
+
+    returncode: int | None
+    stdout_available: bool
+    stdout_observed_bytes: int
+    stdout_tail: bytes
+    stderr_available: bool
+    stderr_observed_bytes: int
+    stderr_tail: bytes
+
+
+class _BoundedWorkspaceStream:
+    """Drain one process pipe into one byte-bounded isolated workspace file."""
+
+    def __init__(self, path: Path, *, maximum_bytes: int) -> None:
+        self._path = path
+        self._maximum_bytes = maximum_bytes
+        self._lock = threading.Lock()
+        self._buffer = bytearray()
+        self._observed_bytes = 0
+        self._available = False
+        self._thread: threading.Thread | None = None
+
+    def start(self, source: IO[bytes] | None) -> None:
+        if source is None:
+            return
+        self._available = True
+        self._path.parent.mkdir(parents=True, exist_ok=True)
+        self._path.write_bytes(b"")
+        self._thread = threading.Thread(
+            target=self._consume,
+            args=(source,),
+            daemon=True,
+            name=f"auragateway-capture-{self._path.stem}",
+        )
+        self._thread.start()
+
+    def _consume(self, source: IO[bytes]) -> None:
+        try:
+            while True:
+                chunk = source.read(8192)
+                if not chunk:
+                    break
+                with self._lock:
+                    self._observed_bytes += len(chunk)
+                    self._buffer.extend(chunk)
+                    overflow = len(self._buffer) - self._maximum_bytes
+                    if overflow > 0:
+                        del self._buffer[:overflow]
+                    self._path.write_bytes(bytes(self._buffer))
+        finally:
+            source.close()
+
+    def join(self, timeout: float = 5.0) -> None:
+        if self._thread is not None:
+            self._thread.join(timeout=timeout)
+
+    def snapshot(self) -> tuple[bool, int, bytes]:
+        with self._lock:
+            return self._available, self._observed_bytes, bytes(self._buffer)
+
+
+class _CapturedWorkerProcess:
+    """Popen wrapper retaining only bounded stdout and stderr tails."""
+
+    def __init__(
+        self,
+        process: subprocess.Popen[bytes],
+        *,
+        stdout_path: Path,
+        stderr_path: Path,
+    ) -> None:
+        self._process = process
+        self._stdout = _BoundedWorkspaceStream(
+            stdout_path,
+            maximum_bytes=startup_diagnostics.MAXIMUM_STREAM_CAPTURE_BYTES,
+        )
+        self._stderr = _BoundedWorkspaceStream(
+            stderr_path,
+            maximum_bytes=startup_diagnostics.MAXIMUM_STREAM_CAPTURE_BYTES,
+        )
+        self._stdout.start(process.stdout)
+        self._stderr.start(process.stderr)
+
+    def poll(self) -> int | None:
+        return self._process.poll()
+
+    def terminate(self) -> None:
+        self._process.terminate()
+
+    def kill(self) -> None:
+        self._process.kill()
+
+    def wait(self, timeout: float | None = None) -> int:
+        returncode = self._process.wait(timeout=timeout)
+        self._stdout.join()
+        self._stderr.join()
+        return returncode
+
+    def diagnostic_snapshot(self) -> WorkerProcessSnapshot:
+        if self._process.poll() is not None:
+            self._stdout.join()
+            self._stderr.join()
+        stdout_available, stdout_observed, stdout_tail = self._stdout.snapshot()
+        stderr_available, stderr_observed, stderr_tail = self._stderr.snapshot()
+        return WorkerProcessSnapshot(
+            returncode=self._process.poll(),
+            stdout_available=stdout_available,
+            stdout_observed_bytes=stdout_observed,
+            stdout_tail=stdout_tail,
+            stderr_available=stderr_available,
+            stderr_observed_bytes=stderr_observed,
+            stderr_tail=stderr_tail,
+        )
+
+
 class RuntimeOperations(Protocol):
     """Injectable runtime side effects for deterministic local tests."""
 
@@ -242,6 +364,29 @@ class StdlibRuntimeOperations:
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
+        )
+
+    def spawn_captured(
+        self,
+        argv: Sequence[str],
+        *,
+        env: Mapping[str, str],
+        stdout_path: Path,
+        stderr_path: Path,
+    ) -> WorkerProcess:
+        process = subprocess.Popen(
+            list(argv),
+            env=dict(env),
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=False,
+            bufsize=0,
+        )
+        return _CapturedWorkerProcess(
+            process,
+            stdout_path=stdout_path,
+            stderr_path=stderr_path,
         )
 
     def get_status(self, url: str, *, timeout: float) -> int:
@@ -338,6 +483,9 @@ class KaggleQualificationRuntimeAdapter:
         self._require_private_offline_environment()
         entries = {entry.role: entry for entry in dataset_manifest.entries}
         repo_root = self._repo_root()
+        diagnostic_path = repo_root / startup_diagnostics.WORKER_STARTUP_DIAGNOSTIC_PATH
+        if diagnostic_path.exists():
+            raise RuntimeError("worker-startup diagnostic already exists before execution")
         plans = self._load_worker_plans(repo_root / _STARTUP_PLAN_PATH)
         runtime_entry = entries["vllm_runtime"]
         runtime_binding = Cu129RuntimeManifestBinding(
@@ -394,8 +542,18 @@ class KaggleQualificationRuntimeAdapter:
             metric_evidence: list[ProbeMetricEvidence] = []
             reset_step_payloads: dict[str, str] = {}
             try:
-                processes = self._start_workers(plans, runtime, model_cache_root)
-                self._wait_for_workers(plans)
+                processes = self._start_workers(
+                    plans,
+                    runtime,
+                    model_cache_root,
+                    workspace=workspace,
+                )
+                self._wait_for_workers(
+                    plans,
+                    processes,
+                    phase="initial_startup",
+                    diagnostic_path=diagnostic_path,
+                )
                 self._validate_models(plans)
                 worker_health = self._build_worker_health_report(
                     plans,
@@ -416,11 +574,21 @@ class KaggleQualificationRuntimeAdapter:
                 reset_step_payloads["confirm_worker_ports_closed"] = "ports=8001,8002:closed"
                 reset_step_payloads["record_reset_start"] = self._operations.now().isoformat()
 
-                processes = self._start_workers(plans, runtime, model_cache_root)
+                processes = self._start_workers(
+                    plans,
+                    runtime,
+                    model_cache_root,
+                    workspace=workspace,
+                )
                 reset_step_payloads["restart_workers_from_bound_startup_plan"] = ",".join(
                     plan.command_sha256 for plan in plans
                 )
-                self._wait_for_workers(plans)
+                self._wait_for_workers(
+                    plans,
+                    processes,
+                    phase="post_reset_restart",
+                    diagnostic_path=diagnostic_path,
+                )
                 self._validate_models(plans)
                 reset_step_payloads["revalidate_model_tokenizer_and_worker_identity"] = (
                     model_identity.fingerprint()
@@ -864,8 +1032,11 @@ class KaggleQualificationRuntimeAdapter:
         plans: tuple[WorkerPlan, WorkerPlan],
         runtime: Cu129TargetRuntime,
         model_cache_root: Path,
+        *,
+        workspace: Path | None = None,
     ) -> list[WorkerProcess]:
         processes: list[WorkerProcess] = []
+        log_root = (workspace or runtime.runtime_root.parent) / "worker-startup-logs"
         try:
             for plan in plans:
                 env = build_target_environment(
@@ -876,23 +1047,176 @@ class KaggleQualificationRuntimeAdapter:
                 )
                 env.update(dict(plan.environment))
                 argv = realize_worker_command(plan.command_argv, runtime)
-                processes.append(self._operations.spawn(argv, env=env))
+                captured_spawn = getattr(self._operations, "spawn_captured", None)
+                if callable(captured_spawn):
+                    process = captured_spawn(
+                        argv,
+                        env=env,
+                        stdout_path=log_root / f"{plan.worker_id}.stdout.log",
+                        stderr_path=log_root / f"{plan.worker_id}.stderr.log",
+                    )
+                else:
+                    process = self._operations.spawn(argv, env=env)
+                processes.append(cast(WorkerProcess, process))
         except Exception:
             self._stop_workers(processes)
             raise
         return processes
 
-    def _wait_for_workers(self, plans: tuple[WorkerPlan, WorkerPlan]) -> None:
-        for plan in plans:
+    @staticmethod
+    def _process_snapshot(process: WorkerProcess) -> WorkerProcessSnapshot:
+        snapshotter = getattr(process, "diagnostic_snapshot", None)
+        if callable(snapshotter):
+            observed = snapshotter()
+            if isinstance(observed, WorkerProcessSnapshot):
+                return observed
+        return WorkerProcessSnapshot(
+            returncode=process.poll(),
+            stdout_available=False,
+            stdout_observed_bytes=0,
+            stdout_tail=b"",
+            stderr_available=False,
+            stderr_observed_bytes=0,
+            stderr_tail=b"",
+        )
+
+    @staticmethod
+    def _safe_readiness_error(error: BaseException) -> str:
+        value = startup_diagnostics.sanitize_text(str(error))
+        return value[:512] or type(error).__name__
+
+    def _write_worker_startup_diagnostic(
+        self,
+        *,
+        plans: tuple[WorkerPlan, WorkerPlan],
+        processes: Sequence[WorkerProcess],
+        histories: Mapping[str, Sequence[startup_diagnostics.ReadinessPollObservation]],
+        ready_workers: set[str],
+        failed_worker_id: Literal["worker_1", "worker_2"],
+        phase: Literal["initial_startup", "post_reset_restart"],
+        diagnostic_path: Path,
+    ) -> None:
+        workers: list[startup_diagnostics.WorkerStartupObservation] = []
+        for plan, process in zip(plans, processes, strict=True):
+            snapshot = self._process_snapshot(process)
+            history = tuple(histories.get(plan.worker_id, ()))
+            final = history[-1] if history else None
+            final_error_type = final.error_type if final is not None else None
+            final_safe_error = final.safe_error if final is not None else None
+            if final is not None and final.http_status not in (None, 200):
+                final_error_type = "UnexpectedHealthStatus"
+                final_safe_error = f"health status {final.http_status}"
+            workers.append(
+                startup_diagnostics.WorkerStartupObservation(
+                    worker_id=plan.worker_id,
+                    gpu_index=plan.gpu_index,
+                    host=plan.host,
+                    port=plan.port,
+                    command_sha256=plan.command_sha256,
+                    ready=plan.worker_id in ready_workers,
+                    process_returncode=snapshot.returncode,
+                    poll_count=len(history),
+                    final_error_type=final_error_type,
+                    final_safe_error=final_safe_error,
+                    readiness_history=history,
+                    stdout=startup_diagnostics.build_stream_capture(
+                        raw_tail=snapshot.stdout_tail,
+                        observed_bytes=snapshot.stdout_observed_bytes,
+                        available=snapshot.stdout_available,
+                    ),
+                    stderr=startup_diagnostics.build_stream_capture(
+                        raw_tail=snapshot.stderr_tail,
+                        observed_bytes=snapshot.stderr_observed_bytes,
+                        available=snapshot.stderr_available,
+                    ),
+                )
+            )
+        diagnostic = startup_diagnostics.WorkerStartupDiagnostic(
+            diagnostic_id=("auragateway-environment-qualification-worker-startup-diagnostic-v1"),
+            status="FAILED",
+            phase=phase,
+            captured_at=self._operations.now().replace(microsecond=0).isoformat(),
+            failed_worker_id=failed_worker_id,
+            workers=cast(
+                tuple[
+                    startup_diagnostics.WorkerStartupObservation,
+                    startup_diagnostics.WorkerStartupObservation,
+                ],
+                tuple(workers),
+            ),
+        )
+        startup_diagnostics.write_diagnostic_atomic(diagnostic_path, diagnostic)
+
+    def _wait_for_workers(
+        self,
+        plans: tuple[WorkerPlan, WorkerPlan],
+        processes: Sequence[WorkerProcess],
+        *,
+        phase: Literal["initial_startup", "post_reset_restart"],
+        diagnostic_path: Path,
+    ) -> None:
+        if len(processes) != 2:
+            raise RuntimeError("worker process set must contain exactly two processes")
+        histories: dict[
+            str,
+            list[startup_diagnostics.ReadinessPollObservation],
+        ] = {"worker_1": [], "worker_2": []}
+        ready_workers: set[str] = set()
+        for plan, process in zip(plans, processes, strict=True):
             url = f"http://{plan.host}:{plan.port}/health"
             for poll_index in range(_MAX_HEALTH_POLLS):
+                process_returncode = process.poll()
+                if process_returncode is not None:
+                    histories[plan.worker_id].append(
+                        startup_diagnostics.ReadinessPollObservation(
+                            poll_index=poll_index + 1,
+                            process_returncode=process_returncode,
+                            error_type="WorkerProcessExited",
+                            safe_error="worker process exited before health readiness",
+                        )
+                    )
+                    self._write_worker_startup_diagnostic(
+                        plans=plans,
+                        processes=processes,
+                        histories=histories,
+                        ready_workers=ready_workers,
+                        failed_worker_id=plan.worker_id,
+                        phase=phase,
+                        diagnostic_path=diagnostic_path,
+                    )
+                    raise RuntimeError(f"{plan.worker_id} exited before health readiness")
                 try:
-                    if self._operations.get_status(url, timeout=2.0) == 200:
+                    status = self._operations.get_status(url, timeout=2.0)
+                    histories[plan.worker_id].append(
+                        startup_diagnostics.ReadinessPollObservation(
+                            poll_index=poll_index + 1,
+                            process_returncode=None,
+                            http_status=status,
+                        )
+                    )
+                    if status == 200:
+                        ready_workers.add(plan.worker_id)
                         break
-                except (OSError, RuntimeError, urllib.error.URLError):
-                    pass
+                except (OSError, RuntimeError, urllib.error.URLError) as error:
+                    histories[plan.worker_id].append(
+                        startup_diagnostics.ReadinessPollObservation(
+                            poll_index=poll_index + 1,
+                            process_returncode=None,
+                            error_type=type(error).__name__,
+                            safe_error=self._safe_readiness_error(error),
+                        )
+                    )
                 if poll_index + 1 == _MAX_HEALTH_POLLS:
-                    raise RuntimeError("worker failed bounded readiness polling")
+                    self._write_worker_startup_diagnostic(
+                        plans=plans,
+                        processes=processes,
+                        histories=histories,
+                        ready_workers=ready_workers,
+                        failed_worker_id=plan.worker_id,
+                        phase=phase,
+                        diagnostic_path=diagnostic_path,
+                    )
+                    raise RuntimeError(f"{plan.worker_id} failed bounded readiness polling")
                 self._operations.sleep(_HEALTH_POLL_SECONDS)
 
     def _validate_models(self, plans: tuple[WorkerPlan, WorkerPlan]) -> None:
