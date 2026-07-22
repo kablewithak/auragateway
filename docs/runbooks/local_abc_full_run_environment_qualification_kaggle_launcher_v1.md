@@ -30,9 +30,10 @@ ag-qualification-evidence-v1.zip
 characters: 32
 ```
 
-## Preflight authority
+## Historical preflight authority
 
-The launcher binds the completed static-input preflight:
+The following preflight remains preserved as historical evidence for the superseded harness. It is
+not the active current-harness authority:
 
 ```text
 artifact:
@@ -51,12 +52,13 @@ symlinks:
 0
 ```
 
-Exact observed static inputs:
+Current observed static inputs:
 
 ```text
 harness source:
-/kaggle/input/notebooks/kabomolefe/ag-harness-materializer-input-v3/
-auragateway_qualification_harness_be1bfad_v1
+/kaggle/input/notebooks/kabomolefe/ag-harness-materializer-cu129-v1/
+ag_harness_materializer_cu129_v1_output/
+auragateway_qualification_harness_426f57d_v1
 
 model snapshot:
 /kaggle/input/datasets/kabomolefe/auragateway-qwen2-5-0-5b-offline-v1/
@@ -71,7 +73,15 @@ materialization receipt, and 176-package closure.
 ```
 
 The line breaks above are for readability. Runtime bindings use the complete uninterrupted
-paths.
+paths. Current operational-input closure is bound by inspection saved version `337035826` and
+evidence ZIP SHA-256
+`2d2f6afdd53787f6b3977e799dff441f9023a3c265ddf65d35855c5b62ad90d8`.
+
+Exact uninterrupted current harness binding:
+
+```text
+/kaggle/input/notebooks/kabomolefe/ag-harness-materializer-cu129-v1/ag_harness_materializer_cu129_v1_output/auragateway_qualification_harness_426f57d_v1
+```
 
 
 ## CUDA 12.9 runtime integration
@@ -93,56 +103,67 @@ Transformers: 5.5.3
 No model process starts until the target environment, package closure, target Python, and
 NVIDIA loader order have passed validation.
 
-## Harness rematerialization authority
+## Current harness materialization authority
 
-The stale `4dfd799` harness dataset is superseded for future qualification runs.
-
-The launcher now binds the saved Version 1 output of:
+The active harness is the saved Version 1 output of:
 
 ```text
-ag-harness-materializer-input-v3
+ag-harness-materializer-cu129-v1
+script version: 337034643
 ```
 
-Expected output directory:
+Expected producer topology:
 
 ```text
-auragateway_qualification_harness_be1bfad_v1
+ag_harness_materializer_cu129_v1_output/
+├── auragateway_qualification_harness_426f57d_v1/
+└── ag_harness_materialization_receipt_cu129_v1.json
 ```
 
 Frozen identity:
 
 ```text
 source commit:
-be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50
+426f57dd11dddc2fb8e5a703721c2189abc7a0ff
 
 file count:
-953
+1299
 
 total bytes:
-8,879,194
+11,632,357
 
 directory SHA-256:
-4a371c80aef605c4f1ab5617c21ce43bd0939ad449ffcbcadab656878d785a2e
+c3ea4ae6d047a8b3f3d5afc517e26c4f13fb4a82e48e3cf28cdfabdc343230e6
+
+materialization receipt SHA-256:
+07d81dbea5b5ed24d0786c0ee16782129e163834254c095262944baaf5c59db2
 ```
 
-The metadata-only parity proof is:
+The metadata-only operational-input inspection is:
 
 ```text
 notebook:
-ag-harness-parity-inspection-v4
+ag-harness-input-inspection-cu129-v1
+
+saved version:
+337035826
 
 evidence:
-ag-harness-parity-evidence-v1.zip
+ag-harness-input-inspection-cu129-v1.zip
 
 evidence SHA-256:
-b986f3b82785f86dea2c8fb368dd8ae4def7ee3d7b00f44637f77f3d28b1971b
+2d2f6afdd53787f6b3977e799dff441f9023a3c265ddf65d35855c5b62ad90d8
 
 status:
-HARNESS_AUTHORIZATION_PARITY_PASSED
+CURRENT_CU129_HARNESS_INPUT_INSPECTION_PASSED
+
+operational input closure:
+PASSED
 ```
 
-The model snapshot identity remains unchanged. The historical single-wheel runtime is
-superseded by the exact CUDA 12.9 wheelhouse authority.
+The historical `be1bfadd` harness remains immutable evidence but is no longer active. The model
+snapshot remains unchanged. The historical single-wheel runtime instruction is superseded by the
+exact 176-package CUDA 12.9 wheelhouse authority.
 
 ## Execution boundary
 
@@ -313,9 +334,9 @@ None
 
 Attach exactly four input resources:
 
-1. the saved Version 1 output of `ag-harness-materializer-input-v3`
+1. the saved Version 1 output of `ag-harness-materializer-cu129-v1`
 2. `auragateway-qwen2-5-0-5b-offline-v1`
-3. `auragateway-vllm-wheel-recovery-v1`
+3. the saved Version 1 output of `auragateway-cu129-wheelhouse-materializer-v1`
 4. the saved output of `ag-qualification-control-materializer-v1`
 
 Do not add an API secret through Add-ons.
@@ -426,13 +447,17 @@ The launcher implementation and a successful notebook import do not prove:
 
 ## Authorization source-authority parity
 
-The launcher deliberately binds two different commits:
+The launcher binds the current harness independently from the future short-lived authorization:
 
 ```text
-harness source commit: be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50
-authorization source-main merge commit: 211a10757999b1b110cb1d9df172938cf6ed7969
+harness source commit: 426f57dd11dddc2fb8e5a703721c2189abc7a0ff
+authorization source policy: CONTROL_PACKAGE_AUTHORIZATION_PARITY
 ```
 
-The first identifies the rematerialized harness contents. The second identifies
-the authorization schema authority accepted by that frozen harness. The control
-manifest and authorization must preserve both values without conflating them.
+The launcher does not guess or freeze the future authorization merge commit. The control materializer
+reads `source_main_merge_commit` from the validated authorization payload and writes the same value
+into `control_package_manifest.json`. The launcher requires exact parity between those two consumed
+files before reviewed-core execution. A fresh authorization implementation must bind the exact
+post-integration merge commit, current manifest, current materialization record, and current runtime
+adapter. Authorization remains absent in this integration boundary. The next repository gate is
+`fresh_cu129_authorization_issuance_implementation`.

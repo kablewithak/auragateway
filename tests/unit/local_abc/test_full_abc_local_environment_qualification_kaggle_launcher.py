@@ -106,6 +106,9 @@ def test_build_launcher_notebook_is_deterministic(
     )
     assert auragateway["maximum_evidence_zip_bytes"] == (2 * 1024 * 1024)
     assert auragateway["benchmark_trajectory_requests_permitted"] == 0
+    assert auragateway["authorization_source_binding_policy"] == (
+        "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
+    )
     notebook_name = auragateway["notebook_name"]
     control_notebook_name = auragateway["control_notebook_name"]
 
@@ -161,6 +164,8 @@ def test_launcher_binds_reviewed_core_and_cold_session_guards(
     assert "maximum_kaggle_sessions" in source
     assert "benchmark_trajectory_requests_permitted" in source
     assert "MINIMUM_LAUNCH_WINDOW_MINUTES = 120" in source
+    assert "authorization_source_main_merge_commit = authorization.get(" in source
+    assert "EXPECTED_AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT" not in source
 
     assert "RUNTIME_EVIDENCE_PATHS" in source
     assert "evidence_bundle_sha256.json" in source
@@ -187,14 +192,7 @@ def test_control_output_discovery_scopes_duplicate_manifest_to_governed_root() -
         )
         _write_control_output(control_root)
 
-        duplicate_manifest = (
-            input_root
-            / "notebooks"
-            / "kabomolefe"
-            / "ag-harness-materializer-input-v3"
-            / "auragateway_qualification_harness_be1bfad_v1"
-            / launcher.DATASET_MANIFEST_PATH
-        )
+        duplicate_manifest = input_root / "unrelated-harness-input" / launcher.DATASET_MANIFEST_PATH
         duplicate_manifest.parent.mkdir(parents=True)
         duplicate_manifest.write_text("{}", encoding="utf-8")
 
@@ -292,9 +290,13 @@ def test_launcher_notebook_verification_rejects_drift(
 
 
 def test_launcher_separates_harness_and_authorization_source_authorities() -> None:
-    assert launcher.SOURCE_MAIN_MERGE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
+    assert launcher.SOURCE_MAIN_MERGE_COMMIT == ("426f57dd11dddc2fb8e5a703721c2189abc7a0ff")
     assert launcher.AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT == (
         "211a10757999b1b110cb1d9df172938cf6ed7969"
+    )
+    assert launcher.AUTHORIZATION_SOURCE_BINDING_POLICY == ("CONTROL_PACKAGE_AUTHORIZATION_PARITY")
+    assert launcher.HARNESS_SOURCE_PATH.endswith(
+        "/ag_harness_materializer_cu129_v1_output/auragateway_qualification_harness_426f57d_v1"
     )
 
 
@@ -367,6 +369,36 @@ def test_control_materializer_source_is_flat_and_archive_free() -> None:
     assert "zipfile" not in source
     assert "shutil.copy" not in source
     assert "model_content_copied" in source
+    assert "authorization_source_main_merge_commit = authorization.get(" in source
+    assert "AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT =" not in source
+
+
+def test_control_manifest_accepts_dynamic_authorization_source_commit() -> None:
+    payload: dict[str, object] = {
+        "control_package_id": "auragateway-qualification-control-v1",
+        "source_main_merge_commit": launcher.SOURCE_MAIN_MERGE_COMMIT,
+        "authorization_source_main_merge_commit": "f" * 40,
+        "authorization_file": launcher.AUTHORIZATION_FILENAME,
+        "authorization_file_sha256": "a" * 64,
+        "authorization_contract_sha256": "b" * 64,
+        "dataset_manifest_file": launcher.DATASET_MANIFEST_FILENAME,
+        "dataset_manifest_file_sha256": "c" * 64,
+        "dataset_manifest_contract_sha256": "d" * 64,
+        "issued_at": "2026-07-22T12:00:00+00:00",
+        "expires_at": "2026-07-22T16:00:00+00:00",
+        "harness_source_path": launcher.HARNESS_SOURCE_PATH,
+        "model_snapshot_path": launcher.MODEL_SNAPSHOT_PATH,
+        "runtime_output_directory": launcher.RUNTIME_OUTPUT_DIRECTORY,
+        "runtime_resolution_lock_sha256": launcher.RUNTIME_RESOLUTION_LOCK_SHA256,
+        "runtime_manifest_sha256": launcher.RUNTIME_MANIFEST_SHA256,
+        "runtime_sha256_manifest_sha256": launcher.RUNTIME_SHA256_MANIFEST_SHA256,
+        "runtime_materialization_receipt_sha256": (launcher.RUNTIME_MATERIALIZATION_RECEIPT_SHA256),
+        "runtime_package_count": launcher.RUNTIME_PACKAGE_COUNT,
+    }
+
+    parsed = launcher.KaggleControlPackageManifest.model_validate(payload)
+
+    assert parsed.authorization_source_main_merge_commit == "f" * 40
 
 
 def test_control_manifest_rejects_digest_drift() -> None:

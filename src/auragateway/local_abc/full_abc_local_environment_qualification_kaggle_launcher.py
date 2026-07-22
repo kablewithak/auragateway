@@ -13,8 +13,9 @@ from typing import Final, Literal, Never, cast
 
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator, model_validator
 
-SOURCE_MAIN_MERGE_COMMIT: Final = "be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"
+SOURCE_MAIN_MERGE_COMMIT: Final = "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
 AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT: Final = "211a10757999b1b110cb1d9df172938cf6ed7969"
+AUTHORIZATION_SOURCE_BINDING_POLICY: Final = "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
 
 REVIEWED_NOTEBOOK_PATH: Final = Path(
     "notebooks/auragateway_full_abc_environment_qualification_v1.ipynb"
@@ -61,8 +62,9 @@ DATASET_MANIFEST_FILENAME: Final = DATASET_MANIFEST_PATH.name
 
 HARNESS_SOURCE_PATH: Final = (
     "/kaggle/input/notebooks/kabomolefe/"
-    "ag-harness-materializer-input-v3/"
-    "auragateway_qualification_harness_be1bfad_v1"
+    "ag-harness-materializer-cu129-v1/"
+    "ag_harness_materializer_cu129_v1_output/"
+    "auragateway_qualification_harness_426f57d_v1"
 )
 MODEL_SNAPSHOT_PATH: Final = (
     "/kaggle/input/datasets/kabomolefe/"
@@ -137,8 +139,8 @@ class KaggleControlPackageManifest(_StrictModel):
 
     schema_version: Literal["1.0.0"] = "1.0.0"
     control_package_id: Literal["auragateway-qualification-control-v1"]
-    source_main_merge_commit: Literal["be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50"]
-    authorization_source_main_merge_commit: Literal["211a10757999b1b110cb1d9df172938cf6ed7969"]
+    source_main_merge_commit: Literal["426f57dd11dddc2fb8e5a703721c2189abc7a0ff"]
+    authorization_source_main_merge_commit: str
     authorization_file: Literal[
         "auragateway_full_abc_local_full_run_environment_qualification_"
         "execution_authorization_v1.json"
@@ -152,8 +154,9 @@ class KaggleControlPackageManifest(_StrictModel):
     expires_at: str
     harness_source_path: Literal[
         "/kaggle/input/notebooks/kabomolefe/"
-        "ag-harness-materializer-input-v3/"
-        "auragateway_qualification_harness_be1bfad_v1"
+        "ag-harness-materializer-cu129-v1/"
+        "ag_harness_materializer_cu129_v1_output/"
+        "auragateway_qualification_harness_426f57d_v1"
     ]
     model_snapshot_path: Literal[
         "/kaggle/input/datasets/kabomolefe/"
@@ -189,6 +192,13 @@ class KaggleControlPackageManifest(_StrictModel):
     def validate_sha256(cls, value: str) -> str:
         if len(value) != 64 or any(character not in "0123456789abcdef" for character in value):
             raise ValueError("control package digests must be lowercase SHA-256")
+        return value
+
+    @field_validator("authorization_source_main_merge_commit")
+    @classmethod
+    def validate_authorization_source_commit(cls, value: str) -> str:
+        if len(value) != 40 or any(character not in "0123456789abcdef" for character in value):
+            raise ValueError("authorization source commit must be one lowercase Git object id")
         return value
 
     @model_validator(mode="after")
@@ -399,9 +409,6 @@ __AUTHORIZATION_FILENAME_LITERAL__
 DATASET_MANIFEST_FILENAME = "__DATASET_MANIFEST_FILENAME__"
 
 EXPECTED_SOURCE_MAIN_MERGE_COMMIT = "__SOURCE_MAIN_MERGE_COMMIT__"
-EXPECTED_AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT = (
-    "__AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT__"
-)
 EXPECTED_REVIEWED_CORE_SHA256 = "__REVIEWED_CORE_SHA256__"
 REVIEWED_CORE_B64 = (
 __REVIEWED_CORE_B64_LITERAL__
@@ -702,8 +709,20 @@ try:
         EXPECTED_SOURCE_MAIN_MERGE_COMMIT
     ):
         raise RuntimeError("control output source main binding drifted")
+    authorization_source_main_merge_commit = authorization.get(
+        "source_main_merge_commit"
+    )
+    if (
+        not isinstance(authorization_source_main_merge_commit, str)
+        or len(authorization_source_main_merge_commit) != 40
+        or any(
+            character not in "0123456789abcdef"
+            for character in authorization_source_main_merge_commit
+        )
+    ):
+        raise RuntimeError("authorization source main binding is invalid")
     if control_manifest.get("authorization_source_main_merge_commit") != (
-        EXPECTED_AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT
+        authorization_source_main_merge_commit
     ):
         raise RuntimeError("authorization source main binding drifted")
 
@@ -721,10 +740,6 @@ try:
     ):
         raise RuntimeError("control materialization receipt drifted")
 
-    if authorization.get("source_main_merge_commit") != (
-        EXPECTED_AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT
-    ):
-        raise RuntimeError("authorization merge binding drifted")
     if authorization.get("decision") != "AUTHORIZED":
         raise RuntimeError("authorization decision is not AUTHORIZED")
 
@@ -865,7 +880,7 @@ try:
         "reviewed_core_sha256": EXPECTED_REVIEWED_CORE_SHA256,
         "source_main_merge_commit": EXPECTED_SOURCE_MAIN_MERGE_COMMIT,
         "authorization_source_main_merge_commit": (
-            EXPECTED_AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT
+            authorization_source_main_merge_commit
         ),
         "authorization_file_sha256": file_sha256(authorization_path),
         "dataset_manifest_file_sha256": file_sha256(dataset_manifest_path),
@@ -926,7 +941,6 @@ except BaseException as error:
         "__AUTHORIZATION_FILENAME_LITERAL__": _string_literal_block(AUTHORIZATION_FILENAME),
         "__DATASET_MANIFEST_FILENAME__": DATASET_MANIFEST_FILENAME,
         "__SOURCE_MAIN_MERGE_COMMIT__": SOURCE_MAIN_MERGE_COMMIT,
-        "__AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT__": (AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT),
         "__REVIEWED_CORE_SHA256__": reviewed_core_sha256,
         "__REVIEWED_CORE_B64_LITERAL__": _string_literal_block(encoded_core),
         "__HARNESS_SOURCE_PATH_LITERAL__": _string_literal_block(HARNESS_SOURCE_PATH),
@@ -995,7 +1009,7 @@ def build_launcher_notebook(repo_root: Path) -> dict[str, object]:
         ],
         "metadata": {
             "auragateway": {
-                "authorization_source_main_merge_commit": (AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT),
+                "authorization_source_binding_policy": (AUTHORIZATION_SOURCE_BINDING_POLICY),
                 "benchmark_trajectory_requests_permitted": 0,
                 "control_discovery_failure_code": CONTROL_DISCOVERY_FAILURE_CODE,
                 "control_discovery_failure_evidence_sha256": (
@@ -1157,9 +1171,6 @@ __MANIFEST_CONTRACT_SHA256_LITERAL__
 )
 
 SOURCE_MAIN_MERGE_COMMIT = "__SOURCE_MAIN_MERGE_COMMIT__"
-AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT = (
-    "__AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT__"
-)
 MINIMUM_CONTROL_WINDOW_MINUTES = __MINIMUM_CONTROL_WINDOW_MINUTES__
 
 HARNESS_SOURCE_PATH = (
@@ -1254,10 +1265,18 @@ if not isinstance(authorization, dict) or not isinstance(dataset_manifest, dict)
 
 if authorization.get("decision") != "AUTHORIZED":
     raise RuntimeError("embedded authorization is not AUTHORIZED")
-if authorization.get("source_main_merge_commit") != (
-    AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT
+authorization_source_main_merge_commit = authorization.get(
+    "source_main_merge_commit"
+)
+if (
+    not isinstance(authorization_source_main_merge_commit, str)
+    or len(authorization_source_main_merge_commit) != 40
+    or any(
+        character not in "0123456789abcdef"
+        for character in authorization_source_main_merge_commit
+    )
 ):
-    raise RuntimeError("embedded authorization merge binding drifted")
+    raise RuntimeError("embedded authorization merge binding is invalid")
 if authorization.get("dataset_manifest_sha256") != DATASET_MANIFEST_CONTRACT_SHA256:
     raise RuntimeError("embedded authorization does not bind the dataset manifest")
 
@@ -1335,7 +1354,7 @@ control_manifest = {
     "control_package_id": "auragateway-qualification-control-v1",
     "source_main_merge_commit": SOURCE_MAIN_MERGE_COMMIT,
     "authorization_source_main_merge_commit": (
-        AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT
+        authorization_source_main_merge_commit
     ),
     "authorization_file": AUTHORIZATION_FILENAME,
     "authorization_file_sha256": file_sha256(authorization_path),
@@ -1421,7 +1440,6 @@ print("save_this_notebook_output=true")
         ),
         "__MANIFEST_CONTRACT_SHA256_LITERAL__": _string_literal_block(manifest_contract_sha256),
         "__SOURCE_MAIN_MERGE_COMMIT__": SOURCE_MAIN_MERGE_COMMIT,
-        "__AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT__": (AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT),
         "__MINIMUM_CONTROL_WINDOW_MINUTES__": str(MINIMUM_CONTROL_WINDOW_MINUTES),
         "__HARNESS_SOURCE_PATH_LITERAL__": _string_literal_block(HARNESS_SOURCE_PATH),
         "__MODEL_SNAPSHOT_PATH_LITERAL__": _string_literal_block(MODEL_SNAPSHOT_PATH),

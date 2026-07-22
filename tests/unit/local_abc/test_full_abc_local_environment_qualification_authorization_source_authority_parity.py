@@ -84,7 +84,13 @@ def test_repository_authority_parity_package_validates() -> None:
     assert summary["authorization_source_main_merge_commit"] == (
         parity.AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT
     )
-    assert summary["harness_source_commit"] == parity.HARNESS_SOURCE_COMMIT
+    assert summary["historical_harness_source_commit"] == parity.HARNESS_SOURCE_COMMIT
+    assert summary["active_launcher_harness_source_commit"] == (
+        "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
+    )
+    assert summary["authorization_source_binding_policy"] == (
+        "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
+    )
     assert summary["evidence_zip_sha256"] == parity.EXPECTED_EVIDENCE_ZIP_SHA256
     assert summary["authorization_issued"] is False
     assert summary["model_requests_performed"] == 0
