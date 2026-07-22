@@ -9,6 +9,7 @@ from typing import Final, Never, cast
 
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_harness_evidence_integration,
+    full_abc_local_environment_qualification_execution_authorization_issuance_review,
 )
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_runtime_integration_review as integration_review,
@@ -17,22 +18,17 @@ from auragateway.local_abc import (
     full_abc_local_environment_qualification_execution_authorization as authorization,
 )
 from auragateway.local_abc import (
-    full_abc_local_environment_qualification_execution_authorization_issuance as issuance,
-)
-from auragateway.local_abc import (
     full_abc_local_environment_qualification_execution_authorization_contracts as contracts,
 )
 from auragateway.local_abc import (
-    full_abc_local_environment_qualification_execution_authorization_issuance_review,
+    full_abc_local_environment_qualification_execution_authorization_issuance as issuance,
 )
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_harness_rematerialization as rematerialization,
 )
 
 harness_integration = full_abc_local_environment_qualification_cu129_harness_evidence_integration
-issuance_review = (
-    full_abc_local_environment_qualification_execution_authorization_issuance_review
-)
+issuance_review = full_abc_local_environment_qualification_execution_authorization_issuance_review
 
 INTEGRATION_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_qualification_runtime_integration_v1.json"
@@ -335,9 +331,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         "authorization_source_binding_policy": (
             harness_integration.AUTHORIZATION_SOURCE_BINDING_POLICY
         ),
-        "current_authorization_base_commit": (
-            issuer_summary["current_authorization_base_commit"]
-        ),
+        "current_authorization_base_commit": (issuer_summary["current_authorization_base_commit"]),
         "current_harness_source_commit": issuer_summary["current_harness_source_commit"],
         "historical_preintegration_review_revision_bound": True,
         "historical_pr109_issuance_review_revision_bound": True,
