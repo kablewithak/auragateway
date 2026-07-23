@@ -700,7 +700,7 @@ def issue_authorization(
         "current_authorization_base_commit": CURRENT_AUTHORIZATION_BASE_COMMIT,
         "current_harness_source_commit": CURRENT_HARNESS_SOURCE_COMMIT,
         "worker_startup_diagnostics_sha256": (
-            inputs.readiness.current_worker_startup_diagnostics_sha256
+            harness_integration.CURRENT_WORKER_DIAGNOSTICS_SHA256
         ),
         "frozen_authorization_source_main_merge_commit": (authorization.source_main_merge_commit),
         "readiness_review_sha256": authorization.authorization_issuance_review_sha256,
