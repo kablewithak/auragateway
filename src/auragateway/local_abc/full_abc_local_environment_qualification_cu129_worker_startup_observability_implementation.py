@@ -12,7 +12,7 @@ from typing import Final, Literal, Never, Self, cast
 from pydantic import Field, field_validator, model_validator
 
 from auragateway.local_abc import (
-    full_abc_local_environment_qualification_cu129_harness_evidence_integration as integration,
+    cu129_worker_observability_harness_integration as integration,
 )
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_worker_startup_observability_review as review,
@@ -89,14 +89,12 @@ EXPECTED_DOCUMENT_SHA256: Final = {
     ADR_PATH: "95da4d30081eaecad0155782e498ec93fd5b38511e11af7907c5c3153eac9826",
     REPORT_PATH: "ddc609749e63642a7d280c7bda51f2c04fe49a08861101d8d8e8bb7807332ff2",
     RUNBOOK_PATH: "94360a965552a0a2dc7cb4e6047e268124790a8bee22e33aaee76bd863a46dc0",
-    ISSUANCE_RUNBOOK_PATH: ("a4398963ad23afed60112f74e720bd7d7abdf52f158cf3bbbf7461cefa40cac7"),
 }
-EXPECTED_ACTIVE_MANIFEST_SHA256: Final = (
-    "f7289cee9414d03d88ceb4775198e15ff9446fd99771a58c187de0d4264ef94a"
-)
-EXPECTED_ACTIVE_MATERIALIZATION_SHA256: Final = (
-    "284b488dece09e6b17dcf72e4dea69bbdadd440356ce353622b100c38a02100a"
-)
+CURRENT_UNCHANGED_ARTIFACT_SHA256: Final = {
+    DIAGNOSTICS_PATH: EXPECTED_ARTIFACT_SHA256[DIAGNOSTICS_PATH],
+    RUNTIME_ADAPTER_PATH: EXPECTED_ARTIFACT_SHA256[RUNTIME_ADAPTER_PATH],
+    HARNESS_TOOLCHAIN_PATH: EXPECTED_ARTIFACT_SHA256[HARNESS_TOOLCHAIN_PATH],
+}
 HISTORICAL_HARNESS_SOURCE_COMMIT: Final = "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
 
 
@@ -346,14 +344,22 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         raise ImplementationError("worker-observability implementation record is not canonical")
     record = WorkerStartupObservabilityImplementation.model_validate(payload)
 
-    _require_exact_identities(root, EXPECTED_ARTIFACT_SHA256, label="implementation artifact")
+    _require_exact_identities(
+        root,
+        CURRENT_UNCHANGED_ARTIFACT_SHA256,
+        label="worker-observability implementation artifact",
+    )
     _require_exact_identities(root, EXPECTED_DOCUMENT_SHA256, label="implementation document")
-    if _sha256(root / ACTIVE_MANIFEST_PATH) != EXPECTED_ACTIVE_MANIFEST_SHA256:
-        raise ImplementationError("active manifest was promoted before rematerialization evidence")
-    if _sha256(root / ACTIVE_MATERIALIZATION_PATH) != EXPECTED_ACTIVE_MATERIALIZATION_SHA256:
-        raise ImplementationError("active materialization record moved before inspection")
+    if _sha256(root / ACTIVE_MANIFEST_PATH) != integration.CURRENT_MANIFEST_SHA256:
+        raise ImplementationError(
+            "active manifest does not bind the inspected worker-observability harness"
+        )
+    if _sha256(root / ACTIVE_MATERIALIZATION_PATH) != (
+        integration.CURRENT_MATERIALIZATION_RECORD_SHA256
+    ):
+        raise ImplementationError("active materialization record does not bind inspected evidence")
     if (root / FINAL_AUTHORIZATION_PATH).exists():
-        raise ImplementationError("authorization exists during worker-observability implementation")
+        raise ImplementationError("authorization exists before fresh issuance implementation")
 
     expected_by_path = {artifact.path: artifact.sha256 for artifact in record.implemented_artifacts}
     if expected_by_path != {
@@ -373,19 +379,19 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
     if review_summary.get("observability_implementation_present") is not True:
         raise ImplementationError("worker-observability review does not recognize implementation")
     integration_summary = integration.validate_repository_package(root)
-    if integration_summary.get("status") != (
-        "CURRENT_CU129_HARNESS_HISTORICAL_ACTIVE_WORKER_OBSERVABILITY_IMPLEMENTED"
-    ):
-        raise ImplementationError("historical active harness transition drifted")
-    if integration_summary.get("source_commit") != HISTORICAL_HARNESS_SOURCE_COMMIT:
-        raise ImplementationError("historical active harness source drifted")
+    if integration_summary.get("status") != ("WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"):
+        raise ImplementationError("worker-observability harness integration drifted")
+    if integration_summary.get("source_commit") != integration.SOURCE_COMMIT:
+        raise ImplementationError("integrated worker-observability harness source drifted")
 
     verification = launcher.verify_launcher_notebook(
         repo_root=root,
         notebook_path=root / LAUNCHER_NOTEBOOK_PATH,
     )
-    if verification.notebook_sha256 != EXPECTED_ARTIFACT_SHA256[LAUNCHER_NOTEBOOK_PATH]:
-        raise ImplementationError("generated launcher parity drifted")
+    if verification.notebook_sha256 != integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256:
+        raise ImplementationError("integrated generated launcher parity drifted")
+    if _sha256(root / LAUNCHER_SOURCE_PATH) != integration.CURRENT_LAUNCHER_SOURCE_SHA256:
+        raise ImplementationError("integrated launcher source identity drifted")
 
     if EXPECTED_ARTIFACT_SHA256[RUNTIME_ADAPTER_PATH] == issuance.RUNTIME_ADAPTER_SHA256:
         raise ImplementationError("historical authorization issuer was incorrectly promoted")
@@ -395,22 +401,27 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         raise ImplementationError("historical issuer launcher notebook was incorrectly promoted")
 
     return {
-        "status": "WORKER_STARTUP_OBSERVABILITY_IMPLEMENTED_REMATERIALIZATION_REQUIRED",
+        "status": "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
         "implementation_id": record.implementation_id,
         "review_merge_commit": BASE_COMMIT,
-        "historical_active_harness_source_commit": HISTORICAL_HARNESS_SOURCE_COMMIT,
+        "historical_harness_source_commit": HISTORICAL_HARNESS_SOURCE_COMMIT,
+        "current_harness_source_commit": integration.SOURCE_COMMIT,
         "implemented_runtime_adapter_sha256": (EXPECTED_ARTIFACT_SHA256[RUNTIME_ADAPTER_PATH]),
-        "implemented_launcher_source_sha256": (EXPECTED_ARTIFACT_SHA256[LAUNCHER_SOURCE_PATH]),
-        "implemented_launcher_notebook_sha256": verification.notebook_sha256,
+        "materialized_harness_launcher_source_sha256": (
+            EXPECTED_ARTIFACT_SHA256[LAUNCHER_SOURCE_PATH]
+        ),
+        "active_launcher_source_sha256": integration.CURRENT_LAUNCHER_SOURCE_SHA256,
+        "active_launcher_notebook_sha256": verification.notebook_sha256,
         "maximum_stream_capture_bytes": diagnostics.MAXIMUM_STREAM_CAPTURE_BYTES,
         "maximum_diagnostic_bytes": diagnostics.MAXIMUM_DIAGNOSTIC_BYTES,
         "maximum_readiness_polls": diagnostics.MAXIMUM_READINESS_POLLS,
         "historical_issuer_usable": False,
-        "active_manifest_promoted": False,
+        "active_manifest_promoted": True,
+        "operational_input_closure": "PASSED",
         "authorization_issued": False,
         "kaggle_execution_performed": False,
         "model_requests_performed": 0,
-        "next_gate": record.next_gate,
+        "next_gate": integration_summary["next_gate"],
     }
 
 

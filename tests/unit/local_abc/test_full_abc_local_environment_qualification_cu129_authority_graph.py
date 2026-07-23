@@ -14,14 +14,12 @@ from auragateway.local_abc import (
 ROOT = Path(__file__).resolve().parents[3]
 
 
-def test_repository_authority_graph_requires_worker_observability_rematerialization() -> None:
+def test_repository_authority_graph_integrates_worker_observability_harness() -> None:
     if not (ROOT / ".git").exists():
         pytest.skip("full Git checkout is required for historical authority validation")
     summary = graph.validate_repository_authority_graph(ROOT)
 
-    assert summary["status"] == (
-        "CURRENT_CU129_WORKER_OBSERVABILITY_IMPLEMENTED_REMATERIALIZATION_REQUIRED"
-    )
+    assert summary["status"] == ("CURRENT_CU129_WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED")
     assert summary["current_runtime_role"] == "vllm_runtime"
     assert summary["current_runtime_format"] == "python_wheelhouse_directory"
     assert summary["runtime_package_count"] == 176
@@ -31,24 +29,23 @@ def test_repository_authority_graph_requires_worker_observability_rematerializat
     assert summary["authorization_source_binding_policy"] == (
         "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
     )
-    assert summary["current_authorization_base_commit"] == (
+    assert summary["worker_observability_review_base_commit"] == (
         "997efb4aacf998567a3d92e7202a0054bf473ca4"
     )
-    assert summary["current_harness_source_commit"] == ("426f57dd11dddc2fb8e5a703721c2189abc7a0ff")
+    assert summary["fresh_authorization_base_commit_status"] == ("POST_INTEGRATION_MERGE_PENDING")
+    assert summary["current_harness_source_commit"] == ("dceda98989386de7a4d57616f9f8a8023f866f10")
     assert summary["historical_preintegration_review_revision_bound"] is True
     assert summary["historical_pr109_issuance_review_revision_bound"] is True
     assert summary["historical_rematerialization_revision_bound"] is True
-    assert summary["fresh_cu129_authorization_review_required"] is True
+    assert summary["fresh_cu129_authorization_readiness_review_complete"] is True
     assert summary["fresh_cu129_authorization_issuer_implemented"] is False
     assert summary["worker_startup_observability_implemented"] is True
     assert summary["historical_issuer_usable"] is False
-    assert summary["active_manifest_promoted"] is False
+    assert summary["active_manifest_promoted"] is True
     assert summary["authorization_issued"] is False
     assert summary["runtime_execution_performed"] is False
     assert summary["model_requests_performed"] == 0
-    assert summary["next_gate"] == (
-        "merge_then_build_post_merge_worker_observability_harness_source_package"
-    )
+    assert summary["next_gate"] == "fresh_cu129_authorization_issuance_implementation"
 
 
 def test_canonical_json_guard_rejects_trailing_newline(tmp_path: Path) -> None:

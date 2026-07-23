@@ -1,0 +1,35 @@
+6.8s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.8s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.8s 3 0.00s - to python to disable frozen modules.
+6.8s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+7.3s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.3s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.3s 7 0.00s - to python to disable frozen modules.
+7.3s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+13.4s 9 status=WORKER_OBSERVABILITY_HARNESS_MATERIALIZED
+13.4s 10 source_commit=dceda98989386de7a4d57616f9f8a8023f866f10
+13.4s 11 input_mode=kaggle_expanded_archive_recovery
+13.4s 12 archive_reconstructed=true
+13.4s 13 archive_sha256=cf6a926a129699da00602a23650dbce5645bc28527ba52373bf9dd55beaccf3f
+13.4s 14 output_directory=auragateway_qualification_harness_dceda98_worker_obs_v1
+13.4s 15 output_path=/kaggle/working/ag_worker_obs_harness_materializer_v1_output/auragateway_qualification_harness_dceda98_worker_obs_v1
+13.4s 16 file_count=1076
+13.4s 17 total_bytes=10850278
+13.4s 18 directory_sha256=c66f2589bdf55ab34f82bffc1eaaa4b4c7e73cb8195867333ccd99a58438f3e4
+13.4s 19 nested_archives_present=false
+13.4s 20 gpu_execution_performed=false
+13.4s 21 network_access_performed=false
+13.4s 22 package_installation_performed=false
+13.4s 23 authorization_issued=false
+13.4s 24 model_requests_performed=0
+13.4s 25 active_manifest_promoted=false
+13.4s 26 save_this_notebook_output=true
+13.4s 27 next_gate=metadata_only_operational_input_inspection
+15.7s 28 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+15.7s 29 cells[i][c] = re.sub('\\\\\|', '|', cell)
+15.9s 30 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+15.9s 31 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+16.4s 32 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+16.7s 33 [NbConvertApp] Writing 42358 bytes to __notebook__.ipynb
+19.0s 34 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+19.8s 35 [NbConvertApp] Writing 390677 bytes to __results__.html

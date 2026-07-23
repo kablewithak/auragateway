@@ -8,6 +8,15 @@ full A/B/C environment qualification.
 This runbook does not issue authorization, execute the 342-request benchmark, enable
 Internet, connect secrets, use customer data, or permit hosted-provider calls.
 
+Current repository state:
+
+```text
+status: WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED
+operational input closure: PASSED
+authorization issued: false
+next gate: fresh_cu129_authorization_issuance_implementation
+```
+
 ## Governed names
 
 All Kaggle names remain below the 50-character limit.
@@ -56,9 +65,9 @@ Current observed static inputs:
 
 ```text
 harness source:
-/kaggle/input/notebooks/kabomolefe/ag-harness-materializer-cu129-v1/
-ag_harness_materializer_cu129_v1_output/
-auragateway_qualification_harness_426f57d_v1
+/kaggle/input/notebooks/kabomolefe/ag-worker-obs-harness-materializer-v1/
+ag_worker_obs_harness_materializer_v1_output/
+auragateway_qualification_harness_dceda98_worker_obs_v1
 
 model snapshot:
 /kaggle/input/datasets/kabomolefe/auragateway-qwen2-5-0-5b-offline-v1/
@@ -73,14 +82,14 @@ materialization receipt, and 176-package closure.
 ```
 
 The line breaks above are for readability. Runtime bindings use the complete uninterrupted
-paths. Current operational-input closure is bound by inspection saved version `337035826` and
+paths. Current operational-input closure is bound by inspection saved version `337286728` and
 evidence ZIP SHA-256
-`2d2f6afdd53787f6b3977e799dff441f9023a3c265ddf65d35855c5b62ad90d8`.
+`e1bf87f44c3ccbf3eda65938cb61b833c95edfb7c200e5f40095eab9e3f936fb`.
 
 Exact uninterrupted current harness binding:
 
 ```text
-/kaggle/input/notebooks/kabomolefe/ag-harness-materializer-cu129-v1/ag_harness_materializer_cu129_v1_output/auragateway_qualification_harness_426f57d_v1
+/kaggle/input/notebooks/kabomolefe/ag-worker-obs-harness-materializer-v1/ag_worker_obs_harness_materializer_v1_output/auragateway_qualification_harness_dceda98_worker_obs_v1
 ```
 
 
@@ -105,65 +114,67 @@ NVIDIA loader order have passed validation.
 
 ## Current harness materialization authority
 
-The active harness is the saved Version 1 output of:
+The active harness is the immutable saved Version 1 output of:
 
 ```text
-ag-harness-materializer-cu129-v1
-script version: 337034643
+ag-worker-obs-harness-materializer-v1
+script version: 337284215
 ```
 
 Expected producer topology:
 
 ```text
-ag_harness_materializer_cu129_v1_output/
-├── auragateway_qualification_harness_426f57d_v1/
-└── ag_harness_materialization_receipt_cu129_v1.json
+ag_worker_obs_harness_materializer_v1_output/
+├── auragateway_qualification_harness_dceda98_worker_obs_v1/
+└── materialization_receipt.json
 ```
 
 Frozen identity:
 
 ```text
 source commit:
-426f57dd11dddc2fb8e5a703721c2189abc7a0ff
+dceda98989386de7a4d57616f9f8a8023f866f10
 
 file count:
-1299
+1076
 
 total bytes:
-11,632,357
+10,850,278
 
 directory SHA-256:
-c3ea4ae6d047a8b3f3d5afc517e26c4f13fb4a82e48e3cf28cdfabdc343230e6
+c66f2589bdf55ab34f82bffc1eaaa4b4c7e73cb8195867333ccd99a58438f3e4
 
 materialization receipt SHA-256:
-07d81dbea5b5ed24d0786c0ee16782129e163834254c095262944baaf5c59db2
+5f2818130abcf338239f49f38683fbdb00c2a290816115925e74e508ea9d0f02
 ```
 
-The metadata-only operational-input inspection is:
+The independent metadata-only operational-input inspection is:
 
 ```text
 notebook:
-ag-harness-input-inspection-cu129-v1
+ag-worker-obs-input-inspection-v1
 
 saved version:
-337035826
+337286728
 
 evidence:
-ag-harness-input-inspection-cu129-v1.zip
+ag-worker-obs-input-inspection-v1.zip
 
 evidence SHA-256:
-2d2f6afdd53787f6b3977e799dff441f9023a3c265ddf65d35855c5b62ad90d8
+e1bf87f44c3ccbf3eda65938cb61b833c95edfb7c200e5f40095eab9e3f936fb
 
 status:
-CURRENT_CU129_HARNESS_INPUT_INSPECTION_PASSED
+WORKER_OBSERVABILITY_HARNESS_INPUT_INSPECTION_PASSED
 
 operational input closure:
 PASSED
 ```
 
-The historical `be1bfadd` harness remains immutable evidence but is no longer active. The model
-snapshot remains unchanged. The historical single-wheel runtime instruction is superseded by the
-exact 176-package CUDA 12.9 wheelhouse authority.
+The historical `426f57d` and `be1bfadd` harnesses remain immutable evidence but are no
+longer active. Neither may be relabeled as containing the PR #138 worker-startup
+observability implementation. The model snapshot remains unchanged. The historical
+single-wheel runtime instruction remains superseded by the exact 176-package CUDA 12.9
+wheelhouse authority.
 
 ## Execution boundary
 
@@ -246,7 +257,13 @@ failure artifact and terminate the session.
 
 ## Authorization control materialization
 
-The local authorization runner remains the only issuance authority.
+Authorization issuance is currently blocked. The historical issuer is not valid for the
+integrated worker-observability harness. A fresh issuer must first bind the
+post-integration merge commit and the exact current manifest, materialization record,
+runtime adapter, diagnostics, launcher source, and generated launcher notebook.
+
+After that separate issuer implementation is merged, the local authorization runner
+remains the only issuance authority.
 
 After one authorization is issued and locally verified, generate the control notebook:
 
@@ -307,6 +324,9 @@ The materializer fails when fewer than 180 authorization minutes remain.
 
 ## Qualification launcher preparation
 
+This section is future-operational only. Do not create or run the GPU notebook while the
+next gate remains `fresh_cu129_authorization_issuance_implementation`.
+
 Import:
 
 ```text
@@ -334,7 +354,7 @@ None
 
 Attach exactly four input resources:
 
-1. the saved Version 1 output of `ag-harness-materializer-cu129-v1`
+1. the saved Version 1 output of `ag-worker-obs-harness-materializer-v1`
 2. `auragateway-qwen2-5-0-5b-offline-v1`
 3. the saved Version 1 output of `auragateway-cu129-wheelhouse-materializer-v1`
 4. the saved output of `ag-qualification-control-materializer-v1`
@@ -450,7 +470,7 @@ The launcher implementation and a successful notebook import do not prove:
 The launcher binds the current harness independently from the future short-lived authorization:
 
 ```text
-harness source commit: 426f57dd11dddc2fb8e5a703721c2189abc7a0ff
+harness source commit: dceda98989386de7a4d57616f9f8a8023f866f10
 authorization source policy: CONTROL_PACKAGE_AUTHORIZATION_PARITY
 ```
 

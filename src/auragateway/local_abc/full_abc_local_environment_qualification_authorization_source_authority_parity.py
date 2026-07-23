@@ -263,7 +263,7 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
     if launcher.AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT != (AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT):
         raise RuntimeError("launcher authorization authority drifted")
     from auragateway.local_abc import (
-        full_abc_local_environment_qualification_cu129_harness_evidence_integration as integration,
+        cu129_worker_observability_harness_integration as integration,
     )
 
     if launcher.SOURCE_MAIN_MERGE_COMMIT != integration.SOURCE_COMMIT:

@@ -12,6 +12,9 @@ import pytest
 from pydantic import ValidationError
 
 from auragateway.local_abc import (
+    cu129_worker_observability_harness_integration as current_integration,
+)
+from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_worker_startup_observability_review as review,
 )
 
@@ -52,6 +55,7 @@ def test_repository_review_validates_immutable_failure_and_next_gate() -> None:
     assert result["authorization_reuse_permitted"] is False
     assert result["model_requests_performed"] == 0
     assert result["observability_implementation_present"] is True
+    assert result["next_gate"] == "fresh_cu129_authorization_issuance_implementation"
 
 
 def test_review_rejects_root_cause_invention() -> None:
@@ -131,3 +135,48 @@ def test_authority_impact_requires_new_harness_lineage() -> None:
     assert parsed.authority_impact.launcher_change_required is True
     assert parsed.authority_impact.new_post_merge_harness_source_required is True
     assert parsed.authority_impact.historical_attempt_5_remains_immutable is True
+
+
+def test_superseding_state_binds_materialized_and_active_launcher_lineages(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        current_integration,
+        "validate_repository_package",
+        lambda _root: {
+            "status": "WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
+            "next_gate": "fresh_cu129_authorization_issuance_implementation",
+        },
+    )
+
+    state = review.load_superseding_implementation_state(Path.cwd())
+
+    assert state is not None
+    assert state.runtime_adapter_sha256 == (current_integration.CURRENT_RUNTIME_ADAPTER_SHA256)
+    assert state.launcher_source_sha256 == (current_integration.CURRENT_LAUNCHER_SOURCE_SHA256)
+    assert state.launcher_notebook_sha256 == (current_integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256)
+    assert state.next_gate == "fresh_cu129_authorization_issuance_implementation"
+
+
+def test_superseding_state_rejects_broken_launcher_lineage(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        current_integration,
+        "validate_repository_package",
+        lambda _root: {
+            "status": "WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
+            "next_gate": "fresh_cu129_authorization_issuance_implementation",
+        },
+    )
+    monkeypatch.setattr(
+        current_integration,
+        "MATERIALIZED_HARNESS_LAUNCHER_SOURCE_SHA256",
+        "0" * 64,
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="worker-observability launcher supersession lineage drifted",
+    ):
+        review.load_superseding_implementation_state(Path.cwd())
