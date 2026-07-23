@@ -11,6 +11,9 @@ import pytest
 from pydantic import ValidationError
 
 from auragateway.local_abc import (
+    cu129_worker_observability_harness_integration as current_integration,
+)
+from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_harness_rematerialization_review as review,
 )
 
@@ -74,9 +77,9 @@ def test_manifest_role_lookup_is_order_independent() -> None:
     by_role = review._manifest_entries_by_role(list(reversed(entries)))
 
     assert set(by_role) == {"harness_source", "model_artifacts", "vllm_runtime"}
-    assert str(by_role["harness_source"]["mounted_path"]).endswith(
-        "/ag_harness_materializer_cu129_v1_output/auragateway_qualification_harness_426f57d_v1"
-    )
+    harness_entry = by_role["harness_source"]
+    assert harness_entry["mounted_path"] == current_integration.CURRENT_HARNESS_MOUNTED_PATH
+    assert harness_entry["sha256"] == current_integration.CURRENT_HARNESS_DIRECTORY_SHA256
     assert by_role["vllm_runtime"]["package_count"] == 176
 
 

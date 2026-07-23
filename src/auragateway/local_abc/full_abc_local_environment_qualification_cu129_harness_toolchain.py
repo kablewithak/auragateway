@@ -29,7 +29,7 @@ SOURCE_BINDING_POLICY: Final = "POST_MERGE_CLEAN_MAIN_HEAD"
 PYPROJECT_HISTORICAL_SHA256: Final = (
     "5387ea09341bde18d73518e28a236f65865918dd406fcb13824c0c8156a57103"
 )
-RUFF_CONFIG_SHA256: Final = "db581e00f7e4f9e6ceac173fb92ee1326e6459a9e2286de5aa6b7ab67e360ab3"
+RUFF_CONFIG_SHA256: Final = "d891d61c5ce44d78f9a5313a46fd36406f54674ad742926bd44ebd11344538cd"
 HISTORICAL_MATERIALIZER_NOTEBOOK_SHA256: Final = (
     "91f9ccc30883341af4cfd24d11c780ee136b9f7ccf9316b77b9d72ba559312c2"
 )
@@ -2437,7 +2437,7 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
     harness_entry = by_role["harness_source"]
     mounted_path = str(harness_entry.get("mounted_path"))
     from auragateway.local_abc import (
-        full_abc_local_environment_qualification_cu129_harness_evidence_integration as integration,
+        cu129_worker_observability_harness_integration as integration,
     )
 
     if (
@@ -2509,7 +2509,7 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "runtime_role": "vllm_runtime",
         "runtime_artifact_format": "python_wheelhouse_directory",
         "runtime_package_count": RUNTIME_PACKAGE_COUNT,
-        "active_harness_binding_status": "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
+        "active_harness_binding_status": ("WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"),
         "operational_input_closure": integration_summary["operational_input_closure"],
         "authorization_issued": False,
         "kaggle_execution_performed": False,

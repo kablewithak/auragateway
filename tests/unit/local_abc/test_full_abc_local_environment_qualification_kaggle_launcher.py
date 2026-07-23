@@ -300,13 +300,14 @@ def test_launcher_notebook_verification_rejects_drift(
 
 
 def test_launcher_separates_harness_and_authorization_source_authorities() -> None:
-    assert launcher.SOURCE_MAIN_MERGE_COMMIT == ("426f57dd11dddc2fb8e5a703721c2189abc7a0ff")
+    assert launcher.SOURCE_MAIN_MERGE_COMMIT == ("dceda98989386de7a4d57616f9f8a8023f866f10")
     assert launcher.AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT == (
         "211a10757999b1b110cb1d9df172938cf6ed7969"
     )
     assert launcher.AUTHORIZATION_SOURCE_BINDING_POLICY == ("CONTROL_PACKAGE_AUTHORIZATION_PARITY")
     assert launcher.HARNESS_SOURCE_PATH.endswith(
-        "/ag_harness_materializer_cu129_v1_output/auragateway_qualification_harness_426f57d_v1"
+        "/ag_worker_obs_harness_materializer_v1_output/"
+        "auragateway_qualification_harness_dceda98_worker_obs_v1"
     )
 
 

@@ -12,6 +12,9 @@ from typing import Final, Literal, Never, Self, cast
 
 from pydantic import Field, model_validator
 
+from auragateway.local_abc import (
+    cu129_worker_observability_harness_integration as current_integration,
+)
 from auragateway.local_abc.contracts import LocalABCContract
 
 BASE_COMMIT: Final = "d4558d44d57237fb2559f3cd6ddccfd22a31e07a"
@@ -232,7 +235,10 @@ class SupersedingImplementationState(LocalABCContract):
     runtime_adapter_sha256: str
     launcher_source_sha256: str
     launcher_notebook_sha256: str
-    next_gate: Literal["merge_then_build_post_merge_worker_observability_harness_source_package"]
+    next_gate: Literal[
+        "merge_then_build_post_merge_worker_observability_harness_source_package",
+        "fresh_cu129_authorization_issuance_implementation",
+    ]
 
 
 class _ArgumentParser(argparse.ArgumentParser):
@@ -424,6 +430,8 @@ def load_superseding_implementation_state(
         "post_merge_harness_toolchain": HARNESS_TOOLCHAIN_PATH,
     }
     artifacts_by_role = {cast(str, item["role"]): item for item in artifacts}
+    launcher_roles = {"launcher_source", "launcher_notebook"}
+    implementation_sha256: dict[str, str] = {}
     observed_sha256: dict[str, str] = {}
     for role, relative_path in expected_paths.items():
         artifact = artifacts_by_role[role]
@@ -433,9 +441,41 @@ def load_superseding_implementation_state(
         if not isinstance(digest, str):
             raise RuntimeError(f"worker-observability artifact digest is invalid: {role}")
         artifact_path = repo_root / relative_path
-        if not artifact_path.is_file() or _sha256(artifact_path) != digest:
+        if not artifact_path.is_file():
+            raise RuntimeError(f"worker-observability artifact is missing: {role}")
+        observed_digest = _sha256(artifact_path)
+        if role not in launcher_roles and observed_digest != digest:
             raise RuntimeError(f"worker-observability artifact identity drifted: {role}")
-        observed_sha256[role] = digest
+        implementation_sha256[role] = digest
+        observed_sha256[role] = observed_digest
+
+    launcher_match = {
+        role: observed_sha256[role] == implementation_sha256[role] for role in launcher_roles
+    }
+    if len(set(launcher_match.values())) != 1:
+        raise RuntimeError("worker-observability launcher supersession is partial")
+
+    next_gate = cast(str, payload["next_gate"])
+    if not all(launcher_match.values()):
+        integration_summary = current_integration.validate_repository_package(repo_root)
+        expected_supersession = (
+            integration_summary.get("status") == "WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
+            implementation_sha256["runtime_adapter"]
+            == current_integration.CURRENT_RUNTIME_ADAPTER_SHA256,
+            implementation_sha256["diagnostics"]
+            == current_integration.CURRENT_WORKER_DIAGNOSTICS_SHA256,
+            implementation_sha256["launcher_source"]
+            == current_integration.MATERIALIZED_HARNESS_LAUNCHER_SOURCE_SHA256,
+            implementation_sha256["launcher_notebook"]
+            == current_integration.MATERIALIZED_HARNESS_LAUNCHER_NOTEBOOK_SHA256,
+            observed_sha256["launcher_source"]
+            == current_integration.CURRENT_LAUNCHER_SOURCE_SHA256,
+            observed_sha256["launcher_notebook"]
+            == current_integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256,
+        )
+        if not all(expected_supersession):
+            raise RuntimeError("worker-observability launcher supersession lineage drifted")
+        next_gate = cast(str, integration_summary["next_gate"])
 
     historical = payload.get("historical_active_authority")
     if not isinstance(historical, dict):
@@ -482,11 +522,13 @@ def load_superseding_implementation_state(
         runtime_adapter_sha256=observed_sha256["runtime_adapter"],
         launcher_source_sha256=observed_sha256["launcher_source"],
         launcher_notebook_sha256=observed_sha256["launcher_notebook"],
-        next_gate=cast(str, payload["next_gate"]),
+        next_gate=next_gate,
     )
 
 
-def _validate_current_defect(repo_root: Path) -> bool:
+def _validate_current_defect(
+    repo_root: Path,
+) -> SupersedingImplementationState | None:
     adapter_path = repo_root / RUNTIME_ADAPTER_PATH
     launcher_path = repo_root / LAUNCHER_PATH
     notebook_path = repo_root / LAUNCHER_NOTEBOOK_PATH
@@ -501,7 +543,7 @@ def _validate_current_defect(repo_root: Path) -> bool:
             raise RuntimeError(
                 "current worker-startup sources drifted without a valid implementation"
             )
-        return True
+        return implementation
 
     adapter = adapter_path.read_text(encoding="utf-8")
     required_adapter = (
@@ -532,7 +574,7 @@ def _validate_current_defect(repo_root: Path) -> bool:
     source = inspect.getsource(_validate_current_defect)
     if "subprocess.DEVNULL" not in source:
         raise RuntimeError("review validator no longer binds the discarded-output defect")
-    return False
+    return None
 
 
 def _validate_documentation(repo_root: Path) -> None:
@@ -555,7 +597,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         raise RuntimeError("worker-startup observability review identity drifted")
     review = WorkerStartupObservabilityReview.model_validate(_load_json(root / REVIEW_PATH))
     evidence = _validate_evidence(root)
-    implementation_present = _validate_current_defect(root)
+    implementation_state = _validate_current_defect(root)
     _validate_documentation(root)
     if (root / FINAL_AUTHORIZATION_PATH).exists():
         raise RuntimeError("consumed transient authorization must be absent from the review tree")
@@ -571,8 +613,10 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         "unchanged_rerun_permitted": False,
         "authorization_reuse_permitted": False,
         "model_requests_performed": 0,
-        "observability_implementation_present": implementation_present,
-        "next_gate": review.next_gate,
+        "observability_implementation_present": implementation_state is not None,
+        "next_gate": (
+            implementation_state.next_gate if implementation_state is not None else review.next_gate
+        ),
     }
 
 

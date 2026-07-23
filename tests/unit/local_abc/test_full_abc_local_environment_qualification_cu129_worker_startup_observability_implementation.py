@@ -28,28 +28,26 @@ def _load_json(path: Path) -> dict[str, Any]:
     return cast(dict[str, Any], payload)
 
 
-def test_repository_package_requires_rematerialization() -> None:
+def test_repository_package_recognizes_integrated_worker_observability_harness() -> None:
     if not (ROOT / ".git").exists():
         pytest.skip("full Git checkout is required for historical authority validation")
     result = implementation.validate_repository_package(ROOT)
 
-    assert result["status"] == (
-        "WORKER_STARTUP_OBSERVABILITY_IMPLEMENTED_REMATERIALIZATION_REQUIRED"
-    )
-    assert result["historical_active_harness_source_commit"] == (
+    assert result["status"] == ("WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED")
+    assert result["historical_harness_source_commit"] == (
         "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
     )
+    assert result["current_harness_source_commit"] == ("dceda98989386de7a4d57616f9f8a8023f866f10")
     assert result["maximum_stream_capture_bytes"] == 32 * 1024
     assert result["maximum_diagnostic_bytes"] == 256 * 1024
     assert result["maximum_readiness_polls"] == 90
     assert result["historical_issuer_usable"] is False
-    assert result["active_manifest_promoted"] is False
+    assert result["active_manifest_promoted"] is True
+    assert result["operational_input_closure"] == "PASSED"
     assert result["authorization_issued"] is False
     assert result["kaggle_execution_performed"] is False
     assert result["model_requests_performed"] == 0
-    assert result["next_gate"] == (
-        "merge_then_build_post_merge_worker_observability_harness_source_package"
-    )
+    assert result["next_gate"] == "fresh_cu129_authorization_issuance_implementation"
 
 
 def test_record_rejects_manifest_promotion() -> None:

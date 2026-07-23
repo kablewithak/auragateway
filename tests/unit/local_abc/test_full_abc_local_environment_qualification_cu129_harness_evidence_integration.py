@@ -1,4 +1,4 @@
-"""Regression tests for current CUDA 12.9 harness evidence integration."""
+"""Historical CUDA 12.9 harness-integration evidence preservation tests."""
 
 from __future__ import annotations
 
@@ -8,26 +8,12 @@ from pathlib import Path
 from typing import Any, cast
 
 import pytest
-from pydantic import ValidationError
 
 from auragateway.local_abc import (
-    full_abc_local_environment_qualification_cu129_harness_evidence_integration as integration,
+    cu129_worker_observability_harness_integration as current,
 )
 from auragateway.local_abc import (
-    full_abc_local_environment_qualification_cu129_worker_startup_observability_review,
-)
-from auragateway.local_abc import (
-    full_abc_local_environment_qualification_execution_authorization_contracts as auth_contracts,
-)
-from auragateway.local_abc import (
-    full_abc_local_environment_qualification_execution_contracts as execution_contracts,
-)
-from auragateway.local_abc import (
-    full_abc_local_environment_qualification_kaggle_launcher as launcher,
-)
-
-observability_review = (
-    full_abc_local_environment_qualification_cu129_worker_startup_observability_review
+    full_abc_local_environment_qualification_cu129_harness_evidence_integration as historical,
 )
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -39,69 +25,56 @@ def _load_json(path: Path) -> dict[str, Any]:
     return cast(dict[str, Any], payload)
 
 
-def test_repository_package_preserves_historical_harness_after_observability() -> None:
-    summary = integration.validate_repository_package(ROOT)
-    implementation = observability_review.load_superseding_implementation_state(ROOT)
-
-    assert implementation is not None
-    assert summary["status"] == (
-        "CURRENT_CU129_HARNESS_HISTORICAL_ACTIVE_WORKER_OBSERVABILITY_IMPLEMENTED"
+def test_historical_harness_authority_remains_distinct_from_current() -> None:
+    assert historical.SOURCE_COMMIT == "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
+    assert historical.CURRENT_HARNESS_DIRECTORY_SHA256 == (
+        "c3ea4ae6d047a8b3f3d5afc517e26c4f13fb4a82e48e3cf28cdfabdc343230e6"
     )
-    assert summary["operational_input_closure"] == "PASSED"
-    assert summary["source_commit"] == integration.SOURCE_COMMIT
-    assert summary["harness_directory_sha256"] == (integration.CURRENT_HARNESS_DIRECTORY_SHA256)
-    assert summary["harness_file_count"] == 1299
-    assert summary["harness_total_bytes"] == 11_632_357
-    assert summary["runtime_package_count"] == 176
-    assert summary["manifest_sha256"] == integration.CURRENT_MANIFEST_SHA256
-    assert summary["materialization_record_sha256"] == (
-        integration.CURRENT_MATERIALIZATION_RECORD_SHA256
-    )
-    assert summary["launcher_notebook_sha256"] == (implementation.launcher_notebook_sha256)
-    assert summary["inspection_evidence_zip_sha256"] == (integration.INSPECTION_EVIDENCE_ZIP_SHA256)
-    assert summary["materializer_saved_version_id"] == 337034643
-    assert summary["inspection_saved_version_id"] == 337035826
-    assert summary["authorization_source_binding_policy"] == (
-        "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
-    )
-    assert summary["authorization_issued"] is False
-    assert summary["gpu_execution_performed"] is False
-    assert summary["model_requests_performed"] == 0
-    assert summary["measured_execution_authorized"] is False
-    assert summary["worker_startup_observability_implemented"] is True
-    assert summary["historical_active_harness"] is True
-    assert summary["next_gate"] == implementation.next_gate
-
-
-def test_evidence_identity_binds_exact_saved_versions_and_artifacts() -> None:
-    identity = integration.EvidenceIdentity.model_validate(
-        _load_json(ROOT / integration.EVIDENCE_IDENTITY_PATH)
+    assert historical.CURRENT_HARNESS_OUTPUT_DIRECTORY == (
+        "auragateway_qualification_harness_426f57d_v1"
     )
 
-    assert identity.source_commit == integration.SOURCE_COMMIT
+    historical_source_commit: str = historical.SOURCE_COMMIT
+    current_source_commit: str = current.SOURCE_COMMIT
+    historical_directory_sha256: str = historical.CURRENT_HARNESS_DIRECTORY_SHA256
+    current_directory_sha256: str = current.CURRENT_HARNESS_DIRECTORY_SHA256
+    historical_output_directory: str = historical.CURRENT_HARNESS_OUTPUT_DIRECTORY
+    current_output_directory: str = current.CURRENT_HARNESS_OUTPUT_DIRECTORY
+
+    assert historical_source_commit != current_source_commit
+    assert historical_directory_sha256 != current_directory_sha256
+    assert historical_output_directory != current_output_directory
+
+
+def test_historical_evidence_identity_remains_valid_and_immutable() -> None:
+    identity = historical.EvidenceIdentity.model_validate(
+        _load_json(ROOT / historical.EVIDENCE_IDENTITY_PATH)
+    )
+
+    assert identity.source_commit == historical.SOURCE_COMMIT
     assert identity.materializer_saved_version_id == 337034643
     assert identity.inspection_saved_version_id == 337035826
-    assert identity.inspection_saved_version_url == integration.INSPECTION_SAVED_VERSION_URL
+    assert identity.inspection_saved_version_url == historical.INSPECTION_SAVED_VERSION_URL
     assert identity.materializer_recovery_notebook_sha256 == (
-        integration.MATERIALIZER_RECOVERY_NOTEBOOK_SHA256
+        historical.MATERIALIZER_RECOVERY_NOTEBOOK_SHA256
     )
-    assert identity.materialization_receipt_sha256 == (integration.MATERIALIZATION_RECEIPT_SHA256)
-    assert identity.inspection_evidence_zip_sha256 == (integration.INSPECTION_EVIDENCE_ZIP_SHA256)
+    assert identity.materialization_receipt_sha256 == (historical.MATERIALIZATION_RECEIPT_SHA256)
+    assert identity.inspection_evidence_zip_sha256 == (historical.INSPECTION_EVIDENCE_ZIP_SHA256)
     assert tuple(item.name for item in identity.inspection_evidence_members) == (
-        integration.EXPECTED_ZIP_MEMBERS
+        historical.EXPECTED_ZIP_MEMBERS
     )
 
 
-def test_materialization_receipt_records_kaggle_recovery_without_runtime_activity() -> None:
-    receipt = integration.MaterializationReceipt.model_validate(
-        _load_json(ROOT / integration.MATERIALIZATION_RECEIPT_PATH)
+def test_historical_materialization_receipt_retains_original_non_execution_claims() -> None:
+    receipt = historical.MaterializationReceipt.model_validate(
+        _load_json(ROOT / historical.MATERIALIZATION_RECEIPT_PATH)
     )
 
-    assert receipt.source_commit == integration.SOURCE_COMMIT
+    assert receipt.source_commit == historical.SOURCE_COMMIT
     assert receipt.input_mode == "kaggle_expanded_source_recovered_to_exact_archive"
     assert receipt.kaggle_auto_expanded_source_detected is True
     assert receipt.exact_archive_reconstructed is True
-    assert receipt.directory_sha256 == integration.CURRENT_HARNESS_DIRECTORY_SHA256
+    assert receipt.directory_sha256 == historical.CURRENT_HARNESS_DIRECTORY_SHA256
     assert receipt.file_count == 1299
     assert receipt.total_bytes == 11_632_357
     assert receipt.gpu_execution_performed is False
@@ -112,123 +85,48 @@ def test_materialization_receipt_records_kaggle_recovery_without_runtime_activit
     assert receipt.authorization_issued is False
 
 
-def test_active_manifest_and_materialization_record_bind_current_harness() -> None:
-    manifest = execution_contracts.QualificationDatasetManifest.model_validate(
-        _load_json(ROOT / integration.MANIFEST_PATH)
+def test_historical_inspection_zip_and_logs_still_validate() -> None:
+    identity = historical.EvidenceIdentity.model_validate(
+        _load_json(ROOT / historical.EVIDENCE_IDENTITY_PATH)
     )
-    materialization = auth_contracts.MaterializedOfflineDatasetRecord.model_validate(
-        _load_json(ROOT / integration.MATERIALIZATION_RECORD_PATH)
-    )
-
-    harness_manifest = manifest.entries[0]
-    harness_record = materialization.entries[0]
-
-    assert harness_manifest.mounted_path == integration.CURRENT_HARNESS_MOUNTED_PATH
-    assert harness_manifest.sha256 == integration.CURRENT_HARNESS_DIRECTORY_SHA256
-    assert harness_record.kaggle_dataset_slug == integration.CURRENT_HARNESS_KAGGLE_SLUG
-    assert harness_record.kaggle_dataset_version == 1
-    assert harness_record.mounted_path == integration.CURRENT_HARNESS_MOUNTED_PATH
-    assert harness_record.sha256 == integration.CURRENT_HARNESS_DIRECTORY_SHA256
-    assert materialization.harness_source_commit == integration.SOURCE_COMMIT
-    assert materialization.runtime_manifest_sha256 == manifest.fingerprint()
-
-
-def test_launcher_binds_current_harness_and_dynamic_authorization_source() -> None:
-    assert launcher.SOURCE_MAIN_MERGE_COMMIT == integration.SOURCE_COMMIT
-    assert launcher.HARNESS_SOURCE_PATH == integration.CURRENT_HARNESS_MOUNTED_PATH
-    assert launcher.AUTHORIZATION_SOURCE_BINDING_POLICY == ("CONTROL_PACKAGE_AUTHORIZATION_PARITY")
-
-    notebook = launcher.build_launcher_notebook(ROOT)
-    metadata = cast(dict[str, object], notebook["metadata"])
-    auragateway = cast(dict[str, object], metadata["auragateway"])
-
-    assert auragateway["source_main_merge_commit"] == integration.SOURCE_COMMIT
-    assert auragateway["authorization_source_binding_policy"] == (
-        "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
+    receipt = historical.MaterializationReceipt.model_validate(
+        _load_json(ROOT / historical.MATERIALIZATION_RECEIPT_PATH)
     )
 
-
-def test_readiness_review_keeps_fresh_authorization_unissued() -> None:
-    review = integration.FreshAuthorizationReadinessReview.model_validate(
-        _load_json(ROOT / integration.READINESS_REVIEW_PATH)
+    records = historical._validate_evidence_zip(
+        ROOT / historical.INSPECTION_ZIP_PATH,
+        identity,
     )
-
-    assert review.decision == ("APPROVED_FOR_FRESH_CU129_AUTHORIZATION_ISSUANCE_IMPLEMENTATION")
-    assert review.operational_input_closure == "PASSED"
-    assert review.current_manifest_sha256 == integration.CURRENT_MANIFEST_SHA256
-    assert review.current_materialization_record_sha256 == (
-        integration.CURRENT_MATERIALIZATION_RECORD_SHA256
-    )
-    assert review.current_runtime_adapter_sha256 == integration.CURRENT_RUNTIME_ADAPTER_SHA256
-    assert review.current_launcher_source_sha256 == integration.CURRENT_LAUNCHER_SOURCE_SHA256
-    assert review.current_launcher_notebook_sha256 == integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256
-    assert review.inspection_evidence_zip_sha256 == integration.INSPECTION_EVIDENCE_ZIP_SHA256
-    assert review.authorization_source_binding_policy == (
-        integration.AUTHORIZATION_SOURCE_BINDING_POLICY
-    )
-    assert review.final_authorization_present is False
-    assert review.historical_authorization_issuance_implementation_usable is False
-    assert review.safety.authorization_issued is False
-    assert review.safety.gpu_execution_performed is False
-    assert review.safety.model_requests_performed == 0
-    assert review.next_gate == "fresh_cu129_authorization_issuance_implementation"
-    assert not (ROOT / integration.FINAL_AUTHORIZATION_PATH).exists()
+    historical._validate_cross_evidence(receipt, records)
+    historical._validate_logs(ROOT)
 
 
-def test_readiness_review_rejects_incomplete_implementation_scope() -> None:
-    payload = _load_json(ROOT / integration.READINESS_REVIEW_PATH)
-    payload["required_implementation"] = ["issue authorization"] * 7
+def test_historical_external_artifact_hashes_remain_frozen() -> None:
+    expected = {
+        historical.RECOVERY_NOTEBOOK_PATH: (historical.MATERIALIZER_RECOVERY_NOTEBOOK_SHA256),
+        historical.MATERIALIZATION_RECEIPT_PATH: (historical.MATERIALIZATION_RECEIPT_SHA256),
+        historical.MATERIALIZER_LOG_PATH: historical.MATERIALIZER_LOG_SHA256,
+        historical.INSPECTION_LOG_PATH: historical.INSPECTION_LOG_SHA256,
+        historical.INSPECTION_ZIP_PATH: historical.INSPECTION_EVIDENCE_ZIP_SHA256,
+    }
 
-    with pytest.raises(
-        ValidationError,
-        match="fresh authorization implementation scope drifted",
-    ):
-        integration.FreshAuthorizationReadinessReview.model_validate(payload)
+    for relative_path, expected_sha256 in expected.items():
+        assert historical._file_sha256(ROOT / relative_path) == expected_sha256
 
 
-def test_validator_rejects_tampered_inspection_evidence_zip(tmp_path: Path) -> None:
-    identity = integration.EvidenceIdentity.model_validate(
-        _load_json(ROOT / integration.EVIDENCE_IDENTITY_PATH)
+def test_historical_validator_rejects_tampered_inspection_evidence_zip(
+    tmp_path: Path,
+) -> None:
+    identity = historical.EvidenceIdentity.model_validate(
+        _load_json(ROOT / historical.EVIDENCE_IDENTITY_PATH)
     )
     tampered = tmp_path / "evidence.zip"
-    shutil.copy2(ROOT / integration.INSPECTION_ZIP_PATH, tampered)
+    shutil.copy2(ROOT / historical.INSPECTION_ZIP_PATH, tampered)
     with tampered.open("ab") as handle:
         handle.write(b"tampered")
 
     with pytest.raises(
-        integration.HarnessEvidenceIntegrationError,
+        historical.HarnessEvidenceIntegrationError,
         match="inspection evidence ZIP identity drifted",
     ):
-        integration._validate_evidence_zip(tampered, identity)
-
-
-def test_validator_rejects_premature_final_authorization(tmp_path: Path) -> None:
-    repository = tmp_path / "repo"
-    shutil.copytree(ROOT, repository, ignore=shutil.ignore_patterns(".git", "__pycache__"))
-    target = repository / integration.FINAL_AUTHORIZATION_PATH
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text("{}", encoding="utf-8")
-
-    with pytest.raises(
-        integration.HarnessEvidenceIntegrationError,
-        match="final authorization exists before fresh issuance implementation",
-    ):
-        integration.validate_repository_package(repository)
-
-
-def test_validator_rejects_active_materialization_record_drift(tmp_path: Path) -> None:
-    repository = tmp_path / "repo"
-    shutil.copytree(ROOT, repository, ignore=shutil.ignore_patterns(".git", "__pycache__"))
-    path = repository / integration.MATERIALIZATION_RECORD_PATH
-    payload = _load_json(path)
-    payload["harness_source_commit"] = "0" * 40
-    path.write_text(
-        json.dumps(payload, ensure_ascii=True, separators=(",", ":"), sort_keys=True),
-        encoding="utf-8",
-    )
-
-    with pytest.raises(
-        integration.HarnessEvidenceIntegrationError,
-        match="active manifest or materialization record does not bind the current harness",
-    ):
-        integration.validate_repository_package(repository)
+        historical._validate_evidence_zip(tampered, identity)

@@ -278,12 +278,27 @@ def test_build_authorization_binds_current_inputs_and_frozen_loader(
         issuance_module.READINESS_REVIEW_SHA256
     )
     assert authorization.materialization_record_sha256 == (
+        inputs.materialization_record.fingerprint()
+    )
+    assert authorization.dataset_manifest_sha256 == inputs.runtime_manifest.fingerprint()
+    assert authorization.materialization_record_sha256 != (
         issuance_module.MATERIALIZATION_RECORD_SHA256
     )
-    assert authorization.dataset_manifest_sha256 == issuance_module.RUNTIME_MANIFEST_SHA256
+    assert authorization.dataset_manifest_sha256 != issuance_module.RUNTIME_MANIFEST_SHA256
     assert authorization.runtime_factory.artifact_sha256 == issuance_module.RUNTIME_ADAPTER_SHA256
     assert authorization.expires_at - authorization.issued_at == timedelta(minutes=30)
     issuance_module._validate_frozen_loader_parity(authorization)
+
+
+def test_historical_issuer_rejects_migrated_active_inputs() -> None:
+    with pytest.raises(AuthorizationIssuanceError) as caught:
+        issuance_module._validate_current_input_package(ROOT)
+
+    assert caught.value.error_code == "AUTHORIZATION_ISSUANCE_CURRENT_IDENTITY_DRIFT"
+    assert (
+        Path(caught.value.path).resolve()
+        == (ROOT / issuance_module.MATERIALIZED_DATASET_MANIFEST_PATH).resolve()
+    )
 
 
 def test_implementation_summary_preserves_zero_runtime_boundary(

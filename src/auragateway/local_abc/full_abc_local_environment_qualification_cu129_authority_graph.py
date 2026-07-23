@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Final, Never, cast
 
 from auragateway.local_abc import (
-    full_abc_local_environment_qualification_cu129_harness_evidence_integration,
+    cu129_worker_observability_harness_integration,
     full_abc_local_environment_qualification_cu129_worker_startup_observability_implementation,
     full_abc_local_environment_qualification_execution_authorization_issuance_review,
 )
@@ -29,7 +29,7 @@ observability_implementation = (
     full_abc_local_environment_qualification_cu129_worker_startup_observability_implementation
 )
 
-harness_integration = full_abc_local_environment_qualification_cu129_harness_evidence_integration
+harness_integration = cu129_worker_observability_harness_integration
 issuance_review = full_abc_local_environment_qualification_execution_authorization_issuance_review
 
 INTEGRATION_PATH: Final = Path(
@@ -286,7 +286,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         root / ISSUANCE_RUNBOOK_PATH,
         (
             "CURRENT STATUS: ISSUANCE BLOCKED",
-            "WORKER STARTUP OBSERVABILITY IMPLEMENTED",
+            "WORKER OBSERVABILITY HARNESS EVIDENCE INTEGRATED",
             "historical issuer",
             "CONTROL_PACKAGE_AUTHORIZATION_PARITY",
         ),
@@ -294,13 +294,13 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
 
     implementation_summary = observability_implementation.validate_repository_package(root)
     if implementation_summary.get("status") != (
-        "WORKER_STARTUP_OBSERVABILITY_IMPLEMENTED_REMATERIALIZATION_REQUIRED"
+        "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"
     ):
-        raise AuthorityGraphError("worker-startup observability implementation drifted")
+        raise AuthorityGraphError("worker-startup observability integration drifted")
     if implementation_summary.get("historical_issuer_usable") is not False:
         raise AuthorityGraphError("historical issuer was incorrectly retained as usable")
-    if implementation_summary.get("active_manifest_promoted") is not False:
-        raise AuthorityGraphError("active manifest moved before rematerialization evidence")
+    if implementation_summary.get("active_manifest_promoted") is not True:
+        raise AuthorityGraphError("active manifest did not move to inspected evidence")
     if implementation_summary.get("authorization_issued") is not False:
         raise AuthorityGraphError("worker-observability implementation created authorization")
     if implementation_summary.get("model_requests_performed") != 0:
@@ -330,7 +330,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         raise AuthorityGraphError("final qualification authorization must remain absent")
 
     return {
-        "status": "CURRENT_CU129_WORKER_OBSERVABILITY_IMPLEMENTED_REMATERIALIZATION_REQUIRED",
+        "status": "CURRENT_CU129_WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
         "current_runtime_role": runtime.role,
         "current_runtime_format": runtime.artifact_format,
         "runtime_package_count": runtime.package_count,
@@ -340,18 +340,17 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         "authorization_source_binding_policy": (
             harness_integration.AUTHORIZATION_SOURCE_BINDING_POLICY
         ),
-        "current_authorization_base_commit": (observability_implementation.BASE_COMMIT),
-        "current_harness_source_commit": (
-            implementation_summary["historical_active_harness_source_commit"]
-        ),
+        "worker_observability_review_base_commit": (observability_implementation.BASE_COMMIT),
+        "fresh_authorization_base_commit_status": "POST_INTEGRATION_MERGE_PENDING",
+        "current_harness_source_commit": (implementation_summary["current_harness_source_commit"]),
         "historical_preintegration_review_revision_bound": True,
         "historical_pr109_issuance_review_revision_bound": True,
         "historical_rematerialization_revision_bound": True,
-        "fresh_cu129_authorization_review_required": True,
+        "fresh_cu129_authorization_readiness_review_complete": True,
         "fresh_cu129_authorization_issuer_implemented": False,
         "worker_startup_observability_implemented": True,
         "historical_issuer_usable": False,
-        "active_manifest_promoted": False,
+        "active_manifest_promoted": True,
         "authorization_issued": False,
         "runtime_execution_performed": False,
         "model_requests_performed": 0,

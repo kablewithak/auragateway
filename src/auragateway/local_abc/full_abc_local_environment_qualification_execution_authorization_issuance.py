@@ -432,6 +432,9 @@ def _validate_current_input_package(repo_root: Path) -> CurrentAuthorizationInpu
             runtime_manifest_path.as_posix(),
         )
 
+    launcher_source_commit: str = launcher.SOURCE_MAIN_MERGE_COMMIT
+    current_harness_source_commit: str = CURRENT_HARNESS_SOURCE_COMMIT
+
     checks = (
         readiness.fingerprint() == READINESS_REVIEW_SHA256,
         readiness.current_manifest_sha256 == RUNTIME_MANIFEST_SHA256,
@@ -451,7 +454,7 @@ def _validate_current_input_package(repo_root: Path) -> CurrentAuthorizationInpu
         materialization_record.fingerprint() == MATERIALIZATION_RECORD_SHA256,
         materialization_record.runtime_manifest_sha256 == RUNTIME_MANIFEST_SHA256,
         materialization_record.harness_source_commit == CURRENT_HARNESS_SOURCE_COMMIT,
-        launcher.SOURCE_MAIN_MERGE_COMMIT == CURRENT_HARNESS_SOURCE_COMMIT,
+        launcher_source_commit == current_harness_source_commit,
         launcher.AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT == SOURCE_MAIN_MERGE_COMMIT,
         launcher.AUTHORIZATION_SOURCE_BINDING_POLICY == "CONTROL_PACKAGE_AUTHORIZATION_PARITY",
     )
