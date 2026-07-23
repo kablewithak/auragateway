@@ -181,6 +181,10 @@ def test_launcher_binds_reviewed_core_and_cold_session_guards(
     assert "worker_startup_diagnostic.json" in source
     assert "load_worker_startup_diagnostic" in source
     assert "worker_startup_diagnostic_included" in source
+    assert "class DirectoryIdentity" in source
+    assert "class HarnessIdentityMismatch" in source
+    assert "harness_identity_observation" in source
+    assert "identity_mismatch_included=" in source
     assert "MAXIMUM_EVIDENCE_ZIP_BYTES = 2097152" in source
     assert "archive.write(path, arcname=archive_name)" in source
     assert "archive.write(" not in source.replace(
@@ -497,6 +501,108 @@ def test_launcher_failure_path_writes_one_small_zip(
     assert failure["credentials_used"] is False
     assert failure["provider_calls_performed"] is False
     assert failure["worker_startup_diagnostic_included"] is False
+    assert failure["identity_mismatch"] is None
+
+
+def test_launcher_directory_identity_contract_is_deterministic(
+    tmp_path: Path,
+) -> None:
+    namespace = _launcher_runtime_namespace(tmp_path)
+    input_root = cast(Path, namespace["INPUT_ROOT"])
+    harness_root = input_root / "harness"
+    harness_root.mkdir()
+    (harness_root / "alpha.txt").write_text("alpha", encoding="utf-8")
+    (harness_root / "nested").mkdir()
+    (harness_root / "nested/beta.txt").write_text("beta", encoding="utf-8")
+
+    identity_builder = cast(
+        Callable[[Path], Any],
+        namespace["directory_identity"],
+    )
+    first = identity_builder(harness_root)
+    second = identity_builder(harness_root)
+
+    assert first == second
+    assert first.file_count == 2
+    assert first.total_bytes == 9
+    assert len(first.sha256) == 64
+
+
+def test_launcher_failure_bundle_records_preflight_identity_mismatch(
+    tmp_path: Path,
+) -> None:
+    namespace = _launcher_runtime_namespace(tmp_path)
+    work_root = cast(Path, namespace["WORK_ROOT"])
+    writer = cast(Callable[[BaseException], None], namespace["write_failure_bundle"])
+    identity_type = cast(Callable[..., Any], namespace["DirectoryIdentity"])
+    mismatch_type = cast(Callable[..., RuntimeError], namespace["HarnessIdentityMismatch"])
+
+    observed = identity_type(
+        sha256="b" * 64,
+        file_count=1077,
+        total_bytes=10850312,
+    )
+    mismatch = mismatch_type(
+        expected_sha256="a" * 64,
+        observed_identity=observed,
+        manifest_path_relative_to_input=(
+            "notebooks/kabomolefe/ag-worker-obs-harness-materializer-v1/expected-harness"
+        ),
+        resolved_path_relative_to_input=(
+            "notebooks/kabomolefe/ag-worker-obs-harness-materializer-v1/observed-harness"
+        ),
+    )
+
+    writer(mismatch)
+
+    evidence_zip = work_root / launcher.EVIDENCE_ZIP_NAME
+    with zipfile.ZipFile(evidence_zip) as archive:
+        failure = json.loads(archive.read("launcher_failure.json"))
+
+    evidence = cast(dict[str, object], failure["identity_mismatch"])
+    assert evidence["error_code"] == "HARNESS_SOURCE_IDENTITY_MISMATCH"
+    assert evidence["evidence_valid"] is True
+    assert evidence["comparison_stage"] == "launcher_preflight"
+    assert evidence["expected_sha256"] == "a" * 64
+    assert evidence["observed_sha256"] == "b" * 64
+    assert evidence["observed_file_count"] == 1077
+    assert evidence["observed_total_bytes"] == 10850312
+    assert evidence["hash_parity_at_launcher_preflight"] is False
+    assert evidence["reviewed_core_reported_mismatch"] is False
+
+
+def test_launcher_failure_bundle_preserves_preflight_parity_for_core_mismatch(
+    tmp_path: Path,
+) -> None:
+    namespace = _launcher_runtime_namespace(tmp_path)
+    work_root = cast(Path, namespace["WORK_ROOT"])
+    writer = cast(Callable[[BaseException], None], namespace["write_failure_bundle"])
+
+    namespace["harness_identity_observation"] = {
+        "expected_sha256": "a" * 64,
+        "observed_sha256": "a" * 64,
+        "observed_file_count": 1076,
+        "observed_total_bytes": 10850278,
+        "manifest_path_relative_to_input": (
+            "notebooks/kabomolefe/ag-worker-obs-harness-materializer-v1/expected-harness"
+        ),
+        "resolved_path_relative_to_input": (
+            "notebooks/kabomolefe/ag-worker-obs-harness-materializer-v1/expected-harness"
+        ),
+    }
+
+    writer(RuntimeError("harness_source identity does not match the manifest"))
+
+    evidence_zip = work_root / launcher.EVIDENCE_ZIP_NAME
+    with zipfile.ZipFile(evidence_zip) as archive:
+        failure = json.loads(archive.read("launcher_failure.json"))
+
+    evidence = cast(dict[str, object], failure["identity_mismatch"])
+    assert evidence["evidence_valid"] is True
+    assert evidence["comparison_stage"] == "reviewed_core_execution"
+    assert evidence["expected_sha256"] == evidence["observed_sha256"]
+    assert evidence["hash_parity_at_launcher_preflight"] is True
+    assert evidence["reviewed_core_reported_mismatch"] is True
 
 
 def test_launcher_failure_bundle_embeds_worker_startup_diagnostic(

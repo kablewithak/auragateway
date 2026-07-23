@@ -395,9 +395,11 @@ import hashlib
 import json
 import os
 import socket
+import stat
 import sys
 import traceback
 import zipfile
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -457,6 +459,34 @@ __RUNTIME_EVIDENCE_TUPLE__
 )
 
 stage = "launcher_initialization"
+harness_identity_observation: dict[str, object] | None = None
+
+
+@dataclass(frozen=True)
+class DirectoryIdentity:
+    sha256: str
+    file_count: int
+    total_bytes: int
+
+
+class HarnessIdentityMismatch(RuntimeError):
+    error_code = "HARNESS_SOURCE_IDENTITY_MISMATCH"
+
+    def __init__(
+        self,
+        *,
+        expected_sha256: str,
+        observed_identity: DirectoryIdentity,
+        manifest_path_relative_to_input: str,
+        resolved_path_relative_to_input: str,
+    ) -> None:
+        super().__init__("harness_source identity does not match the manifest")
+        self.expected_sha256 = expected_sha256
+        self.observed_sha256 = observed_identity.sha256
+        self.observed_file_count = observed_identity.file_count
+        self.observed_total_bytes = observed_identity.total_bytes
+        self.manifest_path_relative_to_input = manifest_path_relative_to_input
+        self.resolved_path_relative_to_input = resolved_path_relative_to_input
 
 
 def sha256_bytes(payload: bytes) -> str:
@@ -477,6 +507,47 @@ def canonical_json(payload: object) -> str:
         ensure_ascii=True,
         separators=(",", ":"),
         sort_keys=True,
+    )
+
+
+def input_relative_path(path: Path) -> str:
+    resolved = path.resolve()
+    if resolved == INPUT_ROOT:
+        return "."
+    if INPUT_ROOT not in resolved.parents:
+        raise RuntimeError("harness source escaped /kaggle/input")
+    return resolved.relative_to(INPUT_ROOT).as_posix()
+
+
+def directory_identity(root: Path) -> DirectoryIdentity:
+    entries: list[dict[str, object]] = []
+    total_bytes = 0
+    for path in sorted(root.rglob("*"), key=lambda item: item.as_posix()):
+        if path.is_symlink():
+            raise RuntimeError("harness source contains a symbolic link")
+        metadata = path.stat()
+        if path.is_dir():
+            continue
+        if not stat.S_ISREG(metadata.st_mode):
+            raise RuntimeError("harness source contains a non-regular member")
+        total_bytes += metadata.st_size
+        if total_bytes > 100 * 1024 * 1024:
+            raise RuntimeError("harness source exceeds the bootstrap byte budget")
+        entries.append(
+            {
+                "path": path.relative_to(root).as_posix(),
+                "sha256": file_sha256(path),
+                "size_bytes": metadata.st_size,
+            }
+        )
+        if len(entries) > 5_000:
+            raise RuntimeError("harness source exceeds the bootstrap file budget")
+    if not entries:
+        raise RuntimeError("harness source is empty")
+    return DirectoryIdentity(
+        sha256=sha256_bytes(canonical_json(entries).encode("utf-8")),
+        file_count=len(entries),
+        total_bytes=total_bytes,
     )
 
 
@@ -641,6 +712,82 @@ def load_worker_startup_diagnostic() -> bytes | None:
     return raw
 
 
+def identity_mismatch_evidence(
+    error: BaseException,
+) -> dict[str, object] | None:
+    if getattr(error, "error_code", None) == "HARNESS_SOURCE_IDENTITY_MISMATCH":
+        expected_sha256 = getattr(error, "expected_sha256", None)
+        observed_sha256 = getattr(error, "observed_sha256", None)
+        observed_file_count = getattr(error, "observed_file_count", None)
+        observed_total_bytes = getattr(error, "observed_total_bytes", None)
+        manifest_path = getattr(error, "manifest_path_relative_to_input", None)
+        resolved_path = getattr(error, "resolved_path_relative_to_input", None)
+        comparison_stage = "launcher_preflight"
+        reviewed_core_reported_mismatch = False
+    elif (
+        str(error) == "harness_source identity does not match the manifest"
+        and harness_identity_observation is not None
+    ):
+        expected_sha256 = harness_identity_observation.get("expected_sha256")
+        observed_sha256 = harness_identity_observation.get("observed_sha256")
+        observed_file_count = harness_identity_observation.get("observed_file_count")
+        observed_total_bytes = harness_identity_observation.get("observed_total_bytes")
+        manifest_path = harness_identity_observation.get(
+            "manifest_path_relative_to_input"
+        )
+        resolved_path = harness_identity_observation.get(
+            "resolved_path_relative_to_input"
+        )
+        comparison_stage = "reviewed_core_execution"
+        reviewed_core_reported_mismatch = True
+    else:
+        return None
+
+    digests = (expected_sha256, observed_sha256)
+    digests_valid = all(
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
+        for value in digests
+    )
+    counts_valid = (
+        isinstance(observed_file_count, int)
+        and not isinstance(observed_file_count, bool)
+        and observed_file_count >= 0
+        and isinstance(observed_total_bytes, int)
+        and not isinstance(observed_total_bytes, bool)
+        and observed_total_bytes >= 0
+    )
+    paths_valid = all(
+        isinstance(value, str)
+        and value not in ("", ".")
+        and not value.startswith("/")
+        and ".." not in Path(value).parts
+        for value in (manifest_path, resolved_path)
+    )
+    if not (digests_valid and counts_valid and paths_valid):
+        return {
+            "error_code": "HARNESS_SOURCE_IDENTITY_MISMATCH",
+            "evidence_valid": False,
+            "comparison_stage": comparison_stage,
+            "reviewed_core_reported_mismatch": reviewed_core_reported_mismatch,
+        }
+
+    return {
+        "error_code": "HARNESS_SOURCE_IDENTITY_MISMATCH",
+        "evidence_valid": True,
+        "comparison_stage": comparison_stage,
+        "expected_sha256": expected_sha256,
+        "observed_sha256": observed_sha256,
+        "observed_file_count": observed_file_count,
+        "observed_total_bytes": observed_total_bytes,
+        "manifest_path_relative_to_input": manifest_path,
+        "resolved_path_relative_to_input": resolved_path,
+        "hash_parity_at_launcher_preflight": expected_sha256 == observed_sha256,
+        "reviewed_core_reported_mismatch": reviewed_core_reported_mismatch,
+    }
+
+
 def write_failure_bundle(error: BaseException) -> None:
     evidence_found: list[str] = []
     if MATERIALIZED_HARNESS_ROOT.is_dir():
@@ -650,6 +797,7 @@ def write_failure_bundle(error: BaseException) -> None:
                 evidence_found.append(relative_path)
 
     diagnostic_bytes = load_worker_startup_diagnostic()
+    identity_mismatch = identity_mismatch_evidence(error)
     failure = {
         "schema_version": "1.0.0",
         "status": "FAILED",
@@ -671,6 +819,7 @@ def write_failure_bundle(error: BaseException) -> None:
         "credentials_used": False,
         "provider_calls_performed": False,
         "external_spend": 0,
+        "identity_mismatch": identity_mismatch,
     }
     trace = "".join(
         traceback.format_exception(type(error), error, error.__traceback__)
@@ -710,6 +859,10 @@ def write_failure_bundle(error: BaseException) -> None:
     print(
         "worker_startup_diagnostic_included="
         + str(diagnostic_bytes is not None).lower()
+    )
+    print(
+        "identity_mismatch_included="
+        + str(identity_mismatch is not None).lower()
     )
     print("upload_only_this_file=true")
 
@@ -886,6 +1039,38 @@ try:
     }
     if observed_mounts != expected_mounts:
         raise RuntimeError("dataset manifest static mount bindings drifted")
+
+    harness_entry = entries_by_role.get("harness_source")
+    if not isinstance(harness_entry, dict):
+        raise RuntimeError("dataset manifest harness_source entry is missing")
+    expected_harness_sha256 = harness_entry.get("sha256")
+    if not isinstance(expected_harness_sha256, str):
+        raise RuntimeError("dataset manifest harness_source identity is invalid")
+    observed_harness_identity = directory_identity(EXPECTED_HARNESS_SOURCE)
+    harness_identity_observation = {
+        "expected_sha256": expected_harness_sha256,
+        "observed_sha256": observed_harness_identity.sha256,
+        "observed_file_count": observed_harness_identity.file_count,
+        "observed_total_bytes": observed_harness_identity.total_bytes,
+        "manifest_path_relative_to_input": input_relative_path(
+            Path(harness_entry.get("mounted_path"))
+        ),
+        "resolved_path_relative_to_input": input_relative_path(
+            EXPECTED_HARNESS_SOURCE
+        ),
+    }
+    if observed_harness_identity.sha256 != expected_harness_sha256:
+        raise HarnessIdentityMismatch(
+            expected_sha256=expected_harness_sha256,
+            observed_identity=observed_harness_identity,
+            manifest_path_relative_to_input=input_relative_path(
+                Path(harness_entry.get("mounted_path"))
+            ),
+            resolved_path_relative_to_input=input_relative_path(
+                EXPECTED_HARNESS_SOURCE
+            ),
+        )
+
     runtime_entry = entries_by_role.get("vllm_runtime")
     if not isinstance(runtime_entry, dict):
         raise RuntimeError("dataset manifest CUDA 12.9 runtime entry is missing")
