@@ -1,19 +1,35 @@
 # Local A/B/C Environment Qualification Authorization Issuance v1
 
-## CURRENT STATUS: ISSUANCE BLOCKED; WORKER OBSERVABILITY HARNESS EVIDENCE INTEGRATED
+## CURRENT STATUS: ISSUER IMPLEMENTED; AUTHORIZATION NOT ISSUED
 
-The authorization issued for Attempt 5 was consumed and removed. The post-PR #138
-worker-observability harness has now been materialized, independently inspected, and
-integrated as the active CUDA 12.9 operational input.
+The post-PR #138 worker-observability harness has been materialized, independently
+inspected, and integrated as the active CUDA 12.9 operational input. The fresh issuer is
+now bound to the merged PR #139 repository boundary.
 
-The historical issuer remains deliberately stale because it binds historical source,
-manifest, materialization, runtime-adapter, and launcher identities. Do not run issuer
-validation, authorization issuance, authorization verification, control materialization,
-or Kaggle qualification until a fresh issuer implementation is merged.
+The historical issuer remains preserved as historical evidence. It is not the active
+issuer and must not be reused. No transient authorization exists.
+
+```text
+prior_gate=WORKER OBSERVABILITY HARNESS EVIDENCE INTEGRATED
+```
+
+```text
+authorization_issued=false
+kaggle_session_started=false
+gpu_execution_performed=false
+model_loaded=false
+worker_started=false
+model_requests_performed=0
+measured_execution_authorized=false
+external_spend=0
+```
 
 ## Current active authority
 
 ```text
+post-integration base commit:
+fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b
+
 harness source commit:
 dceda98989386de7a4d57616f9f8a8023f866f10
 
@@ -42,38 +58,50 @@ active materialization record SHA-256:
 a3f5cfee599b4a0258e3ac48a40f1ee27c2e9b85dd624df6fdb53079e6a6b223
 ```
 
-Operational-input closure is `PASSED`. The historical `426f57d` harness and all Attempt 5
-evidence remain immutable historical authorities. They are not deleted, rewritten, or
-relabeled as containing worker-startup observability.
+Operational-input closure remains `PASSED`. Existing historical evidence and exact
+artifact identities remain immutable. This implementation does not introduce a new
+source/configuration SHA-governance pattern. It consumes the existing evidence and
+authorization identities already established by the current readiness review.
 
-The launcher continues to preserve dynamic frozen-authorization provenance through:
+The launcher preserves dynamic frozen-authorization provenance through:
 
 ```text
 CONTROL_PACKAGE_AUTHORIZATION_PARITY
 ```
 
-That policy does not make the historical issuer valid. The fresh issuer must bind the
-post-integration merge commit rather than the earlier implementation or harness source
-commit alone.
+The frozen payload authority remains compatible with the rematerialized runtime loader,
+while the active issuer separately requires PR #139 to be an ancestor of the current
+clean synchronized `main`.
 
-## Validate the current blocked boundary
+## Validate the implementation without issuing authorization
 
 ```powershell
-python -m auragateway.local_abc.cu129_worker_observability_harness_integration `
+python -m auragateway.local_abc.full_abc_local_environment_qualification_execution_authorization_issuance `
+    validate-implementation `
     --repo-root .
 ```
 
-Required output includes:
+Required JSON fields include:
 
-```text
-status=WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED
-operational_input_closure=PASSED
-active_manifest_promoted=true
-historical_issuer_usable=false
-authorization_issued=false
-gpu_execution_performed=false
-model_requests_performed=0
-next_gate=fresh_cu129_authorization_issuance_implementation
+```json
+{
+  "status": "FRESH_CU129_AUTHORIZATION_ISSUER_READY",
+  "current_authorization_base_commit":
+    "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b",
+  "current_harness_source_commit":
+    "dceda98989386de7a4d57616f9f8a8023f866f10",
+  "maximum_workers": 2,
+  "maximum_kaggle_sessions": 1,
+  "maximum_model_requests": 8,
+  "benchmark_trajectory_requests_permitted": 0,
+  "authorization_issued": false,
+  "kaggle_session_started": false,
+  "worker_started": false,
+  "model_requests_performed": 0,
+  "measured_execution_authorized": false,
+  "external_spend": 0,
+  "next_gate": "explicit_operator_confirmation_then_issue_fresh_authorization"
+}
 ```
 
 Also validate the complete authority graph:
@@ -86,16 +114,18 @@ python -m auragateway.local_abc.full_abc_local_environment_qualification_cu129_a
 Required output includes:
 
 ```text
-status=CURRENT_CU129_WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED
-fresh_authorization_base_commit_status=POST_INTEGRATION_MERGE_PENDING
+status=CURRENT_CU129_FRESH_AUTHORIZATION_ISSUER_IMPLEMENTED
+fresh_authorization_base_commit_status=POST_INTEGRATION_MERGE_BOUND
+fresh_authorization_base_commit=fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b
 fresh_cu129_authorization_readiness_review_complete=true
-fresh_cu129_authorization_issuer_implemented=false
+fresh_cu129_authorization_issuer_implemented=true
 worker_startup_observability_implemented=true
 historical_issuer_usable=false
 active_manifest_promoted=true
 authorization_issued=false
 runtime_execution_performed=false
 model_requests_performed=0
+next_gate=explicit_operator_confirmation_then_issue_fresh_authorization
 ```
 
 ## Hard limits retained
@@ -114,36 +144,33 @@ external spend: 0
 measured execution authorized: false
 ```
 
-## Post-integration sequence
+## Operational sequence after merge
 
-After this evidence-integration PR merges:
-
-1. synchronize clean `main` and record the exact integration merge commit;
-2. implement one fresh authorization issuer bound to that merge commit;
-3. bind the exact current manifest, materialization record, runtime adapter, diagnostics,
-   launcher source, and launcher notebook identities;
-4. preserve dynamic launcher-control authorization-source parity;
-5. validate that no authorization already exists;
-6. require explicit operator confirmation before issuing one short-lived authorization;
-7. materialize the control package in a CPU-only fresh notebook;
-8. permit at most one governed fresh-session GPU qualification retry.
+1. synchronize clean `main`;
+2. validate the fresh issuer and complete authority graph;
+3. obtain explicit operator authorization for one bounded qualification window;
+4. issue one transient, non-overwriting authorization;
+5. verify the authorization before any control-package materialization;
+6. materialize the control package in a CPU-only fresh notebook;
+7. permit at most one governed fresh-session GPU qualification attempt.
 
 ## Prohibited actions
 
 - do not reuse the Attempt 5 authorization;
 - do not commit a transient authorization;
-- do not update the historical issuer hashes in place;
+- do not overwrite an existing authorization;
+- do not rewrite historical evidence or authority constants;
 - do not roll the active manifest back to a historical harness;
-- do not run the historical `426f57d` harness as the remediated lineage;
 - do not start Kaggle or GPU from the implementation branch;
-- do not load a model, start workers, or perform requests during remediation proof;
+- do not load a model, start workers, or perform requests during implementation proof;
 - do not claim that the Attempt 5 root cause has been identified.
 
 ## Next gate
 
 ```text
-fresh_cu129_authorization_issuance_implementation
+explicit_operator_confirmation_then_issue_fresh_authorization
 ```
 
-This is a repository-only issuer implementation transition. It does not itself issue
-authorization, start Kaggle, load a model, start workers, or perform requests.
+The implementation PR stops before authorization issuance. Authorization, Kaggle, GPU,
+model loading, worker startup, and model requests remain absent until a separate explicit
+operator decision.

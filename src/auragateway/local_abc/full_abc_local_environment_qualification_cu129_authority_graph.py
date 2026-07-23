@@ -277,6 +277,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
             "CURRENT_AUTHORIZATION_BASE_COMMIT",
             "CURRENT_HARNESS_SOURCE_COMMIT",
             "READINESS_REVIEW_SHA256",
+            "current_worker_startup_diagnostics_sha256",
             "validate_implementation_package",
             "CURRENT_ISSUANCE_FROZEN_LOADER_PARITY_FAILED",
             "AUTHORIZATION_ALREADY_EXISTS",
@@ -285,7 +286,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
     _require_source_markers(
         root / ISSUANCE_RUNBOOK_PATH,
         (
-            "CURRENT STATUS: ISSUANCE BLOCKED",
+            "CURRENT STATUS: ISSUER IMPLEMENTED; AUTHORIZATION NOT ISSUED",
             "WORKER OBSERVABILITY HARNESS EVIDENCE INTEGRATED",
             "historical issuer",
             "CONTROL_PACKAGE_AUTHORIZATION_PARITY",
@@ -297,6 +298,12 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"
     ):
         raise AuthorityGraphError("worker-startup observability integration drifted")
+    if implementation_summary.get("fresh_issuer_implemented") is not True:
+        raise AuthorityGraphError("fresh authorization issuer is not implemented")
+    if implementation_summary.get("fresh_authorization_base_commit") != (
+        "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
+    ):
+        raise AuthorityGraphError("fresh authorization issuer base commit drifted")
     if implementation_summary.get("historical_issuer_usable") is not False:
         raise AuthorityGraphError("historical issuer was incorrectly retained as usable")
     if implementation_summary.get("active_manifest_promoted") is not True:
@@ -330,7 +337,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         raise AuthorityGraphError("final qualification authorization must remain absent")
 
     return {
-        "status": "CURRENT_CU129_WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
+        "status": "CURRENT_CU129_FRESH_AUTHORIZATION_ISSUER_IMPLEMENTED",
         "current_runtime_role": runtime.role,
         "current_runtime_format": runtime.artifact_format,
         "runtime_package_count": runtime.package_count,
@@ -341,13 +348,16 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
             harness_integration.AUTHORIZATION_SOURCE_BINDING_POLICY
         ),
         "worker_observability_review_base_commit": (observability_implementation.BASE_COMMIT),
-        "fresh_authorization_base_commit_status": "POST_INTEGRATION_MERGE_PENDING",
+        "fresh_authorization_base_commit_status": "POST_INTEGRATION_MERGE_BOUND",
+        "fresh_authorization_base_commit": implementation_summary[
+            "fresh_authorization_base_commit"
+        ],
         "current_harness_source_commit": (implementation_summary["current_harness_source_commit"]),
         "historical_preintegration_review_revision_bound": True,
         "historical_pr109_issuance_review_revision_bound": True,
         "historical_rematerialization_revision_bound": True,
         "fresh_cu129_authorization_readiness_review_complete": True,
-        "fresh_cu129_authorization_issuer_implemented": False,
+        "fresh_cu129_authorization_issuer_implemented": True,
         "worker_startup_observability_implemented": True,
         "historical_issuer_usable": False,
         "active_manifest_promoted": True,

@@ -256,7 +256,7 @@ def test_write_authorization_uses_canonical_json(tmp_path: Path) -> None:
     assert target.read_text(encoding="utf-8") == authorization.canonical_json()
 
 
-def test_build_authorization_binds_current_inputs_and_frozen_loader(
+def test_build_authorization_binds_worker_observability_inputs_and_frozen_loader(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -281,23 +281,27 @@ def test_build_authorization_binds_current_inputs_and_frozen_loader(
         inputs.materialization_record.fingerprint()
     )
     assert authorization.dataset_manifest_sha256 == inputs.runtime_manifest.fingerprint()
-    assert authorization.materialization_record_sha256 != (
+    assert authorization.materialization_record_sha256 == (
         issuance_module.MATERIALIZATION_RECORD_SHA256
     )
-    assert authorization.dataset_manifest_sha256 != issuance_module.RUNTIME_MANIFEST_SHA256
+    assert authorization.dataset_manifest_sha256 == issuance_module.RUNTIME_MANIFEST_SHA256
     assert authorization.runtime_factory.artifact_sha256 == issuance_module.RUNTIME_ADAPTER_SHA256
     assert authorization.expires_at - authorization.issued_at == timedelta(minutes=30)
     issuance_module._validate_frozen_loader_parity(authorization)
 
 
-def test_historical_issuer_rejects_migrated_active_inputs() -> None:
-    with pytest.raises(AuthorizationIssuanceError) as caught:
-        issuance_module._validate_current_input_package(ROOT)
+def test_fresh_issuer_accepts_worker_observability_active_inputs() -> None:
+    inputs = issuance_module._validate_current_input_package(ROOT)
 
-    assert caught.value.error_code == "AUTHORIZATION_ISSUANCE_CURRENT_IDENTITY_DRIFT"
-    assert (
-        Path(caught.value.path).resolve()
-        == (ROOT / issuance_module.MATERIALIZED_DATASET_MANIFEST_PATH).resolve()
+    assert inputs.readiness.review_id == (
+        "auragateway-cu129-worker-observability-fresh-authorization-readiness-review-v1"
+    )
+    assert inputs.readiness.current_worker_startup_diagnostics_sha256 == (
+        issuance_module.harness_integration.CURRENT_WORKER_DIAGNOSTICS_SHA256
+    )
+    assert inputs.runtime_manifest.fingerprint() == issuance_module.RUNTIME_MANIFEST_SHA256
+    assert inputs.materialization_record.fingerprint() == (
+        issuance_module.MATERIALIZATION_RECORD_SHA256
     )
 
 
@@ -317,6 +321,9 @@ def test_implementation_summary_preserves_zero_runtime_boundary(
     assert summary["status"] == "FRESH_CU129_AUTHORIZATION_ISSUER_READY"
     assert summary["current_authorization_base_commit"] == (
         issuance_module.CURRENT_AUTHORIZATION_BASE_COMMIT
+    )
+    assert summary["worker_startup_diagnostics_sha256"] == (
+        issuance_module.harness_integration.CURRENT_WORKER_DIAGNOSTICS_SHA256
     )
     assert summary["authorization_issued"] is False
     assert summary["kaggle_session_started"] is False
@@ -379,15 +386,18 @@ def test_cli_requires_explicit_operator_confirmation(
 
 def test_current_and_frozen_authorities_are_not_conflated() -> None:
     assert issuance_module.CURRENT_AUTHORIZATION_BASE_COMMIT == (
-        "3ea2cf60db7057f94cdbda9060587e5e6881ef28"
+        "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
     )
     assert issuance_module.CURRENT_HARNESS_SOURCE_COMMIT == (
-        "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
+        "dceda98989386de7a4d57616f9f8a8023f866f10"
     )
     assert issuance_module.SOURCE_MAIN_MERGE_COMMIT == ("211a10757999b1b110cb1d9df172938cf6ed7969")
     assert issuance_module.HARNESS_SOURCE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
     assert issuance_module.READINESS_REVIEW_SHA256 == (
-        "2a0463c48e1a8ffdd4c93f7ed20cc4c60bd7925602a09a59a7b9d9dc3545f00b"
+        "e5d8c010aeaea6aaeb013c2020faf41a5d55f0576bbd8d520bb94bf9194c4f2f"
+    )
+    assert issuance_module.harness_integration.READINESS_REVIEW_PATH == (
+        issuance_module.READINESS_REVIEW_PATH
     )
     assert issuance_module.MAXIMUM_AUTHORIZATION_WINDOW_MINUTES == 240
 
