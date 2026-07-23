@@ -17,8 +17,8 @@ from typing import Final, Literal, Never, Self, TypeVar, cast
 from pydantic import Field, ValidationError, field_validator, model_validator
 
 from auragateway.local_abc import (
+    cu129_worker_observability_harness_integration,
     full_abc_local_environment_qualification_authorization_source_authority_parity,
-    full_abc_local_environment_qualification_cu129_harness_evidence_integration,
     full_abc_local_environment_qualification_execution_authorization,
     full_abc_local_environment_qualification_execution_authorization_contracts,
     full_abc_local_environment_qualification_kaggle_launcher,
@@ -39,7 +39,7 @@ from auragateway.local_abc.full_abc_local_environment_qualification_execution_co
 source_authority_parity = (
     full_abc_local_environment_qualification_authorization_source_authority_parity
 )
-harness_integration = full_abc_local_environment_qualification_cu129_harness_evidence_integration
+harness_integration = cu129_worker_observability_harness_integration
 authorization_package = full_abc_local_environment_qualification_execution_authorization
 authorization_contracts = full_abc_local_environment_qualification_execution_authorization_contracts
 launcher = full_abc_local_environment_qualification_kaggle_launcher
@@ -59,25 +59,25 @@ SOURCE_MAIN_MERGE_COMMIT: Final = source_authority_parity.AUTHORIZATION_SOURCE_M
 HARNESS_SOURCE_COMMIT: Final = source_authority_parity.HARNESS_SOURCE_COMMIT
 REVIEW_SOURCE_MAIN_MERGE_COMMIT: Final = SOURCE_MAIN_MERGE_COMMIT
 
-# Current repository and operational-input authorities reviewed at PR #135.
-CURRENT_AUTHORIZATION_BASE_COMMIT: Final = "3ea2cf60db7057f94cdbda9060587e5e6881ef28"
+# Current repository and operational-input authorities after merged PR #139.
+CURRENT_AUTHORIZATION_BASE_COMMIT: Final = "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
 CURRENT_HARNESS_SOURCE_COMMIT: Final = harness_integration.SOURCE_COMMIT
 AUTHORIZATION_ID: Final = (
     "auragateway-full-abc-local-environment-qualification-execution-authorization-v1"
 )
-READINESS_REVIEW_SHA256: Final = "2a0463c48e1a8ffdd4c93f7ed20cc4c60bd7925602a09a59a7b9d9dc3545f00b"
+READINESS_REVIEW_SHA256: Final = "e5d8c010aeaea6aaeb013c2020faf41a5d55f0576bbd8d520bb94bf9194c4f2f"
 AUTHORIZATION_ISSUANCE_REVIEW_SHA256: Final = READINESS_REVIEW_SHA256
 MATERIALIZATION_RECORD_SHA256: Final = (
-    "284b488dece09e6b17dcf72e4dea69bbdadd440356ce353622b100c38a02100a"
+    "a3f5cfee599b4a0258e3ac48a40f1ee27c2e9b85dd624df6fdb53079e6a6b223"
 )
-RUNTIME_MANIFEST_SHA256: Final = "f7289cee9414d03d88ceb4775198e15ff9446fd99771a58c187de0d4264ef94a"
-RUNTIME_ADAPTER_SHA256: Final = "aec461dcd595bfa3af286d88832ec7ef1ca2b416adca6a548f102d9543fb8dba"
+RUNTIME_MANIFEST_SHA256: Final = "6c998716849d20e68ded4cce3a113a791a0d863bc97d2c5027991ad6a5615d8f"
+RUNTIME_ADAPTER_SHA256: Final = "f83452b6fbfd583f4236c2edbaf0e4bd3a6ece331494fdff891bf50d022ba617"
 EXECUTION_REQUEST_SHA256: Final = "7b0080429246f6def3c1ac28b8a677a2ed7e29ccf318690d9309ed98ff179ba0"
 AUTHORIZATION_REQUEST_SHA256: Final = (
     "57efaf2209bf3bc7127d9d0a9baa04d5463f97e689ef348ede1d298acaa20f25"
 )
-LAUNCHER_SOURCE_SHA256: Final = "7c0f7f1d466fd68a56d6b77c6e16cf69343491710052818743327b51f1d57f16"
-LAUNCHER_NOTEBOOK_SHA256: Final = "7ec60fd0a162f50961f8ff66a6e3dec3c68a15617109fdc7530b2ec380294de9"
+LAUNCHER_SOURCE_SHA256: Final = "8d3f55d6b22ce6131de7e4cf71fa006325ecfdce3fcb0b3ed5615d32354eba59"
+LAUNCHER_NOTEBOOK_SHA256: Final = "4379f9ff6f82dd6bc9d63a6a7194c6805722364861f0a01f0ffd2f45263ba6d2"
 MAXIMUM_AUTHORIZATION_WINDOW_MINUTES: Final = 240
 IMPLEMENTATION_NEXT_GATE: Final = "explicit_operator_confirmation_then_issue_fresh_authorization"
 NEXT_GATE: Final = "full_abc_local_full_run_environment_qualification_control_materialization"
@@ -340,7 +340,7 @@ def _require_source_authority(repo_root: Path) -> None:
         repo_root,
         CURRENT_AUTHORIZATION_BASE_COMMIT,
         error_code="CURRENT_AUTHORIZATION_BASE_COMMIT_MISSING",
-        safe_message="the PR 135 integration merge must be an ancestor of HEAD",
+        safe_message="the PR 139 integration merge must be an ancestor of HEAD",
     )
     _require_ancestor(
         repo_root,
@@ -440,6 +440,8 @@ def _validate_current_input_package(repo_root: Path) -> CurrentAuthorizationInpu
         readiness.current_manifest_sha256 == RUNTIME_MANIFEST_SHA256,
         readiness.current_materialization_record_sha256 == MATERIALIZATION_RECORD_SHA256,
         readiness.current_runtime_adapter_sha256 == RUNTIME_ADAPTER_SHA256,
+        readiness.current_worker_startup_diagnostics_sha256
+        == harness_integration.CURRENT_WORKER_DIAGNOSTICS_SHA256,
         readiness.current_launcher_source_sha256 == LAUNCHER_SOURCE_SHA256,
         readiness.current_launcher_notebook_sha256 == LAUNCHER_NOTEBOOK_SHA256,
         readiness.final_authorization_present is False,
@@ -545,6 +547,9 @@ def validate_implementation_package(repo_root: Path) -> dict[str, object]:
         "runtime_manifest_sha256": inputs.runtime_manifest.fingerprint(),
         "materialization_record_sha256": inputs.materialization_record.fingerprint(),
         "runtime_adapter_sha256": RUNTIME_ADAPTER_SHA256,
+        "worker_startup_diagnostics_sha256": (
+            inputs.readiness.current_worker_startup_diagnostics_sha256
+        ),
         "launcher_source_sha256": LAUNCHER_SOURCE_SHA256,
         "launcher_notebook_sha256": LAUNCHER_NOTEBOOK_SHA256,
         "maximum_workers": inputs.authorization_request.maximum_workers,
@@ -694,6 +699,9 @@ def issue_authorization(
         "issuer_head_commit": issuer_head,
         "current_authorization_base_commit": CURRENT_AUTHORIZATION_BASE_COMMIT,
         "current_harness_source_commit": CURRENT_HARNESS_SOURCE_COMMIT,
+        "worker_startup_diagnostics_sha256": (
+            inputs.readiness.current_worker_startup_diagnostics_sha256
+        ),
         "frozen_authorization_source_main_merge_commit": (authorization.source_main_merge_commit),
         "readiness_review_sha256": authorization.authorization_issuance_review_sha256,
         "issued_at": authorization.issued_at.isoformat(),

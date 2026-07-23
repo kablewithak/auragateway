@@ -330,7 +330,7 @@ def _require_source_controls(repo_root: Path) -> None:
 
 
 def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
-    """Validate implementation, historical active lineage, and blocked authority migration."""
+    """Validate implementation, historical lineage, and the fresh issuer transition."""
 
     root = Path(repo_root).resolve()
     _require_base_ancestor(root)
@@ -359,7 +359,9 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
     ):
         raise ImplementationError("active materialization record does not bind inspected evidence")
     if (root / FINAL_AUTHORIZATION_PATH).exists():
-        raise ImplementationError("authorization exists before fresh issuance implementation")
+        raise ImplementationError(
+            "authorization exists before explicit operator-confirmed issuance"
+        )
 
     expected_by_path = {artifact.path: artifact.sha256 for artifact in record.implemented_artifacts}
     if expected_by_path != {
@@ -393,12 +395,25 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
     if _sha256(root / LAUNCHER_SOURCE_PATH) != integration.CURRENT_LAUNCHER_SOURCE_SHA256:
         raise ImplementationError("integrated launcher source identity drifted")
 
-    if EXPECTED_ARTIFACT_SHA256[RUNTIME_ADAPTER_PATH] == issuance.RUNTIME_ADAPTER_SHA256:
-        raise ImplementationError("historical authorization issuer was incorrectly promoted")
-    if EXPECTED_ARTIFACT_SHA256[LAUNCHER_SOURCE_PATH] == issuance.LAUNCHER_SOURCE_SHA256:
-        raise ImplementationError("historical issuer launcher source was incorrectly promoted")
-    if EXPECTED_ARTIFACT_SHA256[LAUNCHER_NOTEBOOK_PATH] == issuance.LAUNCHER_NOTEBOOK_SHA256:
-        raise ImplementationError("historical issuer launcher notebook was incorrectly promoted")
+    issuer_summary = issuance.validate_implementation_package(root)
+    if issuer_summary.get("status") != "FRESH_CU129_AUTHORIZATION_ISSUER_READY":
+        raise ImplementationError("fresh authorization issuer validation failed")
+    if issuer_summary.get("current_authorization_base_commit") != (
+        "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
+    ):
+        raise ImplementationError("fresh authorization issuer base commit drifted")
+    if issuer_summary.get("current_harness_source_commit") != integration.SOURCE_COMMIT:
+        raise ImplementationError("fresh authorization issuer harness binding drifted")
+    if issuer_summary.get("runtime_adapter_sha256") != (integration.CURRENT_RUNTIME_ADAPTER_SHA256):
+        raise ImplementationError("fresh authorization issuer runtime adapter drifted")
+    if issuer_summary.get("worker_startup_diagnostics_sha256") != (
+        integration.CURRENT_WORKER_DIAGNOSTICS_SHA256
+    ):
+        raise ImplementationError("fresh authorization issuer diagnostics binding drifted")
+    if issuer_summary.get("launcher_source_sha256") != (integration.CURRENT_LAUNCHER_SOURCE_SHA256):
+        raise ImplementationError("fresh authorization issuer launcher source drifted")
+    if issuer_summary.get("launcher_notebook_sha256") != verification.notebook_sha256:
+        raise ImplementationError("fresh authorization issuer launcher notebook drifted")
 
     return {
         "status": "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
@@ -415,13 +430,15 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         "maximum_stream_capture_bytes": diagnostics.MAXIMUM_STREAM_CAPTURE_BYTES,
         "maximum_diagnostic_bytes": diagnostics.MAXIMUM_DIAGNOSTIC_BYTES,
         "maximum_readiness_polls": diagnostics.MAXIMUM_READINESS_POLLS,
+        "fresh_issuer_implemented": True,
+        "fresh_authorization_base_commit": issuer_summary["current_authorization_base_commit"],
         "historical_issuer_usable": False,
         "active_manifest_promoted": True,
         "operational_input_closure": "PASSED",
         "authorization_issued": False,
         "kaggle_execution_performed": False,
         "model_requests_performed": 0,
-        "next_gate": integration_summary["next_gate"],
+        "next_gate": issuer_summary["next_gate"],
     }
 
 
