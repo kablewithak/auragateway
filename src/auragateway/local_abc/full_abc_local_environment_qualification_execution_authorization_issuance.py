@@ -65,7 +65,7 @@ CURRENT_HARNESS_SOURCE_COMMIT: Final = harness_integration.SOURCE_COMMIT
 AUTHORIZATION_ID: Final = (
     "auragateway-full-abc-local-environment-qualification-execution-authorization-v1"
 )
-READINESS_REVIEW_SHA256: Final = "e5d8c010aeaea6aaeb013c2020faf41a5d55f0576bbd8d520bb94bf9194c4f2f"
+READINESS_REVIEW_SHA256: Final = "cca6d7599296b295ceeb4a613d802a66a724e5243c7e8548d69aa8b17e68beaf"
 AUTHORIZATION_ISSUANCE_REVIEW_SHA256: Final = READINESS_REVIEW_SHA256
 MATERIALIZATION_RECORD_SHA256: Final = (
     "a3f5cfee599b4a0258e3ac48a40f1ee27c2e9b85dd624df6fdb53079e6a6b223"
@@ -76,8 +76,8 @@ EXECUTION_REQUEST_SHA256: Final = "7b0080429246f6def3c1ac28b8a677a2ed7e29ccf3186
 AUTHORIZATION_REQUEST_SHA256: Final = (
     "57efaf2209bf3bc7127d9d0a9baa04d5463f97e689ef348ede1d298acaa20f25"
 )
-LAUNCHER_SOURCE_SHA256: Final = "8d3f55d6b22ce6131de7e4cf71fa006325ecfdce3fcb0b3ed5615d32354eba59"
-LAUNCHER_NOTEBOOK_SHA256: Final = "4379f9ff6f82dd6bc9d63a6a7194c6805722364861f0a01f0ffd2f45263ba6d2"
+LAUNCHER_SOURCE_SHA256: Final = "47a91da2c70f2fa5db93398a3d41cc807b292df84bcac4688479e38f0b0896dc"
+LAUNCHER_NOTEBOOK_SHA256: Final = "804cc1a0f9da7e1492f179bec7b65e3c7e511a529e38b2c0183a3debbf69670e"
 MAXIMUM_AUTHORIZATION_WINDOW_MINUTES: Final = 240
 IMPLEMENTATION_NEXT_GATE: Final = "explicit_operator_confirmation_then_issue_fresh_authorization"
 NEXT_GATE: Final = "full_abc_local_full_run_environment_qualification_control_materialization"
