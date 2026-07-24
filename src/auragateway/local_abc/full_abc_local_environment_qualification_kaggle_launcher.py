@@ -545,7 +545,11 @@ def directory_identity(root: Path) -> DirectoryIdentity:
     if not entries:
         raise RuntimeError("harness source is empty")
     return DirectoryIdentity(
-        sha256=sha256_bytes(canonical_json(entries).encode("utf-8")),
+        sha256=sha256_bytes(
+            canonical_json(
+                {"schema_version": "1.0.0", "files": entries}
+            ).encode("utf-8")
+        ),
         file_count=len(entries),
         total_bytes=total_bytes,
     )

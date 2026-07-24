@@ -526,6 +526,8 @@ def test_launcher_directory_identity_contract_is_deterministic(
     assert first.file_count == 2
     assert first.total_bytes == 9
     assert len(first.sha256) == 64
+    assert first.sha256 == ("de44bbe5c43edbdea52de0a8d24d78ac6da5d791a794bab66965edb8d09973bf")
+    assert first.sha256 != ("19d56bf75d68069373dbc801733ee432301472216c3ba1963bfa551020bd35dd")
 
 
 def test_launcher_failure_bundle_records_preflight_identity_mismatch(

@@ -64,5 +64,9 @@ def directory_sha256(
 
     if not entries:
         raise ArtifactIdentityError("artifact directory is empty")
-    payload = json.dumps(entries, sort_keys=True, separators=(",", ":"))
+    payload = json.dumps(
+        {"schema_version": "1.0.0", "files": entries},
+        sort_keys=True,
+        separators=(",", ":"),
+    )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()

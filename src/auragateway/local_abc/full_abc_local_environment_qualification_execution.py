@@ -533,7 +533,9 @@ def _directory_sha256(root):
             raise RuntimeError("harness source exceeds the bootstrap file budget")
     if not entries:
         raise RuntimeError("harness source is empty")
-    return _canonical_sha256(entries)
+    return _canonical_sha256(
+        {{"schema_version": "1.0.0", "files": entries}}
+    )
 
 
 def _parse_timestamp(raw_value):

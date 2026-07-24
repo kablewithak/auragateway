@@ -199,6 +199,12 @@ def test_default_spec_derives_names_from_exact_source_commit() -> None:
     assert spec.expected_file_sha256[toolchain.LAUNCHER_NOTEBOOK_PATH] == (
         toolchain.CURRENT_LAUNCHER_NOTEBOOK_SHA256
     )
+    assert spec.expected_file_sha256[toolchain.EXECUTION_MODULE_PATH] == (
+        toolchain.CURRENT_EXECUTION_MODULE_SHA256
+    )
+    assert spec.expected_file_sha256[toolchain.REVIEWED_NOTEBOOK_PATH] == (
+        toolchain.CURRENT_REVIEWED_NOTEBOOK_SHA256
+    )
 
 
 def test_repository_package_exposes_approved_toolchain_boundary() -> None:
