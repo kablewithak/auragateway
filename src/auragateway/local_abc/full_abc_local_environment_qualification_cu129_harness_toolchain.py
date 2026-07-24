@@ -73,7 +73,7 @@ HISTORICAL_RUNTIME_ADAPTER_SHA256: Final = (
     "78870b1a7e27de9931f0f58e11613110dc642ba0d4a934ca149576e4e86412d8"
 )
 CURRENT_RUNTIME_ADAPTER_SHA256: Final = (
-    "aec461dcd595bfa3af286d88832ec7ef1ca2b416adca6a548f102d9543fb8dba"
+    "f83452b6fbfd583f4236c2edbaf0e4bd3a6ece331494fdff891bf50d022ba617"
 )
 CURRENT_CU129_RUNTIME_SHA256: Final = (
     "9230a4f06238b87c3b537f383aceda0de44c41c8c6b21c1d6b35666440a5445c"
@@ -82,10 +82,10 @@ CURRENT_EXECUTION_MODULE_SHA256: Final = (
     "0851a3819806af89b4e6ae86faa8bfb6949db46c4436ebc2a580be92f0a0950b"
 )
 CURRENT_LAUNCHER_SOURCE_SHA256: Final = (
-    "0c9b10bef8cb58c8139d4c0de5f299d75f1bc0a70b733742d1876fe4c3e30cdb"
+    "b363c657b9053897a01c3784487e2b3fdc7a42391acb98d380b4e43eba21f3ec"
 )
 CURRENT_LAUNCHER_NOTEBOOK_SHA256: Final = (
-    "514d0a354e73319d7c6c42df501ed81386125c03ffee04cba7e2c269cabfe032"
+    "9bec10b5f80e53f6a09533e6acf680449e6260329e3e9fbc1f4fdc247d0ad64f"
 )
 CURRENT_EXECUTION_CONTRACTS_SHA256: Final = (
     "644e4013a753010bb1204e4bcc73e4e133a071ccc70213bca27dd24b74f8c0a0"
@@ -204,6 +204,7 @@ ARCHIVE_SUFFIXES: Final = (
     ".whl",
 )
 ZIP_TIMESTAMP: Final = (1980, 1, 1, 0, 0, 0)
+SOURCE_EXCLUDED_PREFIXES: Final = ("evidence_vault/",)
 
 
 class HarnessToolchainError(RuntimeError):
@@ -471,12 +472,6 @@ def _parse_git_tree(raw: bytes) -> tuple[tuple[str, str, str], ...]:
                 "the source Git tree contains an unsafe path",
                 path,
             )
-        if path.lower().endswith(ARCHIVE_SUFFIXES):
-            raise HarnessToolchainError(
-                "HARNESS_TOOLCHAIN_NESTED_ARCHIVE_REJECTED",
-                "the source Git tree contains a nested archive",
-                path,
-            )
         entries.append((mode, object_id, path))
     if not entries:
         raise HarnessToolchainError(
@@ -490,6 +485,39 @@ def _parse_git_tree(raw: bytes) -> tuple[tuple[str, str, str], ...]:
             "the source Git tree contains duplicate normalized paths",
         )
     return ordered
+
+
+def _project_source_tree(
+    tree: Sequence[tuple[str, str, str]],
+) -> tuple[tuple[str, str, str], ...]:
+    excluded_required_paths = tuple(
+        path for path in REQUIRED_PATHS if path.startswith(SOURCE_EXCLUDED_PREFIXES)
+    )
+    if excluded_required_paths:
+        raise HarnessToolchainError(
+            "HARNESS_TOOLCHAIN_REQUIRED_PATH_EXCLUDED",
+            "the source projection would exclude a required harness path",
+            details=excluded_required_paths,
+        )
+
+    projected = tuple(entry for entry in tree if not entry[2].startswith(SOURCE_EXCLUDED_PREFIXES))
+    if not projected:
+        raise HarnessToolchainError(
+            "HARNESS_TOOLCHAIN_PROJECTED_SOURCE_EMPTY",
+            "the projected harness source tree is empty",
+        )
+
+    nested_archives = tuple(
+        path for _, _, path in projected if path.lower().endswith(ARCHIVE_SUFFIXES)
+    )
+    if nested_archives:
+        raise HarnessToolchainError(
+            "HARNESS_TOOLCHAIN_NESTED_ARCHIVE_REJECTED",
+            "the projected harness source tree contains a nested archive",
+            nested_archives[0],
+            details=nested_archives[:10],
+        )
+    return projected
 
 
 def _git_blob_sha1(payload: bytes) -> str:
@@ -716,12 +744,17 @@ def _validate_current_boundary(
 def _collect_source(
     repo_root: Path,
     spec: toolchain_contracts.HarnessBuildSpec,
-) -> tuple[tuple[toolchain_contracts.HarnessSourceInventoryEntry, ...], dict[str, bytes]]:
-    tree = _parse_git_tree(
-        _run_git(
-            repo_root,
-            ("ls-tree", "-rz", "--full-tree", spec.source_commit),
-            error_code="HARNESS_TOOLCHAIN_TREE_READ_FAILED",
+) -> tuple[
+    tuple[toolchain_contracts.HarnessSourceInventoryEntry, ...],
+    dict[str, bytes],
+]:
+    tree = _project_source_tree(
+        _parse_git_tree(
+            _run_git(
+                repo_root,
+                ("ls-tree", "-rz", "--full-tree", spec.source_commit),
+                error_code="HARNESS_TOOLCHAIN_TREE_READ_FAILED",
+            )
         )
     )
     if len(tree) > spec.maximum_files:
@@ -2448,6 +2481,28 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
     from auragateway.local_abc import (
         cu129_worker_observability_harness_integration as integration,
     )
+
+    current_mutable_authority = {
+        LAUNCHER_SOURCE_PATH: integration.CURRENT_LAUNCHER_SOURCE_SHA256,
+        LAUNCHER_NOTEBOOK_PATH: integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256,
+        RUNTIME_ADAPTER_PATH: integration.CURRENT_RUNTIME_ADAPTER_SHA256,
+    }
+    expected_mutable_authority = {
+        path: EXPECTED_FILE_SHA256[path] for path in current_mutable_authority
+    }
+    if expected_mutable_authority != current_mutable_authority:
+        raise HarnessToolchainError(
+            "HARNESS_TOOLCHAIN_MUTABLE_AUTHORITY_PROPAGATION_DRIFT",
+            "mutable harness authorities were not propagated into the toolchain",
+            details=tuple(
+                (
+                    f"{path}:expected={expected_mutable_authority[path]}:"
+                    f"active={current_mutable_authority[path]}"
+                )
+                for path in sorted(current_mutable_authority)
+                if expected_mutable_authority[path] != current_mutable_authority[path]
+            ),
+        )
 
     if (
         harness_entry.get("artifact_format") != "source_tree_directory"
