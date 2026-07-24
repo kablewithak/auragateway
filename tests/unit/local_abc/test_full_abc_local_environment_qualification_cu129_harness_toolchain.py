@@ -12,6 +12,9 @@ from typing import Any, cast
 import pytest
 
 from auragateway.local_abc import (
+    cu129_worker_observability_harness_integration as integration,
+)
+from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_harness_toolchain as toolchain,
 )
 from auragateway.local_abc import (
@@ -41,6 +44,9 @@ def _create_repository(root: Path) -> str:
     (root / "README.md").write_text("# fixture\n", encoding="utf-8")
     (root / "pyproject.toml").write_text("[project]\nname='fixture'\n", encoding="utf-8")
     (root / ".gitattributes").write_text("src/subst.txt export-subst\n", encoding="utf-8")
+    evidence_archive = root / "evidence_vault/fixture/evidence.zip"
+    evidence_archive.parent.mkdir(parents=True)
+    evidence_archive.write_bytes(b"immutable evidence\n")
     (root / "src/example.py").write_text("VALUE = 1\n", encoding="utf-8")
     (root / "src/subst.txt").write_text("$Format:%H$\n", encoding="utf-8")
     _git(root, "init", "-b", "main")
@@ -259,6 +265,15 @@ def test_default_spec_derives_names_from_exact_source_commit() -> None:
     assert spec.expected_file_sha256[toolchain.REVIEWED_NOTEBOOK_PATH] == (
         toolchain.CURRENT_REVIEWED_NOTEBOOK_SHA256
     )
+    assert spec.expected_file_sha256[toolchain.RUNTIME_ADAPTER_PATH] == (
+        integration.CURRENT_RUNTIME_ADAPTER_SHA256
+    )
+    assert spec.expected_file_sha256[toolchain.LAUNCHER_SOURCE_PATH] == (
+        integration.CURRENT_LAUNCHER_SOURCE_SHA256
+    )
+    assert spec.expected_file_sha256[toolchain.LAUNCHER_NOTEBOOK_PATH] == (
+        integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256
+    )
 
 
 def test_repository_package_exposes_approved_toolchain_boundary() -> None:
@@ -320,6 +335,7 @@ def test_source_archive_uses_exact_git_blob_bytes_and_is_deterministic(
     assert (first / spec.archive_name).read_bytes() == (second / spec.archive_name).read_bytes()
     with zipfile.ZipFile(first / spec.archive_name) as archive:
         assert archive.read("src/subst.txt") == b"$Format:%H$\n"
+        assert not any(name.startswith("evidence_vault/") for name in archive.namelist())
     summary = toolchain.verify_source_package(first)
     assert summary["status"] == "CURRENT_CU129_HARNESS_SOURCE_PACKAGE_VERIFIED"
     assert summary["source_dataset_file_count"] == 4
@@ -346,14 +362,33 @@ def test_archive_metadata_is_canonical(tmp_path: Path) -> None:
         assert all(member.compress_type == zipfile.ZIP_DEFLATED for member in members)
 
 
-def test_git_tree_parser_rejects_symlink_and_nested_archive() -> None:
+def test_git_tree_parser_rejects_symlink() -> None:
     with pytest.raises(toolchain.HarnessToolchainError) as symlink:
         toolchain._parse_git_tree(b"120000 blob " + b"0" * 40 + b"\tlink\0")
-    assert symlink.value.error_code == "HARNESS_TOOLCHAIN_NON_REGULAR_ENTRY_REJECTED"
+
+    assert symlink.value.error_code == ("HARNESS_TOOLCHAIN_NON_REGULAR_ENTRY_REJECTED")
+
+
+def test_source_projection_excludes_evidence_and_rejects_runtime_archives() -> None:
+    tree = (
+        (
+            "100644",
+            "0" * 40,
+            ("evidence_vault/local_abc/inspection/ag-harness-input-inspection-cu129-v1.zip"),
+        ),
+        ("100644", "1" * 40, "src/example.py"),
+    )
+
+    projected = toolchain._project_source_tree(tree)
+
+    assert projected == (("100644", "1" * 40, "src/example.py"),)
+    assert all(not path.startswith(toolchain.SOURCE_EXCLUDED_PREFIXES) for _, _, path in projected)
 
     with pytest.raises(toolchain.HarnessToolchainError) as nested:
-        toolchain._parse_git_tree(b"100644 blob " + b"0" * 40 + b"\tevidence.zip\0")
-    assert nested.value.error_code == "HARNESS_TOOLCHAIN_NESTED_ARCHIVE_REJECTED"
+        toolchain._project_source_tree((("100644", "2" * 40, "runtime/payload.zip"),))
+
+    assert nested.value.error_code == ("HARNESS_TOOLCHAIN_NESTED_ARCHIVE_REJECTED")
+    assert nested.value.path == "runtime/payload.zip"
 
 
 def test_archive_verifier_rejects_duplicate_members(tmp_path: Path) -> None:
