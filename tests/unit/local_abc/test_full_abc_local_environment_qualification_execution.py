@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import UTC, datetime, timedelta
@@ -449,6 +450,13 @@ def test_notebook_is_unexecuted_and_delegates_to_typed_runner() -> None:
     assert "shutil.copytree" in source
     assert "writable harness copy identity drifted" in source
     assert "harness_source identity does not match" in source
+    assert re.search(
+        (
+            r'_canonical_sha256\(\s*\{\s*"schema_version":\s*"1\.0\.0",'
+            r'\s*"files":\s*entries\s*\}\s*\)'
+        ),
+        source,
+    )
     assert "pip install" not in source
     assert "curl" not in source
     assert all(len(line) <= 100 for line in source.splitlines())

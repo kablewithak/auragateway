@@ -394,7 +394,7 @@ def test_current_and_frozen_authorities_are_not_conflated() -> None:
     assert issuance_module.SOURCE_MAIN_MERGE_COMMIT == ("211a10757999b1b110cb1d9df172938cf6ed7969")
     assert issuance_module.HARNESS_SOURCE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
     assert issuance_module.READINESS_REVIEW_SHA256 == (
-        "cca6d7599296b295ceeb4a613d802a66a724e5243c7e8548d69aa8b17e68beaf"
+        "1afb21f8a7df50ed57e9727bf8c7aacc04f3c6548f1c17544763c04118b8a9b0"
     )
     assert issuance_module.harness_integration.READINESS_REVIEW_PATH == (
         issuance_module.READINESS_REVIEW_PATH
