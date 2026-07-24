@@ -581,8 +581,10 @@ def _read_git_blobs(
     return {path: by_object_id[object_id] for _, object_id, path in tree}
 
 
-def _inventory_identity(entries: Sequence[toolchain_contracts.HarnessSourceInventoryEntry]) -> str:
-    payload = [
+def _inventory_identity(
+    entries: Sequence[toolchain_contracts.HarnessSourceInventoryEntry],
+) -> str:
+    files = [
         {
             "path": entry.path,
             "sha256": entry.sha256,
@@ -590,6 +592,7 @@ def _inventory_identity(entries: Sequence[toolchain_contracts.HarnessSourceInven
         }
         for entry in entries
     ]
+    payload = {"schema_version": "1.0.0", "files": files}
     return _sha256_bytes(_canonical_json(payload).encode("utf-8"))
 
 
@@ -1038,8 +1041,11 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
                 }}
                 for entry in entries
             ]
-            return hashlib.sha256(canonical_json(identity_entries).encode("utf-8")).hexdigest()
-
+            return hashlib.sha256(
+                canonical_json(
+                    {{"schema_version": "1.0.0", "files": identity_entries}}
+                ).encode("utf-8")
+            ).hexdigest()
 
         def validate_archive(
             archive_path: Path,
@@ -1373,8 +1379,11 @@ def _inspection_source(receipt: toolchain_contracts.HarnessSourcePackageReceipt)
 
 
         def directory_identity(entries: list[dict[str, object]]) -> str:
-            return hashlib.sha256(canonical_json(entries).encode("utf-8")).hexdigest()
-
+            return hashlib.sha256(
+                canonical_json(
+                    {{"schema_version": "1.0.0", "files": entries}}
+                ).encode("utf-8")
+            ).hexdigest()
 
         def manifest_entries_by_role(raw_entries: object) -> dict[str, dict[str, object]]:
             if not isinstance(raw_entries, list):
