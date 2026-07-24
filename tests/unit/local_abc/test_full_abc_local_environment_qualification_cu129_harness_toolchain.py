@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import shutil
 import subprocess
 import zipfile
@@ -14,6 +16,9 @@ from auragateway.local_abc import (
 )
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_harness_toolchain_contracts,
+)
+from auragateway.local_abc.full_abc_local_environment_qualification_artifact_identity import (
+    directory_sha256 as artifact_directory_sha256,
 )
 
 toolchain_contracts = full_abc_local_environment_qualification_cu129_harness_toolchain_contracts
@@ -180,6 +185,55 @@ def _copy_repository_validator_fixture(destination: Path) -> None:
         target = destination / relative_path
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
+
+
+def test_toolchain_directory_identity_matches_versioned_artifact_contract(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "artifact"
+    root.mkdir()
+    (root / "alpha.txt").write_text("alpha", encoding="utf-8")
+    (root / "nested").mkdir()
+    (root / "nested/beta.txt").write_text("beta", encoding="utf-8")
+
+    entries = (
+        toolchain_contracts.HarnessSourceInventoryEntry(
+            path="alpha.txt",
+            git_blob_sha="1" * 40,
+            sha256=hashlib.sha256(b"alpha").hexdigest(),
+            size_bytes=5,
+            executable=False,
+        ),
+        toolchain_contracts.HarnessSourceInventoryEntry(
+            path="nested/beta.txt",
+            git_blob_sha="2" * 40,
+            sha256=hashlib.sha256(b"beta").hexdigest(),
+            size_bytes=4,
+            executable=False,
+        ),
+    )
+    identity_entries = [
+        {
+            "path": entry.path,
+            "sha256": entry.sha256,
+            "size_bytes": entry.size_bytes,
+        }
+        for entry in entries
+    ]
+    wrapped = {
+        "schema_version": "1.0.0",
+        "files": identity_entries,
+    }
+    wrapped_sha256 = hashlib.sha256(toolchain._canonical_json(wrapped).encode("utf-8")).hexdigest()
+    bare_sha256 = hashlib.sha256(
+        toolchain._canonical_json(identity_entries).encode("utf-8")
+    ).hexdigest()
+
+    assert wrapped_sha256 == ("de44bbe5c43edbdea52de0a8d24d78ac6da5d791a794bab66965edb8d09973bf")
+    assert bare_sha256 == ("19d56bf75d68069373dbc801733ee432301472216c3ba1963bfa551020bd35dd")
+    assert wrapped_sha256 != bare_sha256
+    assert toolchain._inventory_identity(entries) == wrapped_sha256
+    assert artifact_directory_sha256(root) == wrapped_sha256
 
 
 def test_default_spec_derives_names_from_exact_source_commit() -> None:
@@ -351,6 +405,12 @@ def test_generated_notebooks_are_clean_compilable_and_fully_bound(
     inspection_source = "".join(
         cast(list[str], cast(list[dict[str, Any]], inspection_payload["cells"])[1]["source"])
     )
+    wrapped_identity_pattern = re.compile(
+        r'canonical_json\(\s*\{\s*"schema_version":\s*"1\.0\.0",'
+        r'\s*"files":\s*(?:identity_entries|entries)\s*\}\s*\)'
+    )
+    assert wrapped_identity_pattern.search(materializer_source)
+    assert wrapped_identity_pattern.search(inspection_source)
     assert "EXPECTED_DATASET_FILES" in materializer_source
     assert "source_packaging_receipt.json" in materializer_source
     assert "sha256_manifest.json" in materializer_source
