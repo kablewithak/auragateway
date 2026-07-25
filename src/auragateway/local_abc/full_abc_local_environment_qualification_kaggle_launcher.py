@@ -17,7 +17,7 @@ from auragateway.local_abc import (
     full_abc_local_environment_qualification_worker_startup_diagnostics as startup_diagnostics,
 )
 
-SOURCE_MAIN_MERGE_COMMIT: Final = "dceda98989386de7a4d57616f9f8a8023f866f10"
+SOURCE_MAIN_MERGE_COMMIT: Final = "56f33739babb80d843fef1ad8f7f1223f3d10d14"
 AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT: Final = "211a10757999b1b110cb1d9df172938cf6ed7969"
 AUTHORIZATION_SOURCE_BINDING_POLICY: Final = "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
 
@@ -66,9 +66,9 @@ DATASET_MANIFEST_FILENAME: Final = DATASET_MANIFEST_PATH.name
 
 HARNESS_SOURCE_PATH: Final = (
     "/kaggle/input/notebooks/kabomolefe/"
-    "ag-worker-obs-harness-materializer-v1/"
-    "ag_worker_obs_harness_materializer_v1_output/"
-    "auragateway_qualification_harness_dceda98_worker_obs_v1"
+    "ag-harness-materializer-cu129-v1/"
+    "ag_harness_materializer_cu129_v1_output/"
+    "auragateway_qualification_harness_56f3373_v1"
 )
 MODEL_SNAPSHOT_PATH: Final = (
     "/kaggle/input/datasets/kabomolefe/"
@@ -147,7 +147,7 @@ class KaggleControlPackageManifest(_StrictModel):
 
     schema_version: Literal["1.0.0"] = "1.0.0"
     control_package_id: Literal["auragateway-qualification-control-v1"]
-    source_main_merge_commit: Literal["dceda98989386de7a4d57616f9f8a8023f866f10"]
+    source_main_merge_commit: Literal["56f33739babb80d843fef1ad8f7f1223f3d10d14"]
     authorization_source_main_merge_commit: str
     authorization_file: Literal[
         "auragateway_full_abc_local_full_run_environment_qualification_"
@@ -162,9 +162,9 @@ class KaggleControlPackageManifest(_StrictModel):
     expires_at: str
     harness_source_path: Literal[
         "/kaggle/input/notebooks/kabomolefe/"
-        "ag-worker-obs-harness-materializer-v1/"
-        "ag_worker_obs_harness_materializer_v1_output/"
-        "auragateway_qualification_harness_dceda98_worker_obs_v1"
+        "ag-harness-materializer-cu129-v1/"
+        "ag_harness_materializer_cu129_v1_output/"
+        "auragateway_qualification_harness_56f3373_v1"
     ]
     model_snapshot_path: Literal[
         "/kaggle/input/datasets/kabomolefe/"

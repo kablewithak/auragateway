@@ -119,71 +119,27 @@ def _copy_repository_validator_fixture(destination: Path) -> None:
             "data/evals/benchmark/environment-qualification-v1/"
             "offline_dataset_materialization_record.json"
         ),
-        Path(
-            "benchmarks/local_abc/"
-            "auragateway_cu129_worker_observability_harness_evidence_integration_v1.json"
-        ),
-        Path(
-            "benchmarks/local_abc/"
-            "auragateway_cu129_worker_observability_fresh_authorization_readiness_review_v1.json"
-        ),
-        Path(
-            "docs/adr/"
-            "2026-07-23-local-abc-cu129-worker-observability-harness-evidence-integration.md"
-        ),
-        Path(
-            "docs/reports/"
-            "AuraGateway_CU129_Worker_Observability_Harness_Operational_Input_Closure_Report.md"
-        ),
-        Path(
-            "docs/runbooks/local_abc_cu129_worker_observability_harness_evidence_integration_v1.md"
-        ),
+        Path(integration.INTEGRATION_RECORD_PATH),
+        Path(integration.READINESS_REVIEW_PATH),
+        Path(integration.ADR_PATH),
+        Path(integration.REPORT_PATH),
+        Path(integration.INTEGRATION_RUNBOOK_PATH),
         Path("docs/runbooks/local_abc_full_run_environment_qualification_kaggle_launcher_v1.md"),
         Path(
             "docs/runbooks/"
             "local_abc_full_run_environment_qualification_authorization_issuance_v1.md"
         ),
-        Path("notebooks/auragateway_full_abc_environment_qualification_launcher_v1.ipynb"),
+        Path(integration.LAUNCHER_NOTEBOOK_PATH),
         Path("notebooks/auragateway_full_abc_environment_qualification_v1.ipynb"),
-        Path(
-            "src/auragateway/local_abc/full_abc_local_environment_qualification_kaggle_launcher.py"
-        ),
-        Path(
-            "src/auragateway/local_abc/"
-            "full_abc_local_environment_qualification_kaggle_runtime_adapter.py"
-        ),
-        Path(
-            "src/auragateway/local_abc/"
-            "full_abc_local_environment_qualification_worker_startup_diagnostics.py"
-        ),
-        Path(
-            "evidence_vault/local_abc/"
-            "cu129-worker-observability-harness-input-inspection-v1/evidence_identity.json"
-        ),
-        Path(
-            "evidence_vault/local_abc/"
-            "cu129-worker-observability-harness-input-inspection-v1/materialization_receipt.json"
-        ),
-        Path(
-            "evidence_vault/local_abc/"
-            "cu129-worker-observability-harness-input-inspection-v1/"
-            "ag-worker-obs-harness-materializer-v1.log"
-        ),
-        Path(
-            "evidence_vault/local_abc/"
-            "cu129-worker-observability-harness-input-inspection-v1/"
-            "ag-worker-obs-input-inspection-v1.log"
-        ),
-        Path(
-            "evidence_vault/local_abc/"
-            "cu129-worker-observability-harness-input-inspection-v1/"
-            "ag-worker-obs-input-inspection-v1.zip"
-        ),
-        Path(
-            "evidence_vault/local_abc/"
-            "cu129-worker-observability-harness-input-inspection-v1/"
-            "ag_worker_obs_harness_materializer_v1_recovery.ipynb"
-        ),
+        Path(integration.LAUNCHER_SOURCE_PATH),
+        Path(integration.RUNTIME_ADAPTER_PATH),
+        Path(integration.WORKER_DIAGNOSTICS_PATH),
+        Path(integration.EVIDENCE_IDENTITY_PATH),
+        Path(integration.MATERIALIZATION_RECEIPT_PATH),
+        Path(integration.MATERIALIZER_LOG_PATH),
+        Path(integration.INSPECTION_LOG_PATH),
+        Path(integration.INSPECTION_ZIP_PATH),
+        Path(integration.RECOVERY_NOTEBOOK_PATH),
         *(Path(path) for path in toolchain.EXPECTED_FILE_SHA256),
     }
     for relative_path in relative_paths:
@@ -285,9 +241,7 @@ def test_repository_package_exposes_approved_toolchain_boundary() -> None:
     assert summary["source_binding_policy"] == "POST_MERGE_CLEAN_MAIN_HEAD"
     assert summary["runtime_role"] == "vllm_runtime"
     assert summary["runtime_package_count"] == 176
-    assert summary["active_harness_binding_status"] == (
-        "WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"
-    )
+    assert summary["active_harness_binding_status"] == ("CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED")
     assert summary["operational_input_closure"] == "PASSED"
     assert summary["authorization_issued"] is False
     assert summary["model_requests_performed"] == 0
@@ -775,3 +729,17 @@ def test_verify_rejects_source_archive_tampering(tmp_path: Path) -> None:
         toolchain.verify_source_package(output)
 
     assert captured.value.error_code == "HARNESS_TOOLCHAIN_ARCHIVE_IDENTITY_DRIFT"
+
+
+def test_ruff_policy_preserves_current_materializer_evidence() -> None:
+    policy_path = ROOT / toolchain.RUFF_CONFIG_PATH
+    policy = policy_path.read_text(encoding="utf-8")
+    expected_entry = (
+        '"evidence_vault/local_abc/'
+        "cu129-current-harness-56f3373-input-inspection-v1/"
+        'ag_harness_materializer_cu129_v1.ipynb" = '
+        '["E501", "SIM117"]'
+    )
+
+    assert policy.count(expected_entry) == 1
+    assert toolchain._file_sha256(policy_path) == (toolchain.RUFF_CONFIG_SHA256)

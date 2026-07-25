@@ -304,14 +304,13 @@ def test_launcher_notebook_verification_rejects_drift(
 
 
 def test_launcher_separates_harness_and_authorization_source_authorities() -> None:
-    assert launcher.SOURCE_MAIN_MERGE_COMMIT == ("dceda98989386de7a4d57616f9f8a8023f866f10")
+    assert launcher.SOURCE_MAIN_MERGE_COMMIT == ("56f33739babb80d843fef1ad8f7f1223f3d10d14")
     assert launcher.AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT == (
         "211a10757999b1b110cb1d9df172938cf6ed7969"
     )
     assert launcher.AUTHORIZATION_SOURCE_BINDING_POLICY == ("CONTROL_PACKAGE_AUTHORIZATION_PARITY")
     assert launcher.HARNESS_SOURCE_PATH.endswith(
-        "/ag_worker_obs_harness_materializer_v1_output/"
-        "auragateway_qualification_harness_dceda98_worker_obs_v1"
+        "/ag_harness_materializer_cu129_v1_output/auragateway_qualification_harness_56f3373_v1"
     )
 
 
@@ -548,10 +547,10 @@ def test_launcher_failure_bundle_records_preflight_identity_mismatch(
         expected_sha256="a" * 64,
         observed_identity=observed,
         manifest_path_relative_to_input=(
-            "notebooks/kabomolefe/ag-worker-obs-harness-materializer-v1/expected-harness"
+            "notebooks/kabomolefe/ag-harness-materializer-cu129-v1/expected-harness"
         ),
         resolved_path_relative_to_input=(
-            "notebooks/kabomolefe/ag-worker-obs-harness-materializer-v1/observed-harness"
+            "notebooks/kabomolefe/ag-harness-materializer-cu129-v1/observed-harness"
         ),
     )
 
@@ -583,13 +582,13 @@ def test_launcher_failure_bundle_preserves_preflight_parity_for_core_mismatch(
     namespace["harness_identity_observation"] = {
         "expected_sha256": "a" * 64,
         "observed_sha256": "a" * 64,
-        "observed_file_count": 1076,
-        "observed_total_bytes": 10850278,
+        "observed_file_count": 1084,
+        "observed_total_bytes": 10970203,
         "manifest_path_relative_to_input": (
-            "notebooks/kabomolefe/ag-worker-obs-harness-materializer-v1/expected-harness"
+            "notebooks/kabomolefe/ag-harness-materializer-cu129-v1/expected-harness"
         ),
         "resolved_path_relative_to_input": (
-            "notebooks/kabomolefe/ag-worker-obs-harness-materializer-v1/expected-harness"
+            "notebooks/kabomolefe/ag-harness-materializer-cu129-v1/expected-harness"
         ),
     }
 

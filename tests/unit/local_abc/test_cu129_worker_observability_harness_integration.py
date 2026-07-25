@@ -1,4 +1,4 @@
-"""Regression tests for worker-observability CUDA 12.9 harness integration."""
+"""Regression tests for current CUDA 12.9 harness evidence integration."""
 
 from __future__ import annotations
 
@@ -32,22 +32,22 @@ def _load_json(path: Path) -> dict[str, Any]:
     return cast(dict[str, Any], payload)
 
 
-def test_repository_package_integrates_worker_observability_harness() -> None:
+def test_repository_package_integrates_current_harness() -> None:
     summary = integration.validate_repository_package(ROOT)
 
-    assert summary["status"] == "WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"
+    assert summary["status"] == "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED"
     assert summary["operational_input_closure"] == "PASSED"
     assert summary["source_commit"] == integration.SOURCE_COMMIT
     assert summary["harness_directory_sha256"] == (integration.CURRENT_HARNESS_DIRECTORY_SHA256)
-    assert summary["harness_file_count"] == 1076
-    assert summary["harness_total_bytes"] == 10_850_278
+    assert summary["harness_file_count"] == 1084
+    assert summary["harness_total_bytes"] == 10_970_203
     assert summary["runtime_package_count"] == 176
     assert summary["manifest_sha256"] == integration.CURRENT_MANIFEST_SHA256
     assert summary["materialization_record_sha256"] == (
         integration.CURRENT_MATERIALIZATION_RECORD_SHA256
     )
-    assert summary["materializer_saved_version_id"] == 337284215
-    assert summary["inspection_saved_version_id"] == 337286728
+    assert summary["materializer_saved_version_id"] == 337848035
+    assert summary["inspection_saved_version_id"] == 337858124
     assert summary["runtime_adapter_sha256"] == (integration.CURRENT_RUNTIME_ADAPTER_SHA256)
     assert summary["worker_startup_diagnostics_sha256"] == (
         integration.CURRENT_WORKER_DIAGNOSTICS_SHA256
@@ -67,8 +67,8 @@ def test_evidence_identity_binds_immutable_saved_versions_and_artifacts() -> Non
     )
 
     assert identity.source_commit == integration.SOURCE_COMMIT
-    assert identity.materializer_saved_version_id == 337284215
-    assert identity.inspection_saved_version_id == 337286728
+    assert identity.materializer_saved_version_id == 337848035
+    assert identity.inspection_saved_version_id == 337858124
     assert identity.materializer_saved_version_url == (integration.MATERIALIZER_SAVED_VERSION_URL)
     assert identity.inspection_saved_version_url == integration.INSPECTION_SAVED_VERSION_URL
     assert identity.materializer_recovery_notebook_sha256 == (
@@ -86,20 +86,18 @@ def test_materialization_receipt_records_expanded_archive_recovery() -> None:
         _load_json(ROOT / integration.MATERIALIZATION_RECEIPT_PATH)
     )
 
-    assert receipt.status == "WORKER_OBSERVABILITY_HARNESS_MATERIALIZED"
+    assert receipt.status == "CURRENT_CU129_HARNESS_MATERIALIZED"
     assert receipt.source_commit == integration.SOURCE_COMMIT
-    assert receipt.input_mode == "kaggle_expanded_archive_recovery"
-    assert receipt.archive_reconstructed is True
+    assert receipt.input_mode == ("kaggle_expanded_source_recovered_to_exact_archive")
     assert receipt.directory_sha256 == integration.CURRENT_HARNESS_DIRECTORY_SHA256
-    assert receipt.file_count == 1076
-    assert receipt.total_bytes == 10_850_278
+    assert receipt.file_count == 1084
+    assert receipt.total_bytes == 10_970_203
     assert receipt.gpu_execution_performed is False
     assert receipt.package_installation_performed is False
     assert receipt.model_loaded is False
     assert receipt.worker_started is False
     assert receipt.model_requests_performed == 0
     assert receipt.authorization_issued is False
-    assert receipt.active_manifest_promoted is False
 
 
 def test_active_manifest_and_materialization_bind_integrated_harness() -> None:
@@ -140,9 +138,7 @@ def test_readiness_review_keeps_authorization_unissued() -> None:
         _load_json(ROOT / integration.READINESS_REVIEW_PATH)
     )
 
-    assert review.decision == (
-        "APPROVED_FOR_FRESH_WORKER_OBSERVABILITY_CU129_AUTHORIZATION_ISSUANCE_IMPLEMENTATION"
-    )
+    assert review.decision == ("APPROVED_FOR_FRESH_CU129_AUTHORIZATION_ISSUANCE_IMPLEMENTATION")
     assert review.current_manifest_sha256 == integration.CURRENT_MANIFEST_SHA256
     assert review.current_materialization_record_sha256 == (
         integration.CURRENT_MATERIALIZATION_RECORD_SHA256
