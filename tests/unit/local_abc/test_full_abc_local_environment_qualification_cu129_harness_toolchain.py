@@ -472,9 +472,13 @@ def test_generated_notebooks_are_clean_compilable_and_fully_bound(
     )
     assert wrapped_identity_pattern.search(materializer_source)
     assert wrapped_identity_pattern.search(inspection_source)
-    assert "EXPECTED_DATASET_FILES" in materializer_source
+    assert "EXPECTED_CONTROL_FILES" in materializer_source
     assert "source_packaging_receipt.json" in materializer_source
     assert "sha256_manifest.json" in materializer_source
+    assert "resolve_source_package" in materializer_source
+    assert "reconstruct_exact_archive" in materializer_source
+    assert "kaggle_expanded_source_recovered_to_exact_archive" in materializer_source
+    assert 'DATASET_OWNER = "kabomolefe"' not in materializer_source
     assert "except Exception" not in materializer_source
     assert "resolve_materializer_pair" in inspection_source
     assert "runtime wheel directory package count drifted" in inspection_source
@@ -487,6 +491,94 @@ def test_generated_notebooks_are_clean_compilable_and_fully_bound(
     assert "METADATA_INPUT_INSPECTION_FAILED" in inspection_source
     assert "wheel_payloads_rehashed" in inspection_source
     assert "execute_from_environment()" not in inspection_source
+
+
+def _generated_materializer_source(
+    receipt: toolchain_contracts.HarnessSourcePackageReceipt,
+    *,
+    input_root: Path,
+    work_root: Path,
+) -> str:
+    source = toolchain._materializer_source(receipt)
+    source = source.replace(
+        'INPUT_ROOT = Path("/kaggle/input").resolve()',
+        f"INPUT_ROOT = Path({str(input_root)!r}).resolve()",
+        1,
+    )
+    source = source.replace(
+        'WORK_ROOT = Path("/kaggle/working").resolve()',
+        f"WORK_ROOT = Path({str(work_root)!r}).resolve()",
+        1,
+    )
+    return source
+
+
+@pytest.mark.parametrize(
+    ("expanded", "expected_input_mode"),
+    (
+        (False, "exact_archive_with_control_files"),
+        (True, "kaggle_expanded_source_recovered_to_exact_archive"),
+    ),
+)
+def test_generated_materializer_executes_exact_and_expanded_source_topologies(
+    tmp_path: Path,
+    expanded: bool,
+    expected_input_mode: str,
+) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    commit = _create_repository(repo)
+    spec = _fixture_spec(commit)
+    packaged = tmp_path / "packaged"
+    receipt = toolchain.build_source_package(
+        repo,
+        packaged,
+        spec,
+        validate_current_boundary=False,
+    )
+
+    input_root = tmp_path / "input"
+    work_root = tmp_path / "working"
+    dataset_root = input_root / spec.input_dataset_name
+    dataset_root.mkdir(parents=True)
+    work_root.mkdir()
+
+    for name in (
+        toolchain.SOURCE_INVENTORY_NAME,
+        toolchain.SOURCE_RECEIPT_NAME,
+        toolchain.SHA256_MANIFEST_NAME,
+    ):
+        shutil.copy2(packaged / name, dataset_root / name)
+
+    archive_path = packaged / spec.archive_name
+    if expanded:
+        expanded_root = dataset_root / spec.archive_name.removesuffix(".zip")
+        expanded_root.mkdir()
+        with zipfile.ZipFile(archive_path) as archive:
+            archive.extractall(expanded_root)
+    else:
+        shutil.copy2(archive_path, dataset_root / spec.archive_name)
+
+    source = _generated_materializer_source(
+        receipt,
+        input_root=input_root,
+        work_root=work_root,
+    )
+    compile(source, "<generated-materializer-runtime-test>", "exec")
+    exec(source, {"__name__": "__main__"})
+
+    output_root = work_root / "ag_harness_materializer_cu129_v1_output"
+    materialized_root = output_root / spec.output_directory
+    materialization_receipt = _load_json(output_root / spec.materialization_receipt_name)
+
+    assert materialized_root.is_dir()
+    assert materialization_receipt["input_mode"] == expected_input_mode
+    assert materialization_receipt["directory_sha256"] == receipt.directory_sha256
+    assert materialization_receipt["file_count"] == receipt.file_count
+    assert materialization_receipt["total_bytes"] == receipt.total_bytes
+    assert materialization_receipt["gpu_execution_performed"] is False
+    assert materialization_receipt["authorization_issued"] is False
+    assert not tuple(work_root.glob(".ag_harness_materializer*"))
 
 
 def test_prepare_is_atomic_and_removes_staging_after_failure(

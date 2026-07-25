@@ -948,7 +948,9 @@ def _notebook_payload(markdown: str, source: str) -> dict[str, object]:
     }
 
 
-def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceipt) -> str:
+def _materializer_source(
+    receipt: toolchain_contracts.HarnessSourcePackageReceipt,
+) -> str:
     expected_receipt = receipt.model_dump(mode="json")
     receipt_json = receipt.canonical_json()
     expected_sha_manifest = {
@@ -975,17 +977,21 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
 
         NOTEBOOK_NAME = {MATERIALIZER_NOTEBOOK_NAME!r}
         DATASET_NAME = {receipt.input_dataset_name!r}
-        DATASET_OWNER = "kabomolefe"
         INPUT_ROOT = Path("/kaggle/input").resolve()
         WORK_ROOT = Path("/kaggle/working").resolve()
         EXPECTED_ARCHIVE_NAME = {receipt.archive_name!r}
+        EXPECTED_EXPANDED_DIRECTORY = EXPECTED_ARCHIVE_NAME.removesuffix(".zip")
         EXPECTED_SOURCE_COMMIT = {receipt.source_commit!r}
         EXPECTED_DIRECTORY_SHA256 = {receipt.directory_sha256!r}
         EXPECTED_FILE_COUNT = {receipt.file_count}
         EXPECTED_TOTAL_BYTES = {receipt.total_bytes}
         EXPECTED_OUTPUT_DIRECTORY = {receipt.output_directory!r}
         EXPECTED_MATERIALIZATION_RECEIPT_NAME = {receipt.materialization_receipt_name!r}
-        EXPECTED_DATASET_FILES = {tuple(expected_control_sha256)!r}
+        EXPECTED_CONTROL_FILES = (
+            "source_inventory.json",
+            "source_packaging_receipt.json",
+            "sha256_manifest.json",
+        )
         EXPECTED_CONTROL_SHA256 = {expected_control_sha256!r}
         EXPECTED_SOURCE_RECEIPT = {expected_receipt!r}
         EXPECTED_SHA256_MANIFEST = {expected_sha_manifest!r}
@@ -996,6 +1002,9 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
         STAGING_RECEIPT_PATH = (
             STAGING_BUNDLE_ROOT / EXPECTED_MATERIALIZATION_RECEIPT_NAME
         )
+        RECOVERED_ARCHIVE_PATH = (
+            WORK_ROOT / ".ag_harness_materializer_cu129_v1_recovered.zip"
+        )
         MAXIMUM_FILES = {MAXIMUM_FILES}
         MAXIMUM_TOTAL_BYTES = {MAXIMUM_TOTAL_BYTES}
         ARCHIVE_SUFFIXES = {ARCHIVE_SUFFIXES!r}
@@ -1003,7 +1012,12 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
 
 
         def canonical_json(payload: object) -> str:
-            return json.dumps(payload, ensure_ascii=True, separators=(",", ":"), sort_keys=True)
+            return json.dumps(
+                payload,
+                ensure_ascii=True,
+                separators=(",", ":"),
+                sort_keys=True,
+            )
 
 
         def file_sha256(path: Path) -> str:
@@ -1028,60 +1042,123 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
             return path
 
 
-        def resolve_dataset_root() -> Path:
-            candidates = (
-                INPUT_ROOT / DATASET_NAME,
-                INPUT_ROOT / "datasets" / DATASET_OWNER / DATASET_NAME,
-            )
-            observed = tuple(
-                candidate.resolve()
-                for candidate in candidates
-                if candidate.is_dir() and not candidate.is_symlink()
-            )
-            if len(observed) != 1:
-                raise RuntimeError(
-                    "expected exactly one attached harness source dataset "
-                    f"but observed {{len(observed)}}"
+        def resolve_source_package() -> tuple[Path, str, Path]:
+            candidates: list[tuple[Path, str, Path]] = []
+            for receipt_path in INPUT_ROOT.rglob("source_packaging_receipt.json"):
+                if not receipt_path.is_file() or receipt_path.is_symlink():
+                    continue
+                dataset_root = receipt_path.parent.resolve()
+                if INPUT_ROOT not in dataset_root.parents:
+                    continue
+                controls_present = all(
+                    (dataset_root / name).is_file()
+                    and not (dataset_root / name).is_symlink()
+                    for name in EXPECTED_CONTROL_FILES
                 )
-            dataset_root = observed[0]
-            if INPUT_ROOT not in dataset_root.parents:
-                raise RuntimeError("harness source dataset escaped /kaggle/input")
-            return dataset_root
+                if not controls_present:
+                    continue
+
+                archive_path = dataset_root / EXPECTED_ARCHIVE_NAME
+                expanded_root = dataset_root / EXPECTED_EXPANDED_DIRECTORY
+                representations = []
+                if archive_path.is_file() and not archive_path.is_symlink():
+                    representations.append(("exact_archive_with_control_files", archive_path))
+                if expanded_root.is_dir() and not expanded_root.is_symlink():
+                    representations.append(
+                        (
+                            "kaggle_expanded_source_recovered_to_exact_archive",
+                            expanded_root,
+                        )
+                    )
+                if len(representations) != 1:
+                    continue
+                input_mode, representation_path = representations[0]
+                candidates.append(
+                    (dataset_root, input_mode, representation_path.resolve())
+                )
+
+            unique = tuple(dict.fromkeys(candidates))
+            if len(unique) != 1:
+                observed = tuple(
+                    str(path.relative_to(INPUT_ROOT))
+                    for path in sorted(
+                        INPUT_ROOT.rglob("source_packaging_receipt.json"),
+                        key=lambda item: item.as_posix(),
+                    )
+                    if path.is_file()
+                )
+                raise RuntimeError(
+                    "expected exactly one identity-shaped harness source package "
+                    f"but observed {{len(unique)}}; receipt_candidates={{observed!r}}"
+                )
+            return unique[0]
 
 
-        def validate_dataset_controls(dataset_root: Path) -> tuple[Path, list[dict[str, object]]]:
-            observed_names: list[str] = []
+        def validate_dataset_controls(
+            dataset_root: Path,
+            input_mode: str,
+        ) -> list[dict[str, object]]:
+            representation_name = (
+                EXPECTED_ARCHIVE_NAME
+                if input_mode == "exact_archive_with_control_files"
+                else EXPECTED_EXPANDED_DIRECTORY
+            )
+            expected_names = set(EXPECTED_CONTROL_FILES) | {{representation_name}}
+            observed_names = set()
             for path in dataset_root.iterdir():
                 if path.is_symlink():
                     raise RuntimeError("source dataset contains a symbolic link")
                 metadata = path.stat()
-                if not stat.S_ISREG(metadata.st_mode):
-                    raise RuntimeError("source dataset contains a non-regular top-level member")
-                observed_names.append(path.name)
-            if tuple(sorted(observed_names)) != tuple(sorted(EXPECTED_DATASET_FILES)):
-                raise RuntimeError("source dataset top-level file set drifted")
-            for name, expected_sha256 in EXPECTED_CONTROL_SHA256.items():
+                if not stat.S_ISREG(metadata.st_mode) and not path.is_dir():
+                    raise RuntimeError(
+                        "source dataset contains a non-regular top-level member"
+                    )
+                observed_names.add(path.name)
+            if observed_names != expected_names:
+                raise RuntimeError(
+                    "source dataset top-level member set drifted: "
+                    f"expected={{sorted(expected_names)!r}} "
+                    f"observed={{sorted(observed_names)!r}}"
+                )
+
+            for name in EXPECTED_CONTROL_FILES:
                 path = dataset_root / name
+                expected_sha256 = EXPECTED_CONTROL_SHA256[name]
                 if file_sha256(path) != expected_sha256:
-                    raise RuntimeError(f"source dataset control identity drifted: {{name}}")
+                    raise RuntimeError(
+                        f"source dataset control identity drifted: {{name}}"
+                    )
 
             source_receipt = json.loads(
-                (dataset_root / "source_packaging_receipt.json").read_text(encoding="utf-8")
+                (dataset_root / "source_packaging_receipt.json").read_text(
+                    encoding="utf-8"
+                )
             )
             if source_receipt != EXPECTED_SOURCE_RECEIPT:
                 raise RuntimeError("source packaging receipt contract drifted")
+
             sha_manifest = json.loads(
-                (dataset_root / "sha256_manifest.json").read_text(encoding="utf-8")
+                (dataset_root / "sha256_manifest.json").read_text(
+                    encoding="utf-8"
+                )
             )
             if sha_manifest != EXPECTED_SHA256_MANIFEST:
                 raise RuntimeError("source SHA-256 manifest contract drifted")
+
             raw_inventory = json.loads(
-                (dataset_root / "source_inventory.json").read_text(encoding="utf-8")
+                (dataset_root / "source_inventory.json").read_text(
+                    encoding="utf-8"
+                )
             )
-            if not isinstance(raw_inventory, list) or len(raw_inventory) != EXPECTED_FILE_COUNT:
+            if (
+                not isinstance(raw_inventory, list)
+                or len(raw_inventory) != EXPECTED_FILE_COUNT
+            ):
                 raise RuntimeError("source inventory shape or file count drifted")
             observed_inventory_paths = {{
-                entry.get("path") for entry in raw_inventory if isinstance(entry, dict)
+                entry.get("path")
+                for entry in raw_inventory
+                if isinstance(entry, dict)
             }}
             if len(observed_inventory_paths) != len(raw_inventory):
                 raise RuntimeError("source inventory contains duplicate paths")
@@ -1089,9 +1166,15 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
                 if not isinstance(entry, dict):
                     raise RuntimeError("source inventory contains an invalid entry")
                 normalized_relative_path(str(entry.get("path")))
-                if not isinstance(entry.get("size_bytes"), int) or entry["size_bytes"] < 0:
+                if (
+                    not isinstance(entry.get("size_bytes"), int)
+                    or entry["size_bytes"] < 0
+                ):
                     raise RuntimeError("source inventory contains an invalid size")
-                if not isinstance(entry.get("sha256"), str) or len(entry["sha256"]) != 64:
+                if (
+                    not isinstance(entry.get("sha256"), str)
+                    or len(entry["sha256"]) != 64
+                ):
                     raise RuntimeError("source inventory contains an invalid SHA-256")
                 if (
                     not isinstance(entry.get("git_blob_sha"), str)
@@ -1099,8 +1182,10 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
                 ):
                     raise RuntimeError("source inventory contains an invalid Git blob id")
                 if not isinstance(entry.get("executable"), bool):
-                    raise RuntimeError("source inventory contains an invalid executable flag")
-            return dataset_root / EXPECTED_ARCHIVE_NAME, raw_inventory
+                    raise RuntimeError(
+                        "source inventory contains an invalid executable flag"
+                    )
+            return raw_inventory
 
 
         def directory_identity(entries: list[dict[str, object]]) -> str:
@@ -1118,78 +1203,32 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
                 ).encode("utf-8")
             ).hexdigest()
 
-        def validate_archive(
-            archive_path: Path,
-            inventory: list[dict[str, object]],
-        ) -> tuple[zipfile.ZipInfo, ...]:
-            expected_by_path = {{str(entry["path"]): entry for entry in inventory}}
-            with zipfile.ZipFile(archive_path) as archive:
-                members = tuple(archive.infolist())
-                names = tuple(member.filename for member in members)
-                if len(names) != len(set(names)):
-                    raise RuntimeError("source archive contains duplicate members")
-                if names != tuple(sorted(expected_by_path)):
-                    raise RuntimeError("source archive member order or path set drifted")
-                for member in members:
-                    member_path = normalized_relative_path(member.filename)
-                    if member.flag_bits & 0x1:
-                        raise RuntimeError("source archive contains an encrypted member")
-                    if member.is_dir():
-                        raise RuntimeError("source archive contains an unexpected directory member")
-                    unix_mode = member.external_attr >> 16
-                    if stat.S_IFMT(unix_mode) != stat.S_IFREG:
-                        raise RuntimeError("source archive contains a non-regular member")
-                    expected = expected_by_path[member_path.as_posix()]
-                    expected_mode = 0o100755 if expected["executable"] else 0o100644
-                    if unix_mode != expected_mode:
-                        raise RuntimeError("source archive member mode drifted")
-                    if member.date_time != ZIP_TIMESTAMP:
-                        raise RuntimeError("source archive member timestamp drifted")
-                    if member.compress_type != zipfile.ZIP_DEFLATED:
-                        raise RuntimeError("source archive compression method drifted")
-                    if member.filename.lower().endswith(ARCHIVE_SUFFIXES):
-                        raise RuntimeError("source archive contains a nested archive")
-                    if member.file_size != expected["size_bytes"]:
-                        raise RuntimeError("source archive member size drifted")
-                    payload = archive.read(member)
-                    if hashlib.sha256(payload).hexdigest() != expected["sha256"]:
-                        raise RuntimeError("source archive member identity drifted")
-                return members
 
-
-        def extract_archive(
-            archive_path: Path,
-            inventory: list[dict[str, object]],
-        ) -> None:
-            expected_by_path = {{str(entry["path"]): entry for entry in inventory}}
-            with zipfile.ZipFile(archive_path) as archive:
-                for member in archive.infolist():
-                    relative_path = normalized_relative_path(member.filename)
-                    destination = STAGING_HARNESS_ROOT.joinpath(*relative_path.parts)
-                    destination.parent.mkdir(parents=True, exist_ok=True)
-                    with archive.open(member, "r") as source, destination.open("xb") as target:
-                        shutil.copyfileobj(source, target, length=1024 * 1024)
-                    expected = expected_by_path[relative_path.as_posix()]
-                    destination.chmod(0o755 if expected["executable"] else 0o644)
-
-
-        def inspect_materialized_tree() -> tuple[list[dict[str, object]], int]:
+        def inspect_expanded_source(
+            expanded_root: Path,
+        ) -> list[dict[str, object]]:
             entries: list[dict[str, object]] = []
             total_bytes = 0
-            for path in sorted(STAGING_HARNESS_ROOT.rglob("*"), key=lambda item: item.as_posix()):
+            for path in sorted(
+                expanded_root.rglob("*"),
+                key=lambda item: item.as_posix(),
+            ):
                 if path.is_symlink():
-                    raise RuntimeError("materialized harness contains a symbolic link")
+                    raise RuntimeError("expanded source contains a symbolic link")
                 metadata = path.stat()
                 if path.is_dir():
                     continue
                 if not stat.S_ISREG(metadata.st_mode):
-                    raise RuntimeError("materialized harness contains a non-regular member")
-                relative_path = path.relative_to(STAGING_HARNESS_ROOT).as_posix()
+                    raise RuntimeError(
+                        "expanded source contains a non-regular member"
+                    )
+                relative_path = path.relative_to(expanded_root).as_posix()
+                normalized_relative_path(relative_path)
                 if relative_path.lower().endswith(ARCHIVE_SUFFIXES):
-                    raise RuntimeError("materialized harness contains a nested archive")
+                    raise RuntimeError("expanded source contains a nested archive")
                 total_bytes += metadata.st_size
                 if total_bytes > MAXIMUM_TOTAL_BYTES:
-                    raise RuntimeError("materialized harness exceeds the byte budget")
+                    raise RuntimeError("expanded source exceeds the byte budget")
                 entries.append(
                     {{
                         "path": relative_path,
@@ -1198,21 +1237,245 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
                     }}
                 )
                 if len(entries) > MAXIMUM_FILES:
-                    raise RuntimeError("materialized harness exceeds the file-count budget")
+                    raise RuntimeError("expanded source exceeds the file-count budget")
+            if total_bytes != EXPECTED_TOTAL_BYTES:
+                raise RuntimeError("expanded source total bytes drifted")
+            return entries
+
+
+        def reconstruct_exact_archive(
+            expanded_root: Path,
+            inventory: list[dict[str, object]],
+        ) -> Path:
+            if RECOVERED_ARCHIVE_PATH.exists():
+                raise RuntimeError("recovered archive staging path already exists")
+            observed_entries = inspect_expanded_source(expanded_root)
+            expected_entries = [
+                {{
+                    "path": entry["path"],
+                    "sha256": entry["sha256"],
+                    "size_bytes": entry["size_bytes"],
+                }}
+                for entry in inventory
+            ]
+            if observed_entries != expected_entries:
+                raise RuntimeError("expanded source inventory drifted")
+
+            with zipfile.ZipFile(
+                RECOVERED_ARCHIVE_PATH,
+                mode="x",
+                compression=zipfile.ZIP_DEFLATED,
+                compresslevel=9,
+                strict_timestamps=True,
+            ) as archive:
+                for entry in inventory:
+                    relative_path = normalized_relative_path(str(entry["path"]))
+                    source_path = expanded_root.joinpath(*relative_path.parts)
+                    if not source_path.is_file() or source_path.is_symlink():
+                        raise RuntimeError(
+                            "expanded source member is missing or non-regular"
+                        )
+                    payload = source_path.read_bytes()
+                    if (
+                        len(payload) != entry["size_bytes"]
+                        or hashlib.sha256(payload).hexdigest() != entry["sha256"]
+                    ):
+                        raise RuntimeError(
+                            "expanded source member identity drifted"
+                        )
+                    info = zipfile.ZipInfo(
+                        relative_path.as_posix(),
+                        date_time=ZIP_TIMESTAMP,
+                    )
+                    info.create_system = 3
+                    info.compress_type = zipfile.ZIP_DEFLATED
+                    mode = 0o100755 if entry["executable"] else 0o100644
+                    info.external_attr = mode << 16
+                    archive.writestr(
+                        info,
+                        payload,
+                        compress_type=zipfile.ZIP_DEFLATED,
+                        compresslevel=9,
+                    )
+
+            if (
+                file_sha256(RECOVERED_ARCHIVE_PATH)
+                != EXPECTED_CONTROL_SHA256[EXPECTED_ARCHIVE_NAME]
+            ):
+                raise RuntimeError(
+                    "reconstructed source archive identity drifted"
+                )
+            return RECOVERED_ARCHIVE_PATH
+
+
+        def validate_archive(
+            archive_path: Path,
+            inventory: list[dict[str, object]],
+        ) -> tuple[zipfile.ZipInfo, ...]:
+            if (
+                file_sha256(archive_path)
+                != EXPECTED_CONTROL_SHA256[EXPECTED_ARCHIVE_NAME]
+            ):
+                raise RuntimeError("source archive identity drifted")
+            expected_by_path = {{
+                str(entry["path"]): entry for entry in inventory
+            }}
+            with zipfile.ZipFile(archive_path) as archive:
+                members = tuple(archive.infolist())
+                names = tuple(member.filename for member in members)
+                if len(names) != len(set(names)):
+                    raise RuntimeError("source archive contains duplicate members")
+                if names != tuple(sorted(expected_by_path)):
+                    raise RuntimeError(
+                        "source archive member order or path set drifted"
+                    )
+                for member in members:
+                    member_path = normalized_relative_path(member.filename)
+                    if member.flag_bits & 0x1:
+                        raise RuntimeError(
+                            "source archive contains an encrypted member"
+                        )
+                    if member.is_dir():
+                        raise RuntimeError(
+                            "source archive contains an unexpected directory member"
+                        )
+                    unix_mode = member.external_attr >> 16
+                    if stat.S_IFMT(unix_mode) != stat.S_IFREG:
+                        raise RuntimeError(
+                            "source archive contains a non-regular member"
+                        )
+                    expected = expected_by_path[member_path.as_posix()]
+                    expected_mode = (
+                        0o100755 if expected["executable"] else 0o100644
+                    )
+                    if unix_mode != expected_mode:
+                        raise RuntimeError("source archive member mode drifted")
+                    if member.date_time != ZIP_TIMESTAMP:
+                        raise RuntimeError(
+                            "source archive member timestamp drifted"
+                        )
+                    if member.compress_type != zipfile.ZIP_DEFLATED:
+                        raise RuntimeError(
+                            "source archive compression method drifted"
+                        )
+                    if member.filename.lower().endswith(ARCHIVE_SUFFIXES):
+                        raise RuntimeError(
+                            "source archive contains a nested archive"
+                        )
+                    if member.file_size != expected["size_bytes"]:
+                        raise RuntimeError("source archive member size drifted")
+                    payload = archive.read(member)
+                    if (
+                        hashlib.sha256(payload).hexdigest()
+                        != expected["sha256"]
+                    ):
+                        raise RuntimeError(
+                            "source archive member identity drifted"
+                        )
+                return members
+
+
+        def extract_archive(
+            archive_path: Path,
+            inventory: list[dict[str, object]],
+        ) -> None:
+            expected_by_path = {{
+                str(entry["path"]): entry for entry in inventory
+            }}
+            with zipfile.ZipFile(archive_path) as archive:
+                for member in archive.infolist():
+                    relative_path = normalized_relative_path(member.filename)
+                    destination = STAGING_HARNESS_ROOT.joinpath(
+                        *relative_path.parts
+                    )
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    with archive.open(member, "r") as source:
+                        with destination.open("xb") as target:
+                            shutil.copyfileobj(
+                                source,
+                                target,
+                                length=1024 * 1024,
+                            )
+                    expected = expected_by_path[relative_path.as_posix()]
+                    destination.chmod(
+                        0o755 if expected["executable"] else 0o644
+                    )
+
+
+        def inspect_materialized_tree() -> tuple[list[dict[str, object]], int]:
+            entries: list[dict[str, object]] = []
+            total_bytes = 0
+            for path in sorted(
+                STAGING_HARNESS_ROOT.rglob("*"),
+                key=lambda item: item.as_posix(),
+            ):
+                if path.is_symlink():
+                    raise RuntimeError(
+                        "materialized harness contains a symbolic link"
+                    )
+                metadata = path.stat()
+                if path.is_dir():
+                    continue
+                if not stat.S_ISREG(metadata.st_mode):
+                    raise RuntimeError(
+                        "materialized harness contains a non-regular member"
+                    )
+                relative_path = path.relative_to(
+                    STAGING_HARNESS_ROOT
+                ).as_posix()
+                if relative_path.lower().endswith(ARCHIVE_SUFFIXES):
+                    raise RuntimeError(
+                        "materialized harness contains a nested archive"
+                    )
+                total_bytes += metadata.st_size
+                if total_bytes > MAXIMUM_TOTAL_BYTES:
+                    raise RuntimeError(
+                        "materialized harness exceeds the byte budget"
+                    )
+                entries.append(
+                    {{
+                        "path": relative_path,
+                        "sha256": file_sha256(path),
+                        "size_bytes": metadata.st_size,
+                    }}
+                )
+                if len(entries) > MAXIMUM_FILES:
+                    raise RuntimeError(
+                        "materialized harness exceeds the file-count budget"
+                    )
             return entries, total_bytes
 
 
         def materialize() -> dict[str, object]:
-            if FINAL_BUNDLE_ROOT.exists() or STAGING_BUNDLE_ROOT.exists():
-                raise RuntimeError("materializer output or staging state already exists")
-            dataset_root = resolve_dataset_root()
-            archive_path, inventory = validate_dataset_controls(dataset_root)
-            validate_archive(archive_path, inventory)
-            STAGING_HARNESS_ROOT.mkdir(parents=True)
+            if (
+                FINAL_BUNDLE_ROOT.exists()
+                or STAGING_BUNDLE_ROOT.exists()
+                or RECOVERED_ARCHIVE_PATH.exists()
+            ):
+                raise RuntimeError(
+                    "materializer output or staging state already exists"
+                )
+
+            dataset_root, input_mode, representation_path = (
+                resolve_source_package()
+            )
+            inventory = validate_dataset_controls(dataset_root, input_mode)
             completed = False
             try:
+                if input_mode == "exact_archive_with_control_files":
+                    archive_path = representation_path
+                else:
+                    archive_path = reconstruct_exact_archive(
+                        representation_path,
+                        inventory,
+                    )
+
+                validate_archive(archive_path, inventory)
+                STAGING_HARNESS_ROOT.mkdir(parents=True)
                 extract_archive(archive_path, inventory)
-                observed_entries, observed_total_bytes = inspect_materialized_tree()
+                observed_entries, observed_total_bytes = (
+                    inspect_materialized_tree()
+                )
                 expected_entries = [
                     {{
                         "path": entry["path"],
@@ -1222,14 +1485,27 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
                     for entry in inventory
                 ]
                 if observed_entries != expected_entries:
-                    raise RuntimeError("materialized harness inventory drifted")
+                    raise RuntimeError(
+                        "materialized harness inventory drifted"
+                    )
                 if len(observed_entries) != EXPECTED_FILE_COUNT:
-                    raise RuntimeError("materialized harness file count drifted")
+                    raise RuntimeError(
+                        "materialized harness file count drifted"
+                    )
                 if observed_total_bytes != EXPECTED_TOTAL_BYTES:
-                    raise RuntimeError("materialized harness total bytes drifted")
-                observed_directory_sha256 = directory_identity(observed_entries)
-                if observed_directory_sha256 != EXPECTED_DIRECTORY_SHA256:
-                    raise RuntimeError("materialized harness directory identity drifted")
+                    raise RuntimeError(
+                        "materialized harness total bytes drifted"
+                    )
+                observed_directory_sha256 = directory_identity(
+                    observed_entries
+                )
+                if (
+                    observed_directory_sha256
+                    != EXPECTED_DIRECTORY_SHA256
+                ):
+                    raise RuntimeError(
+                        "materialized harness directory identity drifted"
+                    )
                 receipt = {{
                     "schema_version": "1.0.0",
                     "status": "CURRENT_CU129_HARNESS_MATERIALIZED",
@@ -1237,10 +1513,14 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
                     "producer_output_directory": PRODUCER_OUTPUT_DIRECTORY,
                     "source_commit": EXPECTED_SOURCE_COMMIT,
                     "input_dataset_name": DATASET_NAME,
-                    "input_mode": "exact_archive_with_control_files",
+                    "input_mode": input_mode,
                     "archive_filename": EXPECTED_ARCHIVE_NAME,
-                    "archive_sha256": EXPECTED_CONTROL_SHA256[EXPECTED_ARCHIVE_NAME],
-                    "source_inventory_sha256": EXPECTED_CONTROL_SHA256["source_inventory.json"],
+                    "archive_sha256": EXPECTED_CONTROL_SHA256[
+                        EXPECTED_ARCHIVE_NAME
+                    ],
+                    "source_inventory_sha256": EXPECTED_CONTROL_SHA256[
+                        "source_inventory.json"
+                    ],
                     "source_receipt_sha256": EXPECTED_CONTROL_SHA256[
                         "source_packaging_receipt.json"
                     ],
@@ -1262,11 +1542,15 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
                     "benchmark_trajectory_requests_performed": 0,
                     "authorization_issued": False,
                 }}
-                STAGING_RECEIPT_PATH.write_text(canonical_json(receipt), encoding="utf-8")
+                STAGING_RECEIPT_PATH.write_text(
+                    canonical_json(receipt),
+                    encoding="utf-8",
+                )
                 STAGING_BUNDLE_ROOT.replace(FINAL_BUNDLE_ROOT)
                 completed = True
                 return receipt
             finally:
+                RECOVERED_ARCHIVE_PATH.unlink(missing_ok=True)
                 if not completed and STAGING_BUNDLE_ROOT.exists():
                     shutil.rmtree(STAGING_BUNDLE_ROOT)
 
@@ -1276,6 +1560,7 @@ def _materializer_source(receipt: toolchain_contracts.HarnessSourcePackageReceip
         result = materialize()
         print("status=CURRENT_CU129_HARNESS_MATERIALIZED")
         print(f"producer_output_directory={{PRODUCER_OUTPUT_DIRECTORY}}")
+        print(f"input_mode={{result['input_mode']}}")
         print(f"output_directory={{EXPECTED_OUTPUT_DIRECTORY}}")
         print(f"file_count={{result['file_count']}}")
         print(f"total_bytes={{result['total_bytes']}}")
@@ -1925,7 +2210,8 @@ def generate_notebooks(
 
     materializer_payload = _notebook_payload(
         "# AuraGateway current CUDA 12.9 harness materializer\n\n"
-        "Attach exactly one reviewed source input. Use Accelerator None, Internet Off, "
+        "Attach exactly one reviewed source input. Exact ZIP and Kaggle auto-expanded "
+        "source representations are supported. Use Accelerator None, Internet Off, "
         "no secrets, and Save Version -> Save & Run All.\n",
         _materializer_source(receipt),
     )
