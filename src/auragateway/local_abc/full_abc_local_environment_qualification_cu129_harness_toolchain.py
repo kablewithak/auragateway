@@ -29,7 +29,7 @@ SOURCE_BINDING_POLICY: Final = "POST_MERGE_CLEAN_MAIN_HEAD"
 PYPROJECT_HISTORICAL_SHA256: Final = (
     "5387ea09341bde18d73518e28a236f65865918dd406fcb13824c0c8156a57103"
 )
-RUFF_CONFIG_SHA256: Final = "d891d61c5ce44d78f9a5313a46fd36406f54674ad742926bd44ebd11344538cd"
+RUFF_CONFIG_SHA256: Final = "3b55c8eef798ab30c52aa8b19efccf609feabb26e4c801ac162422b4a9b80e37"
 HISTORICAL_MATERIALIZER_NOTEBOOK_SHA256: Final = (
     "91f9ccc30883341af4cfd24d11c780ee136b9f7ccf9316b77b9d72ba559312c2"
 )
@@ -66,11 +66,9 @@ MODEL_SNAPSHOT_DIRECTORY_TOKEN: Final = (
 )
 
 ACTIVE_PREDECESSOR_HARNESS_DIRECTORY_SHA256: Final = (
-    "c66f2589bdf55ab34f82bffc1eaaa4b4c7e73cb8195867333ccd99a58438f3e4"
+    "778333c57b02d74be2c18962d7e75b560d269fc9b6c6b611d043304c855e3477"
 )
-ACTIVE_PREDECESSOR_HARNESS_OUTPUT_DIRECTORY: Final = (
-    "auragateway_qualification_harness_dceda98_worker_obs_v1"
-)
+ACTIVE_PREDECESSOR_HARNESS_OUTPUT_DIRECTORY: Final = "auragateway_qualification_harness_56f3373_v1"
 HISTORICAL_RUNTIME_ADAPTER_SHA256: Final = (
     "78870b1a7e27de9931f0f58e11613110dc642ba0d4a934ca149576e4e86412d8"
 )
@@ -84,10 +82,10 @@ CURRENT_EXECUTION_MODULE_SHA256: Final = (
     "0851a3819806af89b4e6ae86faa8bfb6949db46c4436ebc2a580be92f0a0950b"
 )
 CURRENT_LAUNCHER_SOURCE_SHA256: Final = (
-    "b363c657b9053897a01c3784487e2b3fdc7a42391acb98d380b4e43eba21f3ec"
+    "03e37eb4d44b67a9104a249040ef37e63cbbd5a58ef5cc952d46ea41516388e8"
 )
 CURRENT_LAUNCHER_NOTEBOOK_SHA256: Final = (
-    "9bec10b5f80e53f6a09533e6acf680449e6260329e3e9fbc1f4fdc247d0ad64f"
+    "f27e1ae8683ffb6b93bbc5b91513330c94ec40ec67873f836fb4adaa7e6b87ef"
 )
 CURRENT_EXECUTION_CONTRACTS_SHA256: Final = (
     "644e4013a753010bb1204e4bcc73e4e133a071ccc70213bca27dd24b74f8c0a0"
@@ -2927,7 +2925,7 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "runtime_role": "vllm_runtime",
         "runtime_artifact_format": "python_wheelhouse_directory",
         "runtime_package_count": RUNTIME_PACKAGE_COUNT,
-        "active_harness_binding_status": ("WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"),
+        "active_harness_binding_status": ("CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED"),
         "operational_input_closure": integration_summary["operational_input_closure"],
         "authorization_issued": False,
         "kaggle_execution_performed": False,

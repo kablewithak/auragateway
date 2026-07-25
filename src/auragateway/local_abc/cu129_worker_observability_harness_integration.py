@@ -1,4 +1,4 @@
-"""Validate worker-observability CUDA 12.9 harness evidence integration."""
+"""Validate current CUDA 12.9 harness evidence integration."""
 
 from __future__ import annotations
 
@@ -23,41 +23,41 @@ from auragateway.local_abc.contracts import LocalABCContract
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
-SOURCE_COMMIT: Final = "dceda98989386de7a4d57616f9f8a8023f866f10"
-SOURCE_TOKEN: Final = "dceda98"
+SOURCE_COMMIT: Final = "56f33739babb80d843fef1ad8f7f1223f3d10d14"
+SOURCE_TOKEN: Final = "56f3373"
 CURRENT_HARNESS_DIRECTORY_SHA256: Final = (
-    "c66f2589bdf55ab34f82bffc1eaaa4b4c7e73cb8195867333ccd99a58438f3e4"
+    "778333c57b02d74be2c18962d7e75b560d269fc9b6c6b611d043304c855e3477"
 )
-CURRENT_HARNESS_FILE_COUNT: Final = 1_076
-CURRENT_HARNESS_TOTAL_BYTES: Final = 10_850_278
-CURRENT_HARNESS_OUTPUT_DIRECTORY: Final = "auragateway_qualification_harness_dceda98_worker_obs_v1"
+CURRENT_HARNESS_FILE_COUNT: Final = 1_084
+CURRENT_HARNESS_TOTAL_BYTES: Final = 10_970_203
+CURRENT_HARNESS_OUTPUT_DIRECTORY: Final = "auragateway_qualification_harness_56f3373_v1"
 CURRENT_HARNESS_MOUNTED_PATH: Final = (
     "/kaggle/input/notebooks/kabomolefe/"
-    "ag-worker-obs-harness-materializer-v1/"
-    "ag_worker_obs_harness_materializer_v1_output/"
-    "auragateway_qualification_harness_dceda98_worker_obs_v1"
+    "ag-harness-materializer-cu129-v1/"
+    "ag_harness_materializer_cu129_v1_output/"
+    "auragateway_qualification_harness_56f3373_v1"
 )
-CURRENT_HARNESS_KAGGLE_SLUG: Final = "kabomolefe/ag-worker-obs-harness-materializer-v1"
-MATERIALIZER_SAVED_VERSION_ID: Final = 337284215
-INSPECTION_SAVED_VERSION_ID: Final = 337286728
+CURRENT_HARNESS_KAGGLE_SLUG: Final = "kabomolefe/ag-harness-materializer-cu129-v1"
+MATERIALIZER_SAVED_VERSION_ID: Final = 337848035
+INSPECTION_SAVED_VERSION_ID: Final = 337858124
 MATERIALIZER_SAVED_VERSION_URL: Final = (
     "https://www.kaggle.com/code/kabomolefe/"
-    "ag-worker-obs-harness-materializer-v1/notebook?scriptVersionId=337284215"
+    "ag-harness-materializer-cu129-v1?scriptVersionId=337848035"
 )
 INSPECTION_SAVED_VERSION_URL: Final = (
     "https://www.kaggle.com/code/kabomolefe/"
-    "ag-worker-obs-input-inspection-v1/notebook?scriptVersionId=337286728"
+    "ag-harness-input-inspection-cu129-v1/output?scriptVersionId=337858124"
 )
 MATERIALIZER_RECOVERY_NOTEBOOK_SHA256: Final = (
-    "c9fc3b5435dae4ecba79fb9f8a3b6c113b9a0bcf4dafd31884b095b232f372d1"
+    "d371262fc120cb30f17c8f7a761055835f7f66178cf777ccfc51950a223571ff"
 )
 MATERIALIZATION_RECEIPT_SHA256: Final = (
-    "5f2818130abcf338239f49f38683fbdb00c2a290816115925e74e508ea9d0f02"
+    "a4fe6685458cecc622ac1a13a28cf3349d3d98ff0fbc2e284511da76fb066364"
 )
-MATERIALIZER_LOG_SHA256: Final = "eda73ed32456a1018898e3b3dcda26f785b2ba97b0b96a7426ccd34df1d81ba8"
-INSPECTION_LOG_SHA256: Final = "4cde9268c456aa669151f5a7223c963c587f034928b025d8d447bbec562236e9"
+MATERIALIZER_LOG_SHA256: Final = "d1c34c5a7a0f442047dc830214302b5d2f1e72028abc014c33ad30a27b5bc55a"
+INSPECTION_LOG_SHA256: Final = "eb3ef42a834536b1a3c318c0b08a8933940eca5b4ed75d15695b861d1142c85c"
 INSPECTION_EVIDENCE_ZIP_SHA256: Final = (
-    "e1bf87f44c3ccbf3eda65938cb61b833c95edfb7c200e5f40095eab9e3f936fb"
+    "c0832dde010835401dc11ff654b864c3db62e9c895c18265ea881d154eeaae1e"
 )
 RUNTIME_PACKAGE_COUNT: Final = 176
 RUNTIME_RESOLUTION_LOCK_SHA256: Final = (
@@ -71,41 +71,43 @@ CURRENT_WORKER_DIAGNOSTICS_SHA256: Final = (
     "58d39a67c9d82d1b2f5938328dfa9362ee922ced2e089f8b5d529c0139cc2b91"
 )
 MATERIALIZED_HARNESS_LAUNCHER_SOURCE_SHA256: Final = (
-    "454d5e6fe7f7ff5711710d140f0bece3ee84f3a863a7c33316f784af13724bd0"
-)
-MATERIALIZED_HARNESS_LAUNCHER_NOTEBOOK_SHA256: Final = (
-    "8477a8f389fe21a925d87c6c4e5b7a71e9de1b1c09910d5d293eadbf6b73db26"
-)
-CURRENT_MANIFEST_SHA256: Final = "6c998716849d20e68ded4cce3a113a791a0d863bc97d2c5027991ad6a5615d8f"
-CURRENT_MATERIALIZATION_RECORD_SHA256: Final = (
-    "a3f5cfee599b4a0258e3ac48a40f1ee27c2e9b85dd624df6fdb53079e6a6b223"
-)
-CURRENT_LAUNCHER_SOURCE_SHA256: Final = (
     "b363c657b9053897a01c3784487e2b3fdc7a42391acb98d380b4e43eba21f3ec"
 )
-CURRENT_LAUNCHER_NOTEBOOK_SHA256: Final = (
+MATERIALIZED_HARNESS_LAUNCHER_NOTEBOOK_SHA256: Final = (
     "9bec10b5f80e53f6a09533e6acf680449e6260329e3e9fbc1f4fdc247d0ad64f"
+)
+CURRENT_MANIFEST_SHA256: Final = "f8bcd218f7863a8c2ac7dd04ad0c5ee054484035abb8ae44d1d2117e1e84513a"
+CURRENT_MATERIALIZATION_RECORD_SHA256: Final = (
+    "c19675317ea5b4086ba0cd548cc0f4f9c6cd791c7dc9f046fedc02e5168eb0b8"
+)
+CURRENT_LAUNCHER_SOURCE_SHA256: Final = (
+    "03e37eb4d44b67a9104a249040ef37e63cbbd5a58ef5cc952d46ea41516388e8"
+)
+CURRENT_LAUNCHER_NOTEBOOK_SHA256: Final = (
+    "f27e1ae8683ffb6b93bbc5b91513330c94ec40ec67873f836fb4adaa7e6b87ef"
 )
 AUTHORIZATION_SOURCE_BINDING_POLICY: Final = "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
 HISTORICAL_HARNESS_DIRECTORY_SHA256: Final = (
-    "c3ea4ae6d047a8b3f3d5afc517e26c4f13fb4a82e48e3cf28cdfabdc343230e6"
+    "c66f2589bdf55ab34f82bffc1eaaa4b4c7e73cb8195867333ccd99a58438f3e4"
 )
-HISTORICAL_HARNESS_OUTPUT_DIRECTORY: Final = "auragateway_qualification_harness_426f57d_v1"
+HISTORICAL_HARNESS_OUTPUT_DIRECTORY: Final = (
+    "auragateway_qualification_harness_dceda98_worker_obs_v1"
+)
 HISTORICAL_RUNTIME_ADAPTER_SHA256: Final = (
-    "aec461dcd595bfa3af286d88832ec7ef1ca2b416adca6a548f102d9543fb8dba"
+    "78870b1a7e27de9931f0f58e11613110dc642ba0d4a934ca149576e4e86412d8"
 )
 
 EVIDENCE_ROOT: Final = Path(
-    "evidence_vault/local_abc/cu129-worker-observability-harness-input-inspection-v1"
+    "evidence_vault/local_abc/cu129-current-harness-56f3373-input-inspection-v1"
 )
 EVIDENCE_IDENTITY_PATH: Final = EVIDENCE_ROOT / "evidence_identity.json"
-MATERIALIZATION_RECEIPT_PATH: Final = EVIDENCE_ROOT / "materialization_receipt.json"
-MATERIALIZER_LOG_PATH: Final = EVIDENCE_ROOT / "ag-worker-obs-harness-materializer-v1.log"
-INSPECTION_LOG_PATH: Final = EVIDENCE_ROOT / "ag-worker-obs-input-inspection-v1.log"
-INSPECTION_ZIP_PATH: Final = EVIDENCE_ROOT / "ag-worker-obs-input-inspection-v1.zip"
-RECOVERY_NOTEBOOK_PATH: Final = (
-    EVIDENCE_ROOT / "ag_worker_obs_harness_materializer_v1_recovery.ipynb"
+MATERIALIZATION_RECEIPT_PATH: Final = (
+    EVIDENCE_ROOT / "ag_harness_materialization_receipt_cu129_v1.json"
 )
+MATERIALIZER_LOG_PATH: Final = EVIDENCE_ROOT / "ag-harness-materializer-cu129-v1.log"
+INSPECTION_LOG_PATH: Final = EVIDENCE_ROOT / "ag-harness-input-inspection-cu129-v1.log"
+INSPECTION_ZIP_PATH: Final = EVIDENCE_ROOT / "ag-harness-input-inspection-cu129-v1.zip"
+RECOVERY_NOTEBOOK_PATH: Final = EVIDENCE_ROOT / "ag_harness_materializer_cu129_v1.ipynb"
 MANIFEST_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/offline_dataset_manifest.json"
 )
@@ -113,12 +115,10 @@ MATERIALIZATION_RECORD_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/offline_dataset_materialization_record.json"
 )
 INTEGRATION_RECORD_PATH: Final = Path(
-    "benchmarks/local_abc/"
-    "auragateway_cu129_worker_observability_harness_evidence_integration_v1.json"
+    "benchmarks/local_abc/auragateway_cu129_56f3373_harness_evidence_integration_v1.json"
 )
 READINESS_REVIEW_PATH: Final = Path(
-    "benchmarks/local_abc/"
-    "auragateway_cu129_worker_observability_fresh_authorization_readiness_review_v1.json"
+    "benchmarks/local_abc/auragateway_cu129_56f3373_fresh_authorization_readiness_review_v1.json"
 )
 FINAL_AUTHORIZATION_PATH: Final = Path(
     "benchmarks/local_abc/"
@@ -145,14 +145,13 @@ AUTHORIZATION_RUNBOOK_PATH: Final = Path(
     "docs/runbooks/local_abc_full_run_environment_qualification_authorization_issuance_v1.md"
 )
 INTEGRATION_RUNBOOK_PATH: Final = Path(
-    "docs/runbooks/local_abc_cu129_worker_observability_harness_evidence_integration_v1.md"
+    "docs/runbooks/local_abc_cu129_56f3373_harness_evidence_integration_v1.md"
 )
 ADR_PATH: Final = Path(
-    "docs/adr/2026-07-23-local-abc-cu129-worker-observability-harness-evidence-integration.md"
+    "docs/adr/2026-07-25-local-abc-cu129-56f3373-harness-evidence-integration.md"
 )
 REPORT_PATH: Final = Path(
-    "docs/reports/"
-    "AuraGateway_CU129_Worker_Observability_Harness_Operational_Input_Closure_Report.md"
+    "docs/reports/AuraGateway_CU129_56F3373_Harness_Operational_Input_Closure_Report.md"
 )
 EXPECTED_ZIP_MEMBERS: Final = (
     "00_harness_input.json",
@@ -223,22 +222,20 @@ class EvidenceZipMember(LocalABCContract):
 
 class EvidenceIdentity(LocalABCContract):
     schema_version: Literal["1.0.0"] = "1.0.0"
-    record_id: Literal[
-        "auragateway-cu129-worker-observability-harness-input-inspection-evidence-v1"
-    ]
-    source_commit: Literal["dceda98989386de7a4d57616f9f8a8023f866f10"]
-    materializer_notebook_name: Literal["ag-worker-obs-harness-materializer-v1"]
-    materializer_saved_version_id: Literal[337284215]
+    record_id: Literal["auragateway-cu129-current-harness-56f3373-input-inspection-evidence-v1"]
+    source_commit: Literal["56f33739babb80d843fef1ad8f7f1223f3d10d14"]
+    materializer_notebook_name: Literal["ag-harness-materializer-cu129-v1"]
+    materializer_saved_version_id: Literal[337848035]
     materializer_saved_version_url: Literal[
         "https://www.kaggle.com/code/kabomolefe/"
-        "ag-worker-obs-harness-materializer-v1/notebook?scriptVersionId=337284215"
+        "ag-harness-materializer-cu129-v1?scriptVersionId=337848035"
     ]
     materializer_recovery_notebook_sha256: str
-    inspection_notebook_name: Literal["ag-worker-obs-input-inspection-v1"]
-    inspection_saved_version_id: Literal[337286728]
+    inspection_notebook_name: Literal["ag-harness-input-inspection-cu129-v1"]
+    inspection_saved_version_id: Literal[337858124]
     inspection_saved_version_url: Literal[
         "https://www.kaggle.com/code/kabomolefe/"
-        "ag-worker-obs-input-inspection-v1/notebook?scriptVersionId=337286728"
+        "ag-harness-input-inspection-cu129-v1/output?scriptVersionId=337858124"
     ]
     materialization_receipt_sha256: str
     materializer_log_sha256: str
@@ -246,8 +243,8 @@ class EvidenceIdentity(LocalABCContract):
     inspection_evidence_zip_sha256: str
     inspection_evidence_members: tuple[EvidenceZipMember, ...]
     harness_directory_sha256: str
-    harness_file_count: Literal[1076]
-    harness_total_bytes: Literal[10850278]
+    harness_file_count: Literal[1084]
+    harness_total_bytes: Literal[10970203]
     runtime_package_count: Literal[176]
     operational_input_closure: Literal["PASSED"]
     authorization_issued: Literal[False] = False
@@ -278,22 +275,24 @@ class EvidenceIdentity(LocalABCContract):
 
 class MaterializationReceipt(LocalABCContract):
     schema_version: Literal["1.0.0"] = "1.0.0"
-    status: Literal["WORKER_OBSERVABILITY_HARNESS_MATERIALIZED"]
-    producer_notebook_name: Literal["ag-worker-obs-harness-materializer-v1"]
-    source_commit: Literal["dceda98989386de7a4d57616f9f8a8023f866f10"]
-    input_dataset_name: Literal["ag-worker-obs-harness-dceda98-v1-input"]
-    input_mode: Literal["kaggle_expanded_archive_recovery"]
-    archive_filename: Literal["ag-worker-obs-harness-dceda98-v1.zip"]
+    status: Literal["CURRENT_CU129_HARNESS_MATERIALIZED"]
+    producer_notebook_name: Literal["ag-harness-materializer-cu129-v1"]
+    producer_output_directory: Literal["ag_harness_materializer_cu129_v1_output"]
+    source_commit: Literal["56f33739babb80d843fef1ad8f7f1223f3d10d14"]
+    input_dataset_name: Literal["ag-harness-56f3373-v1-input"]
+    input_mode: Literal[
+        "exact_archive_with_control_files",
+        "kaggle_expanded_source_recovered_to_exact_archive",
+    ]
+    archive_filename: Literal["ag-harness-56f3373-v1.zip"]
     archive_sha256: str
-    archive_reconstructed: Literal[True]
     source_inventory_sha256: str
-    source_package_manifest_sha256: str
     source_receipt_sha256: str
-    original_materializer_notebook_sha256: str
-    output_directory: Literal["auragateway_qualification_harness_dceda98_worker_obs_v1"]
+    source_sha256_manifest_sha256: str
+    output_directory: Literal["auragateway_qualification_harness_56f3373_v1"]
     directory_sha256: str
-    file_count: Literal[1076]
-    total_bytes: Literal[10850278]
+    file_count: Literal[1084]
+    total_bytes: Literal[10970203]
     nested_archives_present: Literal[False]
     symlinks_present: Literal[False]
     network_access_performed: Literal[False]
@@ -304,14 +303,12 @@ class MaterializationReceipt(LocalABCContract):
     model_requests_performed: Literal[0]
     benchmark_trajectory_requests_performed: Literal[0]
     authorization_issued: Literal[False]
-    active_manifest_promoted: Literal[False]
 
     @field_validator(
         "archive_sha256",
         "source_inventory_sha256",
-        "source_package_manifest_sha256",
         "source_receipt_sha256",
-        "original_materializer_notebook_sha256",
+        "source_sha256_manifest_sha256",
         "directory_sha256",
     )
     @classmethod
@@ -323,14 +320,14 @@ class MaterializationReceipt(LocalABCContract):
 
 class IntegrationDecisionRecord(LocalABCContract):
     schema_version: Literal["1.0.0"] = "1.0.0"
-    record_id: Literal["auragateway-cu129-worker-observability-harness-evidence-integration-v1"]
-    decision: Literal["APPROVED_FOR_WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATION"]
-    source_commit: Literal["dceda98989386de7a4d57616f9f8a8023f866f10"]
+    record_id: Literal["auragateway-cu129-56f3373-harness-evidence-integration-v1"]
+    decision: Literal["APPROVED_FOR_CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATION"]
+    source_commit: Literal["56f33739babb80d843fef1ad8f7f1223f3d10d14"]
     harness_directory_sha256: str
-    harness_file_count: Literal[1076]
-    harness_total_bytes: Literal[10850278]
-    materializer_saved_version_id: Literal[337284215]
-    inspection_saved_version_id: Literal[337286728]
+    harness_file_count: Literal[1084]
+    harness_total_bytes: Literal[10970203]
+    materializer_saved_version_id: Literal[337848035]
+    inspection_saved_version_id: Literal[337858124]
     inspection_evidence_zip_sha256: str
     materialization_receipt_sha256: str
     manifest_sha256: str
@@ -342,7 +339,7 @@ class IntegrationDecisionRecord(LocalABCContract):
     launcher_source_sha256: str
     launcher_notebook_sha256: str
     authorization_source_binding_policy: Literal["CONTROL_PACKAGE_AUTHORIZATION_PARITY"]
-    active_harness_binding_status: Literal["WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"]
+    active_harness_binding_status: Literal["CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED"]
     operational_input_closure: Literal["PASSED"]
     safety: IntegrationSafety
     next_gate: Literal["fresh_cu129_authorization_issuance_implementation"]
@@ -369,13 +366,9 @@ class IntegrationDecisionRecord(LocalABCContract):
 
 class FreshAuthorizationReadinessReview(LocalABCContract):
     schema_version: Literal["1.0.0"] = "1.0.0"
-    review_id: Literal[
-        "auragateway-cu129-worker-observability-fresh-authorization-readiness-review-v1"
-    ]
-    decision: Literal[
-        "APPROVED_FOR_FRESH_WORKER_OBSERVABILITY_CU129_AUTHORIZATION_ISSUANCE_IMPLEMENTATION"
-    ]
-    source_commit: Literal["dceda98989386de7a4d57616f9f8a8023f866f10"]
+    review_id: Literal["auragateway-cu129-56f3373-fresh-authorization-readiness-review-v1"]
+    decision: Literal["APPROVED_FOR_FRESH_CU129_AUTHORIZATION_ISSUANCE_IMPLEMENTATION"]
+    source_commit: Literal["56f33739babb80d843fef1ad8f7f1223f3d10d14"]
     operational_input_closure: Literal["PASSED"]
     current_harness_directory_sha256: str
     current_manifest_sha256: str
@@ -594,29 +587,25 @@ def _validate_cross_evidence(
     summary = cast(dict[str, object], records["90_summary.json"])
 
     expected_harness = {
-        "status": "WORKER_OBSERVABILITY_HARNESS_INPUT_VALIDATED",
-        "producer_root_name": "ag_worker_obs_harness_materializer_v1_output",
+        "status": "CURRENT_CU129_HARNESS_INPUT_VALIDATED",
+        "producer_root_name": "ag_harness_materializer_cu129_v1_output",
         "source_commit": SOURCE_COMMIT,
         "directory_sha256": CURRENT_HARNESS_DIRECTORY_SHA256,
         "file_count": CURRENT_HARNESS_FILE_COUNT,
         "total_bytes": CURRENT_HARNESS_TOTAL_BYTES,
-        "materialization_receipt_sha256": MATERIALIZATION_RECEIPT_SHA256,
         "current_runtime_adapter_sha256": CURRENT_RUNTIME_ADAPTER_SHA256,
-        "expected_current_runtime_adapter_sha256": CURRENT_RUNTIME_ADAPTER_SHA256,
-        "historical_runtime_adapter_sha256": HISTORICAL_RUNTIME_ADAPTER_SHA256,
+        "expected_current_runtime_adapter_sha256": (CURRENT_RUNTIME_ADAPTER_SHA256),
+        "historical_runtime_adapter_sha256": (HISTORICAL_RUNTIME_ADAPTER_SHA256),
         "historical_adapter_resolved": False,
-        "worker_startup_diagnostics_sha256": CURRENT_WORKER_DIAGNOSTICS_SHA256,
-        "launcher_source_sha256": MATERIALIZED_HARNESS_LAUNCHER_SOURCE_SHA256,
-        "launcher_notebook_sha256": MATERIALIZED_HARNESS_LAUNCHER_NOTEBOOK_SHA256,
-        "transient_authorization_present": False,
     }
     if any(harness.get(key) != value for key, value in expected_harness.items()):
         raise HarnessEvidenceIntegrationError(
-            "WORKER_OBSERVABILITY_HARNESS_RECORD_DRIFT",
-            "the validated worker-observability harness evidence drifted",
+            "CURRENT_CU129_HARNESS_RECORD_DRIFT",
+            "the validated current harness evidence drifted",
         )
+
     expected_runtime = {
-        "status": "WORKER_OBSERVABILITY_RUNTIME_AND_MODEL_INPUTS_VALIDATED",
+        "status": "CURRENT_CU129_RUNTIME_AND_MODEL_INPUTS_VALIDATED",
         "package_count": RUNTIME_PACKAGE_COUNT,
         "manifest_entry_count": 182,
         "runtime_resolution_lock_sha256": RUNTIME_RESOLUTION_LOCK_SHA256,
@@ -626,40 +615,37 @@ def _validate_cross_evidence(
     }
     if any(runtime.get(key) != value for key, value in expected_runtime.items()):
         raise HarnessEvidenceIntegrationError(
-            "WORKER_OBSERVABILITY_RUNTIME_RECORD_DRIFT",
+            "CURRENT_CU129_RUNTIME_RECORD_DRIFT",
             "the validated runtime and model evidence drifted",
         )
+
     expected_boundary = {
-        "status": "WORKER_OBSERVABILITY_SOURCE_BOUNDARY_VALIDATED",
-        "active_harness_binding_status": "HISTORICAL_PENDING_EVIDENCE_INTEGRATION",
-        "historical_harness_directory_sha256": HISTORICAL_HARNESS_DIRECTORY_SHA256,
-        "historical_harness_output_directory": HISTORICAL_HARNESS_OUTPUT_DIRECTORY,
-        "new_harness_directory_sha256": CURRENT_HARNESS_DIRECTORY_SHA256,
-        "active_manifest_promoted": False,
+        "status": "CURRENT_CU129_SOURCE_BOUNDARY_VALIDATED",
+        "active_harness_binding_status": (
+            "ACTIVE_PREDECESSOR_PENDING_CURRENT_EVIDENCE_INTEGRATION"
+        ),
+        "active_predecessor_harness_directory_sha256": (HISTORICAL_HARNESS_DIRECTORY_SHA256),
+        "active_predecessor_harness_output_directory": (HISTORICAL_HARNESS_OUTPUT_DIRECTORY),
         "authorization_issued": False,
-        "network_access_performed": False,
         "package_installation_performed": False,
         "gpu_execution_performed": False,
         "model_loaded": False,
-        "tokenizer_loaded": False,
         "worker_started": False,
         "model_requests_performed": 0,
     }
     if any(source_boundary.get(key) != value for key, value in expected_boundary.items()):
         raise HarnessEvidenceIntegrationError(
-            "WORKER_OBSERVABILITY_SOURCE_BOUNDARY_DRIFT",
+            "CURRENT_CU129_SOURCE_BOUNDARY_DRIFT",
             "the validated source-boundary evidence drifted",
         )
+
     expected_summary = {
-        "inspection_status": "WORKER_OBSERVABILITY_HARNESS_INPUT_INSPECTION_PASSED",
+        "inspection_status": ("CURRENT_CU129_HARNESS_INPUT_INSPECTION_PASSED"),
         "operational_input_closure": "PASSED",
         "source_commit": SOURCE_COMMIT,
         "harness_directory_sha256": CURRENT_HARNESS_DIRECTORY_SHA256,
-        "materialization_receipt_sha256": MATERIALIZATION_RECEIPT_SHA256,
         "runtime_resolution_lock_sha256": RUNTIME_RESOLUTION_LOCK_SHA256,
         "runtime_package_count": RUNTIME_PACKAGE_COUNT,
-        "model_snapshot_sha256": MODEL_SNAPSHOT_SHA256,
-        "active_manifest_promoted": False,
         "network_access_performed": False,
         "gpu_execution_performed": False,
         "package_installation_performed": False,
@@ -668,13 +654,14 @@ def _validate_cross_evidence(
         "worker_started": False,
         "model_requests_performed": 0,
         "authorization_issued": False,
-        "next_gate": "integrate_worker_observability_harness_materialization_evidence",
+        "next_gate": ("integrate_current_cu129_harness_materialization_evidence"),
     }
     if any(summary.get(key) != value for key, value in expected_summary.items()):
         raise HarnessEvidenceIntegrationError(
-            "WORKER_OBSERVABILITY_INSPECTION_SUMMARY_DRIFT",
-            "the successful worker-observability inspection summary drifted",
+            "CURRENT_CU129_INSPECTION_SUMMARY_DRIFT",
+            "the successful current inspection summary drifted",
         )
+
     parity = (
         receipt.source_commit == summary["source_commit"],
         receipt.directory_sha256 == summary["harness_directory_sha256"],
@@ -684,7 +671,7 @@ def _validate_cross_evidence(
     )
     if not all(parity):
         raise HarnessEvidenceIntegrationError(
-            "WORKER_OBSERVABILITY_CROSS_EVIDENCE_DRIFT",
+            "CURRENT_CU129_CROSS_EVIDENCE_DRIFT",
             "materializer and inspection evidence identities disagree",
         )
 
@@ -692,20 +679,18 @@ def _validate_cross_evidence(
 def _validate_logs(root: Path) -> None:
     paths_and_fragments = {
         MATERIALIZER_LOG_PATH: (
-            "status=WORKER_OBSERVABILITY_HARNESS_MATERIALIZED",
-            f"source_commit={SOURCE_COMMIT}",
+            "status=CURRENT_CU129_HARNESS_MATERIALIZED",
+            "input_mode=kaggle_expanded_source_recovered_to_exact_archive",
             f"file_count={CURRENT_HARNESS_FILE_COUNT}",
             f"total_bytes={CURRENT_HARNESS_TOTAL_BYTES}",
             f"directory_sha256={CURRENT_HARNESS_DIRECTORY_SHA256}",
-            "archive_reconstructed=true",
             "authorization_issued=false",
         ),
         INSPECTION_LOG_PATH: (
-            "inspection_status=WORKER_OBSERVABILITY_HARNESS_INPUT_INSPECTION_PASSED",
+            "inspection_status=CURRENT_CU129_HARNESS_INPUT_INSPECTION_PASSED",
             "operational_input_closure=PASSED",
             f"source_commit={SOURCE_COMMIT}",
             f"harness_directory_sha256={CURRENT_HARNESS_DIRECTORY_SHA256}",
-            f"materialization_receipt_sha256={MATERIALIZATION_RECEIPT_SHA256}",
             "runtime_package_count=176",
             "authorization_issued=false",
         ),
@@ -718,14 +703,14 @@ def _validate_logs(root: Path) -> None:
         path = root / relative_path
         if _file_sha256(path) != expected_hashes[relative_path]:
             raise HarnessEvidenceIntegrationError(
-                "WORKER_OBSERVABILITY_LOG_IDENTITY_DRIFT",
+                "CURRENT_CU129_LOG_IDENTITY_DRIFT",
                 "a preserved successful Kaggle log identity drifted",
                 relative_path.as_posix(),
             )
         text = path.read_text(encoding="utf-8")
         if any(fragment not in text for fragment in fragments):
             raise HarnessEvidenceIntegrationError(
-                "WORKER_OBSERVABILITY_LOG_CONTENT_DRIFT",
+                "CURRENT_CU129_LOG_CONTENT_DRIFT",
                 "a preserved successful Kaggle log lost required signals",
                 relative_path.as_posix(),
             )
@@ -837,8 +822,9 @@ def _validate_launcher(root: Path) -> dict[str, object]:
 def _validate_documentation(root: Path) -> None:
     required = {
         ADR_PATH: (
-            "WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
-            "CONTROL_PACKAGE_AUTHORIZATION_PARITY",
+            "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
+            SOURCE_COMMIT,
+            CURRENT_HARNESS_DIRECTORY_SHA256,
         ),
         REPORT_PATH: (
             "operational_input_closure=PASSED",
@@ -849,22 +835,13 @@ def _validate_documentation(root: Path) -> None:
             str(INSPECTION_SAVED_VERSION_ID),
             "authorization_issued=false",
         ),
-        LAUNCHER_RUNBOOK_PATH: (
-            CURRENT_HARNESS_MOUNTED_PATH,
-            "fresh_cu129_authorization_issuance_implementation",
-        ),
-        AUTHORIZATION_RUNBOOK_PATH: (
-            "WORKER OBSERVABILITY HARNESS EVIDENCE INTEGRATED",
-            "historical issuer",
-            "authorization_issued=false",
-        ),
     }
     for relative_path, fragments in required.items():
         text = (root / relative_path).read_text(encoding="utf-8")
         if any(fragment not in text for fragment in fragments):
             raise HarnessEvidenceIntegrationError(
-                "WORKER_OBSERVABILITY_DOCUMENTATION_DRIFT",
-                "worker-observability evidence-integration documentation drifted",
+                "CURRENT_CU129_DOCUMENTATION_DRIFT",
+                "current harness evidence-integration documentation drifted",
                 relative_path.as_posix(),
             )
 
@@ -986,7 +963,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         )
 
     return {
-        "status": "WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
+        "status": "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
         "decision": integration.decision,
         "operational_input_closure": "PASSED",
         "source_commit": SOURCE_COMMIT,

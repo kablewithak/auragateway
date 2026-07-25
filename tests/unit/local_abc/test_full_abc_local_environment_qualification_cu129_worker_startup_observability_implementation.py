@@ -37,19 +37,22 @@ def test_repository_package_recognizes_integrated_worker_observability_harness()
     assert result["historical_harness_source_commit"] == (
         "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
     )
-    assert result["current_harness_source_commit"] == ("dceda98989386de7a4d57616f9f8a8023f866f10")
+    assert result["current_harness_source_commit"] == ("56f33739babb80d843fef1ad8f7f1223f3d10d14")
     assert result["maximum_stream_capture_bytes"] == 32 * 1024
     assert result["maximum_diagnostic_bytes"] == 256 * 1024
     assert result["maximum_readiness_polls"] == 90
-    assert result["fresh_issuer_implemented"] is True
-    assert result["fresh_authorization_base_commit"] == ("fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b")
+    assert result["fresh_issuer_implemented"] is False
+    assert result["fresh_authorization_base_commit"] is None
+    assert result["superseded_authorization_base_commit"] == (
+        "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
+    )
     assert result["historical_issuer_usable"] is False
     assert result["active_manifest_promoted"] is True
     assert result["operational_input_closure"] == "PASSED"
     assert result["authorization_issued"] is False
     assert result["kaggle_execution_performed"] is False
     assert result["model_requests_performed"] == 0
-    assert result["next_gate"] == ("explicit_operator_confirmation_then_issue_fresh_authorization")
+    assert result["next_gate"] == ("fresh_cu129_authorization_issuance_implementation")
 
 
 def test_record_rejects_manifest_promotion() -> None:

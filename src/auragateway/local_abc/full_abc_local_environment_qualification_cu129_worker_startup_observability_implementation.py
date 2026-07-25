@@ -381,7 +381,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
     if review_summary.get("observability_implementation_present") is not True:
         raise ImplementationError("worker-observability review does not recognize implementation")
     integration_summary = integration.validate_repository_package(root)
-    if integration_summary.get("status") != ("WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"):
+    if integration_summary.get("status") != "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED":
         raise ImplementationError("worker-observability harness integration drifted")
     if integration_summary.get("source_commit") != integration.SOURCE_COMMIT:
         raise ImplementationError("integrated worker-observability harness source drifted")
@@ -395,25 +395,34 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
     if _sha256(root / LAUNCHER_SOURCE_PATH) != integration.CURRENT_LAUNCHER_SOURCE_SHA256:
         raise ImplementationError("integrated launcher source identity drifted")
 
-    issuer_summary = issuance.validate_implementation_package(root)
-    if issuer_summary.get("status") != "FRESH_CU129_AUTHORIZATION_ISSUER_READY":
-        raise ImplementationError("fresh authorization issuer validation failed")
-    if issuer_summary.get("current_authorization_base_commit") != (
-        "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
-    ):
-        raise ImplementationError("fresh authorization issuer base commit drifted")
-    if issuer_summary.get("current_harness_source_commit") != integration.SOURCE_COMMIT:
-        raise ImplementationError("fresh authorization issuer harness binding drifted")
-    if issuer_summary.get("runtime_adapter_sha256") != (integration.CURRENT_RUNTIME_ADAPTER_SHA256):
-        raise ImplementationError("fresh authorization issuer runtime adapter drifted")
-    if issuer_summary.get("worker_startup_diagnostics_sha256") != (
-        integration.CURRENT_WORKER_DIAGNOSTICS_SHA256
-    ):
-        raise ImplementationError("fresh authorization issuer diagnostics binding drifted")
-    if issuer_summary.get("launcher_source_sha256") != (integration.CURRENT_LAUNCHER_SOURCE_SHA256):
-        raise ImplementationError("fresh authorization issuer launcher source drifted")
-    if issuer_summary.get("launcher_notebook_sha256") != verification.notebook_sha256:
-        raise ImplementationError("fresh authorization issuer launcher notebook drifted")
+    current_readiness_sha256 = _sha256(root / integration.READINESS_REVIEW_PATH)
+    historical_issuer_authorities: dict[str, str] = {
+        "materialization_record": (issuance.MATERIALIZATION_RECORD_SHA256),
+        "runtime_manifest": issuance.RUNTIME_MANIFEST_SHA256,
+        "launcher_source": issuance.LAUNCHER_SOURCE_SHA256,
+        "launcher_notebook": issuance.LAUNCHER_NOTEBOOK_SHA256,
+    }
+    current_operational_authorities: dict[str, str] = {
+        "materialization_record": (integration.CURRENT_MATERIALIZATION_RECORD_SHA256),
+        "runtime_manifest": integration.CURRENT_MANIFEST_SHA256,
+        "launcher_source": integration.CURRENT_LAUNCHER_SOURCE_SHA256,
+        "launcher_notebook": (integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256),
+    }
+    issuer_supersession = (
+        current_readiness_sha256 != issuance.READINESS_REVIEW_SHA256,
+        historical_issuer_authorities["materialization_record"]
+        != current_operational_authorities["materialization_record"],
+        historical_issuer_authorities["runtime_manifest"]
+        != current_operational_authorities["runtime_manifest"],
+        historical_issuer_authorities["launcher_source"]
+        != current_operational_authorities["launcher_source"],
+        historical_issuer_authorities["launcher_notebook"]
+        != current_operational_authorities["launcher_notebook"],
+        integration_summary.get("historical_issuer_usable") is False,
+        integration_summary.get("next_gate") == "fresh_cu129_authorization_issuance_implementation",
+    )
+    if not all(issuer_supersession):
+        raise ImplementationError("historical authorization issuer supersession drifted")
 
     return {
         "status": "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
@@ -430,15 +439,16 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         "maximum_stream_capture_bytes": diagnostics.MAXIMUM_STREAM_CAPTURE_BYTES,
         "maximum_diagnostic_bytes": diagnostics.MAXIMUM_DIAGNOSTIC_BYTES,
         "maximum_readiness_polls": diagnostics.MAXIMUM_READINESS_POLLS,
-        "fresh_issuer_implemented": True,
-        "fresh_authorization_base_commit": issuer_summary["current_authorization_base_commit"],
+        "fresh_issuer_implemented": False,
+        "fresh_authorization_base_commit": None,
+        "superseded_authorization_base_commit": (issuance.CURRENT_AUTHORIZATION_BASE_COMMIT),
         "historical_issuer_usable": False,
-        "active_manifest_promoted": True,
-        "operational_input_closure": "PASSED",
+        "active_manifest_promoted": integration_summary["active_manifest_promoted"],
+        "operational_input_closure": integration_summary["operational_input_closure"],
         "authorization_issued": False,
         "kaggle_execution_performed": False,
         "model_requests_performed": 0,
-        "next_gate": issuer_summary["next_gate"],
+        "next_gate": integration_summary["next_gate"],
     }
 
 

@@ -144,7 +144,7 @@ def test_superseding_state_binds_materialized_and_active_launcher_lineages(
         current_integration,
         "validate_repository_package",
         lambda _root: {
-            "status": "WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
+            "status": "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
             "next_gate": "fresh_cu129_authorization_issuance_implementation",
         },
     )
@@ -165,7 +165,7 @@ def test_superseding_state_rejects_broken_launcher_lineage(
         current_integration,
         "validate_repository_package",
         lambda _root: {
-            "status": "WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
+            "status": "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
             "next_gate": "fresh_cu129_authorization_issuance_implementation",
         },
     )

@@ -41,6 +41,10 @@ FINAL_AUTHORIZATION_PATH: Final = Path(
 IMPLEMENTATION_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_worker_startup_observability_implementation_v1.json"
 )
+HISTORICAL_INTEGRATION_PATH: Final = Path(
+    "benchmarks/local_abc/"
+    "auragateway_cu129_worker_observability_harness_evidence_integration_v1.json"
+)
 DIAGNOSTICS_PATH: Final = Path(
     "src/auragateway/local_abc/"
     "full_abc_local_environment_qualification_worker_startup_diagnostics.py"
@@ -78,6 +82,9 @@ EXPECTED_FAILURE_JSON_SHA256: Final = (
 )
 EXPECTED_FAILURE_TRACE_SHA256: Final = (
     "0aff3131e04f669c8f2971c1498533bf15336b5847d09f55f3e2a3b1cbcdbc68"
+)
+EXPECTED_HISTORICAL_INTEGRATION_SHA256: Final = (
+    "13380eb16678750965fce90985e95d314e22e99264182e973bfca9a6d774422f"
 )
 
 
@@ -373,6 +380,67 @@ def _validate_evidence(repo_root: Path) -> dict[str, object]:
     }
 
 
+def _load_historical_harness_integration(
+    repo_root: Path,
+) -> dict[str, object]:
+    path = repo_root / HISTORICAL_INTEGRATION_PATH
+    if _sha256(path) != EXPECTED_HISTORICAL_INTEGRATION_SHA256:
+        raise RuntimeError("historical worker-observability integration identity drifted")
+
+    payload = _load_json(path)
+    observed = path.read_text(encoding="utf-8")
+    canonical = json.dumps(
+        payload,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    if observed != canonical:
+        raise RuntimeError("historical worker-observability integration is not canonical")
+
+    expected = {
+        "active_harness_binding_status": ("WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"),
+        "source_commit": "dceda98989386de7a4d57616f9f8a8023f866f10",
+        "materialized_harness_launcher_source_sha256": (
+            "454d5e6fe7f7ff5711710d140f0bece3ee84f3a863a7c33316f784af13724bd0"
+        ),
+        "materialized_harness_launcher_notebook_sha256": (
+            "8477a8f389fe21a925d87c6c4e5b7a71e9de1b1c09910d5d293eadbf6b73db26"
+        ),
+        "launcher_source_sha256": (
+            "b363c657b9053897a01c3784487e2b3fdc7a42391acb98d380b4e43eba21f3ec"
+        ),
+        "launcher_notebook_sha256": (
+            "9bec10b5f80e53f6a09533e6acf680449e6260329e3e9fbc1f4fdc247d0ad64f"
+        ),
+        "runtime_adapter_sha256": (
+            "f83452b6fbfd583f4236c2edbaf0e4bd3a6ece331494fdff891bf50d022ba617"
+        ),
+        "worker_startup_diagnostics_sha256": (
+            "58d39a67c9d82d1b2f5938328dfa9362ee922ced2e089f8b5d529c0139cc2b91"
+        ),
+        "next_gate": "fresh_cu129_authorization_issuance_implementation",
+    }
+    drift = tuple(
+        key for key, expected_value in expected.items() if payload.get(key) != expected_value
+    )
+    if drift:
+        raise RuntimeError(
+            "historical worker-observability integration fields drifted: " + ", ".join(drift)
+        )
+
+    safety = payload.get("safety")
+    if not isinstance(safety, dict):
+        raise RuntimeError("historical worker-observability integration safety is invalid")
+    if (
+        safety.get("authorization_issued") is not False
+        or safety.get("gpu_execution_performed") is not False
+        or safety.get("model_requests_performed") != 0
+    ):
+        raise RuntimeError("historical worker-observability integration crossed a safety boundary")
+    return payload
+
+
 def load_superseding_implementation_state(
     repo_root: Path,
 ) -> SupersedingImplementationState | None:
@@ -457,16 +525,21 @@ def load_superseding_implementation_state(
 
     next_gate = cast(str, payload["next_gate"])
     if not all(launcher_match.values()):
+        historical_integration = _load_historical_harness_integration(repo_root)
         integration_summary = current_integration.validate_repository_package(repo_root)
         expected_supersession = (
-            integration_summary.get("status") == "WORKER_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED",
+            integration_summary.get("status") == "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
             implementation_sha256["runtime_adapter"]
-            == current_integration.CURRENT_RUNTIME_ADAPTER_SHA256,
+            == historical_integration["runtime_adapter_sha256"],
             implementation_sha256["diagnostics"]
-            == current_integration.CURRENT_WORKER_DIAGNOSTICS_SHA256,
+            == historical_integration["worker_startup_diagnostics_sha256"],
             implementation_sha256["launcher_source"]
-            == current_integration.MATERIALIZED_HARNESS_LAUNCHER_SOURCE_SHA256,
+            == historical_integration["materialized_harness_launcher_source_sha256"],
             implementation_sha256["launcher_notebook"]
+            == historical_integration["materialized_harness_launcher_notebook_sha256"],
+            historical_integration["launcher_source_sha256"]
+            == current_integration.MATERIALIZED_HARNESS_LAUNCHER_SOURCE_SHA256,
+            historical_integration["launcher_notebook_sha256"]
             == current_integration.MATERIALIZED_HARNESS_LAUNCHER_NOTEBOOK_SHA256,
             observed_sha256["launcher_source"]
             == current_integration.CURRENT_LAUNCHER_SOURCE_SHA256,
