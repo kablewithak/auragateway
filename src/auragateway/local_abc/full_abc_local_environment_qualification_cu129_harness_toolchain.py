@@ -65,10 +65,12 @@ MODEL_SNAPSHOT_DIRECTORY_TOKEN: Final = (
     "auragateway-qwen2.5-0.5b-instruct-7ae557604adf67be50417f59c2c2f167def9a775"
 )
 
-HISTORICAL_HARNESS_DIRECTORY_SHA256: Final = (
-    "4a371c80aef605c4f1ab5617c21ce43bd0939ad449ffcbcadab656878d785a2e"
+ACTIVE_PREDECESSOR_HARNESS_DIRECTORY_SHA256: Final = (
+    "c66f2589bdf55ab34f82bffc1eaaa4b4c7e73cb8195867333ccd99a58438f3e4"
 )
-HISTORICAL_HARNESS_OUTPUT_DIRECTORY: Final = "auragateway_qualification_harness_be1bfad_v1"
+ACTIVE_PREDECESSOR_HARNESS_OUTPUT_DIRECTORY: Final = (
+    "auragateway_qualification_harness_dceda98_worker_obs_v1"
+)
 HISTORICAL_RUNTIME_ADAPTER_SHA256: Final = (
     "78870b1a7e27de9931f0f58e11613110dc642ba0d4a934ca149576e4e86412d8"
 )
@@ -624,6 +626,26 @@ def _inventory_identity(
     return _sha256_bytes(_canonical_json(payload).encode("utf-8"))
 
 
+def _active_predecessor_harness_drift(
+    entry: dict[str, object],
+) -> tuple[str, ...]:
+    drift: list[str] = []
+    expected_values = {
+        "artifact_format": "source_tree_directory",
+        "sha256": ACTIVE_PREDECESSOR_HARNESS_DIRECTORY_SHA256,
+    }
+    for key, expected in expected_values.items():
+        observed = entry.get(key)
+        if observed != expected:
+            drift.append(f"{key}:expected={expected}:observed={observed}")
+
+    mounted_path = entry.get("mounted_path")
+    expected_suffix = f"/{ACTIVE_PREDECESSOR_HARNESS_OUTPUT_DIRECTORY}"
+    if not isinstance(mounted_path, str) or not mounted_path.endswith(expected_suffix):
+        drift.append(f"mounted_path_suffix:expected={expected_suffix}:observed={mounted_path}")
+    return tuple(drift)
+
+
 def _validate_current_boundary(
     entries: Sequence[toolchain_contracts.HarnessSourceInventoryEntry],
     blobs: dict[str, bytes],
@@ -699,6 +721,22 @@ def _validate_current_boundary(
                 details=(f"role={role}",),
             )
         role_entries[role] = cast(dict[str, object], item)
+    active_predecessor = role_entries.get("harness_source")
+    if active_predecessor is None:
+        raise HarnessToolchainError(
+            "HARNESS_TOOLCHAIN_ACTIVE_PREDECESSOR_ENTRY_MISSING",
+            "the source offline dataset manifest lacks the active predecessor harness entry",
+            OFFLINE_MANIFEST_PATH,
+        )
+    predecessor_drift = _active_predecessor_harness_drift(active_predecessor)
+    if predecessor_drift:
+        raise HarnessToolchainError(
+            "HARNESS_TOOLCHAIN_ACTIVE_PREDECESSOR_ENTRY_DRIFT",
+            "the source offline dataset manifest predecessor harness authority drifted",
+            OFFLINE_MANIFEST_PATH,
+            details=predecessor_drift,
+        )
+
     runtime = role_entries.get("vllm_runtime")
     if runtime is None:
         raise HarnessToolchainError(
@@ -1272,8 +1310,12 @@ def _inspection_source(receipt: toolchain_contracts.HarnessSourcePackageReceipt)
         EXPECTED_TOTAL_BYTES = {receipt.total_bytes}
         EXPECTED_MATERIALIZATION_RECEIPT_NAME = {receipt.materialization_receipt_name!r}
         EXPECTED_FILE_SHA256 = {receipt.expected_file_sha256!r}
-        HISTORICAL_HARNESS_DIRECTORY_SHA256 = {HISTORICAL_HARNESS_DIRECTORY_SHA256!r}
-        HISTORICAL_HARNESS_OUTPUT_DIRECTORY = {HISTORICAL_HARNESS_OUTPUT_DIRECTORY!r}
+        ACTIVE_PREDECESSOR_HARNESS_DIRECTORY_SHA256 = (
+            {ACTIVE_PREDECESSOR_HARNESS_DIRECTORY_SHA256!r}
+        )
+        ACTIVE_PREDECESSOR_HARNESS_OUTPUT_DIRECTORY = (
+            {ACTIVE_PREDECESSOR_HARNESS_OUTPUT_DIRECTORY!r}
+        )
         HISTORICAL_RUNTIME_ADAPTER_SHA256 = {HISTORICAL_RUNTIME_ADAPTER_SHA256!r}
         CURRENT_RUNTIME_ADAPTER_SHA256 = {CURRENT_RUNTIME_ADAPTER_SHA256!r}
         RUNTIME_OUTPUT_DIRECTORY = {RUNTIME_OUTPUT_DIRECTORY!r}
@@ -1604,15 +1646,41 @@ def _inspection_source(receipt: toolchain_contracts.HarnessSourcePackageReceipt)
                 (harness_root / OFFLINE_MANIFEST_RELATIVE_PATH).read_text(encoding="utf-8")
             )
             by_role = manifest_entries_by_role(manifest.get("entries"))
-            historical_harness = by_role["harness_source"]
-            historical_mount = str(historical_harness.get("mounted_path"))
+            active_predecessor = by_role["harness_source"]
+            predecessor_drift = []
+            if active_predecessor.get("artifact_format") != "source_tree_directory":
+                predecessor_drift.append(
+                    "artifact_format:expected=source_tree_directory:observed="
+                    + str(active_predecessor.get("artifact_format"))
+                )
             if (
-                historical_harness.get("artifact_format") != "source_tree_directory"
-                or historical_harness.get("sha256") != HISTORICAL_HARNESS_DIRECTORY_SHA256
-                or not historical_mount.endswith(f"/{{HISTORICAL_HARNESS_OUTPUT_DIRECTORY}}")
+                active_predecessor.get("sha256")
+                != ACTIVE_PREDECESSOR_HARNESS_DIRECTORY_SHA256
             ):
+                predecessor_drift.append(
+                    "sha256:expected="
+                    + ACTIVE_PREDECESSOR_HARNESS_DIRECTORY_SHA256
+                    + ":observed="
+                    + str(active_predecessor.get("sha256"))
+                )
+            predecessor_mount = active_predecessor.get("mounted_path")
+            expected_predecessor_suffix = (
+                "/" + ACTIVE_PREDECESSOR_HARNESS_OUTPUT_DIRECTORY
+            )
+            if (
+                not isinstance(predecessor_mount, str)
+                or not predecessor_mount.endswith(expected_predecessor_suffix)
+            ):
+                predecessor_drift.append(
+                    "mounted_path_suffix:expected="
+                    + expected_predecessor_suffix
+                    + ":observed="
+                    + str(predecessor_mount)
+                )
+            if predecessor_drift:
                 raise RuntimeError(
-                    "active manifest was prematurely migrated from historical harness"
+                    "active predecessor harness authority drifted: "
+                    + "; ".join(predecessor_drift)
                 )
 
             runtime_entry = by_role["vllm_runtime"]
@@ -1672,13 +1740,13 @@ def _inspection_source(receipt: toolchain_contracts.HarnessSourcePackageReceipt)
                 "status": "CURRENT_CU129_SOURCE_BOUNDARY_VALIDATED",
                 "compiled_source_files": compiled_paths,
                 "active_harness_binding_status": (
-                    "HISTORICAL_PENDING_EVIDENCE_INTEGRATION"
+                    "ACTIVE_PREDECESSOR_PENDING_CURRENT_EVIDENCE_INTEGRATION"
                 ),
-                "historical_harness_directory_sha256": (
-                    HISTORICAL_HARNESS_DIRECTORY_SHA256
+                "active_predecessor_harness_directory_sha256": (
+                    ACTIVE_PREDECESSOR_HARNESS_DIRECTORY_SHA256
                 ),
-                "historical_harness_output_directory": (
-                    HISTORICAL_HARNESS_OUTPUT_DIRECTORY
+                "active_predecessor_harness_output_directory": (
+                    ACTIVE_PREDECESSOR_HARNESS_OUTPUT_DIRECTORY
                 ),
                 "authorization_issued": False,
                 "package_installation_performed": False,

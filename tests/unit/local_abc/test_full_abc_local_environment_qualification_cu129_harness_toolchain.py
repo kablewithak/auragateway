@@ -293,6 +293,32 @@ def test_repository_package_exposes_approved_toolchain_boundary() -> None:
     assert summary["model_requests_performed"] == 0
 
 
+def test_active_predecessor_harness_contract_matches_current_manifest() -> None:
+    manifest = _load_json(ROOT / toolchain.OFFLINE_MANIFEST_PATH)
+    entries = cast(list[dict[str, Any]], manifest["entries"])
+    harness_entries = [entry for entry in entries if entry.get("role") == "harness_source"]
+
+    assert len(harness_entries) == 1
+    assert toolchain._active_predecessor_harness_drift(harness_entries[0]) == ()
+
+
+def test_active_predecessor_harness_contract_rejects_stale_be1bfad() -> None:
+    stale_entry: dict[str, object] = {
+        "artifact_format": "source_tree_directory",
+        "mounted_path": (
+            "/kaggle/input/notebooks/kabomolefe/old-materializer/"
+            "auragateway_qualification_harness_be1bfad_v1"
+        ),
+        "sha256": ("4a371c80aef605c4f1ab5617c21ce43bd0939ad449ffcbcadab656878d785a2e"),
+    }
+
+    drift = toolchain._active_predecessor_harness_drift(stale_entry)
+
+    assert len(drift) == 2
+    assert drift[0].startswith("sha256:expected=")
+    assert drift[1].startswith("mounted_path_suffix:expected=")
+
+
 def test_repository_validator_rejects_duplicate_manifest_role(tmp_path: Path) -> None:
     root = tmp_path / "repo"
     _copy_repository_validator_fixture(root)
@@ -452,7 +478,11 @@ def test_generated_notebooks_are_clean_compilable_and_fully_bound(
     assert "except Exception" not in materializer_source
     assert "resolve_materializer_pair" in inspection_source
     assert "runtime wheel directory package count drifted" in inspection_source
-    assert "HISTORICAL_PENDING_EVIDENCE_INTEGRATION" in inspection_source
+    assert "ACTIVE_PREDECESSOR_PENDING_CURRENT_EVIDENCE_INTEGRATION" in inspection_source
+    assert "active predecessor harness authority drifted" in inspection_source
+    assert toolchain.ACTIVE_PREDECESSOR_HARNESS_DIRECTORY_SHA256 in inspection_source
+    assert toolchain.ACTIVE_PREDECESSOR_HARNESS_OUTPUT_DIRECTORY in inspection_source
+    assert "auragateway_qualification_harness_be1bfad_v1" not in inspection_source
     assert "historical_adapter_resolved" in inspection_source
     assert "METADATA_INPUT_INSPECTION_FAILED" in inspection_source
     assert "wheel_payloads_rehashed" in inspection_source
