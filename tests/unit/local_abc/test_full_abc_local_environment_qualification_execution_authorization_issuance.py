@@ -280,29 +280,56 @@ def test_build_authorization_binds_worker_observability_inputs_and_frozen_loader
         inputs.materialization_record.fingerprint()
     )
     assert authorization.dataset_manifest_sha256 == (inputs.runtime_manifest.fingerprint())
-    assert authorization.authorization_issuance_review_sha256 != (
+    assert authorization.authorization_issuance_review_sha256 == (
         issuance_module.READINESS_REVIEW_SHA256
     )
-    assert authorization.materialization_record_sha256 != (
+    assert authorization.materialization_record_sha256 == (
         issuance_module.MATERIALIZATION_RECORD_SHA256
     )
-    assert authorization.dataset_manifest_sha256 != (issuance_module.RUNTIME_MANIFEST_SHA256)
+    assert authorization.dataset_manifest_sha256 == (issuance_module.RUNTIME_MANIFEST_SHA256)
+    assert authorization.authorization_issuance_review_sha256 != (
+        issuance_module.HISTORICAL_READINESS_REVIEW_SHA256
+    )
+    assert authorization.materialization_record_sha256 != (
+        issuance_module.HISTORICAL_MATERIALIZATION_RECORD_SHA256
+    )
+    assert authorization.dataset_manifest_sha256 != (
+        issuance_module.HISTORICAL_RUNTIME_MANIFEST_SHA256
+    )
     assert authorization.runtime_factory.artifact_sha256 == issuance_module.RUNTIME_ADAPTER_SHA256
     assert authorization.expires_at - authorization.issued_at == timedelta(minutes=30)
     issuance_module._validate_frozen_loader_parity(authorization)
 
 
-def test_historical_issuer_rejects_current_active_inputs() -> None:
-    current_readiness_path = ROOT / issuance_module.READINESS_REVIEW_PATH
-    current_readiness_sha256 = hashlib.sha256(current_readiness_path.read_bytes()).hexdigest()
+def test_fresh_issuer_accepts_current_active_inputs() -> None:
+    inputs = issuance_module._validate_current_input_package(ROOT)
 
-    with pytest.raises(AuthorizationIssuanceError) as caught:
-        issuance_module._validate_current_input_package(ROOT)
+    assert inputs.readiness.fingerprint() == issuance_module.READINESS_REVIEW_SHA256
+    assert inputs.runtime_manifest.fingerprint() == (issuance_module.RUNTIME_MANIFEST_SHA256)
+    assert inputs.materialization_record.fingerprint() == (
+        issuance_module.MATERIALIZATION_RECORD_SHA256
+    )
 
-    assert caught.value.error_code == ("AUTHORIZATION_ISSUANCE_CURRENT_IDENTITY_DRIFT")
-    assert caught.value.path == current_readiness_path.as_posix()
-    assert caught.value.details == (current_readiness_sha256,)
-    assert current_readiness_sha256 != issuance_module.READINESS_REVIEW_SHA256
+
+def test_historical_issuer_authorities_remain_superseded() -> None:
+    assert issuance_module.HISTORICAL_AUTHORIZATION_BASE_COMMIT != (
+        issuance_module.CURRENT_AUTHORIZATION_BASE_COMMIT
+    )
+    assert issuance_module.HISTORICAL_READINESS_REVIEW_SHA256 != (
+        issuance_module.READINESS_REVIEW_SHA256
+    )
+    assert issuance_module.HISTORICAL_MATERIALIZATION_RECORD_SHA256 != (
+        issuance_module.MATERIALIZATION_RECORD_SHA256
+    )
+    assert issuance_module.HISTORICAL_RUNTIME_MANIFEST_SHA256 != (
+        issuance_module.RUNTIME_MANIFEST_SHA256
+    )
+    assert issuance_module.HISTORICAL_LAUNCHER_SOURCE_SHA256 != (
+        issuance_module.LAUNCHER_SOURCE_SHA256
+    )
+    assert issuance_module.HISTORICAL_LAUNCHER_NOTEBOOK_SHA256 != (
+        issuance_module.LAUNCHER_NOTEBOOK_SHA256
+    )
 
 
 def test_implementation_summary_preserves_zero_runtime_boundary(
@@ -319,9 +346,14 @@ def test_implementation_summary_preserves_zero_runtime_boundary(
     summary = issuance_module.validate_implementation_package(tmp_path)
 
     assert summary["status"] == "FRESH_CU129_AUTHORIZATION_ISSUER_READY"
+    assert summary["fresh_issuer_implemented"] is True
     assert summary["current_authorization_base_commit"] == (
         issuance_module.CURRENT_AUTHORIZATION_BASE_COMMIT
     )
+    assert summary["historical_authorization_base_commit"] == (
+        issuance_module.HISTORICAL_AUTHORIZATION_BASE_COMMIT
+    )
+    assert summary["historical_issuer_usable"] is False
     assert summary["worker_startup_diagnostics_sha256"] == (
         issuance_module.harness_integration.CURRENT_WORKER_DIAGNOSTICS_SHA256
     )
@@ -386,6 +418,9 @@ def test_cli_requires_explicit_operator_confirmation(
 
 def test_current_and_frozen_authorities_are_not_conflated() -> None:
     assert issuance_module.CURRENT_AUTHORIZATION_BASE_COMMIT == (
+        "29d89f16e6693c298e9f292e21b0822568f69931"
+    )
+    assert issuance_module.HISTORICAL_AUTHORIZATION_BASE_COMMIT == (
         "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
     )
     assert issuance_module.CURRENT_HARNESS_SOURCE_COMMIT == (
@@ -394,6 +429,9 @@ def test_current_and_frozen_authorities_are_not_conflated() -> None:
     assert issuance_module.SOURCE_MAIN_MERGE_COMMIT == ("211a10757999b1b110cb1d9df172938cf6ed7969")
     assert issuance_module.HARNESS_SOURCE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
     assert issuance_module.READINESS_REVIEW_SHA256 == (
+        "94d1ad6874ffbf323ef6a0434d494dca65670b3fa385d17d4469d20c79d25342"
+    )
+    assert issuance_module.HISTORICAL_READINESS_REVIEW_SHA256 == (
         "1afb21f8a7df50ed57e9727bf8c7aacc04f3c6548f1c17544763c04118b8a9b0"
     )
     current_readiness_sha256 = hashlib.sha256(
@@ -402,7 +440,8 @@ def test_current_and_frozen_authorities_are_not_conflated() -> None:
     assert current_readiness_sha256 == (
         "94d1ad6874ffbf323ef6a0434d494dca65670b3fa385d17d4469d20c79d25342"
     )
-    assert current_readiness_sha256 != issuance_module.READINESS_REVIEW_SHA256
+    assert current_readiness_sha256 == issuance_module.READINESS_REVIEW_SHA256
+    assert current_readiness_sha256 != (issuance_module.HISTORICAL_READINESS_REVIEW_SHA256)
     assert issuance_module.harness_integration.READINESS_REVIEW_PATH == (
         issuance_module.READINESS_REVIEW_PATH
     )

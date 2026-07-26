@@ -41,8 +41,8 @@ def test_repository_package_recognizes_integrated_worker_observability_harness()
     assert result["maximum_stream_capture_bytes"] == 32 * 1024
     assert result["maximum_diagnostic_bytes"] == 256 * 1024
     assert result["maximum_readiness_polls"] == 90
-    assert result["fresh_issuer_implemented"] is False
-    assert result["fresh_authorization_base_commit"] is None
+    assert result["fresh_issuer_implemented"] is True
+    assert result["fresh_authorization_base_commit"] == ("29d89f16e6693c298e9f292e21b0822568f69931")
     assert result["superseded_authorization_base_commit"] == (
         "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
     )
@@ -52,7 +52,7 @@ def test_repository_package_recognizes_integrated_worker_observability_harness()
     assert result["authorization_issued"] is False
     assert result["kaggle_execution_performed"] is False
     assert result["model_requests_performed"] == 0
-    assert result["next_gate"] == ("fresh_cu129_authorization_issuance_implementation")
+    assert result["next_gate"] == ("explicit_operator_confirmation_then_issue_fresh_authorization")
 
 
 def test_record_rejects_manifest_promotion() -> None:
