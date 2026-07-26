@@ -274,6 +274,8 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
     _require_source_markers(
         root / ISSUANCE_SOURCE_PATH,
         (
+            "HISTORICAL_AUTHORIZATION_BASE_COMMIT",
+            "HISTORICAL_READINESS_REVIEW_SHA256",
             "CURRENT_AUTHORIZATION_BASE_COMMIT",
             "CURRENT_HARNESS_SOURCE_COMMIT",
             "READINESS_REVIEW_SHA256",
@@ -283,24 +285,35 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
             "AUTHORIZATION_ALREADY_EXISTS",
         ),
     )
+    _require_source_markers(
+        root / ISSUANCE_RUNBOOK_PATH,
+        (
+            "CURRENT STATUS: ISSUER IMPLEMENTED; AUTHORIZATION NOT ISSUED",
+            "post-PR #147",
+            "historical issuer",
+            "CONTROL_PACKAGE_AUTHORIZATION_PARITY",
+            "explicit_operator_confirmation_then_issue_fresh_authorization",
+        ),
+    )
     implementation_summary = observability_implementation.validate_repository_package(root)
     if implementation_summary.get("status") != (
         "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"
     ):
         raise AuthorityGraphError("worker-startup observability integration drifted")
-    if implementation_summary.get("fresh_issuer_implemented") is not False:
-        raise AuthorityGraphError(
-            "fresh authorization issuer was prematurely classified as implemented"
-        )
-    if implementation_summary.get("fresh_authorization_base_commit") is not None:
-        raise AuthorityGraphError("fresh authorization issuer base was prematurely bound")
+    if implementation_summary.get("fresh_issuer_implemented") is not True:
+        raise AuthorityGraphError("fresh authorization issuer is not implemented")
+    if (
+        implementation_summary.get("fresh_authorization_base_commit")
+        != "29d89f16e6693c298e9f292e21b0822568f69931"
+    ):
+        raise AuthorityGraphError("fresh authorization issuer base commit drifted")
     if (
         implementation_summary.get("superseded_authorization_base_commit")
         != "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
     ):
         raise AuthorityGraphError("superseded authorization issuer base commit drifted")
     if implementation_summary.get("next_gate") != (
-        "fresh_cu129_authorization_issuance_implementation"
+        "explicit_operator_confirmation_then_issue_fresh_authorization"
     ):
         raise AuthorityGraphError("fresh authorization implementation gate drifted")
     if implementation_summary.get("historical_issuer_usable") is not False:
@@ -336,7 +349,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         raise AuthorityGraphError("final qualification authorization must remain absent")
 
     return {
-        "status": ("CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED_AUTHORIZATION_BLOCKED"),
+        "status": "CURRENT_CU129_FRESH_AUTHORIZATION_ISSUER_IMPLEMENTED",
         "current_runtime_role": runtime.role,
         "current_runtime_format": runtime.artifact_format,
         "runtime_package_count": runtime.package_count,
@@ -347,8 +360,10 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
             harness_integration.AUTHORIZATION_SOURCE_BINDING_POLICY
         ),
         "worker_observability_review_base_commit": (observability_implementation.BASE_COMMIT),
-        "fresh_authorization_base_commit_status": ("PENDING_POST_INTEGRATION_MERGE_BINDING"),
-        "fresh_authorization_base_commit": None,
+        "fresh_authorization_base_commit_status": "POST_INTEGRATION_MERGE_BOUND",
+        "fresh_authorization_base_commit": implementation_summary[
+            "fresh_authorization_base_commit"
+        ],
         "superseded_authorization_base_commit": implementation_summary[
             "superseded_authorization_base_commit"
         ],
@@ -357,7 +372,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         "historical_pr109_issuance_review_revision_bound": True,
         "historical_rematerialization_revision_bound": True,
         "fresh_cu129_authorization_readiness_review_complete": True,
-        "fresh_cu129_authorization_issuer_implemented": False,
+        "fresh_cu129_authorization_issuer_implemented": True,
         "worker_startup_observability_implemented": True,
         "historical_issuer_usable": False,
         "active_manifest_promoted": True,

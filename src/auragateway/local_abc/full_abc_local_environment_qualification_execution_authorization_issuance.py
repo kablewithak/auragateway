@@ -59,25 +59,41 @@ SOURCE_MAIN_MERGE_COMMIT: Final = source_authority_parity.AUTHORIZATION_SOURCE_M
 HARNESS_SOURCE_COMMIT: Final = source_authority_parity.HARNESS_SOURCE_COMMIT
 REVIEW_SOURCE_MAIN_MERGE_COMMIT: Final = SOURCE_MAIN_MERGE_COMMIT
 
-# Current repository and operational-input authorities after merged PR #139.
-CURRENT_AUTHORIZATION_BASE_COMMIT: Final = "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
+# Historical post-PR #139 issuer authorities retained as superseded evidence.
+HISTORICAL_AUTHORIZATION_BASE_COMMIT: Final = "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
+HISTORICAL_READINESS_REVIEW_SHA256: Final = (
+    "1afb21f8a7df50ed57e9727bf8c7aacc04f3c6548f1c17544763c04118b8a9b0"
+)
+HISTORICAL_MATERIALIZATION_RECORD_SHA256: Final = (
+    "a3f5cfee599b4a0258e3ac48a40f1ee27c2e9b85dd624df6fdb53079e6a6b223"
+)
+HISTORICAL_RUNTIME_MANIFEST_SHA256: Final = (
+    "6c998716849d20e68ded4cce3a113a791a0d863bc97d2c5027991ad6a5615d8f"
+)
+HISTORICAL_LAUNCHER_SOURCE_SHA256: Final = (
+    "b363c657b9053897a01c3784487e2b3fdc7a42391acb98d380b4e43eba21f3ec"
+)
+HISTORICAL_LAUNCHER_NOTEBOOK_SHA256: Final = (
+    "9bec10b5f80e53f6a09533e6acf680449e6260329e3e9fbc1f4fdc247d0ad64f"
+)
+
+# Current repository and operational-input authorities after merged PR #147.
+CURRENT_AUTHORIZATION_BASE_COMMIT: Final = "29d89f16e6693c298e9f292e21b0822568f69931"
 CURRENT_HARNESS_SOURCE_COMMIT: Final = harness_integration.SOURCE_COMMIT
 AUTHORIZATION_ID: Final = (
     "auragateway-full-abc-local-environment-qualification-execution-authorization-v1"
 )
-READINESS_REVIEW_SHA256: Final = "1afb21f8a7df50ed57e9727bf8c7aacc04f3c6548f1c17544763c04118b8a9b0"
+READINESS_REVIEW_SHA256: Final = "94d1ad6874ffbf323ef6a0434d494dca65670b3fa385d17d4469d20c79d25342"
 AUTHORIZATION_ISSUANCE_REVIEW_SHA256: Final = READINESS_REVIEW_SHA256
-MATERIALIZATION_RECORD_SHA256: Final = (
-    "a3f5cfee599b4a0258e3ac48a40f1ee27c2e9b85dd624df6fdb53079e6a6b223"
-)
-RUNTIME_MANIFEST_SHA256: Final = "6c998716849d20e68ded4cce3a113a791a0d863bc97d2c5027991ad6a5615d8f"
-RUNTIME_ADAPTER_SHA256: Final = "f83452b6fbfd583f4236c2edbaf0e4bd3a6ece331494fdff891bf50d022ba617"
+MATERIALIZATION_RECORD_SHA256: Final = harness_integration.CURRENT_MATERIALIZATION_RECORD_SHA256
+RUNTIME_MANIFEST_SHA256: Final = harness_integration.CURRENT_MANIFEST_SHA256
+RUNTIME_ADAPTER_SHA256: Final = harness_integration.CURRENT_RUNTIME_ADAPTER_SHA256
 EXECUTION_REQUEST_SHA256: Final = "7b0080429246f6def3c1ac28b8a677a2ed7e29ccf318690d9309ed98ff179ba0"
 AUTHORIZATION_REQUEST_SHA256: Final = (
     "57efaf2209bf3bc7127d9d0a9baa04d5463f97e689ef348ede1d298acaa20f25"
 )
-LAUNCHER_SOURCE_SHA256: Final = "b363c657b9053897a01c3784487e2b3fdc7a42391acb98d380b4e43eba21f3ec"
-LAUNCHER_NOTEBOOK_SHA256: Final = "9bec10b5f80e53f6a09533e6acf680449e6260329e3e9fbc1f4fdc247d0ad64f"
+LAUNCHER_SOURCE_SHA256: Final = harness_integration.CURRENT_LAUNCHER_SOURCE_SHA256
+LAUNCHER_NOTEBOOK_SHA256: Final = harness_integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256
 MAXIMUM_AUTHORIZATION_WINDOW_MINUTES: Final = 240
 IMPLEMENTATION_NEXT_GATE: Final = "explicit_operator_confirmation_then_issue_fresh_authorization"
 NEXT_GATE: Final = "full_abc_local_full_run_environment_qualification_control_materialization"
@@ -340,7 +356,7 @@ def _require_source_authority(repo_root: Path) -> None:
         repo_root,
         CURRENT_AUTHORIZATION_BASE_COMMIT,
         error_code="CURRENT_AUTHORIZATION_BASE_COMMIT_MISSING",
-        safe_message="the PR 139 integration merge must be an ancestor of HEAD",
+        safe_message="the PR 147 integration merge must be an ancestor of HEAD",
     )
     _require_ancestor(
         repo_root,
@@ -539,8 +555,11 @@ def validate_implementation_package(repo_root: Path) -> dict[str, object]:
     inputs = _prepare_issuance_inputs(root)
     return {
         "status": "FRESH_CU129_AUTHORIZATION_ISSUER_READY",
+        "fresh_issuer_implemented": True,
         "current_authorization_base_commit": CURRENT_AUTHORIZATION_BASE_COMMIT,
         "current_harness_source_commit": CURRENT_HARNESS_SOURCE_COMMIT,
+        "historical_authorization_base_commit": (HISTORICAL_AUTHORIZATION_BASE_COMMIT),
+        "historical_issuer_usable": False,
         "frozen_authorization_source_main_merge_commit": SOURCE_MAIN_MERGE_COMMIT,
         "readiness_review_sha256": inputs.readiness.fingerprint(),
         "execution_request_sha256": inputs.execution_request.fingerprint(),
