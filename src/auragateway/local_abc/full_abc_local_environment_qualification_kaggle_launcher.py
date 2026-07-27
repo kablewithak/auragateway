@@ -17,7 +17,7 @@ from auragateway.local_abc import (
     full_abc_local_environment_qualification_worker_startup_diagnostics as startup_diagnostics,
 )
 
-SOURCE_MAIN_MERGE_COMMIT: Final = "56f33739babb80d843fef1ad8f7f1223f3d10d14"
+SOURCE_MAIN_MERGE_COMMIT: Final = "4f3302df871d47fec81e25e9af9609c0e2c7812d"
 AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT: Final = "211a10757999b1b110cb1d9df172938cf6ed7969"
 AUTHORIZATION_SOURCE_BINDING_POLICY: Final = "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
 
@@ -68,7 +68,7 @@ HARNESS_SOURCE_PATH: Final = (
     "/kaggle/input/notebooks/kabomolefe/"
     "ag-harness-materializer-cu129-v1/"
     "ag_harness_materializer_cu129_v1_output/"
-    "auragateway_qualification_harness_56f3373_v1"
+    "auragateway_qualification_harness_4f3302d_v1"
 )
 MODEL_SNAPSHOT_PATH: Final = (
     "/kaggle/input/datasets/kabomolefe/"
@@ -147,7 +147,7 @@ class KaggleControlPackageManifest(_StrictModel):
 
     schema_version: Literal["1.0.0"] = "1.0.0"
     control_package_id: Literal["auragateway-qualification-control-v1"]
-    source_main_merge_commit: Literal["56f33739babb80d843fef1ad8f7f1223f3d10d14"]
+    source_main_merge_commit: Literal["4f3302df871d47fec81e25e9af9609c0e2c7812d"]
     authorization_source_main_merge_commit: str
     authorization_file: Literal[
         "auragateway_full_abc_local_full_run_environment_qualification_"
@@ -164,7 +164,7 @@ class KaggleControlPackageManifest(_StrictModel):
         "/kaggle/input/notebooks/kabomolefe/"
         "ag-harness-materializer-cu129-v1/"
         "ag_harness_materializer_cu129_v1_output/"
-        "auragateway_qualification_harness_56f3373_v1"
+        "auragateway_qualification_harness_4f3302d_v1"
     ]
     model_snapshot_path: Literal[
         "/kaggle/input/datasets/kabomolefe/"

@@ -39,16 +39,16 @@ def test_repository_package_integrates_current_harness() -> None:
     assert summary["operational_input_closure"] == "PASSED"
     assert summary["source_commit"] == integration.SOURCE_COMMIT
     assert summary["harness_directory_sha256"] == (integration.CURRENT_HARNESS_DIRECTORY_SHA256)
-    assert summary["harness_file_count"] == 1084
-    assert summary["harness_total_bytes"] == 10_970_203
+    assert summary["harness_file_count"] == 1095
+    assert summary["harness_total_bytes"] == 11_034_996
     assert summary["runtime_package_count"] == 176
     assert summary["manifest_sha256"] == integration.CURRENT_MANIFEST_SHA256
     assert summary["materialization_record_sha256"] == (
         integration.CURRENT_MATERIALIZATION_RECORD_SHA256
     )
     assert summary["model_snapshot_sha256"] == (integration.CURRENT_MODEL_SNAPSHOT_SHA256)
-    assert summary["materializer_saved_version_id"] == 337848035
-    assert summary["inspection_saved_version_id"] == 337858124
+    assert summary["materializer_saved_version_id"] == 338367572
+    assert summary["inspection_saved_version_id"] == 338369540
     assert summary["runtime_adapter_sha256"] == (integration.CURRENT_RUNTIME_ADAPTER_SHA256)
     assert summary["worker_startup_diagnostics_sha256"] == (
         integration.CURRENT_WORKER_DIAGNOSTICS_SHA256
@@ -59,7 +59,7 @@ def test_repository_package_integrates_current_harness() -> None:
     assert summary["authorization_issued"] is False
     assert summary["gpu_execution_performed"] is False
     assert summary["model_requests_performed"] == 0
-    assert summary["next_gate"] == "fresh_cu129_authorization_issuance_implementation"
+    assert summary["next_gate"] == "post_merge_fresh_cu129_authorization_rebind"
 
 
 def test_evidence_identity_binds_immutable_saved_versions_and_artifacts() -> None:
@@ -68,8 +68,8 @@ def test_evidence_identity_binds_immutable_saved_versions_and_artifacts() -> Non
     )
 
     assert identity.source_commit == integration.SOURCE_COMMIT
-    assert identity.materializer_saved_version_id == 337848035
-    assert identity.inspection_saved_version_id == 337858124
+    assert identity.materializer_saved_version_id == 338367572
+    assert identity.inspection_saved_version_id == 338369540
     assert identity.materializer_saved_version_url == (integration.MATERIALIZER_SAVED_VERSION_URL)
     assert identity.inspection_saved_version_url == integration.INSPECTION_SAVED_VERSION_URL
     assert identity.materializer_recovery_notebook_sha256 == (
@@ -91,8 +91,8 @@ def test_materialization_receipt_records_expanded_archive_recovery() -> None:
     assert receipt.source_commit == integration.SOURCE_COMMIT
     assert receipt.input_mode == ("kaggle_expanded_source_recovered_to_exact_archive")
     assert receipt.directory_sha256 == integration.CURRENT_HARNESS_DIRECTORY_SHA256
-    assert receipt.file_count == 1084
-    assert receipt.total_bytes == 10_970_203
+    assert receipt.file_count == 1095
+    assert receipt.total_bytes == 11_034_996
     assert receipt.gpu_execution_performed is False
     assert receipt.package_installation_performed is False
     assert receipt.model_loaded is False
@@ -143,7 +143,7 @@ def test_readiness_review_keeps_authorization_unissued() -> None:
         _load_json(ROOT / integration.READINESS_REVIEW_PATH)
     )
 
-    assert review.decision == ("APPROVED_FOR_FRESH_CU129_AUTHORIZATION_ISSUANCE_IMPLEMENTATION")
+    assert review.decision == ("APPROVED_FOR_POST_MERGE_FRESH_CU129_AUTHORIZATION_REBIND")
     assert review.current_manifest_sha256 == integration.CURRENT_MANIFEST_SHA256
     assert review.current_materialization_record_sha256 == (
         integration.CURRENT_MATERIALIZATION_RECORD_SHA256

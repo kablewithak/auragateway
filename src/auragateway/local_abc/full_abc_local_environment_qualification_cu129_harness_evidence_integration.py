@@ -971,6 +971,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
     next_gate: Literal[
         "fresh_cu129_authorization_issuance_implementation",
         "merge_then_build_post_merge_worker_observability_harness_source_package",
+        "post_merge_fresh_cu129_authorization_rebind",
     ] = readiness.next_gate
     if implementation_state is not None:
         status = "CURRENT_CU129_HARNESS_HISTORICAL_ACTIVE_WORKER_OBSERVABILITY_IMPLEMENTED"

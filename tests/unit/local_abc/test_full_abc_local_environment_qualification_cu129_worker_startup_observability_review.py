@@ -55,7 +55,7 @@ def test_repository_review_validates_immutable_failure_and_next_gate() -> None:
     assert result["authorization_reuse_permitted"] is False
     assert result["model_requests_performed"] == 0
     assert result["observability_implementation_present"] is True
-    assert result["next_gate"] == "fresh_cu129_authorization_issuance_implementation"
+    assert result["next_gate"] == "post_merge_fresh_cu129_authorization_rebind"
 
 
 def test_review_rejects_root_cause_invention() -> None:
@@ -145,7 +145,7 @@ def test_superseding_state_binds_materialized_and_active_launcher_lineages(
         "validate_repository_package",
         lambda _root: {
             "status": "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
-            "next_gate": "fresh_cu129_authorization_issuance_implementation",
+            "next_gate": "post_merge_fresh_cu129_authorization_rebind",
         },
     )
 
@@ -155,7 +155,7 @@ def test_superseding_state_binds_materialized_and_active_launcher_lineages(
     assert state.runtime_adapter_sha256 == (current_integration.CURRENT_RUNTIME_ADAPTER_SHA256)
     assert state.launcher_source_sha256 == (current_integration.CURRENT_LAUNCHER_SOURCE_SHA256)
     assert state.launcher_notebook_sha256 == (current_integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256)
-    assert state.next_gate == "fresh_cu129_authorization_issuance_implementation"
+    assert state.next_gate == "post_merge_fresh_cu129_authorization_rebind"
 
 
 def test_superseding_state_rejects_broken_launcher_lineage(
@@ -166,7 +166,7 @@ def test_superseding_state_rejects_broken_launcher_lineage(
         "validate_repository_package",
         lambda _root: {
             "status": "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
-            "next_gate": "fresh_cu129_authorization_issuance_implementation",
+            "next_gate": "post_merge_fresh_cu129_authorization_rebind",
         },
     )
     monkeypatch.setattr(

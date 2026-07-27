@@ -4,3 +4,4 @@ extend = "pyproject.toml"
 "evidence_vault/local_abc/harness-materializer-input-v3/ag-harness-materializer-input-v3.ipynb" = ["SIM117"]
 "evidence_vault/local_abc/cu129-worker-observability-harness-input-inspection-v1/ag_worker_obs_harness_materializer_v1_recovery.ipynb" = ["E501", "SIM300"]
 "evidence_vault/local_abc/cu129-current-harness-56f3373-input-inspection-v1/ag_harness_materializer_cu129_v1.ipynb" = ["E501", "SIM117"]
+"evidence_vault/local_abc/cu129-current-harness-4f3302d-input-inspection-v1/ag_harness_materializer_cu129_v1.ipynb" = ["E501", "SIM117"]

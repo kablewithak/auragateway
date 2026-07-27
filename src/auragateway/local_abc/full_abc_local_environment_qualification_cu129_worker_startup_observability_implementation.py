@@ -420,7 +420,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
     issuer_summary = issuance.validate_implementation_package(root)
     issuer_checks = (
         issuer_summary.get("status")
-        == ("FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_FOR_HARNESS_REMATERIALIZATION"),
+        == ("FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_PENDING_POST_INTEGRATION_REBIND"),
         issuer_summary.get("fresh_issuer_implemented") is True,
         issuer_summary.get("fresh_issuer_usable") is False,
         issuer_summary.get("current_authorization_base_commit")
@@ -445,7 +445,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
 
     return {
         "status": (
-            "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED_VLLM_CLI_HARDENING_PENDING"
+            "WORKER_STARTUP_OBSERVABILITY_HARDENED_HARNESS_INTEGRATED_PENDING_AUTHORIZATION_REBIND"
         ),
         "implementation_id": record.implementation_id,
         "review_merge_commit": BASE_COMMIT,
@@ -462,7 +462,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         "maximum_readiness_polls": diagnostics.MAXIMUM_READINESS_POLLS,
         "fresh_issuer_implemented": True,
         "fresh_issuer_usable": False,
-        "active_harness_reusable_for_retry": False,
+        "active_harness_reusable_for_retry": True,
         "fresh_authorization_base_commit": (issuer_summary["current_authorization_base_commit"]),
         "superseded_authorization_base_commit": (issuance.HISTORICAL_AUTHORIZATION_BASE_COMMIT),
         "historical_issuer_usable": False,

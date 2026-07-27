@@ -37,18 +37,18 @@ def test_repository_package_recognizes_integrated_worker_observability_harness()
     result = implementation.validate_repository_package(ROOT)
 
     assert result["status"] == (
-        "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED_VLLM_CLI_HARDENING_PENDING"
+        "WORKER_STARTUP_OBSERVABILITY_HARDENED_HARNESS_INTEGRATED_PENDING_AUTHORIZATION_REBIND"
     )
     assert result["historical_harness_source_commit"] == (
         "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
     )
-    assert result["current_harness_source_commit"] == ("56f33739babb80d843fef1ad8f7f1223f3d10d14")
+    assert result["current_harness_source_commit"] == ("4f3302df871d47fec81e25e9af9609c0e2c7812d")
     assert result["maximum_stream_capture_bytes"] == 32 * 1024
     assert result["maximum_diagnostic_bytes"] == 256 * 1024
     assert result["maximum_readiness_polls"] == 90
     assert result["fresh_issuer_implemented"] is True
     assert result["fresh_issuer_usable"] is False
-    assert result["active_harness_reusable_for_retry"] is False
+    assert result["active_harness_reusable_for_retry"] is True
     assert result["fresh_authorization_base_commit"] == ("29d89f16e6693c298e9f292e21b0822568f69931")
     assert result["superseded_authorization_base_commit"] == (
         "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
@@ -60,7 +60,7 @@ def test_repository_package_recognizes_integrated_worker_observability_harness()
     assert result["authorization_issued"] is False
     assert result["kaggle_execution_performed"] is False
     assert result["model_requests_performed"] == 0
-    assert result["next_gate"] == ("merge_then_prepare_vllm_cli_hardened_harness_source_package")
+    assert result["next_gate"] == ("post_merge_fresh_cu129_authorization_rebind")
 
 
 def test_historical_toolchain_source_controls_do_not_require_current_hardening_markers(
