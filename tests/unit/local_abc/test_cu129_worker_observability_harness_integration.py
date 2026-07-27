@@ -46,6 +46,7 @@ def test_repository_package_integrates_current_harness() -> None:
     assert summary["materialization_record_sha256"] == (
         integration.CURRENT_MATERIALIZATION_RECORD_SHA256
     )
+    assert summary["model_snapshot_sha256"] == (integration.CURRENT_MODEL_SNAPSHOT_SHA256)
     assert summary["materializer_saved_version_id"] == 337848035
     assert summary["inspection_saved_version_id"] == 337858124
     assert summary["runtime_adapter_sha256"] == (integration.CURRENT_RUNTIME_ADAPTER_SHA256)
@@ -109,7 +110,9 @@ def test_active_manifest_and_materialization_bind_integrated_harness() -> None:
     )
 
     harness_manifest = manifest.entries[0]
+    model_manifest = manifest.entries[1]
     harness_record = materialization.entries[0]
+    model_record = materialization.entries[1]
 
     assert harness_manifest.mounted_path == integration.CURRENT_HARNESS_MOUNTED_PATH
     assert harness_manifest.sha256 == integration.CURRENT_HARNESS_DIRECTORY_SHA256
@@ -117,6 +120,8 @@ def test_active_manifest_and_materialization_bind_integrated_harness() -> None:
     assert harness_record.kaggle_dataset_version == 1
     assert harness_record.mounted_path == integration.CURRENT_HARNESS_MOUNTED_PATH
     assert harness_record.sha256 == integration.CURRENT_HARNESS_DIRECTORY_SHA256
+    assert model_manifest.sha256 == integration.CURRENT_MODEL_SNAPSHOT_SHA256
+    assert model_record.sha256 == integration.CURRENT_MODEL_SNAPSHOT_SHA256
     assert materialization.harness_source_commit == integration.SOURCE_COMMIT
     assert materialization.runtime_manifest_sha256 == manifest.fingerprint()
 
@@ -143,6 +148,7 @@ def test_readiness_review_keeps_authorization_unissued() -> None:
     assert review.current_materialization_record_sha256 == (
         integration.CURRENT_MATERIALIZATION_RECORD_SHA256
     )
+    assert review.current_model_snapshot_sha256 == (integration.CURRENT_MODEL_SNAPSHOT_SHA256)
     assert review.current_runtime_adapter_sha256 == (integration.CURRENT_RUNTIME_ADAPTER_SHA256)
     assert review.current_worker_startup_diagnostics_sha256 == (
         integration.CURRENT_WORKER_DIAGNOSTICS_SHA256

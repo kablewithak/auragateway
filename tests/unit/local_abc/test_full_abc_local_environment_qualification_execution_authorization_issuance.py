@@ -357,6 +357,9 @@ def test_implementation_summary_preserves_zero_runtime_boundary(
     assert summary["worker_startup_diagnostics_sha256"] == (
         issuance_module.harness_integration.CURRENT_WORKER_DIAGNOSTICS_SHA256
     )
+    assert summary["model_snapshot_sha256"] == (
+        issuance_module.harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256
+    )
     assert summary["authorization_issued"] is False
     assert summary["kaggle_session_started"] is False
     assert summary["worker_started"] is False
@@ -429,7 +432,7 @@ def test_current_and_frozen_authorities_are_not_conflated() -> None:
     assert issuance_module.SOURCE_MAIN_MERGE_COMMIT == ("211a10757999b1b110cb1d9df172938cf6ed7969")
     assert issuance_module.HARNESS_SOURCE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
     assert issuance_module.READINESS_REVIEW_SHA256 == (
-        "94d1ad6874ffbf323ef6a0434d494dca65670b3fa385d17d4469d20c79d25342"
+        "438383b0ea8e93cf36ee89fe34ca592802e1bf5d0290165d4a0d921b60556dc3"
     )
     assert issuance_module.HISTORICAL_READINESS_REVIEW_SHA256 == (
         "1afb21f8a7df50ed57e9727bf8c7aacc04f3c6548f1c17544763c04118b8a9b0"
@@ -438,7 +441,7 @@ def test_current_and_frozen_authorities_are_not_conflated() -> None:
         (ROOT / issuance_module.READINESS_REVIEW_PATH).read_bytes()
     ).hexdigest()
     assert current_readiness_sha256 == (
-        "94d1ad6874ffbf323ef6a0434d494dca65670b3fa385d17d4469d20c79d25342"
+        "438383b0ea8e93cf36ee89fe34ca592802e1bf5d0290165d4a0d921b60556dc3"
     )
     assert current_readiness_sha256 == issuance_module.READINESS_REVIEW_SHA256
     assert current_readiness_sha256 != (issuance_module.HISTORICAL_READINESS_REVIEW_SHA256)

@@ -63,7 +63,12 @@ RUNTIME_PACKAGE_COUNT: Final = 176
 RUNTIME_RESOLUTION_LOCK_SHA256: Final = (
     "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"
 )
-MODEL_SNAPSHOT_SHA256: Final = "b5c53c05aa258cf85b8ac7c1f41ec81aaa6d9d66a656d32f7271bf5d4c9b8daa"
+INSPECTED_MODEL_SNAPSHOT_SHA256: Final = (
+    "b5c53c05aa258cf85b8ac7c1f41ec81aaa6d9d66a656d32f7271bf5d4c9b8daa"
+)
+CURRENT_MODEL_SNAPSHOT_SHA256: Final = (
+    "84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94"
+)
 CURRENT_RUNTIME_ADAPTER_SHA256: Final = (
     "f83452b6fbfd583f4236c2edbaf0e4bd3a6ece331494fdff891bf50d022ba617"
 )
@@ -76,15 +81,15 @@ MATERIALIZED_HARNESS_LAUNCHER_SOURCE_SHA256: Final = (
 MATERIALIZED_HARNESS_LAUNCHER_NOTEBOOK_SHA256: Final = (
     "9bec10b5f80e53f6a09533e6acf680449e6260329e3e9fbc1f4fdc247d0ad64f"
 )
-CURRENT_MANIFEST_SHA256: Final = "f8bcd218f7863a8c2ac7dd04ad0c5ee054484035abb8ae44d1d2117e1e84513a"
+CURRENT_MANIFEST_SHA256: Final = "0fdd073f4d4f7d2c823c8c78299bb12260d3bd5ded9f668a6613622f550f3ca1"
 CURRENT_MATERIALIZATION_RECORD_SHA256: Final = (
-    "c19675317ea5b4086ba0cd548cc0f4f9c6cd791c7dc9f046fedc02e5168eb0b8"
+    "01ec3d0a67d65a81b6fb00bbba3a2cf21958ce28fc726b9d1486a8cd6f6ebee9"
 )
 CURRENT_LAUNCHER_SOURCE_SHA256: Final = (
-    "03e37eb4d44b67a9104a249040ef37e63cbbd5a58ef5cc952d46ea41516388e8"
+    "b913c8c24bda8b5a6478a9f2b6720cc0e30abc2344352d4bc6e66360c57493db"
 )
 CURRENT_LAUNCHER_NOTEBOOK_SHA256: Final = (
-    "f27e1ae8683ffb6b93bbc5b91513330c94ec40ec67873f836fb4adaa7e6b87ef"
+    "e3dba016baa4901fe73f18852a4220dbd213cc185455986ab1cfd3d33ca21a15"
 )
 AUTHORIZATION_SOURCE_BINDING_POLICY: Final = "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
 HISTORICAL_HARNESS_DIRECTORY_SHA256: Final = (
@@ -332,6 +337,7 @@ class IntegrationDecisionRecord(LocalABCContract):
     materialization_receipt_sha256: str
     manifest_sha256: str
     materialization_record_sha256: str
+    current_model_snapshot_sha256: str
     runtime_adapter_sha256: str
     worker_startup_diagnostics_sha256: str
     materialized_harness_launcher_source_sha256: str
@@ -350,6 +356,7 @@ class IntegrationDecisionRecord(LocalABCContract):
         "materialization_receipt_sha256",
         "manifest_sha256",
         "materialization_record_sha256",
+        "current_model_snapshot_sha256",
         "runtime_adapter_sha256",
         "worker_startup_diagnostics_sha256",
         "materialized_harness_launcher_source_sha256",
@@ -373,6 +380,7 @@ class FreshAuthorizationReadinessReview(LocalABCContract):
     current_harness_directory_sha256: str
     current_manifest_sha256: str
     current_materialization_record_sha256: str
+    current_model_snapshot_sha256: str
     current_runtime_adapter_sha256: str
     current_worker_startup_diagnostics_sha256: str
     current_launcher_source_sha256: str
@@ -391,6 +399,7 @@ class FreshAuthorizationReadinessReview(LocalABCContract):
         "current_harness_directory_sha256",
         "current_manifest_sha256",
         "current_materialization_record_sha256",
+        "current_model_snapshot_sha256",
         "current_runtime_adapter_sha256",
         "current_worker_startup_diagnostics_sha256",
         "current_launcher_source_sha256",
@@ -609,7 +618,7 @@ def _validate_cross_evidence(
         "package_count": RUNTIME_PACKAGE_COUNT,
         "manifest_entry_count": 182,
         "runtime_resolution_lock_sha256": RUNTIME_RESOLUTION_LOCK_SHA256,
-        "model_snapshot_sha256": MODEL_SNAPSHOT_SHA256,
+        "model_snapshot_sha256": INSPECTED_MODEL_SNAPSHOT_SHA256,
         "model_weights_loaded": False,
         "wheel_payloads_rehashed": False,
     }
@@ -716,7 +725,7 @@ def _validate_logs(root: Path) -> None:
             )
 
 
-def _validate_active_repository(root: Path) -> tuple[str, str]:
+def _validate_active_repository(root: Path) -> tuple[str, str, str]:
     try:
         manifest = execution_contracts.QualificationDatasetManifest.model_validate(
             _load_json(root / MANIFEST_PATH)
@@ -745,7 +754,11 @@ def _validate_active_repository(root: Path) -> tuple[str, str]:
             MATERIALIZATION_RECORD_PATH.as_posix(),
         )
     harness_manifest = manifest.entries[0]
+    model_manifest = manifest.entries[1]
+    runtime_manifest = manifest.entries[2]
     harness_record = materialization.entries[0]
+    model_record = materialization.entries[1]
+    runtime_record = materialization.entries[2]
     expected_harness = (
         harness_manifest.mounted_path == CURRENT_HARNESS_MOUNTED_PATH,
         harness_manifest.sha256 == CURRENT_HARNESS_DIRECTORY_SHA256,
@@ -761,8 +774,21 @@ def _validate_active_repository(root: Path) -> tuple[str, str]:
             "WORKER_OBSERVABILITY_ACTIVE_HARNESS_DRIFT",
             "the active manifest or materialization record does not bind the integrated harness",
         )
-    runtime_manifest = manifest.entries[2]
-    runtime_record = materialization.entries[2]
+    expected_model = (
+        model_manifest.role == "model_artifacts",
+        model_record.role == "model_artifacts",
+        model_manifest.artifact_format == "hugging_face_snapshot_directory",
+        model_record.artifact_format == "hugging_face_snapshot_directory",
+        model_manifest.mounted_path == model_record.mounted_path,
+        model_manifest.sha256 == CURRENT_MODEL_SNAPSHOT_SHA256,
+        model_record.sha256 == CURRENT_MODEL_SNAPSHOT_SHA256,
+    )
+    if not all(expected_model):
+        raise HarnessEvidenceIntegrationError(
+            "WORKER_OBSERVABILITY_ACTIVE_MODEL_IDENTITY_DRIFT",
+            "the active model snapshot does not bind the inspected mounted input",
+            MANIFEST_PATH.as_posix(),
+        )
     runtime_parity = (
         runtime_manifest.package_count == RUNTIME_PACKAGE_COUNT,
         runtime_record.package_count == RUNTIME_PACKAGE_COUNT,
@@ -774,7 +800,11 @@ def _validate_active_repository(root: Path) -> tuple[str, str]:
             "WORKER_OBSERVABILITY_RUNTIME_AUTHORITY_DRIFT",
             "the active CUDA 12.9 runtime authority drifted",
         )
-    return manifest.fingerprint(), materialization.fingerprint()
+    return (
+        manifest.fingerprint(),
+        materialization.fingerprint(),
+        CURRENT_MODEL_SNAPSHOT_SHA256,
+    )
 
 
 def _validate_launcher(root: Path) -> dict[str, object]:
@@ -912,7 +942,9 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
     records = _validate_evidence_zip(root / INSPECTION_ZIP_PATH, identity)
     _validate_cross_evidence(receipt, records)
     _validate_logs(root)
-    manifest_sha256, materialization_sha256 = _validate_active_repository(root)
+    manifest_sha256, materialization_sha256, model_snapshot_sha256 = _validate_active_repository(
+        root
+    )
     if manifest_sha256 != CURRENT_MANIFEST_SHA256:
         raise HarnessEvidenceIntegrationError(
             "WORKER_OBSERVABILITY_MANIFEST_IDENTITY_DRIFT",
@@ -931,6 +963,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         integration.harness_directory_sha256 == receipt.directory_sha256,
         integration.manifest_sha256 == manifest_sha256,
         integration.materialization_record_sha256 == materialization_sha256,
+        integration.current_model_snapshot_sha256 == model_snapshot_sha256,
         integration.runtime_adapter_sha256 == CURRENT_RUNTIME_ADAPTER_SHA256,
         integration.worker_startup_diagnostics_sha256 == CURRENT_WORKER_DIAGNOSTICS_SHA256,
         integration.materialized_harness_launcher_source_sha256
@@ -942,6 +975,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         readiness.current_harness_directory_sha256 == receipt.directory_sha256,
         readiness.current_manifest_sha256 == manifest_sha256,
         readiness.current_materialization_record_sha256 == materialization_sha256,
+        readiness.current_model_snapshot_sha256 == model_snapshot_sha256,
         readiness.current_runtime_adapter_sha256 == CURRENT_RUNTIME_ADAPTER_SHA256,
         readiness.current_worker_startup_diagnostics_sha256 == CURRENT_WORKER_DIAGNOSTICS_SHA256,
         readiness.current_launcher_source_sha256 == CURRENT_LAUNCHER_SOURCE_SHA256,
@@ -973,6 +1007,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         "runtime_package_count": RUNTIME_PACKAGE_COUNT,
         "manifest_sha256": manifest_sha256,
         "materialization_record_sha256": materialization_sha256,
+        "model_snapshot_sha256": model_snapshot_sha256,
         "inspection_evidence_zip_sha256": INSPECTION_EVIDENCE_ZIP_SHA256,
         "materializer_saved_version_id": MATERIALIZER_SAVED_VERSION_ID,
         "inspection_saved_version_id": INSPECTION_SAVED_VERSION_ID,

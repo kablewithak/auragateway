@@ -13,6 +13,9 @@ from pydantic import ValidationError
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_worker_startup_observability_implementation,
 )
+from auragateway.local_abc.cu129_worker_observability_harness_integration import (
+    CURRENT_MODEL_SNAPSHOT_SHA256,
+)
 
 implementation = (
     full_abc_local_environment_qualification_cu129_worker_startup_observability_implementation
@@ -48,6 +51,7 @@ def test_repository_package_recognizes_integrated_worker_observability_harness()
     )
     assert result["historical_issuer_usable"] is False
     assert result["active_manifest_promoted"] is True
+    assert result["active_model_snapshot_sha256"] == (CURRENT_MODEL_SNAPSHOT_SHA256)
     assert result["operational_input_closure"] == "PASSED"
     assert result["authorization_issued"] is False
     assert result["kaggle_execution_performed"] is False

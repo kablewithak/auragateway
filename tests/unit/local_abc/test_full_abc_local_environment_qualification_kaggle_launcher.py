@@ -709,3 +709,28 @@ def test_committed_launcher_matches_generator() -> None:
 
     assert summary.notebook_name == launcher.LAUNCHER_NOTEBOOK_NAME
     assert summary.notebook_sha256 == launcher._file_sha256(notebook_path)
+
+
+def test_launcher_failure_bundle_retains_typed_error_metadata(
+    tmp_path: Path,
+) -> None:
+    namespace = _launcher_runtime_namespace(tmp_path)
+    work_root = cast(Path, namespace["WORK_ROOT"])
+    writer = cast(Callable[[BaseException], None], namespace["write_failure_bundle"])
+
+    class TypedFailure(RuntimeError):
+        error_code = "DATASET_MANIFEST_DRIFT"
+        path = "offline_dataset_manifest.json"
+        details = ("model_artifacts:sha256",)
+
+    writer(TypedFailure("one or more offline dataset inputs drifted"))
+
+    evidence_zip = work_root / launcher.EVIDENCE_ZIP_NAME
+    with zipfile.ZipFile(evidence_zip) as archive:
+        failure = json.loads(archive.read("launcher_failure.json"))
+
+    assert failure["error_code"] == "DATASET_MANIFEST_DRIFT"
+    assert failure["error_path"] == "offline_dataset_manifest.json"
+    assert failure["error_details"] == ["model_artifacts:sha256"]
+    assert failure["provider_calls_performed"] is False
+    assert failure["external_spend"] == 0

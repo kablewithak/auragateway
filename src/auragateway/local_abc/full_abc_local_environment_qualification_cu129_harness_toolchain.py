@@ -82,10 +82,10 @@ CURRENT_EXECUTION_MODULE_SHA256: Final = (
     "0851a3819806af89b4e6ae86faa8bfb6949db46c4436ebc2a580be92f0a0950b"
 )
 CURRENT_LAUNCHER_SOURCE_SHA256: Final = (
-    "03e37eb4d44b67a9104a249040ef37e63cbbd5a58ef5cc952d46ea41516388e8"
+    "b913c8c24bda8b5a6478a9f2b6720cc0e30abc2344352d4bc6e66360c57493db"
 )
 CURRENT_LAUNCHER_NOTEBOOK_SHA256: Final = (
-    "f27e1ae8683ffb6b93bbc5b91513330c94ec40ec67873f836fb4adaa7e6b87ef"
+    "e3dba016baa4901fe73f18852a4220dbd213cc185455986ab1cfd3d33ca21a15"
 )
 CURRENT_EXECUTION_CONTRACTS_SHA256: Final = (
     "644e4013a753010bb1204e4bcc73e4e133a071ccc70213bca27dd24b74f8c0a0"
@@ -2866,6 +2866,16 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
             "the active manifest does not bind the consumed current harness evidence",
             manifest_path.as_posix(),
         )
+    model_entry = by_role["model_artifacts"]
+    if (
+        model_entry.get("artifact_format") != "hugging_face_snapshot_directory"
+        or model_entry.get("sha256") != integration.CURRENT_MODEL_SNAPSHOT_SHA256
+    ):
+        raise HarnessToolchainError(
+            "HARNESS_TOOLCHAIN_MODEL_ENTRY_DRIFT",
+            "the active model snapshot authority drifted",
+            manifest_path.as_posix(),
+        )
     runtime_entry = by_role["vllm_runtime"]
     expected_runtime = {
         "artifact_format": "python_wheelhouse_directory",
@@ -2925,6 +2935,7 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "runtime_role": "vllm_runtime",
         "runtime_artifact_format": "python_wheelhouse_directory",
         "runtime_package_count": RUNTIME_PACKAGE_COUNT,
+        "model_snapshot_sha256": integration.CURRENT_MODEL_SNAPSHOT_SHA256,
         "active_harness_binding_status": ("CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED"),
         "operational_input_closure": integration_summary["operational_input_closure"],
         "authorization_issued": False,

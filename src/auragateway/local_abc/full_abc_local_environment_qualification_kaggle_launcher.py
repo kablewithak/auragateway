@@ -792,6 +792,37 @@ def identity_mismatch_evidence(
     }
 
 
+def safe_error_metadata(error: BaseException) -> dict[str, object]:
+    # Retain bounded typed failure metadata without sensitive payloads.
+
+    raw_error_code = getattr(error, "error_code", type(error).__name__)
+    error_code = (
+        raw_error_code[:160]
+        if isinstance(raw_error_code, str) and raw_error_code
+        else type(error).__name__
+    )
+
+    raw_path = getattr(error, "path", None)
+    error_path = (
+        raw_path[:500]
+        if isinstance(raw_path, str) and raw_path
+        else None
+    )
+
+    raw_details = getattr(error, "details", ())
+    error_details = (
+        tuple(str(item)[:500] for item in raw_details[:20])
+        if isinstance(raw_details, (list, tuple))
+        else ()
+    )
+
+    return {
+        "error_code": error_code,
+        "error_path": error_path,
+        "error_details": error_details,
+    }
+
+
 def write_failure_bundle(error: BaseException) -> None:
     evidence_found: list[str] = []
     if MATERIALIZED_HARNESS_ROOT.is_dir():
@@ -802,12 +833,16 @@ def write_failure_bundle(error: BaseException) -> None:
 
     diagnostic_bytes = load_worker_startup_diagnostic()
     identity_mismatch = identity_mismatch_evidence(error)
+    error_metadata = safe_error_metadata(error)
     failure = {
         "schema_version": "1.0.0",
         "status": "FAILED",
         "stage": stage,
         "captured_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "exception_type": type(error).__name__,
+        "error_code": error_metadata["error_code"],
+        "error_path": error_metadata["error_path"],
+        "error_details": error_metadata["error_details"],
         "safe_message": str(error)[:1000],
         "runtime_evidence_found": sorted(evidence_found),
         "worker_startup_diagnostic_included": (

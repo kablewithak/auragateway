@@ -426,6 +426,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         issuer_summary.get("current_harness_source_commit") == integration.SOURCE_COMMIT,
         issuer_summary.get("readiness_review_sha256") == current_readiness_sha256,
         issuer_summary.get("runtime_manifest_sha256") == integration.CURRENT_MANIFEST_SHA256,
+        issuer_summary.get("model_snapshot_sha256") == integration.CURRENT_MODEL_SNAPSHOT_SHA256,
         issuer_summary.get("materialization_record_sha256")
         == integration.CURRENT_MATERIALIZATION_RECORD_SHA256,
         issuer_summary.get("runtime_adapter_sha256") == integration.CURRENT_RUNTIME_ADAPTER_SHA256,
@@ -460,6 +461,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         "superseded_authorization_base_commit": (issuance.HISTORICAL_AUTHORIZATION_BASE_COMMIT),
         "historical_issuer_usable": False,
         "active_manifest_promoted": integration_summary["active_manifest_promoted"],
+        "active_model_snapshot_sha256": integration.CURRENT_MODEL_SNAPSHOT_SHA256,
         "operational_input_closure": integration_summary["operational_input_closure"],
         "authorization_issued": False,
         "kaggle_execution_performed": False,
