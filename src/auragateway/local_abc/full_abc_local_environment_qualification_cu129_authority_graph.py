@@ -213,6 +213,16 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
     if record.runtime_manifest_sha256 != manifest.fingerprint():
         raise AuthorityGraphError("materialization record does not bind runtime manifest")
 
+    model = manifest.entries[1]
+    if (
+        model.role != "model_artifacts"
+        or model.artifact_format != "hugging_face_snapshot_directory"
+        or model.sha256 != harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256
+    ):
+        raise AuthorityGraphError(
+            "current runtime manifest does not bind the inspected model snapshot"
+        )
+
     runtime = manifest.entries[2]
     if (
         runtime.role != "vllm_runtime"
@@ -320,6 +330,11 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         raise AuthorityGraphError("historical issuer was incorrectly retained as usable")
     if implementation_summary.get("active_manifest_promoted") is not True:
         raise AuthorityGraphError("active manifest did not move to inspected evidence")
+    if (
+        implementation_summary.get("active_model_snapshot_sha256")
+        != harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256
+    ):
+        raise AuthorityGraphError("active model snapshot authority drifted")
     if implementation_summary.get("authorization_issued") is not False:
         raise AuthorityGraphError("worker-observability implementation created authorization")
     if implementation_summary.get("model_requests_performed") != 0:
@@ -376,6 +391,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         "worker_startup_observability_implemented": True,
         "historical_issuer_usable": False,
         "active_manifest_promoted": True,
+        "current_model_snapshot_sha256": (harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256),
         "authorization_issued": False,
         "runtime_execution_performed": False,
         "model_requests_performed": 0,

@@ -1,0 +1,28 @@
+6.1s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.1s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.1s 3 0.00s - to python to disable frozen modules.
+6.1s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+6.6s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.6s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.6s 7 0.00s - to python to disable frozen modules.
+6.6s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+12.9s 9 status=MODEL_INPUT_SHA256_DRIFT
+12.9s 10 expected_sha256=b5c53c05aa258cf85b8ac7c1f41ec81aaa6d9d66a656d32f7271bf5d4c9b8daa
+12.9s 11 observed_sha256=84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94
+12.9s 12 file_count=10
+12.9s 13 total_bytes=999604126
+12.9s 14 error_code=None
+12.9s 15 report=/kaggle/working/ag_model_input_identity_inspection_v1/model_identity_inspection.json
+12.9s 16 gpu_used=false
+12.9s 17 model_loaded=false
+12.9s 18 runtime_installed=false
+12.9s 19 model_requests_performed=0
+12.9s 20 save_this_notebook_output=true
+15.3s 21 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+15.3s 22 cells[i][c] = re.sub('\\\\\|', '|', cell)
+15.5s 23 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+15.5s 24 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+16.0s 25 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+16.3s 26 [NbConvertApp] Writing 11106 bytes to __notebook__.ipynb
+18.5s 27 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+19.2s 28 [NbConvertApp] Writing 300896 bytes to __results__.html

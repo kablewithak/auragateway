@@ -83,7 +83,7 @@ CURRENT_HARNESS_SOURCE_COMMIT: Final = harness_integration.SOURCE_COMMIT
 AUTHORIZATION_ID: Final = (
     "auragateway-full-abc-local-environment-qualification-execution-authorization-v1"
 )
-READINESS_REVIEW_SHA256: Final = "94d1ad6874ffbf323ef6a0434d494dca65670b3fa385d17d4469d20c79d25342"
+READINESS_REVIEW_SHA256: Final = "438383b0ea8e93cf36ee89fe34ca592802e1bf5d0290165d4a0d921b60556dc3"
 AUTHORIZATION_ISSUANCE_REVIEW_SHA256: Final = READINESS_REVIEW_SHA256
 MATERIALIZATION_RECORD_SHA256: Final = harness_integration.CURRENT_MATERIALIZATION_RECORD_SHA256
 RUNTIME_MANIFEST_SHA256: Final = harness_integration.CURRENT_MANIFEST_SHA256
@@ -455,6 +455,8 @@ def _validate_current_input_package(repo_root: Path) -> CurrentAuthorizationInpu
         readiness.fingerprint() == READINESS_REVIEW_SHA256,
         readiness.current_manifest_sha256 == RUNTIME_MANIFEST_SHA256,
         readiness.current_materialization_record_sha256 == MATERIALIZATION_RECORD_SHA256,
+        readiness.current_model_snapshot_sha256
+        == harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256,
         readiness.current_runtime_adapter_sha256 == RUNTIME_ADAPTER_SHA256,
         readiness.current_worker_startup_diagnostics_sha256
         == harness_integration.CURRENT_WORKER_DIAGNOSTICS_SHA256,
@@ -469,7 +471,10 @@ def _validate_current_input_package(repo_root: Path) -> CurrentAuthorizationInpu
         == MAXIMUM_AUTHORIZATION_WINDOW_MINUTES,
         execution_request.fingerprint() == EXECUTION_REQUEST_SHA256,
         runtime_manifest.fingerprint() == RUNTIME_MANIFEST_SHA256,
+        runtime_manifest.entries[1].sha256 == harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256,
         materialization_record.fingerprint() == MATERIALIZATION_RECORD_SHA256,
+        materialization_record.entries[1].sha256
+        == harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256,
         materialization_record.runtime_manifest_sha256 == RUNTIME_MANIFEST_SHA256,
         materialization_record.harness_source_commit == CURRENT_HARNESS_SOURCE_COMMIT,
         launcher_source_commit == current_harness_source_commit,
@@ -564,6 +569,7 @@ def validate_implementation_package(repo_root: Path) -> dict[str, object]:
         "readiness_review_sha256": inputs.readiness.fingerprint(),
         "execution_request_sha256": inputs.execution_request.fingerprint(),
         "runtime_manifest_sha256": inputs.runtime_manifest.fingerprint(),
+        "model_snapshot_sha256": harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256,
         "materialization_record_sha256": inputs.materialization_record.fingerprint(),
         "runtime_adapter_sha256": RUNTIME_ADAPTER_SHA256,
         "worker_startup_diagnostics_sha256": (

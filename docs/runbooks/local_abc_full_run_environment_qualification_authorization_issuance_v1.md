@@ -50,16 +50,16 @@ worker diagnostics SHA-256:
 58d39a67c9d82d1b2f5938328dfa9362ee922ced2e089f8b5d529c0139cc2b91
 
 active launcher source SHA-256:
-03e37eb4d44b67a9104a249040ef37e63cbbd5a58ef5cc952d46ea41516388e8
+b913c8c24bda8b5a6478a9f2b6720cc0e30abc2344352d4bc6e66360c57493db
 
 active launcher notebook SHA-256:
-f27e1ae8683ffb6b93bbc5b91513330c94ec40ec67873f836fb4adaa7e6b87ef
+e3dba016baa4901fe73f18852a4220dbd213cc185455986ab1cfd3d33ca21a15
 
 active manifest SHA-256:
-f8bcd218f7863a8c2ac7dd04ad0c5ee054484035abb8ae44d1d2117e1e84513a
+0fdd073f4d4f7d2c823c8c78299bb12260d3bd5ded9f668a6613622f550f3ca1
 
 active materialization record SHA-256:
-c19675317ea5b4086ba0cd548cc0f4f9c6cd791c7dc9f046fedc02e5168eb0b8
+01ec3d0a67d65a81b6fb00bbba3a2cf21958ce28fc726b9d1486a8cd6f6ebee9
 ```
 
 Operational-input closure remains `PASSED`. This implementation changes the issuer
@@ -214,3 +214,22 @@ explicit_operator_confirmation_then_issue_fresh_authorization
 The implementation PR stops before authorization issuance. Authorization, control-package
 materialization, Kaggle, GPU, model loading, worker startup, model requests, cache probes,
 and measured A/B/C remain absent until a separate explicit operator decision.
+
+
+## Model-input identity remediation
+
+The first post-PR #148 qualification failed closed with
+`DATASET_MANIFEST_DRIFT` before runtime installation, model loading,
+worker startup, or model requests.
+
+The preserved CPU-only inspection distinguishes historical evidence from
+current operational authority:
+
+- historical inspected expectation: `b5c53c05aa258cf85b8ac7c1f41ec81aaa6d9d66a656d32f7271bf5d4c9b8daa`
+- current mounted model identity: `84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94`
+- file count: `10`
+- total bytes: `999604126`
+
+The consumed authorization is preserved under the remediation evidence
+directory and is not reusable. A fresh authorization may be issued only
+after this remediation is merged and `main` is synchronized.

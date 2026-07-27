@@ -1,0 +1,73 @@
+7.6s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.6s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.6s 3 0.00s - to python to disable frozen modules.
+7.6s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+8.2s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.2s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.2s 7 0.00s - to python to disable frozen modules.
+8.2s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+31.0s 9 artifact=/kaggle/working/ag-qualification-evidence-v1.zip
+31.0s 10 size_bytes=1017
+31.0s 11 sha256=e636caa4b89a4ca8b6380d2a550458b29843e02f882b20a66312f876ee19ba3e
+31.0s 12 qualification_status=FAILED
+31.0s 13 worker_startup_diagnostic_included=false
+31.0s 14 identity_mismatch_included=false
+31.0s 15 upload_only_this_file=true
+31.4s 16 Traceback (most recent call last):
+31.4s 17 File "<string>", line 1, in <module>
+31.4s 18 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+31.4s 19 raise_for_execution_errors(nb, output_path)
+31.4s 20 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+31.4s 21 raise error
+31.4s 22 papermill.exceptions.PapermillExecutionError:
+31.4s 23 ---------------------------------------------------------------------------
+31.4s 24 Exception encountered at "In [1]":
+31.4s 25 ---------------------------------------------------------------------------
+31.4s 26 FullABCLocalEnvironmentQualificationExecutionErrorTraceback (most recent call last)
+31.4s 27 /tmp/ipykernel_23/1267436611.py in <cell line: 0>()
+31.4s 28 897
+31.4s 29 898     execution_namespace: dict[str, object] = {}
+31.4s 30 --> 899     exec(
+31.4s 31 900         compile(
+31.4s 32 901             reviewed_core.decode("utf-8"),
+31.4s 33 
+31.4s 34 auragateway_reviewed_qualification_core_v1.py in <module>
+31.4s 35 
+31.4s 36 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py in execute_from_environment()
+31.4s 37 1157             details=missing,
+31.4s 38 1158         )
+31.4s 39 -> 1159     return execute_from_paths(
+31.4s 40 1160         repo_root=Path(cast(str, repo_root_raw)),
+31.4s 41 1161         authorization_path=Path(cast(str, authorization_raw)),
+31.4s 42 
+31.4s 43 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py in execute_from_paths(repo_root, authorization_path, dataset_manifest_path, now)
+31.4s 44 1118     authorization = _load_authorization(authorization_path)
+31.4s 45 1119     dataset_manifest = _load_dataset_manifest(dataset_manifest_path)
+31.4s 46 -> 1120     _validate_authorized_inputs(
+31.4s 47 1121         request,
+31.4s 48 1122         authorization,
+31.4s 49 
+31.4s 50 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py in _validate_authorized_inputs(request, authorization, dataset_manifest, repo_root, now)
+31.4s 51 897     now: datetime,
+31.4s 52 898 ) -> None:
+31.4s 53 --> 899     _validate_dataset_files(dataset_manifest)
+31.4s 54 900     if authorization.decision is not AuthorizationDecision.AUTHORIZED:
+31.4s 55 901         raise FullABCLocalEnvironmentQualificationExecutionError(
+31.4s 56 
+31.4s 57 /kaggle/working/auragateway_qualification_harness/src/auragateway/local_abc/full_abc_local_environment_qualification_execution.py in _validate_dataset_files(dataset_manifest)
+31.4s 58 863             drift.append(f"{entry.role}:sha256")
+31.4s 59 864     if drift:
+31.4s 60 --> 865         raise FullABCLocalEnvironmentQualificationExecutionError(
+31.4s 61 866             "DATASET_MANIFEST_DRIFT",
+31.4s 62 867             "one or more offline dataset inputs do not match the authorized manifest",
+31.4s 63 
+31.4s 64 FullABCLocalEnvironmentQualificationExecutionError: one or more offline dataset inputs do not match the authorized manifest
+31.4s 65 
+33.5s 66 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+33.5s 67 cells[i][c] = re.sub('\\\\\|', '|', cell)
+33.6s 68 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+33.6s 69 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+34.2s 70 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+34.5s 71 [NbConvertApp] Writing 65424 bytes to __notebook__.ipynb
+36.8s 72 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+37.7s 73 [NbConvertApp] Writing 419271 bytes to __results__.html

@@ -241,6 +241,7 @@ def test_repository_package_exposes_approved_toolchain_boundary() -> None:
     assert summary["source_binding_policy"] == "POST_MERGE_CLEAN_MAIN_HEAD"
     assert summary["runtime_role"] == "vllm_runtime"
     assert summary["runtime_package_count"] == 176
+    assert summary["model_snapshot_sha256"] == (integration.CURRENT_MODEL_SNAPSHOT_SHA256)
     assert summary["active_harness_binding_status"] == ("CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED")
     assert summary["operational_input_closure"] == "PASSED"
     assert summary["authorization_issued"] is False

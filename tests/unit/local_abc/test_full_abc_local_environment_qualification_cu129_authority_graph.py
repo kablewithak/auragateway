@@ -48,6 +48,9 @@ def test_repository_authority_graph_integrates_worker_observability_harness() ->
     assert summary["worker_startup_observability_implemented"] is True
     assert summary["historical_issuer_usable"] is False
     assert summary["active_manifest_promoted"] is True
+    assert summary["current_model_snapshot_sha256"] == (
+        graph.harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256
+    )
     assert summary["authorization_issued"] is False
     assert summary["runtime_execution_performed"] is False
     assert summary["model_requests_performed"] == 0
