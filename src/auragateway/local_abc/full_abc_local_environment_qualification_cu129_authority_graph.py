@@ -9,6 +9,7 @@ from typing import Final, Never, cast
 
 from auragateway.local_abc import (
     cu129_worker_observability_harness_integration,
+    full_abc_local_environment_qualification_cu129_vllm_cli_contract_hardening,
     full_abc_local_environment_qualification_cu129_worker_startup_observability_implementation,
     full_abc_local_environment_qualification_execution_authorization_issuance_review,
 )
@@ -30,6 +31,7 @@ observability_implementation = (
 )
 
 harness_integration = cu129_worker_observability_harness_integration
+vllm_cli_hardening = full_abc_local_environment_qualification_cu129_vllm_cli_contract_hardening
 issuance_review = full_abc_local_environment_qualification_execution_authorization_issuance_review
 
 INTEGRATION_PATH: Final = Path(
@@ -85,6 +87,7 @@ CANONICAL_JSON_PATHS: Final = (
     harness_integration.INTEGRATION_RECORD_PATH,
     harness_integration.READINESS_REVIEW_PATH,
     harness_integration.EVIDENCE_IDENTITY_PATH,
+    vllm_cli_hardening.RECORD_PATH,
 )
 
 LIVE_RUNTIME_PATHS: Final = (
@@ -176,6 +179,14 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
     root = Path(repo_root).resolve()
     for relative_path in CANONICAL_JSON_PATHS:
         _require_canonical_json(root / relative_path)
+
+    hardening_summary = vllm_cli_hardening.validate_repository_package(root)
+    if hardening_summary.get("active_harness_reusable_for_retry") is not False:
+        raise AuthorityGraphError(
+            "the predecessor harness was incorrectly retained as retry-usable"
+        )
+    if hardening_summary.get("fresh_issuer_usable") is not False:
+        raise AuthorityGraphError("the fresh issuer was not blocked for rematerialization")
 
     integration = _load_json_object(root / INTEGRATION_PATH)
     if integration.get("decision") != "INTEGRATED_REPOSITORY_ONLY_AUTHORIZATION_BLOCKED":
@@ -293,25 +304,31 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
             "validate_implementation_package",
             "CURRENT_ISSUANCE_FROZEN_LOADER_PARITY_FAILED",
             "AUTHORIZATION_ALREADY_EXISTS",
+            "AUTHORIZATION_ISSUANCE_BLOCKED_BY_HARNESS_REMATERIALIZATION",
+            "vllm_cli_hardening",
         ),
     )
     _require_source_markers(
         root / ISSUANCE_RUNBOOK_PATH,
         (
-            "CURRENT STATUS: ISSUER IMPLEMENTED; AUTHORIZATION NOT ISSUED",
-            "post-PR #147",
-            "historical issuer",
+            "CURRENT STATUS: ISSUER BLOCKED PENDING HARDENED HARNESS REMATERIALIZATION",
+            "post-PR #149",
+            "historical_issuer_usable",
             "CONTROL_PACKAGE_AUTHORIZATION_PARITY",
-            "explicit_operator_confirmation_then_issue_fresh_authorization",
+            "merge_then_prepare_vllm_cli_hardened_harness_source_package",
         ),
     )
     implementation_summary = observability_implementation.validate_repository_package(root)
     if implementation_summary.get("status") != (
-        "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED"
+        "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED_VLLM_CLI_HARDENING_PENDING"
     ):
         raise AuthorityGraphError("worker-startup observability integration drifted")
     if implementation_summary.get("fresh_issuer_implemented") is not True:
         raise AuthorityGraphError("fresh authorization issuer is not implemented")
+    if implementation_summary.get("fresh_issuer_usable") is not False:
+        raise AuthorityGraphError("fresh authorization issuer is not blocked")
+    if implementation_summary.get("active_harness_reusable_for_retry") is not False:
+        raise AuthorityGraphError("predecessor harness was incorrectly retained for retry")
     if (
         implementation_summary.get("fresh_authorization_base_commit")
         != "29d89f16e6693c298e9f292e21b0822568f69931"
@@ -323,7 +340,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
     ):
         raise AuthorityGraphError("superseded authorization issuer base commit drifted")
     if implementation_summary.get("next_gate") != (
-        "explicit_operator_confirmation_then_issue_fresh_authorization"
+        "merge_then_prepare_vllm_cli_hardened_harness_source_package"
     ):
         raise AuthorityGraphError("fresh authorization implementation gate drifted")
     if implementation_summary.get("historical_issuer_usable") is not False:
@@ -364,7 +381,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         raise AuthorityGraphError("final qualification authorization must remain absent")
 
     return {
-        "status": "CURRENT_CU129_FRESH_AUTHORIZATION_ISSUER_IMPLEMENTED",
+        "status": "CURRENT_CU129_VLLM_CLI_HARDENING_AWAITING_REMATERIALIZATION",
         "current_runtime_role": runtime.role,
         "current_runtime_format": runtime.artifact_format,
         "runtime_package_count": runtime.package_count,
@@ -388,7 +405,9 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         "historical_rematerialization_revision_bound": True,
         "fresh_cu129_authorization_readiness_review_complete": True,
         "fresh_cu129_authorization_issuer_implemented": True,
+        "fresh_cu129_authorization_issuer_usable": False,
         "worker_startup_observability_implemented": True,
+        "active_harness_reusable_for_retry": False,
         "historical_issuer_usable": False,
         "active_manifest_promoted": True,
         "current_model_snapshot_sha256": (harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256),

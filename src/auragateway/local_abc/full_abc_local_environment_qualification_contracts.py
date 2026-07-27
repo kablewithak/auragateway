@@ -23,6 +23,9 @@ from auragateway.local_abc.full_abc_local_environment_qualification_cu129_runtim
     TARGET_INTERPRETER_TOKEN,
     TARGET_RUNTIME_ROOT_TOKEN,
     TARGET_SITE_PACKAGES_TOKEN,
+    VLLM_API_SERVER_REQUIRED_OPTIONS,
+    VLLM_REQUEST_LOGGING_DISABLED_OPTION,
+    worker_command_options,
 )
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
@@ -356,6 +359,12 @@ class WorkerStartupCommand(LocalABCContract):
                 raise ValueError(f"worker startup command drifted for {flag}")
         if "--enable-prefix-caching" not in argv:
             raise ValueError("worker startup command must enable prefix caching")
+        if VLLM_REQUEST_LOGGING_DISABLED_OPTION not in argv:
+            raise ValueError("worker startup command must disable request logging")
+        if "--disable-log-requests" in argv:
+            raise ValueError("worker startup command contains an unsupported vLLM option")
+        if worker_command_options(argv) != frozenset(VLLM_API_SERVER_REQUIRED_OPTIONS):
+            raise ValueError("worker startup command option set drifted")
         canonical = json.dumps(
             list(self.command_argv),
             ensure_ascii=True,
@@ -405,6 +414,7 @@ class WorkerStartupPlan(LocalABCContract):
             "runtime_checksum_manifest_verified",
             "target_python_startup_controlled",
             "target_nvidia_loader_precedence_verified",
+            "vllm_api_server_cli_capability_verified",
         )
         if value != expected:
             raise ValueError("worker prelaunch checks drifted")

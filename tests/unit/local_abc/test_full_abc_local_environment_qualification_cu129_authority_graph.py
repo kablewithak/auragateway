@@ -19,11 +19,11 @@ def test_repository_authority_graph_integrates_worker_observability_harness() ->
         pytest.skip("full Git checkout is required for historical authority validation")
     summary = graph.validate_repository_authority_graph(ROOT)
 
-    assert summary["status"] == "CURRENT_CU129_FRESH_AUTHORIZATION_ISSUER_IMPLEMENTED"
+    assert summary["status"] == ("CURRENT_CU129_VLLM_CLI_HARDENING_AWAITING_REMATERIALIZATION")
     assert summary["current_runtime_role"] == "vllm_runtime"
     assert summary["current_runtime_format"] == "python_wheelhouse_directory"
     assert summary["runtime_package_count"] == 176
-    assert summary["canonical_json_authorities_verified"] == 11
+    assert summary["canonical_json_authorities_verified"] == 12
     assert summary["current_harness_evidence_integrated"] is True
     assert summary["operational_input_closure"] == "PASSED"
     assert summary["authorization_source_binding_policy"] == (
@@ -45,7 +45,9 @@ def test_repository_authority_graph_integrates_worker_observability_harness() ->
     assert summary["historical_rematerialization_revision_bound"] is True
     assert summary["fresh_cu129_authorization_readiness_review_complete"] is True
     assert summary["fresh_cu129_authorization_issuer_implemented"] is True
+    assert summary["fresh_cu129_authorization_issuer_usable"] is False
     assert summary["worker_startup_observability_implemented"] is True
+    assert summary["active_harness_reusable_for_retry"] is False
     assert summary["historical_issuer_usable"] is False
     assert summary["active_manifest_promoted"] is True
     assert summary["current_model_snapshot_sha256"] == (
@@ -54,7 +56,7 @@ def test_repository_authority_graph_integrates_worker_observability_harness() ->
     assert summary["authorization_issued"] is False
     assert summary["runtime_execution_performed"] is False
     assert summary["model_requests_performed"] == 0
-    assert summary["next_gate"] == ("explicit_operator_confirmation_then_issue_fresh_authorization")
+    assert summary["next_gate"] == ("merge_then_prepare_vllm_cli_hardened_harness_source_package")
 
 
 def test_canonical_json_guard_rejects_trailing_newline(tmp_path: Path) -> None:

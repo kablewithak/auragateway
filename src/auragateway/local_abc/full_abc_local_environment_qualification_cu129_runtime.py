@@ -25,6 +25,23 @@ LOADER_POLICY: Final = "TARGET_NVIDIA_LIBRARIES_PREPENDED"
 TARGET_INTERPRETER_TOKEN: Final = "${AURAGATEWAY_TARGET_PYTHON}"
 TARGET_RUNTIME_ROOT_TOKEN: Final = "${AURAGATEWAY_TARGET_RUNTIME_ROOT}"
 TARGET_SITE_PACKAGES_TOKEN: Final = "${AURAGATEWAY_TARGET_SITE_PACKAGES}"
+VLLM_API_SERVER_MODULE: Final = "vllm.entrypoints.openai.api_server"
+VLLM_REQUEST_LOGGING_DISABLED_OPTION: Final = "--no-enable-log-requests"
+VLLM_API_SERVER_REQUIRED_OPTIONS: Final = (
+    "--model",
+    "--revision",
+    "--tokenizer",
+    "--tokenizer-revision",
+    "--served-model-name",
+    "--host",
+    "--port",
+    "--dtype",
+    "--max-model-len",
+    "--gpu-memory-utilization",
+    "--max-num-seqs",
+    "--enable-prefix-caching",
+    VLLM_REQUEST_LOGGING_DISABLED_OPTION,
+)
 
 EXPECTED_CONTROL_HASHES: Final = {
     "requirements.in": "a120c72a5643bb65afbfe0bd3dd072f1ea89a19f57a534dd814c9bafdd41880f",
@@ -157,21 +174,57 @@ sys.argv = ["<auragateway-controlled>", *sys.argv[1:]]
 exec(compile(payload, "<auragateway-controlled>", "exec"))
 """.strip()
 
-DEPENDENCY_LOCK_SCRIPT = """
+DEPENDENCY_LOCK_SCRIPT = f"""
+import contextlib
+import hashlib
 import importlib.metadata
+import io
 import json
 import os
 import platform
+import re
+import runpy
+import sys
 import torch
 import transformers
 import vllm
 from pathlib import Path
 
-site_packages = Path(__import__('sys').argv[1]).resolve()
+site_packages = Path(sys.argv[1]).resolve()
 distributions = tuple(importlib.metadata.distributions(path=[str(site_packages)]))
+required_worker_options = {VLLM_API_SERVER_REQUIRED_OPTIONS!r}
+stdout = io.StringIO()
+stderr = io.StringIO()
+original_argv = list(sys.argv)
+try:
+    sys.argv = [{VLLM_API_SERVER_MODULE!r}, "--help"]
+    with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+        try:
+            runpy.run_module({VLLM_API_SERVER_MODULE!r}, run_name="__main__")
+        except SystemExit as exc:
+            if exc.code not in (None, 0):
+                raise RuntimeError(
+                    "pinned vLLM API-server help exited unsuccessfully"
+                ) from exc
+finally:
+    sys.argv[:] = original_argv
+
+help_text = stdout.getvalue() + "\\n" + stderr.getvalue()
+supported_options = frozenset(
+    re.findall(r"(?<![A-Za-z0-9_-])--[a-z0-9][a-z0-9-]*", help_text)
+)
+missing_options = tuple(
+    option for option in required_worker_options if option not in supported_options
+)
+if missing_options:
+    raise RuntimeError(
+        "pinned vLLM CLI does not support governed worker options: "
+        + ", ".join(missing_options)
+    )
+
 print(
     json.dumps(
-        {
+        {{
             'python': platform.python_version(),
             'torch': torch.__version__,
             'cuda': torch.version.cuda or 'unavailable',
@@ -180,7 +233,12 @@ print(
             'vllm_distribution': importlib.metadata.version('vllm'),
             'distribution_count': len(distributions),
             'attention_backend': os.getenv('VLLM_ATTENTION_BACKEND', 'auto'),
-        },
+            'vllm_api_server_cli_capability': 'validated',
+            'vllm_api_server_help_sha256': hashlib.sha256(
+                help_text.encode('utf-8')
+            ).hexdigest(),
+            'vllm_api_server_option_count': len(supported_options),
+        }},
         sort_keys=True,
     )
 )
@@ -270,6 +328,14 @@ def canonical_command_sha256(argv: Sequence[str]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def worker_command_options(argv: Sequence[str]) -> frozenset[str]:
+    """Return the exact long-option set emitted by one governed worker command."""
+
+    return frozenset(
+        argument.split("=", maxsplit=1)[0] for argument in argv if argument.startswith("--")
+    )
+
+
 def worker_command_template(port: int) -> tuple[str, ...]:
     if port not in {8001, 8002}:
         raise ValueError("worker port must remain in the governed topology")
@@ -280,7 +346,7 @@ def worker_command_template(port: int) -> tuple[str, ...]:
         CONTROLLED_BOOTSTRAP,
         TARGET_RUNTIME_ROOT_TOKEN,
         TARGET_SITE_PACKAGES_TOKEN,
-        "vllm.entrypoints.openai.api_server",
+        VLLM_API_SERVER_MODULE,
         "--model",
         "Qwen/Qwen2.5-0.5B-Instruct",
         "--revision",
@@ -304,7 +370,7 @@ def worker_command_template(port: int) -> tuple[str, ...]:
         "--max-num-seqs",
         "8",
         "--enable-prefix-caching",
-        "--disable-log-requests",
+        VLLM_REQUEST_LOGGING_DISABLED_OPTION,
     )
 
 

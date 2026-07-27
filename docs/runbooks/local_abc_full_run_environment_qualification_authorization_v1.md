@@ -250,7 +250,13 @@ Required worker controls include:
 
 ```text
 --enable-prefix-caching
---disable-log-requests
+--no-enable-log-requests
+
+
+Before either worker process is spawned, the controlled target runtime must invoke
+the pinned `vllm.entrypoints.openai.api_server --help` boundary and prove that
+every governed long option in the startup plan is supported. Missing options fail
+closed before worker launch; the help payload itself is not retained.
 HF_HUB_OFFLINE=1
 TRANSFORMERS_OFFLINE=1
 CUDA_VISIBLE_DEVICES=<bound GPU>

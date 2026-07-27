@@ -368,6 +368,57 @@ def test_implementation_summary_preserves_zero_runtime_boundary(
     assert summary["next_gate"] == issuance_module.IMPLEMENTATION_NEXT_GATE
 
 
+def test_pending_vllm_cli_hardening_blocks_fresh_issuance(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        issuance_module,
+        "_load_vllm_cli_hardening_record",
+        lambda repo_root: {"decision": "pending"},
+    )
+
+    with pytest.raises(AuthorizationIssuanceError) as caught:
+        issuance_module._require_issuer_usable(tmp_path)
+
+    assert caught.value.error_code == (
+        "AUTHORIZATION_ISSUANCE_BLOCKED_BY_HARNESS_REMATERIALIZATION"
+    )
+    assert caught.value.details == (issuance_module.vllm_cli_hardening.NEXT_GATE,)
+
+
+def test_implementation_summary_reports_pending_rematerialization(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inputs = _current_inputs()
+    monkeypatch.setattr(
+        issuance_module,
+        "_prepare_issuance_inputs",
+        lambda repo_root: inputs,
+    )
+    monkeypatch.setattr(
+        issuance_module,
+        "_load_vllm_cli_hardening_record",
+        lambda repo_root: {"decision": "pending"},
+    )
+
+    summary = issuance_module.validate_implementation_package(tmp_path)
+
+    assert summary["status"] == (
+        "FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_FOR_HARNESS_REMATERIALIZATION"
+    )
+    assert summary["fresh_issuer_implemented"] is True
+    assert summary["fresh_issuer_usable"] is False
+    assert summary["runtime_manifest_sha256"] == inputs.runtime_manifest.fingerprint()
+    assert summary["worker_startup_diagnostics_sha256"] == (
+        inputs.readiness.current_worker_startup_diagnostics_sha256
+    )
+    assert summary["maximum_workers"] == inputs.authorization_request.maximum_workers
+    assert summary["authorization_issued"] is False
+    assert summary["next_gate"] == issuance_module.vllm_cli_hardening.NEXT_GATE
+
+
 def test_verify_rejects_noncanonical_authorization(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -432,7 +483,7 @@ def test_current_and_frozen_authorities_are_not_conflated() -> None:
     assert issuance_module.SOURCE_MAIN_MERGE_COMMIT == ("211a10757999b1b110cb1d9df172938cf6ed7969")
     assert issuance_module.HARNESS_SOURCE_COMMIT == ("be1bfadd8a8aa3f0a2f6143d6a73f082f1090c50")
     assert issuance_module.READINESS_REVIEW_SHA256 == (
-        "438383b0ea8e93cf36ee89fe34ca592802e1bf5d0290165d4a0d921b60556dc3"
+        "fe3aedbe8d23624726183fa2112eb4b66d3085842bee7128256151fd617e1266"
     )
     assert issuance_module.HISTORICAL_READINESS_REVIEW_SHA256 == (
         "1afb21f8a7df50ed57e9727bf8c7aacc04f3c6548f1c17544763c04118b8a9b0"
@@ -441,7 +492,7 @@ def test_current_and_frozen_authorities_are_not_conflated() -> None:
         (ROOT / issuance_module.READINESS_REVIEW_PATH).read_bytes()
     ).hexdigest()
     assert current_readiness_sha256 == (
-        "438383b0ea8e93cf36ee89fe34ca592802e1bf5d0290165d4a0d921b60556dc3"
+        "fe3aedbe8d23624726183fa2112eb4b66d3085842bee7128256151fd617e1266"
     )
     assert current_readiness_sha256 == issuance_module.READINESS_REVIEW_SHA256
     assert current_readiness_sha256 != (issuance_module.HISTORICAL_READINESS_REVIEW_SHA256)

@@ -19,9 +19,11 @@ from pydantic import ValidationError
 
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_harness_toolchain_contracts,
+    full_abc_local_environment_qualification_cu129_vllm_cli_contract_hardening,
 )
 
 toolchain_contracts = full_abc_local_environment_qualification_cu129_harness_toolchain_contracts
+vllm_cli_hardening = full_abc_local_environment_qualification_cu129_vllm_cli_contract_hardening
 
 REVIEW_MINIMUM_ANCESTOR: Final = "defe184d338b525e2f48104ef76e5d0d9a1329a8"
 PACKAGE_ID: Final = "auragateway-cu129-current-harness-toolchain-v1"
@@ -76,7 +78,7 @@ CURRENT_RUNTIME_ADAPTER_SHA256: Final = (
     "f83452b6fbfd583f4236c2edbaf0e4bd3a6ece331494fdff891bf50d022ba617"
 )
 CURRENT_CU129_RUNTIME_SHA256: Final = (
-    "9230a4f06238b87c3b537f383aceda0de44c41c8c6b21c1d6b35666440a5445c"
+    "5cf0379c514a023a100230ff44be3297c6381740ede44bb27a4288adbb2c174f"
 )
 CURRENT_EXECUTION_MODULE_SHA256: Final = (
     "0851a3819806af89b4e6ae86faa8bfb6949db46c4436ebc2a580be92f0a0950b"
@@ -85,19 +87,19 @@ CURRENT_LAUNCHER_SOURCE_SHA256: Final = (
     "b913c8c24bda8b5a6478a9f2b6720cc0e30abc2344352d4bc6e66360c57493db"
 )
 CURRENT_LAUNCHER_NOTEBOOK_SHA256: Final = (
-    "e3dba016baa4901fe73f18852a4220dbd213cc185455986ab1cfd3d33ca21a15"
+    "138b5a04185082aeb671f1be5511ebdf4e4da00970eaa6145fbbd953d567c44c"
 )
 CURRENT_EXECUTION_CONTRACTS_SHA256: Final = (
-    "644e4013a753010bb1204e4bcc73e4e133a071ccc70213bca27dd24b74f8c0a0"
+    "e88fead2fc576dd2965a666affbe8e3669b928ffc1a51b9baae178e02172af02"
 )
 CURRENT_EXECUTION_REQUEST_SHA256: Final = (
-    "7b0080429246f6def3c1ac28b8a677a2ed7e29ccf318690d9309ed98ff179ba0"
+    "3079f1577588fa10ae47689a06bec96615b94ba5b0e42ee6bb0d2fed625357a8"
 )
 CURRENT_WORKER_PLAN_SHA256: Final = (
-    "45bd37e50e663e514a3bac7b3ca22a678015dc5d5472f84bab3381123244262c"
+    "3a987c755e9be1a480a6f70fc667d2813eecc183924ba956fd12cae45d5eb8f8"
 )
 CURRENT_REVIEWED_NOTEBOOK_SHA256: Final = (
-    "154489bbd1bca877f041221bf41575cfd933ed0bb71a1c2d44144b660f514503"
+    "5d166eddaff724d0daa5ed69c69b581e8c0403c212d0605f3f75e7294389240e"
 )
 
 EXECUTION_MODULE_PATH: Final = (
@@ -133,6 +135,20 @@ REVIEW_RECORD_PATH: Final = (
 )
 TOOLCHAIN_RECORD_PATH: Final = (
     "benchmarks/local_abc/auragateway_cu129_current_harness_toolchain_v1.json"
+)
+VLLM_CLI_HARDENING_SOURCE_PATH: Final = (
+    "src/auragateway/local_abc/"
+    "full_abc_local_environment_qualification_cu129_vllm_cli_contract_hardening.py"
+)
+VLLM_CLI_HARDENING_RECORD_PATH: Final = vllm_cli_hardening.RECORD_PATH.as_posix()
+VLLM_CLI_HARDENING_ADR_PATH: Final = (
+    "docs/adr/2026-07-27-local-abc-cu129-vllm-cli-contract-hardening.md"
+)
+VLLM_CLI_HARDENING_REPORT_PATH: Final = (
+    "docs/reports/AuraGateway_CU129_VLLM_CLI_Contract_Hardening_Report.md"
+)
+VLLM_CLI_HARDENING_RUNBOOK_PATH: Final = (
+    "docs/runbooks/local_abc_cu129_vllm_cli_contract_hardening_v1.md"
 )
 
 REQUIRED_PATHS: Final = (
@@ -177,6 +193,11 @@ REQUIRED_PATHS: Final = (
         "src/auragateway/local_abc/"
         "full_abc_local_environment_qualification_cu129_harness_toolchain_contracts.py"
     ),
+    VLLM_CLI_HARDENING_SOURCE_PATH,
+    VLLM_CLI_HARDENING_RECORD_PATH,
+    VLLM_CLI_HARDENING_ADR_PATH,
+    VLLM_CLI_HARDENING_REPORT_PATH,
+    VLLM_CLI_HARDENING_RUNBOOK_PATH,
 )
 
 EXPECTED_FILE_SHA256: Final = {
@@ -2713,6 +2734,12 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
     """Validate the committed toolchain, current runtime, and blocked safety boundary."""
 
     repo_root = repo_root.resolve()
+    hardening_summary = vllm_cli_hardening.validate_repository_package(repo_root)
+    if hardening_summary.get("fresh_issuer_usable") is not False:
+        raise HarnessToolchainError(
+            "HARNESS_TOOLCHAIN_HARDENING_AUTHORITY_DRIFT",
+            "the hardened harness must remain blocked until rematerialization",
+        )
     review_path = repo_root / REVIEW_RECORD_PATH
     review_payload = _load_json_file(
         review_path,
@@ -2922,7 +2949,7 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
     integration_summary = integration.validate_repository_package(repo_root)
     review_spec = default_build_spec(REVIEW_MINIMUM_ANCESTOR)
     return {
-        "status": "CURRENT_CU129_HARNESS_TOOLCHAIN_IMPLEMENTED",
+        "status": "CURRENT_CU129_VLLM_CLI_HARDENING_AWAITING_POST_MERGE_SOURCE_PACKAGE",
         "decision": record.decision,
         "review_minimum_ancestor": REVIEW_MINIMUM_ANCESTOR,
         "source_binding_policy": SOURCE_BINDING_POLICY,
@@ -2936,12 +2963,14 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         "runtime_artifact_format": "python_wheelhouse_directory",
         "runtime_package_count": RUNTIME_PACKAGE_COUNT,
         "model_snapshot_sha256": integration.CURRENT_MODEL_SNAPSHOT_SHA256,
-        "active_harness_binding_status": ("CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED"),
+        "active_harness_binding_status": ("PREDECESSOR_HARNESS_RETAINED_NOT_RETRY_USABLE"),
         "operational_input_closure": integration_summary["operational_input_closure"],
+        "fresh_issuer_usable": False,
+        "active_harness_reusable_for_retry": False,
         "authorization_issued": False,
         "kaggle_execution_performed": False,
         "model_requests_performed": 0,
-        "next_gate": integration_summary["next_gate"],
+        "next_gate": hardening_summary["next_gate"],
     }
 
 

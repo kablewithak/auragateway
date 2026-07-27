@@ -37,7 +37,7 @@ STATIC_REQUEST_GIT_BLOB_SHA: Final = "ac2dc5a9082b9befb55c8ced8a7d58f926808987"
 WORKER_STARTUP_PLAN_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/worker_startup_plan.json"
 )
-WORKER_STARTUP_PLAN_GIT_BLOB_SHA: Final = "25392d5ec7cce9740688457a7aa91358039554eb"
+WORKER_STARTUP_PLAN_GIT_BLOB_SHA: Final = "955643cbddda59064cb67ccc5f2009edc156f561"
 
 RUNTIME_INTEGRATION_REVIEW_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_qualification_runtime_integration_review_v1.json"
