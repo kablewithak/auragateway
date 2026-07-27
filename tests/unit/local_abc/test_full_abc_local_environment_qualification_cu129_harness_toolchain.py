@@ -467,9 +467,11 @@ def test_generated_notebooks_are_clean_compilable_and_fully_bound(
     assert "active predecessor harness authority drifted" in inspection_source
     assert toolchain.ACTIVE_PREDECESSOR_HARNESS_DIRECTORY_SHA256 in inspection_source
     assert toolchain.ACTIVE_PREDECESSOR_HARNESS_OUTPUT_DIRECTORY in inspection_source
+    historical_model_sha256 = "b5c53c05aa258cf85b8ac7c1f41ec81aaa6d9d66a656d32f7271bf5d4c9b8daa"
     assert toolchain.MODEL_SNAPSHOT_SHA256 == (integration.CURRENT_MODEL_SNAPSHOT_SHA256)
     assert integration.CURRENT_MODEL_SNAPSHOT_SHA256 in inspection_source
-    assert integration.INSPECTED_MODEL_SNAPSHOT_SHA256 not in inspection_source
+    assert integration.INSPECTED_MODEL_SNAPSHOT_SHA256 == integration.CURRENT_MODEL_SNAPSHOT_SHA256
+    assert historical_model_sha256 not in inspection_source
     assert "auragateway_qualification_harness_be1bfad_v1" not in inspection_source
     assert "historical_adapter_resolved" in inspection_source
     assert "METADATA_INPUT_INSPECTION_FAILED" in inspection_source

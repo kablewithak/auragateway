@@ -86,7 +86,7 @@ def test_repository_authority_parity_package_validates() -> None:
     )
     assert summary["historical_harness_source_commit"] == parity.HARNESS_SOURCE_COMMIT
     assert summary["active_launcher_harness_source_commit"] == (
-        "56f33739babb80d843fef1ad8f7f1223f3d10d14"
+        "4f3302df871d47fec81e25e9af9609c0e2c7812d"
     )
     assert summary["authorization_source_binding_policy"] == (
         "CONTROL_PACKAGE_AUTHORIZATION_PARITY"

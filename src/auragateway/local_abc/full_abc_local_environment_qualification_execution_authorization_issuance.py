@@ -85,7 +85,7 @@ CURRENT_HARNESS_SOURCE_COMMIT: Final = harness_integration.SOURCE_COMMIT
 AUTHORIZATION_ID: Final = (
     "auragateway-full-abc-local-environment-qualification-execution-authorization-v1"
 )
-READINESS_REVIEW_SHA256: Final = "fe3aedbe8d23624726183fa2112eb4b66d3085842bee7128256151fd617e1266"
+READINESS_REVIEW_SHA256: Final = "4016fd0608ffa4fe1ebd61df84d208dbab10f5414b9744ef37cd01935f95d26a"
 AUTHORIZATION_ISSUANCE_REVIEW_SHA256: Final = READINESS_REVIEW_SHA256
 MATERIALIZATION_RECORD_SHA256: Final = harness_integration.CURRENT_MATERIALIZATION_RECORD_SHA256
 RUNTIME_MANIFEST_SHA256: Final = harness_integration.CURRENT_MANIFEST_SHA256
@@ -98,6 +98,7 @@ LAUNCHER_SOURCE_SHA256: Final = harness_integration.CURRENT_LAUNCHER_SOURCE_SHA2
 LAUNCHER_NOTEBOOK_SHA256: Final = harness_integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256
 MAXIMUM_AUTHORIZATION_WINDOW_MINUTES: Final = 240
 IMPLEMENTATION_NEXT_GATE: Final = "explicit_operator_confirmation_then_issue_fresh_authorization"
+POST_INTEGRATION_REBIND_NEXT_GATE: Final = "post_merge_fresh_cu129_authorization_rebind"
 NEXT_GATE: Final = "full_abc_local_full_run_environment_qualification_control_materialization"
 _ContractT = TypeVar("_ContractT", bound=LocalABCContract)
 
@@ -566,10 +567,10 @@ def _load_vllm_cli_hardening_record(
 def _require_issuer_usable(repo_root: Path) -> None:
     if _load_vllm_cli_hardening_record(repo_root) is not None:
         raise AuthorizationIssuanceError(
-            "AUTHORIZATION_ISSUANCE_BLOCKED_BY_HARNESS_REMATERIALIZATION",
-            "fresh authorization is blocked until the hardened harness is rematerialized",
+            "AUTHORIZATION_ISSUANCE_BLOCKED_PENDING_POST_INTEGRATION_REBIND",
+            "fresh authorization is blocked until the integration merge commit is rebound",
             vllm_cli_hardening.RECORD_PATH.as_posix(),
-            details=(vllm_cli_hardening.NEXT_GATE,),
+            details=(POST_INTEGRATION_REBIND_NEXT_GATE,),
         )
 
 
@@ -581,7 +582,7 @@ def validate_implementation_package(repo_root: Path) -> dict[str, object]:
     hardening = _load_vllm_cli_hardening_record(root)
     if hardening is not None:
         return {
-            "status": ("FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_FOR_HARNESS_REMATERIALIZATION"),
+            "status": ("FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_PENDING_POST_INTEGRATION_REBIND"),
             "fresh_issuer_implemented": True,
             "fresh_issuer_usable": False,
             "current_authorization_base_commit": CURRENT_AUTHORIZATION_BASE_COMMIT,
@@ -613,7 +614,7 @@ def validate_implementation_package(repo_root: Path) -> dict[str, object]:
             "benchmark_trajectory_requests_permitted": 0,
             "measured_execution_authorized": False,
             "external_spend": 0,
-            "next_gate": vllm_cli_hardening.NEXT_GATE,
+            "next_gate": POST_INTEGRATION_REBIND_NEXT_GATE,
         }
     return {
         "status": "FRESH_CU129_AUTHORIZATION_ISSUER_READY",

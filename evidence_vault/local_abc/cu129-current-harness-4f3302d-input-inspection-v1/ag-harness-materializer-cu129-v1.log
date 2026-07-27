@@ -1,0 +1,28 @@
+8.6s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.6s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.6s 3 0.00s - to python to disable frozen modules.
+8.6s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+9.4s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+9.4s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+9.4s 7 0.00s - to python to disable frozen modules.
+9.4s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+18.3s 9 status=CURRENT_CU129_HARNESS_MATERIALIZED
+18.3s 10 producer_output_directory=ag_harness_materializer_cu129_v1_output
+18.3s 11 input_mode=kaggle_expanded_source_recovered_to_exact_archive
+18.3s 12 output_directory=auragateway_qualification_harness_4f3302d_v1
+18.3s 13 file_count=1095
+18.3s 14 total_bytes=11034996
+18.3s 15 directory_sha256=a154f3453c55571fc7535b546e4a97a66756ceb1900b51c2fd1336fed981d307
+18.3s 16 gpu_execution_performed=false
+18.3s 17 package_installation_performed=false
+18.3s 18 model_requests_performed=0
+18.3s 19 authorization_issued=false
+18.3s 20 save_this_notebook_output=true
+21.7s 21 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+21.7s 22 cells[i][c] = re.sub('\\\\\|', '|', cell)
+21.9s 23 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+21.9s 24 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+22.7s 25 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+23.1s 26 [NbConvertApp] Writing 35952 bytes to __notebook__.ipynb
+26.2s 27 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+27.2s 28 [NbConvertApp] Writing 370153 bytes to __results__.html

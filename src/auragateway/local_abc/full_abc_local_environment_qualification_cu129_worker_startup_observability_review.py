@@ -45,6 +45,9 @@ HISTORICAL_INTEGRATION_PATH: Final = Path(
     "benchmarks/local_abc/"
     "auragateway_cu129_worker_observability_harness_evidence_integration_v1.json"
 )
+PREDECESSOR_INTEGRATION_PATH: Final = Path(
+    "benchmarks/local_abc/auragateway_cu129_56f3373_harness_evidence_integration_v1.json"
+)
 DIAGNOSTICS_PATH: Final = Path(
     "src/auragateway/local_abc/"
     "full_abc_local_environment_qualification_worker_startup_diagnostics.py"
@@ -85,6 +88,9 @@ EXPECTED_FAILURE_TRACE_SHA256: Final = (
 )
 EXPECTED_HISTORICAL_INTEGRATION_SHA256: Final = (
     "13380eb16678750965fce90985e95d314e22e99264182e973bfca9a6d774422f"
+)
+EXPECTED_PREDECESSOR_INTEGRATION_SHA256: Final = (
+    "4e64c3cb02229ddfbc23eef94704896809e8e936e0a72a4980d5dfebbfa5625f"
 )
 
 
@@ -245,6 +251,7 @@ class SupersedingImplementationState(LocalABCContract):
     next_gate: Literal[
         "merge_then_build_post_merge_worker_observability_harness_source_package",
         "fresh_cu129_authorization_issuance_implementation",
+        "post_merge_fresh_cu129_authorization_rebind",
     ]
 
 
@@ -441,6 +448,65 @@ def _load_historical_harness_integration(
     return payload
 
 
+def _load_predecessor_harness_integration(
+    repo_root: Path,
+) -> dict[str, object]:
+    path = repo_root / PREDECESSOR_INTEGRATION_PATH
+    if _sha256(path) != EXPECTED_PREDECESSOR_INTEGRATION_SHA256:
+        raise RuntimeError("predecessor harness integration identity drifted")
+
+    payload = _load_json(path)
+    observed = path.read_text(encoding="utf-8")
+    canonical = json.dumps(
+        payload,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    if observed != canonical:
+        raise RuntimeError("predecessor harness integration is not canonical")
+
+    expected = {
+        "active_harness_binding_status": "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
+        "source_commit": "56f33739babb80d843fef1ad8f7f1223f3d10d14",
+        "materialized_harness_launcher_source_sha256": (
+            "b363c657b9053897a01c3784487e2b3fdc7a42391acb98d380b4e43eba21f3ec"
+        ),
+        "materialized_harness_launcher_notebook_sha256": (
+            "9bec10b5f80e53f6a09533e6acf680449e6260329e3e9fbc1f4fdc247d0ad64f"
+        ),
+        "launcher_source_sha256": (
+            "b913c8c24bda8b5a6478a9f2b6720cc0e30abc2344352d4bc6e66360c57493db"
+        ),
+        "launcher_notebook_sha256": (
+            "138b5a04185082aeb671f1be5511ebdf4e4da00970eaa6145fbbd953d567c44c"
+        ),
+        "runtime_adapter_sha256": (
+            "f83452b6fbfd583f4236c2edbaf0e4bd3a6ece331494fdff891bf50d022ba617"
+        ),
+        "worker_startup_diagnostics_sha256": (
+            "58d39a67c9d82d1b2f5938328dfa9362ee922ced2e089f8b5d529c0139cc2b91"
+        ),
+        "next_gate": "fresh_cu129_authorization_issuance_implementation",
+    }
+    drift = tuple(
+        key for key, expected_value in expected.items() if payload.get(key) != expected_value
+    )
+    if drift:
+        raise RuntimeError("predecessor harness integration fields drifted: " + ", ".join(drift))
+
+    safety = payload.get("safety")
+    if not isinstance(safety, dict):
+        raise RuntimeError("predecessor harness integration safety is invalid")
+    if (
+        safety.get("authorization_issued") is not False
+        or safety.get("gpu_execution_performed") is not False
+        or safety.get("model_requests_performed") != 0
+    ):
+        raise RuntimeError("predecessor harness integration crossed a safety boundary")
+    return payload
+
+
 def load_superseding_implementation_state(
     repo_root: Path,
 ) -> SupersedingImplementationState | None:
@@ -526,6 +592,7 @@ def load_superseding_implementation_state(
     next_gate = cast(str, payload["next_gate"])
     if not all(launcher_match.values()):
         historical_integration = _load_historical_harness_integration(repo_root)
+        predecessor_integration = _load_predecessor_harness_integration(repo_root)
         integration_summary = current_integration.validate_repository_package(repo_root)
         expected_supersession = (
             integration_summary.get("status") == "CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED",
@@ -538,8 +605,12 @@ def load_superseding_implementation_state(
             implementation_sha256["launcher_notebook"]
             == historical_integration["materialized_harness_launcher_notebook_sha256"],
             historical_integration["launcher_source_sha256"]
-            == current_integration.MATERIALIZED_HARNESS_LAUNCHER_SOURCE_SHA256,
+            == predecessor_integration["materialized_harness_launcher_source_sha256"],
             historical_integration["launcher_notebook_sha256"]
+            == predecessor_integration["materialized_harness_launcher_notebook_sha256"],
+            predecessor_integration["launcher_source_sha256"]
+            == current_integration.MATERIALIZED_HARNESS_LAUNCHER_SOURCE_SHA256,
+            predecessor_integration["launcher_notebook_sha256"]
             == current_integration.MATERIALIZED_HARNESS_LAUNCHER_NOTEBOOK_SHA256,
             observed_sha256["launcher_source"]
             == current_integration.CURRENT_LAUNCHER_SOURCE_SHA256,

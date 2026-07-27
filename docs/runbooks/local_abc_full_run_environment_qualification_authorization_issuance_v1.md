@@ -1,102 +1,65 @@
 # Local A/B/C Environment Qualification Authorization Issuance v1
 
-## CURRENT STATUS: ISSUER BLOCKED PENDING HARDENED HARNESS REMATERIALIZATION
+## CURRENT STATUS: ISSUER BLOCKED PENDING POST-INTEGRATION REBIND
 
-The post-PR #149 qualification authorization was consumed by one governed attempt.
-That attempt failed closed during initial worker startup because the pinned vLLM
-`0.19.1` API-server CLI rejected `--disable-log-requests`.
-
-The repository now implements the supported negative Boolean option:
+The hardened CUDA 12.9 harness sourced from `4f3302df871d47fec81e25e9af9609c0e2c7812d` has been
+published, CPU-materialized, metadata-inspected, and integrated as the current
+operational input.
 
 ```text
---no-enable-log-requests
+source_commit=4f3302df871d47fec81e25e9af9609c0e2c7812d
+harness_directory_sha256=a154f3453c55571fc7535b546e4a97a66756ceb1900b51c2fd1336fed981d307
+harness_file_count=1095
+harness_total_bytes=11034996
+operational_input_closure=PASSED
+authorization_issued=false
+gpu_execution_performed=false
+model_requests_performed=0
 ```
 
-It also validates the complete governed worker option set against the pinned
-installed `vllm.entrypoints.openai.api_server --help` surface before spawning
-either worker. The capability failure mode is `fail_before_worker_spawn`.
+The immutable vLLM CLI failure and hardening record remain preserved. The
+corrected harness uses `--no-enable-log-requests` and retains the installed
+`api_server --help` capability gate before worker spawn.
 
-The existing `56f3373` materialized harness remains the active predecessor
-evidence lineage. It is unchanged but **not reusable for another qualification
-attempt** because it contains the rejected command. The current issuer is
-therefore implemented but fail-closed until the corrected post-merge source is
-packaged, CPU-materialized, metadata-inspected, integrated, and reviewed.
+The issuer is implemented but remains fail-closed on this integration branch.
+Its authorization base commit must be rebound to the eventual integration merge
+commit before operator-confirmed issuance.
 
 ```text
-prior_gate=VLLM_CLI_CONTRACT_HARDENING_IMPLEMENTATION
 fresh_issuer_implemented=true
 fresh_issuer_usable=false
-active_harness_unchanged=true
-active_harness_reusable_for_retry=false
-consumed_authorization_reusable=false
+historical_issuer_usable=false
+active_harness_reusable_for_retry=true
 authorization_issued=false
-kaggle_session_started=false
-gpu_execution_performed=false
-model_loaded=false
-worker_started=false
-model_requests_performed=0
-benchmark_trajectory_requests_performed=0
-measured_execution_authorized=false
-external_spend=0
+next_gate=post_merge_fresh_cu129_authorization_rebind
 ```
 
-## Failure evidence
-
-The immutable failed-attempt evidence is retained under:
-
-```text
-evidence_vault/local_abc/cu129-vllm-cli-contract-failure-v1/
-```
-
-Required artifacts:
-
-```text
-ag-full-abc-env-qualification-v1.log
-ag-qualification-control-materializer-v1.log
-ag-qualification-evidence-v1.zip
-consumed_environment_qualification_authorization_v1.json
-```
-
-The failure established:
-
-```text
-qualification_status=FAILED
-failure_stage=initial_worker_startup
-failed_worker_id=worker_1
-worker_process_returncode=2
-rejected_option=--disable-log-requests
-pinned_vllm_version=0.19.1
-identity_mismatch=false
-model_requests_performed=0
-benchmark_trajectory_requests_performed=0
-```
-
-## Current predecessor authority
-
-```text
-post-integration base commit:
-29d89f16e6693c298e9f292e21b0822568f69931
-
-predecessor harness source commit:
-56f33739babb80d843fef1ad8f7f1223f3d10d14
-
-predecessor harness mounted path:
-/kaggle/input/notebooks/kabomolefe/ag-harness-materializer-cu129-v1/ag_harness_materializer_cu129_v1_output/auragateway_qualification_harness_56f3373_v1
-
-predecessor harness directory SHA-256:
-778333c57b02d74be2c18962d7e75b560d269fc9b6c6b611d043304c855e3477
-
-active model snapshot SHA-256:
-84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94
-```
-
-Operational-input closure for the predecessor evidence remains `PASSED`.
-That does not make the predecessor executable harness retry-eligible.
-
-The authorization payload compatibility policy remains:
+The frozen authorization payload compatibility policy remains:
 
 ```text
 CONTROL_PACKAGE_AUTHORIZATION_PARITY
+```
+
+## Current harness authority
+
+```text
+source commit:
+4f3302df871d47fec81e25e9af9609c0e2c7812d
+
+mounted path:
+/kaggle/input/notebooks/kabomolefe/ag-harness-materializer-cu129-v1/ag_harness_materializer_cu129_v1_output/auragateway_qualification_harness_4f3302d_v1
+
+directory SHA-256:
+a154f3453c55571fc7535b546e4a97a66756ceb1900b51c2fd1336fed981d307
+
+materializer saved version:
+338367572
+
+inspection saved version:
+338369540
+
+inspection evidence ZIP SHA-256:
+2574307d69c9cf8ab0316bdf5be13cbfdfa5ced0febde9d4da0d87bc7ddb3f34
 ```
 
 ## Validate the blocked issuer boundary
@@ -107,57 +70,30 @@ python -m auragateway.local_abc.full_abc_local_environment_qualification_executi
     --repo-root .
 ```
 
-Required JSON fields include:
+Required status:
 
-```json
-{
-  "status":
-    "FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_FOR_HARNESS_REMATERIALIZATION",
-  "fresh_issuer_implemented": true,
-  "fresh_issuer_usable": false,
-  "historical_issuer_usable": false,
-  "maximum_workers": 2,
-  "maximum_kaggle_sessions": 1,
-  "maximum_model_requests": 8,
-  "maximum_output_tokens_per_request": 32,
-  "benchmark_trajectory_requests_permitted": 0,
-  "authorization_issued": false,
-  "kaggle_session_started": false,
-  "worker_started": false,
-  "model_requests_performed": 0,
-  "measured_execution_authorized": false,
-  "external_spend": 0,
-  "next_gate":
-    "merge_then_prepare_vllm_cli_hardened_harness_source_package"
-}
+```text
+FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_PENDING_POST_INTEGRATION_REBIND
 ```
 
-Validate the hardening record directly:
-
-```powershell
-python -m auragateway.local_abc.full_abc_local_environment_qualification_cu129_vllm_cli_contract_hardening `
-    --repo-root .
-```
-
-Validate the complete authority graph:
+## Validate the authority graph
 
 ```powershell
 python -m auragateway.local_abc.full_abc_local_environment_qualification_cu129_authority_graph `
     --repo-root .
 ```
 
-Required authority-graph output includes:
+Required output includes:
 
 ```text
-status=CURRENT_CU129_VLLM_CLI_HARDENING_AWAITING_REMATERIALIZATION
-fresh_cu129_authorization_issuer_implemented=true
+status=CURRENT_CU129_HARDENED_HARNESS_INTEGRATED_PENDING_AUTHORIZATION_REBIND
+operational_input_closure=PASSED
 fresh_cu129_authorization_issuer_usable=false
-active_harness_reusable_for_retry=false
-historical_issuer_usable=false
+active_harness_reusable_for_retry=true
 authorization_issued=false
 runtime_execution_performed=false
 model_requests_performed=0
-next_gate=merge_then_prepare_vllm_cli_hardened_harness_source_package
+next_gate=post_merge_fresh_cu129_authorization_rebind
 ```
 
 ## Hard limits retained
@@ -178,49 +114,30 @@ measured execution authorized: false
 
 ## Required post-merge sequence
 
-1. synchronize clean `main`;
-2. prepare the corrected source package from exact post-merge `HEAD`;
-3. publish and CPU-materialize the corrected harness source;
-4. perform metadata-only input inspection;
-5. integrate the inspected harness identity into the active manifest and readiness authority;
-6. validate the complete authority graph;
-7. obtain explicit operator confirmation;
-8. issue one fresh transient authorization;
-9. generate and run one CPU-only control materializer;
-10. permit at most one governed fresh-session T4 x2 qualification attempt.
-
-## Circuit breaker
-
-If the next governed attempt exposes another CLI incompatibility or worker
-command-construction defect:
-
-```text
-additional_per_flag_patch_permitted=false
-required_action=redesign_complete_worker_cli_capability_contract
-```
-
-Do not stack another one-option repair.
+1. merge this evidence-integration branch;
+2. synchronize clean `main`;
+3. bind the issuer to the exact integration merge commit;
+4. validate manifest, materialization, launcher, runtime adapter, diagnostics,
+   and frozen authorization-loader parity;
+5. obtain explicit operator confirmation;
+6. issue one fresh transient authorization without overwriting;
+7. generate and run one CPU-only control materializer;
+8. permit at most one governed fresh-session T4 x2 qualification attempt.
 
 ## Prohibited actions
 
-- do not reuse the consumed post-PR #149 authorization;
-- do not commit a transient operational authorization;
-- do not issue authorization while the hardening record is pending;
-- do not reuse the predecessor harness for a retry;
+- do not issue authorization from this integration branch;
+- do not commit a transient authorization;
+- do not rewrite historical evidence or the 56f3373 integration records;
 - do not overwrite an existing authorization;
-- do not rewrite historical evidence;
-- do not start Kaggle or enable a GPU from the implementation branch;
+- do not start Kaggle or enable a GPU from this branch;
 - do not install packages, load a model, start workers, or perform requests;
 - do not authorize measured A/B/C;
-- do not claim environment qualification, cache qualification, measured
-  improvement, quality non-inferiority, or production readiness.
+- do not claim environment qualification, measured improvement, or production
+  readiness.
 
 ## Next gate
 
 ```text
-merge_then_prepare_vllm_cli_hardened_harness_source_package
+post_merge_fresh_cu129_authorization_rebind
 ```
-
-The implementation PR stops before source packaging, materialization,
-authorization issuance, Kaggle execution, GPU use, model loading, worker
-startup, model requests, cache probes, or measured A/B/C.

@@ -23,48 +23,48 @@ from auragateway.local_abc.contracts import LocalABCContract
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
-SOURCE_COMMIT: Final = "56f33739babb80d843fef1ad8f7f1223f3d10d14"
-SOURCE_TOKEN: Final = "56f3373"
+SOURCE_COMMIT: Final = "4f3302df871d47fec81e25e9af9609c0e2c7812d"
+SOURCE_TOKEN: Final = "4f3302d"
 CURRENT_HARNESS_DIRECTORY_SHA256: Final = (
-    "778333c57b02d74be2c18962d7e75b560d269fc9b6c6b611d043304c855e3477"
+    "a154f3453c55571fc7535b546e4a97a66756ceb1900b51c2fd1336fed981d307"
 )
-CURRENT_HARNESS_FILE_COUNT: Final = 1_084
-CURRENT_HARNESS_TOTAL_BYTES: Final = 10_970_203
-CURRENT_HARNESS_OUTPUT_DIRECTORY: Final = "auragateway_qualification_harness_56f3373_v1"
+CURRENT_HARNESS_FILE_COUNT: Final = 1_095
+CURRENT_HARNESS_TOTAL_BYTES: Final = 11_034_996
+CURRENT_HARNESS_OUTPUT_DIRECTORY: Final = "auragateway_qualification_harness_4f3302d_v1"
 CURRENT_HARNESS_MOUNTED_PATH: Final = (
     "/kaggle/input/notebooks/kabomolefe/"
     "ag-harness-materializer-cu129-v1/"
     "ag_harness_materializer_cu129_v1_output/"
-    "auragateway_qualification_harness_56f3373_v1"
+    "auragateway_qualification_harness_4f3302d_v1"
 )
 CURRENT_HARNESS_KAGGLE_SLUG: Final = "kabomolefe/ag-harness-materializer-cu129-v1"
-MATERIALIZER_SAVED_VERSION_ID: Final = 337848035
-INSPECTION_SAVED_VERSION_ID: Final = 337858124
+MATERIALIZER_SAVED_VERSION_ID: Final = 338367572
+INSPECTION_SAVED_VERSION_ID: Final = 338369540
 MATERIALIZER_SAVED_VERSION_URL: Final = (
     "https://www.kaggle.com/code/kabomolefe/"
-    "ag-harness-materializer-cu129-v1?scriptVersionId=337848035"
+    "ag-harness-materializer-cu129-v1?scriptVersionId=338367572"
 )
 INSPECTION_SAVED_VERSION_URL: Final = (
     "https://www.kaggle.com/code/kabomolefe/"
-    "ag-harness-input-inspection-cu129-v1/output?scriptVersionId=337858124"
+    "ag-harness-input-inspection-cu129-v1/output?scriptVersionId=338369540"
 )
 MATERIALIZER_RECOVERY_NOTEBOOK_SHA256: Final = (
-    "d371262fc120cb30f17c8f7a761055835f7f66178cf777ccfc51950a223571ff"
+    "e72dd7cb10f2eda00bb158e7a3b054cbd4dec20a6cdca5322cc413422c4061dd"
 )
 MATERIALIZATION_RECEIPT_SHA256: Final = (
-    "a4fe6685458cecc622ac1a13a28cf3349d3d98ff0fbc2e284511da76fb066364"
+    "cea5b4013db62d4b19c2636d11447b762f4180fc28fe73e451ec47c393fb8049"
 )
-MATERIALIZER_LOG_SHA256: Final = "d1c34c5a7a0f442047dc830214302b5d2f1e72028abc014c33ad30a27b5bc55a"
-INSPECTION_LOG_SHA256: Final = "eb3ef42a834536b1a3c318c0b08a8933940eca5b4ed75d15695b861d1142c85c"
+MATERIALIZER_LOG_SHA256: Final = "3844c66ff900bea9054c89f6119a3a2ed5dde235db3d6218e03b1eada571916a"
+INSPECTION_LOG_SHA256: Final = "cbfd1bcf0d815fb2aecbd4fb215138d5c488cd23d1d1b668a1a26b91fd28817e"
 INSPECTION_EVIDENCE_ZIP_SHA256: Final = (
-    "c0832dde010835401dc11ff654b864c3db62e9c895c18265ea881d154eeaae1e"
+    "2574307d69c9cf8ab0316bdf5be13cbfdfa5ced0febde9d4da0d87bc7ddb3f34"
 )
 RUNTIME_PACKAGE_COUNT: Final = 176
 RUNTIME_RESOLUTION_LOCK_SHA256: Final = (
     "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"
 )
 INSPECTED_MODEL_SNAPSHOT_SHA256: Final = (
-    "b5c53c05aa258cf85b8ac7c1f41ec81aaa6d9d66a656d32f7271bf5d4c9b8daa"
+    "84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94"
 )
 CURRENT_MODEL_SNAPSHOT_SHA256: Final = (
     "84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94"
@@ -76,34 +76,32 @@ CURRENT_WORKER_DIAGNOSTICS_SHA256: Final = (
     "58d39a67c9d82d1b2f5938328dfa9362ee922ced2e089f8b5d529c0139cc2b91"
 )
 MATERIALIZED_HARNESS_LAUNCHER_SOURCE_SHA256: Final = (
-    "b363c657b9053897a01c3784487e2b3fdc7a42391acb98d380b4e43eba21f3ec"
-)
-MATERIALIZED_HARNESS_LAUNCHER_NOTEBOOK_SHA256: Final = (
-    "9bec10b5f80e53f6a09533e6acf680449e6260329e3e9fbc1f4fdc247d0ad64f"
-)
-CURRENT_MANIFEST_SHA256: Final = "0fdd073f4d4f7d2c823c8c78299bb12260d3bd5ded9f668a6613622f550f3ca1"
-CURRENT_MATERIALIZATION_RECORD_SHA256: Final = (
-    "01ec3d0a67d65a81b6fb00bbba3a2cf21958ce28fc726b9d1486a8cd6f6ebee9"
-)
-CURRENT_LAUNCHER_SOURCE_SHA256: Final = (
     "b913c8c24bda8b5a6478a9f2b6720cc0e30abc2344352d4bc6e66360c57493db"
 )
-CURRENT_LAUNCHER_NOTEBOOK_SHA256: Final = (
+MATERIALIZED_HARNESS_LAUNCHER_NOTEBOOK_SHA256: Final = (
     "138b5a04185082aeb671f1be5511ebdf4e4da00970eaa6145fbbd953d567c44c"
+)
+CURRENT_MANIFEST_SHA256: Final = "69e662e7504ad92d8bb940de77efdadf265451e9af9b11d14bc8e3060d2da894"
+CURRENT_MATERIALIZATION_RECORD_SHA256: Final = (
+    "ceb3d934a3fb04a2c4d4452d87fa86d15d7955fde7f9e7784f3af96d7eb61e3c"
+)
+CURRENT_LAUNCHER_SOURCE_SHA256: Final = (
+    "cf5ec98d24fae4f926ad9ecf5c4764f17a4e6f994cbebf26f58f701e26df1f03"
+)
+CURRENT_LAUNCHER_NOTEBOOK_SHA256: Final = (
+    "9f0a9de5702017799e58b96dcb322b03a8fbd4be284c74282b60c5e0bfd46af9"
 )
 AUTHORIZATION_SOURCE_BINDING_POLICY: Final = "CONTROL_PACKAGE_AUTHORIZATION_PARITY"
 HISTORICAL_HARNESS_DIRECTORY_SHA256: Final = (
-    "c66f2589bdf55ab34f82bffc1eaaa4b4c7e73cb8195867333ccd99a58438f3e4"
+    "778333c57b02d74be2c18962d7e75b560d269fc9b6c6b611d043304c855e3477"
 )
-HISTORICAL_HARNESS_OUTPUT_DIRECTORY: Final = (
-    "auragateway_qualification_harness_dceda98_worker_obs_v1"
-)
+HISTORICAL_HARNESS_OUTPUT_DIRECTORY: Final = "auragateway_qualification_harness_56f3373_v1"
 HISTORICAL_RUNTIME_ADAPTER_SHA256: Final = (
     "78870b1a7e27de9931f0f58e11613110dc642ba0d4a934ca149576e4e86412d8"
 )
 
 EVIDENCE_ROOT: Final = Path(
-    "evidence_vault/local_abc/cu129-current-harness-56f3373-input-inspection-v1"
+    "evidence_vault/local_abc/cu129-current-harness-4f3302d-input-inspection-v1"
 )
 EVIDENCE_IDENTITY_PATH: Final = EVIDENCE_ROOT / "evidence_identity.json"
 MATERIALIZATION_RECEIPT_PATH: Final = (
@@ -120,10 +118,10 @@ MATERIALIZATION_RECORD_PATH: Final = Path(
     "data/evals/benchmark/environment-qualification-v1/offline_dataset_materialization_record.json"
 )
 INTEGRATION_RECORD_PATH: Final = Path(
-    "benchmarks/local_abc/auragateway_cu129_56f3373_harness_evidence_integration_v1.json"
+    "benchmarks/local_abc/auragateway_cu129_4f3302d_harness_evidence_integration_v1.json"
 )
 READINESS_REVIEW_PATH: Final = Path(
-    "benchmarks/local_abc/auragateway_cu129_56f3373_fresh_authorization_readiness_review_v1.json"
+    "benchmarks/local_abc/auragateway_cu129_4f3302d_fresh_authorization_readiness_review_v1.json"
 )
 FINAL_AUTHORIZATION_PATH: Final = Path(
     "benchmarks/local_abc/"
@@ -150,13 +148,13 @@ AUTHORIZATION_RUNBOOK_PATH: Final = Path(
     "docs/runbooks/local_abc_full_run_environment_qualification_authorization_issuance_v1.md"
 )
 INTEGRATION_RUNBOOK_PATH: Final = Path(
-    "docs/runbooks/local_abc_cu129_56f3373_harness_evidence_integration_v1.md"
+    "docs/runbooks/local_abc_cu129_4f3302d_harness_evidence_integration_v1.md"
 )
 ADR_PATH: Final = Path(
-    "docs/adr/2026-07-25-local-abc-cu129-56f3373-harness-evidence-integration.md"
+    "docs/adr/2026-07-27-local-abc-cu129-4f3302d-harness-evidence-integration.md"
 )
 REPORT_PATH: Final = Path(
-    "docs/reports/AuraGateway_CU129_56F3373_Harness_Operational_Input_Closure_Report.md"
+    "docs/reports/AuraGateway_CU129_4F3302D_Harness_Operational_Input_Closure_Report.md"
 )
 EXPECTED_ZIP_MEMBERS: Final = (
     "00_harness_input.json",
@@ -227,20 +225,20 @@ class EvidenceZipMember(LocalABCContract):
 
 class EvidenceIdentity(LocalABCContract):
     schema_version: Literal["1.0.0"] = "1.0.0"
-    record_id: Literal["auragateway-cu129-current-harness-56f3373-input-inspection-evidence-v1"]
-    source_commit: Literal["56f33739babb80d843fef1ad8f7f1223f3d10d14"]
+    record_id: Literal["auragateway-cu129-current-harness-4f3302d-input-inspection-evidence-v1"]
+    source_commit: Literal["4f3302df871d47fec81e25e9af9609c0e2c7812d"]
     materializer_notebook_name: Literal["ag-harness-materializer-cu129-v1"]
-    materializer_saved_version_id: Literal[337848035]
+    materializer_saved_version_id: Literal[338367572]
     materializer_saved_version_url: Literal[
         "https://www.kaggle.com/code/kabomolefe/"
-        "ag-harness-materializer-cu129-v1?scriptVersionId=337848035"
+        "ag-harness-materializer-cu129-v1?scriptVersionId=338367572"
     ]
     materializer_recovery_notebook_sha256: str
     inspection_notebook_name: Literal["ag-harness-input-inspection-cu129-v1"]
-    inspection_saved_version_id: Literal[337858124]
+    inspection_saved_version_id: Literal[338369540]
     inspection_saved_version_url: Literal[
         "https://www.kaggle.com/code/kabomolefe/"
-        "ag-harness-input-inspection-cu129-v1/output?scriptVersionId=337858124"
+        "ag-harness-input-inspection-cu129-v1/output?scriptVersionId=338369540"
     ]
     materialization_receipt_sha256: str
     materializer_log_sha256: str
@@ -248,8 +246,8 @@ class EvidenceIdentity(LocalABCContract):
     inspection_evidence_zip_sha256: str
     inspection_evidence_members: tuple[EvidenceZipMember, ...]
     harness_directory_sha256: str
-    harness_file_count: Literal[1084]
-    harness_total_bytes: Literal[10970203]
+    harness_file_count: Literal[1095]
+    harness_total_bytes: Literal[11034996]
     runtime_package_count: Literal[176]
     operational_input_closure: Literal["PASSED"]
     authorization_issued: Literal[False] = False
@@ -283,21 +281,21 @@ class MaterializationReceipt(LocalABCContract):
     status: Literal["CURRENT_CU129_HARNESS_MATERIALIZED"]
     producer_notebook_name: Literal["ag-harness-materializer-cu129-v1"]
     producer_output_directory: Literal["ag_harness_materializer_cu129_v1_output"]
-    source_commit: Literal["56f33739babb80d843fef1ad8f7f1223f3d10d14"]
-    input_dataset_name: Literal["ag-harness-56f3373-v1-input"]
+    source_commit: Literal["4f3302df871d47fec81e25e9af9609c0e2c7812d"]
+    input_dataset_name: Literal["ag-harness-4f3302d-v1-input"]
     input_mode: Literal[
         "exact_archive_with_control_files",
         "kaggle_expanded_source_recovered_to_exact_archive",
     ]
-    archive_filename: Literal["ag-harness-56f3373-v1.zip"]
+    archive_filename: Literal["ag-harness-4f3302d-v1.zip"]
     archive_sha256: str
     source_inventory_sha256: str
     source_receipt_sha256: str
     source_sha256_manifest_sha256: str
-    output_directory: Literal["auragateway_qualification_harness_56f3373_v1"]
+    output_directory: Literal["auragateway_qualification_harness_4f3302d_v1"]
     directory_sha256: str
-    file_count: Literal[1084]
-    total_bytes: Literal[10970203]
+    file_count: Literal[1095]
+    total_bytes: Literal[11034996]
     nested_archives_present: Literal[False]
     symlinks_present: Literal[False]
     network_access_performed: Literal[False]
@@ -325,14 +323,14 @@ class MaterializationReceipt(LocalABCContract):
 
 class IntegrationDecisionRecord(LocalABCContract):
     schema_version: Literal["1.0.0"] = "1.0.0"
-    record_id: Literal["auragateway-cu129-56f3373-harness-evidence-integration-v1"]
+    record_id: Literal["auragateway-cu129-4f3302d-harness-evidence-integration-v1"]
     decision: Literal["APPROVED_FOR_CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATION"]
-    source_commit: Literal["56f33739babb80d843fef1ad8f7f1223f3d10d14"]
+    source_commit: Literal["4f3302df871d47fec81e25e9af9609c0e2c7812d"]
     harness_directory_sha256: str
-    harness_file_count: Literal[1084]
-    harness_total_bytes: Literal[10970203]
-    materializer_saved_version_id: Literal[337848035]
-    inspection_saved_version_id: Literal[337858124]
+    harness_file_count: Literal[1095]
+    harness_total_bytes: Literal[11034996]
+    materializer_saved_version_id: Literal[338367572]
+    inspection_saved_version_id: Literal[338369540]
     inspection_evidence_zip_sha256: str
     materialization_receipt_sha256: str
     manifest_sha256: str
@@ -348,7 +346,7 @@ class IntegrationDecisionRecord(LocalABCContract):
     active_harness_binding_status: Literal["CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED"]
     operational_input_closure: Literal["PASSED"]
     safety: IntegrationSafety
-    next_gate: Literal["fresh_cu129_authorization_issuance_implementation"]
+    next_gate: Literal["post_merge_fresh_cu129_authorization_rebind"]
 
     @field_validator(
         "harness_directory_sha256",
@@ -373,9 +371,9 @@ class IntegrationDecisionRecord(LocalABCContract):
 
 class FreshAuthorizationReadinessReview(LocalABCContract):
     schema_version: Literal["1.0.0"] = "1.0.0"
-    review_id: Literal["auragateway-cu129-56f3373-fresh-authorization-readiness-review-v1"]
-    decision: Literal["APPROVED_FOR_FRESH_CU129_AUTHORIZATION_ISSUANCE_IMPLEMENTATION"]
-    source_commit: Literal["56f33739babb80d843fef1ad8f7f1223f3d10d14"]
+    review_id: Literal["auragateway-cu129-4f3302d-fresh-authorization-readiness-review-v1"]
+    decision: Literal["APPROVED_FOR_POST_MERGE_FRESH_CU129_AUTHORIZATION_REBIND"]
+    source_commit: Literal["4f3302df871d47fec81e25e9af9609c0e2c7812d"]
     operational_input_closure: Literal["PASSED"]
     current_harness_directory_sha256: str
     current_manifest_sha256: str
@@ -393,7 +391,7 @@ class FreshAuthorizationReadinessReview(LocalABCContract):
     required_implementation: tuple[str, ...]
     non_claims: tuple[str, ...]
     safety: IntegrationSafety
-    next_gate: Literal["fresh_cu129_authorization_issuance_implementation"]
+    next_gate: Literal["post_merge_fresh_cu129_authorization_rebind"]
 
     @field_validator(
         "current_harness_directory_sha256",
