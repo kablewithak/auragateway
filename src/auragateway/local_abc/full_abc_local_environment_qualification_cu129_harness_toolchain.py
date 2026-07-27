@@ -18,10 +18,12 @@ from typing import Final, Never, cast
 from pydantic import ValidationError
 
 from auragateway.local_abc import (
+    cu129_worker_observability_harness_integration,
     full_abc_local_environment_qualification_cu129_harness_toolchain_contracts,
     full_abc_local_environment_qualification_cu129_vllm_cli_contract_hardening,
 )
 
+integration = cu129_worker_observability_harness_integration
 toolchain_contracts = full_abc_local_environment_qualification_cu129_harness_toolchain_contracts
 vllm_cli_hardening = full_abc_local_environment_qualification_cu129_vllm_cli_contract_hardening
 
@@ -62,7 +64,7 @@ RUNTIME_SHA256_MANIFEST_SHA256: Final = (
 RUNTIME_MATERIALIZATION_RECEIPT_SHA256: Final = (
     "52aa42b940dd606ab5685686ab893eb085efed2a7466989f654e870f4b360589"
 )
-MODEL_SNAPSHOT_SHA256: Final = "b5c53c05aa258cf85b8ac7c1f41ec81aaa6d9d66a656d32f7271bf5d4c9b8daa"
+MODEL_SNAPSHOT_SHA256: Final = integration.CURRENT_MODEL_SNAPSHOT_SHA256
 MODEL_SNAPSHOT_DIRECTORY_TOKEN: Final = (
     "auragateway-qwen2.5-0.5b-instruct-7ae557604adf67be50417f59c2c2f167def9a775"
 )
@@ -2857,10 +2859,6 @@ def validate_repository_package(repo_root: Path) -> dict[str, object]:
         )
     harness_entry = by_role["harness_source"]
     mounted_path = str(harness_entry.get("mounted_path"))
-    from auragateway.local_abc import (
-        cu129_worker_observability_harness_integration as integration,
-    )
-
     current_mutable_authority = {
         LAUNCHER_SOURCE_PATH: integration.CURRENT_LAUNCHER_SOURCE_SHA256,
         LAUNCHER_NOTEBOOK_PATH: integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256,
