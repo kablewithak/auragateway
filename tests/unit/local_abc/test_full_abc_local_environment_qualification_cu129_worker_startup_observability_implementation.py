@@ -36,7 +36,9 @@ def test_repository_package_recognizes_integrated_worker_observability_harness()
         pytest.skip("full Git checkout is required for historical authority validation")
     result = implementation.validate_repository_package(ROOT)
 
-    assert result["status"] == ("WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED")
+    assert result["status"] == (
+        "WORKER_STARTUP_OBSERVABILITY_HARNESS_EVIDENCE_INTEGRATED_VLLM_CLI_HARDENING_PENDING"
+    )
     assert result["historical_harness_source_commit"] == (
         "426f57dd11dddc2fb8e5a703721c2189abc7a0ff"
     )
@@ -45,6 +47,8 @@ def test_repository_package_recognizes_integrated_worker_observability_harness()
     assert result["maximum_diagnostic_bytes"] == 256 * 1024
     assert result["maximum_readiness_polls"] == 90
     assert result["fresh_issuer_implemented"] is True
+    assert result["fresh_issuer_usable"] is False
+    assert result["active_harness_reusable_for_retry"] is False
     assert result["fresh_authorization_base_commit"] == ("29d89f16e6693c298e9f292e21b0822568f69931")
     assert result["superseded_authorization_base_commit"] == (
         "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
@@ -56,7 +60,60 @@ def test_repository_package_recognizes_integrated_worker_observability_harness()
     assert result["authorization_issued"] is False
     assert result["kaggle_execution_performed"] is False
     assert result["model_requests_performed"] == 0
-    assert result["next_gate"] == ("explicit_operator_confirmation_then_issue_fresh_authorization")
+    assert result["next_gate"] == ("merge_then_prepare_vllm_cli_hardened_harness_source_package")
+
+
+def test_historical_toolchain_source_controls_do_not_require_current_hardening_markers(
+    tmp_path: Path,
+) -> None:
+    sources = {
+        implementation.DIAGNOSTICS_PATH: "\n".join(
+            (
+                "MAXIMUM_STREAM_CAPTURE_BYTES: Final = 32 * 1024",
+                "MAXIMUM_DIAGNOSTIC_BYTES: Final = 256 * 1024",
+                "hidden_retries_performed: Literal[0]",
+                "write_diagnostic_atomic",
+                "raw_environment_included: Literal[False]",
+            )
+        ),
+        implementation.RUNTIME_ADAPTER_PATH: "\n".join(
+            (
+                "spawn_captured",
+                "_CapturedWorkerProcess",
+                "readiness_history",
+                "failed bounded readiness polling",
+                "write_diagnostic_atomic",
+            )
+        ),
+        implementation.LAUNCHER_SOURCE_PATH: "\n".join(
+            (
+                "worker_startup_diagnostic.json",
+                "worker_startup_diagnostic_included",
+                "load_worker_startup_diagnostic",
+                "MAXIMUM_DIAGNOSTIC_BYTES",
+            )
+        ),
+        implementation.HARNESS_TOOLCHAIN_PATH: "\n".join(
+            (
+                "REVIEW_MERGE_COMMIT",
+                "_require_clean_synchronized_main",
+                'accelerator": "none',
+                "active_manifest_promoted",
+                "FINAL_AUTHORIZATION_PATH",
+            )
+        ),
+    }
+
+    for relative_path, source in sources.items():
+        destination = tmp_path / relative_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(source, encoding="utf-8")
+
+    historical_toolchain_source = sources[implementation.HARNESS_TOOLCHAIN_PATH]
+    assert "VLLM_CLI_HARDENING_RECORD_PATH" not in historical_toolchain_source
+    assert "PREDECESSOR_HARNESS_RETAINED_NOT_RETRY_USABLE" not in (historical_toolchain_source)
+
+    implementation._require_source_controls(tmp_path)
 
 
 def test_record_rejects_manifest_promotion() -> None:

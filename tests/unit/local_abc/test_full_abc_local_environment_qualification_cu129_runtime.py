@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -11,6 +13,7 @@ from pydantic import ValidationError
 
 from auragateway.local_abc.full_abc_local_environment_qualification_cu129_runtime import (
     CONTROLLED_BOOTSTRAP,
+    DEPENDENCY_LOCK_SCRIPT,
     DEPENDENCY_VALIDATION,
     EXPECTED_CONTROL_HASHES,
     EXPECTED_PACKAGE_COUNT,
@@ -21,6 +24,9 @@ from auragateway.local_abc.full_abc_local_environment_qualification_cu129_runtim
     TARGET_INTERPRETER_TOKEN,
     TARGET_RUNTIME_ROOT_TOKEN,
     TARGET_SITE_PACKAGES_TOKEN,
+    VLLM_API_SERVER_MODULE,
+    VLLM_API_SERVER_REQUIRED_OPTIONS,
+    VLLM_REQUEST_LOGGING_DISABLED_OPTION,
     Cu129RuntimeManifestBinding,
     Cu129TargetRuntime,
     build_install_argv,
@@ -29,6 +35,7 @@ from auragateway.local_abc.full_abc_local_environment_qualification_cu129_runtim
     controlled_python_argv,
     discover_wheelhouse,
     realize_worker_command,
+    worker_command_options,
     worker_command_template,
 )
 
@@ -96,12 +103,114 @@ def test_worker_templates_bind_controlled_target_runtime() -> None:
         "vllm.entrypoints.openai.api_server",
     )
     assert first[0] != "python"
+    assert first[6] == VLLM_API_SERVER_MODULE
+    assert VLLM_REQUEST_LOGGING_DISABLED_OPTION in first
+    assert "--disable-log-requests" not in first
+    assert worker_command_options(first) == frozenset(VLLM_API_SERVER_REQUIRED_OPTIONS)
     assert canonical_command_sha256(first) == (
-        "8ef056516f29ff36dec1c941ff6fa7e245bb9a4bcb864dae5e1ff1ad2355b198"
+        "fe37b6f369b4d83b4aea467f3e4d06f32bd62a8b44b4568665255ec35552958f"
     )
     assert canonical_command_sha256(second) == (
-        "bd74ec0f4d289dc23226f784257440af16550f6cd53aecf6b726cdcc60106f2d"
+        "c28cea7cdfd6d5034a94ac34f090973949bbd401c5179493ddca44b17899fd06"
     )
+
+
+def _write_fake_vllm_cli(
+    site_packages: Path,
+    *,
+    include_logging_disable_option: bool,
+) -> None:
+    api_server = site_packages / "vllm/entrypoints/openai/api_server.py"
+    api_server.parent.mkdir(parents=True)
+    (site_packages / "vllm/__init__.py").write_text(
+        '__version__ = "0.19.1"\n',
+        encoding="utf-8",
+    )
+    (site_packages / "vllm/entrypoints/__init__.py").write_text("", encoding="utf-8")
+    (site_packages / "vllm/entrypoints/openai/__init__.py").write_text(
+        "",
+        encoding="utf-8",
+    )
+    options = list(VLLM_API_SERVER_REQUIRED_OPTIONS)
+    if not include_logging_disable_option:
+        options.remove(VLLM_REQUEST_LOGGING_DISABLED_OPTION)
+    option_lines = "\n".join(
+        f'parser.add_argument("{option}", action="store_true")'
+        if option in {"--enable-prefix-caching", VLLM_REQUEST_LOGGING_DISABLED_OPTION}
+        else f'parser.add_argument("{option}")'
+        for option in options
+    )
+    api_server.write_text(
+        "import argparse\n"
+        "parser = argparse.ArgumentParser()\n"
+        f"{option_lines}\n"
+        "parser.parse_args()\n",
+        encoding="utf-8",
+    )
+    (site_packages / "torch.py").write_text(
+        '__version__ = "2.10.0+cu129"\nclass _Version:\n    cuda = "12.9"\nversion = _Version()\n',
+        encoding="utf-8",
+    )
+    (site_packages / "transformers.py").write_text(
+        '__version__ = "5.5.3"\n',
+        encoding="utf-8",
+    )
+    dist_info = site_packages / "vllm-0.19.1.dist-info"
+    dist_info.mkdir()
+    (dist_info / "METADATA").write_text(
+        "Metadata-Version: 2.1\nName: vllm\nVersion: 0.19.1\n",
+        encoding="utf-8",
+    )
+
+
+def _run_dependency_lock_script(site_packages: Path) -> subprocess.CompletedProcess[str]:
+    environment = dict(os.environ)
+    existing = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = (
+        str(site_packages) if not existing else os.pathsep.join((str(site_packages), existing))
+    )
+    return subprocess.run(
+        [sys.executable, "-c", DEPENDENCY_LOCK_SCRIPT, str(site_packages)],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+        timeout=20,
+    )
+
+
+def test_dependency_lock_script_accepts_complete_pinned_cli(tmp_path: Path) -> None:
+    site_packages = tmp_path / "site-packages"
+    site_packages.mkdir()
+    _write_fake_vllm_cli(site_packages, include_logging_disable_option=True)
+
+    result = _run_dependency_lock_script(site_packages)
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["vllm_api_server_cli_capability"] == "validated"
+    assert payload["vllm_api_server_option_count"] >= len(VLLM_API_SERVER_REQUIRED_OPTIONS)
+    assert len(payload["vllm_api_server_help_sha256"]) == 64
+
+
+def test_dependency_lock_script_rejects_incomplete_pinned_cli(tmp_path: Path) -> None:
+    site_packages = tmp_path / "site-packages"
+    site_packages.mkdir()
+    _write_fake_vllm_cli(site_packages, include_logging_disable_option=False)
+
+    result = _run_dependency_lock_script(site_packages)
+
+    assert result.returncode != 0
+    assert "pinned vLLM CLI does not support governed worker options" in result.stderr
+    assert VLLM_REQUEST_LOGGING_DISABLED_OPTION in result.stderr
+
+
+def test_dependency_lock_script_validates_pinned_vllm_cli_before_workers() -> None:
+    assert "vllm_api_server_cli_capability" in DEPENDENCY_LOCK_SCRIPT
+    assert "runpy.run_module" in DEPENDENCY_LOCK_SCRIPT
+    assert "pinned vLLM CLI does not support governed worker options" in (DEPENDENCY_LOCK_SCRIPT)
+    assert "--no-enable-log-requests" in DEPENDENCY_LOCK_SCRIPT
+    assert "--disable-log-requests" not in DEPENDENCY_LOCK_SCRIPT
 
 
 def test_discover_wheelhouse_requires_one_governed_directory(tmp_path: Path) -> None:

@@ -114,6 +114,23 @@ def _copy_repository_validator_fixture(destination: Path) -> None:
         Path(toolchain.HISTORICAL_MATERIALIZER_NOTEBOOK_PATH),
         Path(toolchain.REVIEW_RECORD_PATH),
         Path(toolchain.TOOLCHAIN_RECORD_PATH),
+        Path(toolchain.VLLM_CLI_HARDENING_RECORD_PATH),
+        Path(
+            "evidence_vault/local_abc/cu129-vllm-cli-contract-failure-v1/"
+            "ag-full-abc-env-qualification-v1.log"
+        ),
+        Path(
+            "evidence_vault/local_abc/cu129-vllm-cli-contract-failure-v1/"
+            "ag-qualification-control-materializer-v1.log"
+        ),
+        Path(
+            "evidence_vault/local_abc/cu129-vllm-cli-contract-failure-v1/"
+            "ag-qualification-evidence-v1.zip"
+        ),
+        Path(
+            "evidence_vault/local_abc/cu129-vllm-cli-contract-failure-v1/"
+            "consumed_environment_qualification_authorization_v1.json"
+        ),
         Path(toolchain.OFFLINE_MANIFEST_PATH),
         Path(
             "data/evals/benchmark/environment-qualification-v1/"
@@ -230,22 +247,31 @@ def test_default_spec_derives_names_from_exact_source_commit() -> None:
     assert spec.expected_file_sha256[toolchain.LAUNCHER_NOTEBOOK_PATH] == (
         integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256
     )
+    assert toolchain.VLLM_CLI_HARDENING_SOURCE_PATH in spec.required_paths
+    assert toolchain.VLLM_CLI_HARDENING_RECORD_PATH in spec.required_paths
 
 
 def test_repository_package_exposes_approved_toolchain_boundary() -> None:
     summary = toolchain.validate_repository_package(ROOT)
 
-    assert summary["status"] == "CURRENT_CU129_HARNESS_TOOLCHAIN_IMPLEMENTED"
+    assert summary["status"] == (
+        "CURRENT_CU129_VLLM_CLI_HARDENING_AWAITING_POST_MERGE_SOURCE_PACKAGE"
+    )
     assert summary["decision"] == "APPROVED_FOR_COMPLETE_CURRENT_CU129_HARNESS_TOOLCHAIN"
     assert summary["review_minimum_ancestor"] == toolchain.REVIEW_MINIMUM_ANCESTOR
     assert summary["source_binding_policy"] == "POST_MERGE_CLEAN_MAIN_HEAD"
     assert summary["runtime_role"] == "vllm_runtime"
     assert summary["runtime_package_count"] == 176
     assert summary["model_snapshot_sha256"] == (integration.CURRENT_MODEL_SNAPSHOT_SHA256)
-    assert summary["active_harness_binding_status"] == ("CURRENT_CU129_HARNESS_EVIDENCE_INTEGRATED")
+    assert summary["active_harness_binding_status"] == (
+        "PREDECESSOR_HARNESS_RETAINED_NOT_RETRY_USABLE"
+    )
     assert summary["operational_input_closure"] == "PASSED"
+    assert summary["fresh_issuer_usable"] is False
+    assert summary["active_harness_reusable_for_retry"] is False
     assert summary["authorization_issued"] is False
     assert summary["model_requests_performed"] == 0
+    assert summary["next_gate"] == ("merge_then_prepare_vllm_cli_hardened_harness_source_package")
 
 
 def test_active_predecessor_harness_contract_matches_current_manifest() -> None:

@@ -368,6 +368,57 @@ def test_implementation_summary_preserves_zero_runtime_boundary(
     assert summary["next_gate"] == issuance_module.IMPLEMENTATION_NEXT_GATE
 
 
+def test_pending_vllm_cli_hardening_blocks_fresh_issuance(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        issuance_module,
+        "_load_vllm_cli_hardening_record",
+        lambda repo_root: {"decision": "pending"},
+    )
+
+    with pytest.raises(AuthorizationIssuanceError) as caught:
+        issuance_module._require_issuer_usable(tmp_path)
+
+    assert caught.value.error_code == (
+        "AUTHORIZATION_ISSUANCE_BLOCKED_BY_HARNESS_REMATERIALIZATION"
+    )
+    assert caught.value.details == (issuance_module.vllm_cli_hardening.NEXT_GATE,)
+
+
+def test_implementation_summary_reports_pending_rematerialization(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inputs = _current_inputs()
+    monkeypatch.setattr(
+        issuance_module,
+        "_prepare_issuance_inputs",
+        lambda repo_root: inputs,
+    )
+    monkeypatch.setattr(
+        issuance_module,
+        "_load_vllm_cli_hardening_record",
+        lambda repo_root: {"decision": "pending"},
+    )
+
+    summary = issuance_module.validate_implementation_package(tmp_path)
+
+    assert summary["status"] == (
+        "FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_FOR_HARNESS_REMATERIALIZATION"
+    )
+    assert summary["fresh_issuer_implemented"] is True
+    assert summary["fresh_issuer_usable"] is False
+    assert summary["runtime_manifest_sha256"] == inputs.runtime_manifest.fingerprint()
+    assert summary["worker_startup_diagnostics_sha256"] == (
+        inputs.readiness.current_worker_startup_diagnostics_sha256
+    )
+    assert summary["maximum_workers"] == inputs.authorization_request.maximum_workers
+    assert summary["authorization_issued"] is False
+    assert summary["next_gate"] == issuance_module.vllm_cli_hardening.NEXT_GATE
+
+
 def test_verify_rejects_noncanonical_authorization(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

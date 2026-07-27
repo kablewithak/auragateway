@@ -19,6 +19,7 @@ from pydantic import Field, ValidationError, field_validator, model_validator
 from auragateway.local_abc import (
     cu129_worker_observability_harness_integration,
     full_abc_local_environment_qualification_authorization_source_authority_parity,
+    full_abc_local_environment_qualification_cu129_vllm_cli_contract_hardening,
     full_abc_local_environment_qualification_execution_authorization,
     full_abc_local_environment_qualification_execution_authorization_contracts,
     full_abc_local_environment_qualification_kaggle_launcher,
@@ -43,6 +44,7 @@ harness_integration = cu129_worker_observability_harness_integration
 authorization_package = full_abc_local_environment_qualification_execution_authorization
 authorization_contracts = full_abc_local_environment_qualification_execution_authorization_contracts
 launcher = full_abc_local_environment_qualification_kaggle_launcher
+vllm_cli_hardening = full_abc_local_environment_qualification_cu129_vllm_cli_contract_hardening
 
 MATERIALIZATION_RECORD_PATH = authorization_contracts.MATERIALIZATION_RECORD_PATH
 MATERIALIZED_DATASET_MANIFEST_PATH = authorization_contracts.MATERIALIZED_DATASET_MANIFEST_PATH
@@ -97,7 +99,6 @@ LAUNCHER_NOTEBOOK_SHA256: Final = harness_integration.CURRENT_LAUNCHER_NOTEBOOK_
 MAXIMUM_AUTHORIZATION_WINDOW_MINUTES: Final = 240
 IMPLEMENTATION_NEXT_GATE: Final = "explicit_operator_confirmation_then_issue_fresh_authorization"
 NEXT_GATE: Final = "full_abc_local_full_run_environment_qualification_control_materialization"
-
 _ContractT = TypeVar("_ContractT", bound=LocalABCContract)
 
 
@@ -553,14 +554,71 @@ def _prepare_issuance_inputs(repo_root: Path) -> CurrentAuthorizationInputs:
     return _validate_current_input_package(repo_root)
 
 
+def _load_vllm_cli_hardening_record(
+    repo_root: Path,
+) -> dict[str, object] | None:
+    path = repo_root / vllm_cli_hardening.RECORD_PATH
+    if not path.exists():
+        return None
+    return vllm_cli_hardening.validate_repository_package(repo_root)
+
+
+def _require_issuer_usable(repo_root: Path) -> None:
+    if _load_vllm_cli_hardening_record(repo_root) is not None:
+        raise AuthorizationIssuanceError(
+            "AUTHORIZATION_ISSUANCE_BLOCKED_BY_HARNESS_REMATERIALIZATION",
+            "fresh authorization is blocked until the hardened harness is rematerialized",
+            vllm_cli_hardening.RECORD_PATH.as_posix(),
+            details=(vllm_cli_hardening.NEXT_GATE,),
+        )
+
+
 def validate_implementation_package(repo_root: Path) -> dict[str, object]:
     """Validate the merged issuer boundary without creating live authority."""
 
     root = repo_root.resolve()
     inputs = _prepare_issuance_inputs(root)
+    hardening = _load_vllm_cli_hardening_record(root)
+    if hardening is not None:
+        return {
+            "status": ("FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_FOR_HARNESS_REMATERIALIZATION"),
+            "fresh_issuer_implemented": True,
+            "fresh_issuer_usable": False,
+            "current_authorization_base_commit": CURRENT_AUTHORIZATION_BASE_COMMIT,
+            "current_harness_source_commit": CURRENT_HARNESS_SOURCE_COMMIT,
+            "historical_authorization_base_commit": (HISTORICAL_AUTHORIZATION_BASE_COMMIT),
+            "historical_issuer_usable": False,
+            "frozen_authorization_source_main_merge_commit": SOURCE_MAIN_MERGE_COMMIT,
+            "readiness_review_sha256": inputs.readiness.fingerprint(),
+            "execution_request_sha256": inputs.execution_request.fingerprint(),
+            "runtime_manifest_sha256": inputs.runtime_manifest.fingerprint(),
+            "model_snapshot_sha256": harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256,
+            "materialization_record_sha256": (inputs.materialization_record.fingerprint()),
+            "runtime_adapter_sha256": RUNTIME_ADAPTER_SHA256,
+            "worker_startup_diagnostics_sha256": (
+                inputs.readiness.current_worker_startup_diagnostics_sha256
+            ),
+            "launcher_source_sha256": LAUNCHER_SOURCE_SHA256,
+            "launcher_notebook_sha256": LAUNCHER_NOTEBOOK_SHA256,
+            "maximum_workers": inputs.authorization_request.maximum_workers,
+            "maximum_kaggle_sessions": inputs.authorization_request.maximum_kaggle_sessions,
+            "maximum_model_requests": inputs.authorization_request.maximum_model_requests,
+            "maximum_output_tokens_per_request": (
+                inputs.authorization_request.maximum_output_tokens_per_request
+            ),
+            "authorization_issued": False,
+            "kaggle_session_started": False,
+            "worker_started": False,
+            "model_requests_performed": 0,
+            "benchmark_trajectory_requests_permitted": 0,
+            "measured_execution_authorized": False,
+            "external_spend": 0,
+            "next_gate": vllm_cli_hardening.NEXT_GATE,
+        }
     return {
         "status": "FRESH_CU129_AUTHORIZATION_ISSUER_READY",
         "fresh_issuer_implemented": True,
+        "fresh_issuer_usable": True,
         "current_authorization_base_commit": CURRENT_AUTHORIZATION_BASE_COMMIT,
         "current_harness_source_commit": CURRENT_HARNESS_SOURCE_COMMIT,
         "historical_authorization_base_commit": (HISTORICAL_AUTHORIZATION_BASE_COMMIT),
@@ -709,6 +767,7 @@ def issue_authorization(
     """Issue one non-overwriting authorization after explicit confirmation."""
 
     root = repo_root.resolve()
+    _require_issuer_usable(root)
     issuer_head = _require_clean_main(root)
     _require_authorization_untracked(root)
     authorization = _build_authorization(
@@ -764,6 +823,7 @@ def verify_authorization(
     """Verify current input bindings and one live frozen-compatible window."""
 
     root = repo_root.resolve()
+    _require_issuer_usable(root)
     issuer_head = _require_verification_main(root)
     _require_authorization_untracked(root)
     _require_source_authority(root)

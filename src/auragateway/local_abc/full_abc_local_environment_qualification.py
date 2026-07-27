@@ -331,6 +331,7 @@ def build_worker_startup_plan() -> WorkerStartupPlan:
             "runtime_checksum_manifest_verified",
             "target_python_startup_controlled",
             "target_nvidia_loader_precedence_verified",
+            "vllm_api_server_cli_capability_verified",
         ),
         next_gate=NEXT_GATE,
     )

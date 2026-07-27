@@ -186,6 +186,12 @@ def test_worker_startup_plan_preserves_two_worker_topology() -> None:
     assert all(worker.host == "127.0.0.1" for worker in plan.workers)
 
 
+def test_worker_startup_plan_requires_pinned_cli_capability_validation() -> None:
+    plan = build_worker_startup_plan()
+
+    assert "vllm_api_server_cli_capability_verified" in (plan.required_prelaunch_checks)
+
+
 def test_worker_startup_plan_is_offline_and_non_shell() -> None:
     plan = build_worker_startup_plan()
     for worker in plan.workers:
@@ -194,7 +200,8 @@ def test_worker_startup_plan_is_offline_and_non_shell() -> None:
         assert worker.shell_execution_permitted is False
         assert worker.launch_authorized is False
         assert "--enable-prefix-caching" in worker.command_argv
-        assert "--disable-log-requests" in worker.command_argv
+        assert "--no-enable-log-requests" in worker.command_argv
+        assert "--disable-log-requests" not in worker.command_argv
 
 
 def test_worker_commands_contain_no_provider_or_install_actions() -> None:
