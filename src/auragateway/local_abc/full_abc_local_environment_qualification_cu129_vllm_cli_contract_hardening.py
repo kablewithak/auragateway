@@ -292,8 +292,10 @@ def _require_runtime_source(repo_root: Path) -> None:
         )
 
 
-def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
-    """Validate the hardening tranche without activating a new harness."""
+def validate_historical_evidence_package(
+    repo_root: str | Path,
+) -> dict[str, object]:
+    """Validate immutable historical hardening evidence independent of live authority."""
 
     root = Path(repo_root).resolve()
     _require_base_ancestor(root)
@@ -301,8 +303,6 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
     _require_evidence(root, record)
     _require_runtime_source(root)
     _require_worker_plan(root)
-    if (root / FINAL_AUTHORIZATION_PATH).exists():
-        raise VllmCliContractHardeningError("transient operational authorization must be absent")
     return {
         "status": "VLLM_CLI_CONTRACT_HARDENING_IMPLEMENTED",
         "record_id": record.record_id,
@@ -327,6 +327,16 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         "model_requests_performed": 0,
         "next_gate": record.next_gate,
     }
+
+
+def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
+    """Validate the original pre-authorization hardening tranche boundary."""
+
+    root = Path(repo_root).resolve()
+    summary = validate_historical_evidence_package(root)
+    if (root / FINAL_AUTHORIZATION_PATH).exists():
+        raise VllmCliContractHardeningError("transient operational authorization must be absent")
+    return summary
 
 
 def _build_parser() -> _ArgumentParser:

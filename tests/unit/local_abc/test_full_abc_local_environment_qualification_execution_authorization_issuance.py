@@ -592,3 +592,113 @@ def test_changed_python_lines_do_not_exceed_100_characters() -> None:
                 failures.append(f"{path.as_posix()}:{line_number}:{len(line)}")
 
     assert failures == []
+
+
+def test_historical_hardening_loader_wraps_cross_module_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    record_path = tmp_path / issuance_module.vllm_cli_hardening.RECORD_PATH
+    record_path.parent.mkdir(parents=True)
+    record_path.write_text("{}", encoding="utf-8")
+
+    def fail_historical_evidence_validation(repo_root: Path) -> dict[str, object]:
+        raise issuance_module.vllm_cli_hardening.VllmCliContractHardeningError(
+            "synthetic historical evidence drift"
+        )
+
+    monkeypatch.setattr(
+        issuance_module.vllm_cli_hardening,
+        "validate_historical_evidence_package",
+        fail_historical_evidence_validation,
+    )
+
+    with pytest.raises(AuthorizationIssuanceError) as caught:
+        issuance_module._load_vllm_cli_hardening_record(tmp_path)
+
+    assert caught.value.error_code == "HISTORICAL_VLLM_CLI_HARDENING_INVALID"
+    assert caught.value.details == ("synthetic historical evidence drift",)
+
+
+def test_issue_then_verify_uses_real_historical_evidence_path(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authorization_path = (tmp_path / "authorization.json").resolve()
+
+    monkeypatch.setattr(
+        issuance_module,
+        "AUTHORIZATION_PATH",
+        authorization_path,
+    )
+    monkeypatch.setattr(
+        issuance_module.vllm_cli_hardening,
+        "FINAL_AUTHORIZATION_PATH",
+        authorization_path,
+    )
+    monkeypatch.setattr(
+        issuance_module,
+        "_require_clean_main",
+        lambda repo_root: "f" * 40,
+    )
+    monkeypatch.setattr(
+        issuance_module,
+        "_require_verification_main",
+        lambda repo_root: "f" * 40,
+    )
+    monkeypatch.setattr(
+        issuance_module,
+        "_require_authorization_untracked",
+        lambda repo_root: None,
+    )
+
+    issued = issue_authorization(
+        repo_root=ROOT,
+        confirmation=_confirmation(window_minutes=30),
+    )
+
+    assert authorization_path.is_file()
+    assert (
+        issued["authorization_sha256"]
+        == hashlib.sha256(authorization_path.read_bytes()).hexdigest()
+    )
+
+    verified = verify_authorization(
+        repo_root=ROOT,
+        now=_FIXED_NOW + timedelta(minutes=1),
+    )
+
+    assert verified["authorization_valid"] is True
+    assert verified["authorization_sha256"] == issued["authorization_sha256"]
+
+    with pytest.raises(AuthorizationIssuanceError) as caught:
+        issue_authorization(
+            repo_root=ROOT,
+            confirmation=_confirmation(window_minutes=30),
+        )
+
+    assert caught.value.error_code == "AUTHORIZATION_ALREADY_EXISTS"
+
+
+def test_cli_converts_escaped_hardening_error_to_typed_envelope(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    def fail_verification(*, repo_root: Path) -> dict[str, object]:
+        raise issuance_module.vllm_cli_hardening.VllmCliContractHardeningError(
+            "synthetic escaped hardening error"
+        )
+
+    monkeypatch.setattr(
+        issuance_module,
+        "verify_authorization",
+        fail_verification,
+    )
+
+    result = issuance_module.main(["verify", "--repo-root", str(tmp_path)])
+
+    assert result == 2
+    payload = json.loads(capsys.readouterr().err)
+    assert payload["error_code"] == ("UNEXPECTED_AUTHORIZATION_ISSUANCE_FAILURE")
+    assert payload["details"] == ["VllmCliContractHardeningError"]

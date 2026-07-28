@@ -63,3 +63,26 @@ def test_record_loader_rejects_noncanonical_json(tmp_path: Path) -> None:
         match="not canonical",
     ):
         hardening._load_record(path)
+
+
+def test_historical_evidence_validation_is_live_authority_neutral(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authorization_path = (tmp_path / "authorization.json").resolve()
+    authorization_path.write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(
+        hardening,
+        "FINAL_AUTHORIZATION_PATH",
+        authorization_path,
+    )
+
+    summary = hardening.validate_historical_evidence_package(ROOT)
+
+    assert summary["status"] == "VLLM_CLI_CONTRACT_HARDENING_IMPLEMENTED"
+
+    with pytest.raises(
+        hardening.VllmCliContractHardeningError,
+        match="authorization must be absent",
+    ):
+        hardening.validate_repository_package(ROOT)
