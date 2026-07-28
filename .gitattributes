@@ -12,3 +12,6 @@ data/evals/benchmark/groq-cache-telemetry-reauthorization-v1/manifest.json -text
 
 # Preserve immutable qualification-attempt evidence bytes.
 evidence_vault/local_abc/cu129-environment-qualification-attempt-5/execution.log -text -whitespace
+
+# Preserve immutable FlashInfer qualification-failure evidence bytes.
+evidence_vault/local_abc/cu129-flashinfer-link-failure-v1/ag-full-abc-env-qualification-v1.log -text -whitespace
