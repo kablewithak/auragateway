@@ -1,0 +1,76 @@
+{
+  "consumed_authorization": {
+    "archive_receipt_path": "C:\\Users\\kabom\\Desktop\\AuraGateway-Consumed-Authorization-Evidence\\2de9994e9905eb08807fcfa053db247b739d73ca0f1569bd777f48d2ff689d6f\\consumed_authorization_receipt.json",
+    "authorization_sha256": "2de9994e9905eb08807fcfa053db247b739d73ca0f1569bd777f48d2ff689d6f",
+    "classification": "CONSUMED_FAILED",
+    "reusable": false
+  },
+  "control_materializer": {
+    "authorization_sha256": "1990a0e5862dfcbb3706a88a3f2c5a075386a85a37a6525416f5742249f3b5cf",
+    "clean_execution_state": true,
+    "dataset_manifest_sha256": "69e662e7504ad92d8bb940de77efdadf265451e9af9b11d14bc8e3060d2da894",
+    "minimum_control_window_minutes": 180,
+    "notebook_name": "ag-qualification-control-materializer-v1",
+    "notebook_path": "C:\\Users\\kabom\\Desktop\\AuraGateway-Fresh-Qualification-Preparation\\ag-qualification-control-materializer-v1.ipynb",
+    "notebook_sha256": "3bed5d63b7e97c6cf81569712569f8f98dd8b6e89c29ccbdb89bc1fdb587e535",
+    "required_markers_present": true
+  },
+  "decision": {
+    "control_materializer_ready": true,
+    "fresh_authorization_valid": true,
+    "launcher_ready": true,
+    "next_gate": "run_fresh_control_materializer_once_then_run_exact_governed_launcher_once",
+    "qualification_executed": false
+  },
+  "fresh_authorization": {
+    "authorization_path": "benchmarks/local_abc/auragateway_full_abc_local_full_run_environment_qualification_execution_authorization_v1.json",
+    "authorization_sha256": "1990a0e5862dfcbb3706a88a3f2c5a075386a85a37a6525416f5742249f3b5cf",
+    "benchmark_trajectory_requests_permitted": 0,
+    "credentials_permitted": false,
+    "customer_data_permitted": false,
+    "expires_at": "2026-07-29T01:48:27+00:00",
+    "external_spend": 0,
+    "issued_at": "2026-07-28T21:48:27+00:00",
+    "maximum_kaggle_sessions": 1,
+    "maximum_model_requests": 8,
+    "maximum_output_tokens_per_request": 32,
+    "maximum_workers": 2,
+    "measured_execution_authorized": false,
+    "network_access_permitted": false,
+    "verification_passed": true
+  },
+  "governed_launcher": {
+    "clean_execution_state": true,
+    "code_sha256": "55d319ccfdfd15f8c2d02f3b44ea41d02551f58e09c8264739fe577fc045eb91",
+    "launcher_differs_from_reviewed_core": true,
+    "notebook_name": "ag-full-abc-env-qualification-v1",
+    "notebook_path": "C:\\Users\\kabom\\Desktop\\AuraGateway-Fresh-Qualification-Preparation\\ag-full-abc-env-qualification-v1.ipynb",
+    "notebook_sha256": "9f0a9de5702017799e58b96dcb322b03a8fbd4be284c74282b60c5e0bfd46af9",
+    "required_launcher_marker_count": 8,
+    "required_launcher_markers_present": true,
+    "reviewed_core_code_sha256": "7663b535d845d043a88666fff8618ac8ed2e02f856cdf97c6998a348b96a00aa"
+  },
+  "prepared_at": "2026-07-28T21:48:32.087537+00:00",
+  "record_id": "auragateway-fresh-qualification-preparation-v1",
+  "repository": {
+    "authorization_present": true,
+    "authorization_tracked": false,
+    "branch": "main",
+    "head": "431b5854037504b2ce3b2362bf37d8762ce2d227",
+    "origin_main": "431b5854037504b2ce3b2362bf37d8762ce2d227",
+    "status_rows": [
+      "?? benchmarks/local_abc/auragateway_full_abc_local_full_run_environment_qualification_execution_authorization_v1.json"
+    ]
+  },
+  "safety_state": {
+    "archive_is_local_only": true,
+    "kaggle_execution_performed": false,
+    "measured_execution_authorized": false,
+    "model_requests_performed": 0,
+    "raw_authorization_in_archive": true,
+    "raw_authorization_in_report": false,
+    "runtime_packages_installed": false,
+    "workers_started": 0
+  },
+  "schema_version": "1.0.0"
+}
