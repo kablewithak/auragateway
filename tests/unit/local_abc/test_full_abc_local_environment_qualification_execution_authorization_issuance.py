@@ -113,6 +113,11 @@ def _patch_verification_prerequisites(
     )
     monkeypatch.setattr(
         issuance_module,
+        "_require_issuer_usable",
+        lambda repo_root: None,
+    )
+    monkeypatch.setattr(
+        issuance_module,
         "_require_authorization_untracked",
         lambda repo_root: None,
     )
@@ -199,6 +204,11 @@ def test_issue_requires_clean_main(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(
+        issuance_module,
+        "_require_issuer_usable",
+        lambda repo_root: None,
+    )
     monkeypatch.setattr(
         issuance_module,
         "_require_clean_main",
@@ -342,11 +352,24 @@ def test_implementation_summary_preserves_zero_runtime_boundary(
         "_prepare_issuance_inputs",
         lambda repo_root: inputs,
     )
+    monkeypatch.setattr(
+        issuance_module,
+        "_require_historical_vllm_cli_hardening",
+        lambda repo_root: {
+            "next_gate": "merge_then_prepare_vllm_cli_hardened_harness_source_package"
+        },
+    )
 
     summary = issuance_module.validate_implementation_package(tmp_path)
 
     assert summary["status"] == "FRESH_CU129_AUTHORIZATION_ISSUER_READY"
     assert summary["fresh_issuer_implemented"] is True
+    assert summary["fresh_issuer_usable"] is True
+    assert summary["post_integration_rebind_complete"] is True
+    assert summary["historical_vllm_cli_hardening_validated"] is True
+    assert summary["historical_vllm_cli_hardening_next_gate"] == (
+        "merge_then_prepare_vllm_cli_hardened_harness_source_package"
+    )
     assert summary["current_authorization_base_commit"] == (
         issuance_module.CURRENT_AUTHORIZATION_BASE_COMMIT
     )
@@ -368,55 +391,59 @@ def test_implementation_summary_preserves_zero_runtime_boundary(
     assert summary["next_gate"] == issuance_module.IMPLEMENTATION_NEXT_GATE
 
 
-def test_pending_vllm_cli_hardening_blocks_fresh_issuance(
+def test_historical_vllm_cli_hardening_no_longer_blocks_current_issuer(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
         issuance_module,
         "_load_vllm_cli_hardening_record",
-        lambda repo_root: {"decision": "pending"},
+        lambda repo_root: {
+            "status": "VLLM_CLI_CONTRACT_HARDENING_IMPLEMENTED",
+            "active_harness_unchanged": True,
+            "active_harness_reusable_for_retry": False,
+            "fresh_issuer_usable": False,
+            "consumed_authorization_reusable": False,
+            "authorization_issued": False,
+            "kaggle_execution_performed": False,
+            "model_requests_performed": 0,
+            "next_gate": "merge_then_prepare_vllm_cli_hardened_harness_source_package",
+        },
+    )
+
+    issuance_module._require_issuer_usable(tmp_path)
+
+
+def test_missing_historical_vllm_cli_hardening_is_rejected(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        issuance_module,
+        "_load_vllm_cli_hardening_record",
+        lambda repo_root: None,
     )
 
     with pytest.raises(AuthorizationIssuanceError) as caught:
         issuance_module._require_issuer_usable(tmp_path)
 
-    assert caught.value.error_code == (
-        "AUTHORIZATION_ISSUANCE_BLOCKED_PENDING_POST_INTEGRATION_REBIND"
-    )
-    assert caught.value.details == (issuance_module.POST_INTEGRATION_REBIND_NEXT_GATE,)
+    assert caught.value.error_code == "HISTORICAL_VLLM_CLI_HARDENING_MISSING"
 
 
-def test_implementation_summary_reports_pending_rematerialization(
+def test_historical_vllm_cli_hardening_drift_is_rejected(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    inputs = _current_inputs()
-    monkeypatch.setattr(
-        issuance_module,
-        "_prepare_issuance_inputs",
-        lambda repo_root: inputs,
-    )
     monkeypatch.setattr(
         issuance_module,
         "_load_vllm_cli_hardening_record",
-        lambda repo_root: {"decision": "pending"},
+        lambda repo_root: {"status": "DRIFTED"},
     )
 
-    summary = issuance_module.validate_implementation_package(tmp_path)
+    with pytest.raises(AuthorizationIssuanceError) as caught:
+        issuance_module._require_issuer_usable(tmp_path)
 
-    assert summary["status"] == (
-        "FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_PENDING_POST_INTEGRATION_REBIND"
-    )
-    assert summary["fresh_issuer_implemented"] is True
-    assert summary["fresh_issuer_usable"] is False
-    assert summary["runtime_manifest_sha256"] == inputs.runtime_manifest.fingerprint()
-    assert summary["worker_startup_diagnostics_sha256"] == (
-        inputs.readiness.current_worker_startup_diagnostics_sha256
-    )
-    assert summary["maximum_workers"] == inputs.authorization_request.maximum_workers
-    assert summary["authorization_issued"] is False
-    assert summary["next_gate"] == issuance_module.POST_INTEGRATION_REBIND_NEXT_GATE
+    assert caught.value.error_code == "HISTORICAL_VLLM_CLI_HARDENING_DRIFT"
 
 
 def test_verify_rejects_noncanonical_authorization(
@@ -472,7 +499,7 @@ def test_cli_requires_explicit_operator_confirmation(
 
 def test_current_and_frozen_authorities_are_not_conflated() -> None:
     assert issuance_module.CURRENT_AUTHORIZATION_BASE_COMMIT == (
-        "29d89f16e6693c298e9f292e21b0822568f69931"
+        "0805b6f08028709a347ce9e420b3415c3a84ba05"
     )
     assert issuance_module.HISTORICAL_AUTHORIZATION_BASE_COMMIT == (
         "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"

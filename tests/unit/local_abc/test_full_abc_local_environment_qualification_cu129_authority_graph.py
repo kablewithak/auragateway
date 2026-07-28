@@ -19,9 +19,7 @@ def test_repository_authority_graph_integrates_worker_observability_harness() ->
         pytest.skip("full Git checkout is required for historical authority validation")
     summary = graph.validate_repository_authority_graph(ROOT)
 
-    assert summary["status"] == (
-        "CURRENT_CU129_HARDENED_HARNESS_INTEGRATED_PENDING_AUTHORIZATION_REBIND"
-    )
+    assert summary["status"] == ("CURRENT_CU129_HARDENED_HARNESS_AUTHORIZATION_REBOUND")
     assert summary["current_runtime_role"] == "vllm_runtime"
     assert summary["current_runtime_format"] == "python_wheelhouse_directory"
     assert summary["runtime_package_count"] == 176
@@ -34,9 +32,9 @@ def test_repository_authority_graph_integrates_worker_observability_harness() ->
     assert summary["worker_observability_review_base_commit"] == (
         "997efb4aacf998567a3d92e7202a0054bf473ca4"
     )
-    assert summary["fresh_authorization_base_commit_status"] == ("POST_INTEGRATION_REBIND_PENDING")
+    assert summary["fresh_authorization_base_commit_status"] == ("POST_INTEGRATION_REBIND_COMPLETE")
     assert summary["fresh_authorization_base_commit"] == (
-        "29d89f16e6693c298e9f292e21b0822568f69931"
+        "0805b6f08028709a347ce9e420b3415c3a84ba05"
     )
     assert summary["superseded_authorization_base_commit"] == (
         "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
@@ -47,7 +45,7 @@ def test_repository_authority_graph_integrates_worker_observability_harness() ->
     assert summary["historical_rematerialization_revision_bound"] is True
     assert summary["fresh_cu129_authorization_readiness_review_complete"] is True
     assert summary["fresh_cu129_authorization_issuer_implemented"] is True
-    assert summary["fresh_cu129_authorization_issuer_usable"] is False
+    assert summary["fresh_cu129_authorization_issuer_usable"] is True
     assert summary["worker_startup_observability_implemented"] is True
     assert summary["active_harness_reusable_for_retry"] is True
     assert summary["historical_issuer_usable"] is False
@@ -58,7 +56,7 @@ def test_repository_authority_graph_integrates_worker_observability_harness() ->
     assert summary["authorization_issued"] is False
     assert summary["runtime_execution_performed"] is False
     assert summary["model_requests_performed"] == 0
-    assert summary["next_gate"] == ("post_merge_fresh_cu129_authorization_rebind")
+    assert summary["next_gate"] == ("explicit_operator_confirmation_then_issue_fresh_authorization")
 
 
 def test_canonical_json_guard_rejects_trailing_newline(tmp_path: Path) -> None:

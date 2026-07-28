@@ -304,34 +304,38 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
             "validate_implementation_package",
             "CURRENT_ISSUANCE_FROZEN_LOADER_PARITY_FAILED",
             "AUTHORIZATION_ALREADY_EXISTS",
-            "AUTHORIZATION_ISSUANCE_BLOCKED_PENDING_POST_INTEGRATION_REBIND",
+            "HISTORICAL_VLLM_CLI_HARDENING_DRIFT",
+            "_require_historical_vllm_cli_hardening",
+            "IMPLEMENTATION_NEXT_GATE",
             "vllm_cli_hardening",
         ),
     )
     _require_source_markers(
         root / ISSUANCE_RUNBOOK_PATH,
         (
-            "CURRENT STATUS: ISSUER BLOCKED PENDING POST-INTEGRATION REBIND",
+            "CURRENT STATUS: POST-PR152 REBIND COMPLETE",
             "4f3302d",
             "historical_issuer_usable",
             "CONTROL_PACKAGE_AUTHORIZATION_PARITY",
-            "post_merge_fresh_cu129_authorization_rebind",
+            "explicit_operator_confirmation_then_issue_fresh_authorization",
         ),
     )
     implementation_summary = observability_implementation.validate_repository_package(root)
     if implementation_summary.get("status") != (
-        "WORKER_STARTUP_OBSERVABILITY_HARDENED_HARNESS_INTEGRATED_PENDING_AUTHORIZATION_REBIND"
+        "WORKER_STARTUP_OBSERVABILITY_HARDENED_HARNESS_INTEGRATED_AUTHORIZATION_REBOUND"
     ):
         raise AuthorityGraphError("worker-startup observability integration drifted")
     if implementation_summary.get("fresh_issuer_implemented") is not True:
         raise AuthorityGraphError("fresh authorization issuer is not implemented")
-    if implementation_summary.get("fresh_issuer_usable") is not False:
-        raise AuthorityGraphError("fresh authorization issuer is not blocked")
+    if implementation_summary.get("fresh_issuer_usable") is not True:
+        raise AuthorityGraphError("fresh authorization issuer is not usable after rebind")
+    if implementation_summary.get("post_integration_rebind_complete") is not True:
+        raise AuthorityGraphError("post-integration authorization rebind is incomplete")
     if implementation_summary.get("active_harness_reusable_for_retry") is not True:
         raise AuthorityGraphError("integrated hardened harness was not retained for retry")
     if (
         implementation_summary.get("fresh_authorization_base_commit")
-        != "29d89f16e6693c298e9f292e21b0822568f69931"
+        != "0805b6f08028709a347ce9e420b3415c3a84ba05"
     ):
         raise AuthorityGraphError("fresh authorization issuer base commit drifted")
     if (
@@ -339,7 +343,9 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         != "fba5d25ec831f0ec28a1bcd3d63e9c6d8c4b985b"
     ):
         raise AuthorityGraphError("superseded authorization issuer base commit drifted")
-    if implementation_summary.get("next_gate") != ("post_merge_fresh_cu129_authorization_rebind"):
+    if implementation_summary.get("next_gate") != (
+        "explicit_operator_confirmation_then_issue_fresh_authorization"
+    ):
         raise AuthorityGraphError("fresh authorization implementation gate drifted")
     if implementation_summary.get("historical_issuer_usable") is not False:
         raise AuthorityGraphError("historical issuer was incorrectly retained as usable")
@@ -379,7 +385,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         raise AuthorityGraphError("final qualification authorization must remain absent")
 
     return {
-        "status": "CURRENT_CU129_HARDENED_HARNESS_INTEGRATED_PENDING_AUTHORIZATION_REBIND",
+        "status": "CURRENT_CU129_HARDENED_HARNESS_AUTHORIZATION_REBOUND",
         "current_runtime_role": runtime.role,
         "current_runtime_format": runtime.artifact_format,
         "runtime_package_count": runtime.package_count,
@@ -390,7 +396,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
             harness_integration.AUTHORIZATION_SOURCE_BINDING_POLICY
         ),
         "worker_observability_review_base_commit": (observability_implementation.BASE_COMMIT),
-        "fresh_authorization_base_commit_status": "POST_INTEGRATION_REBIND_PENDING",
+        "fresh_authorization_base_commit_status": "POST_INTEGRATION_REBIND_COMPLETE",
         "fresh_authorization_base_commit": implementation_summary[
             "fresh_authorization_base_commit"
         ],
@@ -403,7 +409,7 @@ def validate_repository_authority_graph(repo_root: str | Path) -> dict[str, obje
         "historical_rematerialization_revision_bound": True,
         "fresh_cu129_authorization_readiness_review_complete": True,
         "fresh_cu129_authorization_issuer_implemented": True,
-        "fresh_cu129_authorization_issuer_usable": False,
+        "fresh_cu129_authorization_issuer_usable": True,
         "worker_startup_observability_implemented": True,
         "active_harness_reusable_for_retry": True,
         "historical_issuer_usable": False,
