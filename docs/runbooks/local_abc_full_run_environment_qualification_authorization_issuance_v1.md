@@ -164,6 +164,37 @@ tranche must finish with authorization absent.
 - do not claim environment qualification, measured improvement, or production
   readiness.
 
+
+## Post-issuance verification lifecycle
+
+Historical vLLM CLI hardening evidence is validated independently of whether a
+current transient authorization exists. The original
+`validate_repository_package` entry point retains its pre-authorization
+fail-closed requirement that the transient authorization be absent.
+
+The current issuer uses the authorization-state-neutral historical evidence
+validator. This permits the required lifecycle:
+
+```text
+authorization absent
+-> validate implementation
+-> issue one authorization
+-> authorization present and untracked
+-> verify authorization
+```
+
+The verifier still requires synchronized `main`, current input identities,
+frozen loader parity, a live bounded window, zero runtime evidence, and an
+untracked authorization. The historical evidence is not rewritten.
+
+A repository-level regression test exercises the real historical hardening
+dependency across issue and verify. It does not mock
+`_require_issuer_usable` or the historical hardening validator.
+
+Cross-module hardening exceptions are converted at the issuer CLI boundary
+into machine-readable authorization error envelopes rather than raw
+tracebacks.
+
 ## Next gate
 
 ```text

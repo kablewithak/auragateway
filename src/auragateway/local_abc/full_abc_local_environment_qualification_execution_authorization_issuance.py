@@ -560,7 +560,15 @@ def _load_vllm_cli_hardening_record(
     path = repo_root / vllm_cli_hardening.RECORD_PATH
     if not path.exists():
         return None
-    return vllm_cli_hardening.validate_repository_package(repo_root)
+    try:
+        return vllm_cli_hardening.validate_historical_evidence_package(repo_root)
+    except vllm_cli_hardening.VllmCliContractHardeningError as exc:
+        raise AuthorizationIssuanceError(
+            "HISTORICAL_VLLM_CLI_HARDENING_INVALID",
+            "the historical vLLM CLI hardening package did not validate",
+            vllm_cli_hardening.RECORD_PATH.as_posix(),
+            details=(str(exc),),
+        ) from exc
 
 
 def _require_historical_vllm_cli_hardening(
@@ -969,7 +977,12 @@ def main(argv: list[str] | None = None) -> int:
     except AuthorizationIssuanceError as error:
         print(_error_envelope(error), file=sys.stderr)
         return 2
-    except (OSError, ValidationError, ValueError) as error:
+    except (
+        OSError,
+        ValidationError,
+        ValueError,
+        vllm_cli_hardening.VllmCliContractHardeningError,
+    ) as error:
         envelope = AuthorizationIssuanceErrorEnvelope(
             error_code="UNEXPECTED_AUTHORIZATION_ISSUANCE_FAILURE",
             safe_message="authorization issuance failed at a typed boundary",
