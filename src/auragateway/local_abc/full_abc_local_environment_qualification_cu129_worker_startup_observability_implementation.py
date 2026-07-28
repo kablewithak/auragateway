@@ -419,10 +419,11 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
 
     issuer_summary = issuance.validate_implementation_package(root)
     issuer_checks = (
-        issuer_summary.get("status")
-        == ("FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_PENDING_POST_INTEGRATION_REBIND"),
+        issuer_summary.get("status") == "FRESH_CU129_AUTHORIZATION_ISSUER_READY",
         issuer_summary.get("fresh_issuer_implemented") is True,
-        issuer_summary.get("fresh_issuer_usable") is False,
+        issuer_summary.get("fresh_issuer_usable") is True,
+        issuer_summary.get("post_integration_rebind_complete") is True,
+        issuer_summary.get("historical_vllm_cli_hardening_validated") is True,
         issuer_summary.get("current_authorization_base_commit")
         == issuance.CURRENT_AUTHORIZATION_BASE_COMMIT,
         issuer_summary.get("current_harness_source_commit") == integration.SOURCE_COMMIT,
@@ -445,7 +446,7 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
 
     return {
         "status": (
-            "WORKER_STARTUP_OBSERVABILITY_HARDENED_HARNESS_INTEGRATED_PENDING_AUTHORIZATION_REBIND"
+            "WORKER_STARTUP_OBSERVABILITY_HARDENED_HARNESS_INTEGRATED_AUTHORIZATION_REBOUND"
         ),
         "implementation_id": record.implementation_id,
         "review_merge_commit": BASE_COMMIT,
@@ -461,7 +462,8 @@ def validate_repository_package(repo_root: str | Path) -> dict[str, object]:
         "maximum_diagnostic_bytes": diagnostics.MAXIMUM_DIAGNOSTIC_BYTES,
         "maximum_readiness_polls": diagnostics.MAXIMUM_READINESS_POLLS,
         "fresh_issuer_implemented": True,
-        "fresh_issuer_usable": False,
+        "fresh_issuer_usable": True,
+        "post_integration_rebind_complete": True,
         "active_harness_reusable_for_retry": True,
         "fresh_authorization_base_commit": (issuer_summary["current_authorization_base_commit"]),
         "superseded_authorization_base_commit": (issuance.HISTORICAL_AUTHORIZATION_BASE_COMMIT),

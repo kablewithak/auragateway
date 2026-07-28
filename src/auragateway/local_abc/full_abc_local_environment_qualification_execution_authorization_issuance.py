@@ -79,8 +79,8 @@ HISTORICAL_LAUNCHER_NOTEBOOK_SHA256: Final = (
     "9bec10b5f80e53f6a09533e6acf680449e6260329e3e9fbc1f4fdc247d0ad64f"
 )
 
-# Current repository and operational-input authorities after merged PR #147.
-CURRENT_AUTHORIZATION_BASE_COMMIT: Final = "29d89f16e6693c298e9f292e21b0822568f69931"
+# Current repository and operational-input authorities after merged PR #152.
+CURRENT_AUTHORIZATION_BASE_COMMIT: Final = "0805b6f08028709a347ce9e420b3415c3a84ba05"
 CURRENT_HARNESS_SOURCE_COMMIT: Final = harness_integration.SOURCE_COMMIT
 AUTHORIZATION_ID: Final = (
     "auragateway-full-abc-local-environment-qualification-execution-authorization-v1"
@@ -98,7 +98,6 @@ LAUNCHER_SOURCE_SHA256: Final = harness_integration.CURRENT_LAUNCHER_SOURCE_SHA2
 LAUNCHER_NOTEBOOK_SHA256: Final = harness_integration.CURRENT_LAUNCHER_NOTEBOOK_SHA256
 MAXIMUM_AUTHORIZATION_WINDOW_MINUTES: Final = 240
 IMPLEMENTATION_NEXT_GATE: Final = "explicit_operator_confirmation_then_issue_fresh_authorization"
-POST_INTEGRATION_REBIND_NEXT_GATE: Final = "post_merge_fresh_cu129_authorization_rebind"
 NEXT_GATE: Final = "full_abc_local_full_run_environment_qualification_control_materialization"
 _ContractT = TypeVar("_ContractT", bound=LocalABCContract)
 
@@ -358,7 +357,7 @@ def _require_source_authority(repo_root: Path) -> None:
         repo_root,
         CURRENT_AUTHORIZATION_BASE_COMMIT,
         error_code="CURRENT_AUTHORIZATION_BASE_COMMIT_MISSING",
-        safe_message="the PR 147 integration merge must be an ancestor of HEAD",
+        safe_message="the PR 152 integration merge must be an ancestor of HEAD",
     )
     _require_ancestor(
         repo_root,
@@ -564,65 +563,56 @@ def _load_vllm_cli_hardening_record(
     return vllm_cli_hardening.validate_repository_package(repo_root)
 
 
-def _require_issuer_usable(repo_root: Path) -> None:
-    if _load_vllm_cli_hardening_record(repo_root) is not None:
+def _require_historical_vllm_cli_hardening(
+    repo_root: Path,
+) -> dict[str, object]:
+    summary = _load_vllm_cli_hardening_record(repo_root)
+    if summary is None:
         raise AuthorizationIssuanceError(
-            "AUTHORIZATION_ISSUANCE_BLOCKED_PENDING_POST_INTEGRATION_REBIND",
-            "fresh authorization is blocked until the integration merge commit is rebound",
+            "HISTORICAL_VLLM_CLI_HARDENING_MISSING",
+            "the historical vLLM CLI hardening record is required",
             vllm_cli_hardening.RECORD_PATH.as_posix(),
-            details=(POST_INTEGRATION_REBIND_NEXT_GATE,),
         )
+    checks = (
+        summary.get("status") == "VLLM_CLI_CONTRACT_HARDENING_IMPLEMENTED",
+        summary.get("active_harness_unchanged") is True,
+        summary.get("active_harness_reusable_for_retry") is False,
+        summary.get("fresh_issuer_usable") is False,
+        summary.get("consumed_authorization_reusable") is False,
+        summary.get("authorization_issued") is False,
+        summary.get("kaggle_execution_performed") is False,
+        summary.get("model_requests_performed") == 0,
+        summary.get("next_gate") == "merge_then_prepare_vllm_cli_hardened_harness_source_package",
+    )
+    if not all(checks):
+        raise AuthorizationIssuanceError(
+            "HISTORICAL_VLLM_CLI_HARDENING_DRIFT",
+            "the historical vLLM CLI hardening record drifted",
+            vllm_cli_hardening.RECORD_PATH.as_posix(),
+        )
+    return summary
+
+
+def _require_issuer_usable(repo_root: Path) -> None:
+    _require_historical_vllm_cli_hardening(repo_root)
 
 
 def validate_implementation_package(repo_root: Path) -> dict[str, object]:
-    """Validate the merged issuer boundary without creating live authority."""
+    """Validate the rebound issuer boundary without creating live authority."""
 
     root = repo_root.resolve()
     inputs = _prepare_issuance_inputs(root)
-    hardening = _load_vllm_cli_hardening_record(root)
-    if hardening is not None:
-        return {
-            "status": ("FRESH_CU129_AUTHORIZATION_ISSUER_BLOCKED_PENDING_POST_INTEGRATION_REBIND"),
-            "fresh_issuer_implemented": True,
-            "fresh_issuer_usable": False,
-            "current_authorization_base_commit": CURRENT_AUTHORIZATION_BASE_COMMIT,
-            "current_harness_source_commit": CURRENT_HARNESS_SOURCE_COMMIT,
-            "historical_authorization_base_commit": (HISTORICAL_AUTHORIZATION_BASE_COMMIT),
-            "historical_issuer_usable": False,
-            "frozen_authorization_source_main_merge_commit": SOURCE_MAIN_MERGE_COMMIT,
-            "readiness_review_sha256": inputs.readiness.fingerprint(),
-            "execution_request_sha256": inputs.execution_request.fingerprint(),
-            "runtime_manifest_sha256": inputs.runtime_manifest.fingerprint(),
-            "model_snapshot_sha256": harness_integration.CURRENT_MODEL_SNAPSHOT_SHA256,
-            "materialization_record_sha256": (inputs.materialization_record.fingerprint()),
-            "runtime_adapter_sha256": RUNTIME_ADAPTER_SHA256,
-            "worker_startup_diagnostics_sha256": (
-                inputs.readiness.current_worker_startup_diagnostics_sha256
-            ),
-            "launcher_source_sha256": LAUNCHER_SOURCE_SHA256,
-            "launcher_notebook_sha256": LAUNCHER_NOTEBOOK_SHA256,
-            "maximum_workers": inputs.authorization_request.maximum_workers,
-            "maximum_kaggle_sessions": inputs.authorization_request.maximum_kaggle_sessions,
-            "maximum_model_requests": inputs.authorization_request.maximum_model_requests,
-            "maximum_output_tokens_per_request": (
-                inputs.authorization_request.maximum_output_tokens_per_request
-            ),
-            "authorization_issued": False,
-            "kaggle_session_started": False,
-            "worker_started": False,
-            "model_requests_performed": 0,
-            "benchmark_trajectory_requests_permitted": 0,
-            "measured_execution_authorized": False,
-            "external_spend": 0,
-            "next_gate": POST_INTEGRATION_REBIND_NEXT_GATE,
-        }
+    hardening = _require_historical_vllm_cli_hardening(root)
     return {
         "status": "FRESH_CU129_AUTHORIZATION_ISSUER_READY",
         "fresh_issuer_implemented": True,
         "fresh_issuer_usable": True,
+        "post_integration_rebind_complete": True,
+        "historical_vllm_cli_hardening_validated": True,
+        "historical_vllm_cli_hardening_next_gate": hardening["next_gate"],
         "current_authorization_base_commit": CURRENT_AUTHORIZATION_BASE_COMMIT,
         "current_harness_source_commit": CURRENT_HARNESS_SOURCE_COMMIT,
-        "historical_authorization_base_commit": (HISTORICAL_AUTHORIZATION_BASE_COMMIT),
+        "historical_authorization_base_commit": HISTORICAL_AUTHORIZATION_BASE_COMMIT,
         "historical_issuer_usable": False,
         "frozen_authorization_source_main_merge_commit": SOURCE_MAIN_MERGE_COMMIT,
         "readiness_review_sha256": inputs.readiness.fingerprint(),

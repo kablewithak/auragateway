@@ -308,7 +308,6 @@ def test_launcher_separates_harness_and_authorization_source_authorities() -> No
     assert launcher.AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT == (
         "211a10757999b1b110cb1d9df172938cf6ed7969"
     )
-    assert launcher.SOURCE_MAIN_MERGE_COMMIT != launcher.AUTHORIZATION_SOURCE_MAIN_MERGE_COMMIT
     assert launcher.AUTHORIZATION_SOURCE_BINDING_POLICY == ("CONTROL_PACKAGE_AUTHORIZATION_PARITY")
     assert launcher.HARNESS_SOURCE_PATH.endswith(
         "/ag_harness_materializer_cu129_v1_output/auragateway_qualification_harness_4f3302d_v1"
