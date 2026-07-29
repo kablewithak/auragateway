@@ -1,0 +1,209 @@
+from __future__ import annotations
+
+import base64
+import hashlib
+import io
+import json
+import stat
+import zipfile
+from pathlib import Path, PurePosixPath
+
+NOTEBOOK_NAME = "__MATERIALIZER_NOTEBOOK_NAME__"
+OUTPUT_DATASET_NAME = "__OUTPUT_DATASET_NAME__"
+OUTPUT_DIRECTORY_NAME = "__OUTPUT_DIRECTORY_NAME__"
+SOURCE_BUNDLE_NAME = "__SOURCE_BUNDLE_NAME__"
+EXPECTED_SOURCE_BUNDLE_SHA256 = "__SOURCE_BUNDLE_SHA256__"
+EXPECTED_BUNDLE_MANIFEST_SHA256 = "__BUNDLE_MANIFEST_SHA256__"
+EXPECTED_SOURCE_INVENTORY_SHA256 = (
+    "__SOURCE_INVENTORY_SHA256__"
+)
+EXPECTED_SOURCE_REPOSITORY_COMMIT = "__SOURCE_REPOSITORY_COMMIT__"
+BUNDLE_MANIFEST_NAME = "bundle_manifest.json"
+SOURCE_INVENTORY_NAME = "source_inventory.json"
+SHA256_MANIFEST_NAME = "sha256_manifest.json"
+MATERIALIZATION_RECEIPT_NAME = "materialization_receipt.json"
+WORK_ROOT = Path("/kaggle/working").resolve()
+OUTPUT_ROOT = WORK_ROOT / OUTPUT_DIRECTORY_NAME
+STAGING_ROOT = WORK_ROOT / f".{OUTPUT_DIRECTORY_NAME}.staging"
+__SOURCE_BUNDLE_B64__
+
+
+def canonical_json(payload: object) -> str:
+    return json.dumps(
+        payload,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def safe_basename(value: str) -> str:
+    path = PurePosixPath(value)
+    if (
+        path.is_absolute()
+        or len(path.parts) != 1
+        or ".." in path.parts
+        or "\\" in value
+        or value in {".", ".."}
+    ):
+        raise RuntimeError(f"unsafe source bundle member: {value}")
+    return value
+
+
+def validate_member(member: zipfile.ZipInfo) -> str:
+    name = safe_basename(member.filename)
+    mode = member.external_attr >> 16
+    if member.is_dir() or stat.S_ISLNK(mode):
+        raise RuntimeError(f"unsafe source bundle entry: {name}")
+    return name
+
+
+def require_clean_output_paths() -> None:
+    if OUTPUT_ROOT.exists():
+        raise RuntimeError(f"output directory already exists: {OUTPUT_ROOT}")
+    if STAGING_ROOT.exists():
+        raise RuntimeError(f"staging directory already exists: {STAGING_ROOT}")
+
+
+def main() -> None:
+    require_clean_output_paths()
+    bundle_bytes = base64.b64decode(SOURCE_BUNDLE_B64, validate=True)
+    if sha256_bytes(bundle_bytes) != EXPECTED_SOURCE_BUNDLE_SHA256:
+        raise RuntimeError("embedded source bundle identity drifted")
+
+    with zipfile.ZipFile(io.BytesIO(bundle_bytes)) as archive:
+        members = archive.infolist()
+        names = [validate_member(member) for member in members]
+        if len(names) != len(set(names)):
+            raise RuntimeError("source bundle contains duplicate members")
+        if BUNDLE_MANIFEST_NAME not in names:
+            raise RuntimeError("source bundle manifest is missing")
+        manifest_bytes = archive.read(BUNDLE_MANIFEST_NAME)
+        if sha256_bytes(manifest_bytes) != EXPECTED_BUNDLE_MANIFEST_SHA256:
+            raise RuntimeError("source bundle manifest identity drifted")
+        manifest = json.loads(manifest_bytes.decode("utf-8"))
+        if not isinstance(manifest, dict):
+            raise RuntimeError("source bundle manifest must be one object")
+        if (
+            manifest.get("source_repository_commit")
+            != EXPECTED_SOURCE_REPOSITORY_COMMIT
+        ):
+            raise RuntimeError("source repository commit drifted")
+        raw_artifacts = manifest.get("artifacts")
+        if not isinstance(raw_artifacts, list) or len(raw_artifacts) != 3:
+            raise RuntimeError("source bundle artifact count drifted")
+
+        inventory: list[dict[str, object]] = []
+        expected_names = {BUNDLE_MANIFEST_NAME}
+        source_payloads: dict[str, bytes] = {}
+        for raw in raw_artifacts:
+            if not isinstance(raw, dict):
+                raise RuntimeError("source artifact manifest entry is invalid")
+            name = safe_basename(str(raw.get("output_name", "")))
+            expected_names.add(name)
+            payload = archive.read(name)
+            expected_sha256 = raw.get("sha256")
+            expected_size = raw.get("size_bytes")
+            if not isinstance(expected_sha256, str):
+                raise RuntimeError("source artifact SHA-256 is invalid")
+            if not isinstance(expected_size, int):
+                raise RuntimeError("source artifact size is invalid")
+            if len(payload) != expected_size:
+                raise RuntimeError(f"source artifact size drifted: {name}")
+            if sha256_bytes(payload) != expected_sha256:
+                raise RuntimeError(f"source artifact identity drifted: {name}")
+            source_payloads[name] = payload
+            inventory.append(
+                {
+                    "role": raw.get("role"),
+                    "path": name,
+                    "sha256": expected_sha256,
+                    "size_bytes": expected_size,
+                }
+            )
+
+        if set(names) != expected_names:
+            raise RuntimeError("source bundle member set drifted")
+
+    inventory_bytes = canonical_json(inventory).encode("utf-8")
+    if sha256_bytes(inventory_bytes) != EXPECTED_SOURCE_INVENTORY_SHA256:
+        raise RuntimeError("source inventory identity drifted")
+
+    STAGING_ROOT.mkdir(parents=False, exist_ok=False)
+    try:
+        for name, payload in source_payloads.items():
+            (STAGING_ROOT / name).write_bytes(payload)
+
+        inventory_path = STAGING_ROOT / SOURCE_INVENTORY_NAME
+        inventory_path.write_bytes(inventory_bytes)
+        manifest_payload = {item["path"]: item["sha256"] for item in inventory}
+        manifest_payload[SOURCE_INVENTORY_NAME] = sha256_bytes(inventory_bytes)
+        sha_manifest_path = STAGING_ROOT / SHA256_MANIFEST_NAME
+        sha_manifest_path.write_text(
+            canonical_json(manifest_payload),
+            encoding="utf-8",
+        )
+        receipt = {
+            "schema_version": "2.0.0",
+            "status": "P0_P2_SOURCE_MATERIALIZED_V2",
+            "producer_notebook_name": NOTEBOOK_NAME,
+            "output_dataset_name": OUTPUT_DATASET_NAME,
+            "output_directory": OUTPUT_DIRECTORY_NAME,
+            "source_repository_commit": EXPECTED_SOURCE_REPOSITORY_COMMIT,
+            "source_bundle_name": SOURCE_BUNDLE_NAME,
+            "source_bundle_sha256": EXPECTED_SOURCE_BUNDLE_SHA256,
+            "bundle_manifest_sha256": EXPECTED_BUNDLE_MANIFEST_SHA256,
+            "source_inventory_sha256": EXPECTED_SOURCE_INVENTORY_SHA256,
+            "sha256_manifest_sha256": sha256_file(sha_manifest_path),
+            "source_file_count": len(inventory),
+            "network_access_permitted": False,
+            "credentials_present": False,
+            "customer_data_present": False,
+            "model_loads": 0,
+            "worker_starts": 0,
+            "model_requests": 0,
+            "benchmark_trajectory_requests": 0,
+            "external_spend": 0,
+            "next_gate": "execute_metadata_only_p0_p2_source_inspection_v2",
+        }
+        (STAGING_ROOT / MATERIALIZATION_RECEIPT_NAME).write_text(
+            canonical_json(receipt),
+            encoding="utf-8",
+        )
+        STAGING_ROOT.replace(OUTPUT_ROOT)
+    except Exception:
+        if STAGING_ROOT.exists():
+            for child in STAGING_ROOT.iterdir():
+                child.unlink(missing_ok=True)
+            STAGING_ROOT.rmdir()
+        raise
+
+    print(
+        canonical_json(
+            {
+                "status": "P0_P2_SOURCE_MATERIALIZED_V2",
+                "output_directory": str(OUTPUT_ROOT),
+                "output_dataset_name": OUTPUT_DATASET_NAME,
+                "source_bundle_sha256": EXPECTED_SOURCE_BUNDLE_SHA256,
+                "source_file_count": len(inventory),
+                "next_gate": (
+                    "execute_metadata_only_p0_p2_source_inspection_v2"
+                ),
+            }
+        )
+    )
+
+
+main()
