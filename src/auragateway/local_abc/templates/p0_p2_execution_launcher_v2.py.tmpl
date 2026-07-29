@@ -1,0 +1,617 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import traceback
+import zipfile
+from datetime import UTC, datetime
+from pathlib import Path, PurePosixPath
+
+NOTEBOOK_NAME = "ag-cu129-p0-p2-execution-launcher-v2"
+FAILED_NOTEBOOK_NAME = "ag-cu129-p0-p2-exec-failed-v2"
+INPUT_ROOT = Path("/kaggle/input").resolve()
+WORK_ROOT = Path("/kaggle/working").resolve()
+SOURCE_OUTPUT_DIRECTORY = "ag_cu129_p0_p2_source_materializer_v2_output"
+SOURCE_RECEIPT_NAME = "materialization_receipt.json"
+SOURCE_INVENTORY_NAME = "source_inventory.json"
+SOURCE_MANIFEST_NAME = "sha256_manifest.json"
+DIAGNOSTIC_NOTEBOOK_NAME = "auragateway_cu129_p0_p2_platform_diagnostic_v1.ipynb"
+DIAGNOSTIC_REQUEST_NAME = "option_c_p0_p2_platform_diagnostic_request.json"
+IMPLEMENTATION_RECORD_NAME = (
+    "auragateway_cu129_p0_p2_platform_diagnostic_implementation_v1.json"
+)
+DIAGNOSTIC_OUTPUT_DIRECTORY = WORK_ROOT / "ag_cu129_p0_p2_platform_diagnostic_v1"
+DIAGNOSTIC_EVIDENCE_ZIP = WORK_ROOT / "ag-cu129-p0-p2-platform-evidence-v1.zip"
+LAUNCHER_REPORT_PATH = WORK_ROOT / "p0_p2_execution_launcher_report_v2.json"
+LAUNCHER_EVIDENCE_ZIP = WORK_ROOT / "ag-cu129-p0-p2-execution-launcher-v2.zip"
+
+EXPECTED_SOURCE_REPOSITORY_COMMIT = "c3af648ab804629ebac41f2e96b1fcfa81baccd1"
+EXPECTED_SOURCE_BUNDLE_SHA256 = (
+    "bd097235f858500adcce86ddc99d15c9e01c2848fc3fece9a4ea587a0e66b88b"
+)
+EXPECTED_BUNDLE_MANIFEST_SHA256 = (
+    "d99fb24c17a3e2100cda865d9833fbd92876788442ae5c88a305c28798f68cdb"
+)
+EXPECTED_SOURCE_INVENTORY_SHA256 = (
+    "462dbbaf58d6e0bd1568b5ff712955bc452cd56bfeaea0f5d75a3ba0fb657ff7"
+)
+EXPECTED_SOURCE_MANIFEST_SHA256 = (
+    "4185a5d4d8d801a7dbaa3abd82d061c7273025c445012ffac48f61af95dc788e"
+)
+EXPECTED_DIAGNOSTIC_NOTEBOOK_SHA256 = (
+    "caefff1468500ecd75edcd0283b3d806a57b76e9a0a3decb318fc4083806b7f5"
+)
+EXPECTED_DIAGNOSTIC_REQUEST_SHA256 = (
+    "f1a77d91b4fa6b3d187eb62e527ad3a807caa55e7de6d92bd3f80f4c5c9950f5"
+)
+EXPECTED_IMPLEMENTATION_RECORD_SHA256 = (
+    "70c72b2e74fa62146115900d3a32b8e2af82be8b1dc9723e2304f1250e3b96c4"
+)
+EXPECTED_SOURCE_OUTPUT_NAMES = {
+    DIAGNOSTIC_NOTEBOOK_NAME,
+    DIAGNOSTIC_REQUEST_NAME,
+    IMPLEMENTATION_RECORD_NAME,
+    SOURCE_INVENTORY_NAME,
+    SOURCE_MANIFEST_NAME,
+    SOURCE_RECEIPT_NAME,
+}
+EXPECTED_SOURCE_IDENTITIES = {
+    DIAGNOSTIC_NOTEBOOK_NAME: EXPECTED_DIAGNOSTIC_NOTEBOOK_SHA256,
+    DIAGNOSTIC_REQUEST_NAME: EXPECTED_DIAGNOSTIC_REQUEST_SHA256,
+    IMPLEMENTATION_RECORD_NAME: EXPECTED_IMPLEMENTATION_RECORD_SHA256,
+}
+EXPECTED_DIAGNOSTIC_EVIDENCE_NAMES = {
+    "platform_identity_report.json",
+    "cuda_driver_linker_report.json",
+    "minimal_triton_kernel_report.json",
+    "option_c_platform_diagnostic_summary.json",
+    "bundle_manifest.json",
+    "human_report.md",
+}
+CREDENTIAL_ENVIRONMENT_NAMES = (
+    "ANTHROPIC_API_KEY",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AZURE_OPENAI_API_KEY",
+    "GOOGLE_API_KEY",
+    "HF_TOKEN",
+    "HUGGING_FACE_HUB_TOKEN",
+    "KAGGLE_KEY",
+    "OPENAI_API_KEY",
+    "OPENROUTER_API_KEY",
+)
+MAXIMUM_CONTROL_BYTES = 1024 * 1024
+MAXIMUM_DIAGNOSTIC_NOTEBOOK_BYTES = 1024 * 1024
+MAXIMUM_DIAGNOSTIC_EVIDENCE_BYTES = 4 * 1024 * 1024
+MAXIMUM_SAFE_MESSAGE_CHARACTERS = 1000
+ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
+
+stage = "launcher_initialization"
+diagnostic_execution_attempts = 0
+
+
+def canonical_json(payload: object) -> str:
+    return json.dumps(
+        payload,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def validate_regular_file(path: Path, *, maximum_bytes: int) -> None:
+    if not path.is_file() or path.is_symlink():
+        raise RuntimeError(f"expected one regular file: {path.name}")
+    if path.stat().st_size > maximum_bytes:
+        raise RuntimeError(f"bounded file exceeds its size limit: {path.name}")
+
+
+def safe_basename(value: str) -> str:
+    path = PurePosixPath(value)
+    if (
+        path.is_absolute()
+        or len(path.parts) != 1
+        or ".." in path.parts
+        or "\\" in value
+        or value in {".", ".."}
+    ):
+        raise RuntimeError(f"unsafe materialized source path: {value}")
+    return value
+
+
+def load_json_object(path: Path, *, maximum_bytes: int) -> dict[str, object]:
+    validate_regular_file(path, maximum_bytes=maximum_bytes)
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise RuntimeError(f"invalid JSON object: {path.name}") from error
+    if not isinstance(raw, dict):
+        raise RuntimeError(f"JSON root must be one object: {path.name}")
+    return {str(key): value for key, value in raw.items()}
+
+
+def discover_source_output() -> tuple[Path, dict[str, object]]:
+    candidates: list[tuple[Path, dict[str, object]]] = []
+    for receipt_path in INPUT_ROOT.rglob(SOURCE_RECEIPT_NAME):
+        if not receipt_path.is_file() or receipt_path.is_symlink():
+            continue
+        source_root = receipt_path.parent.resolve()
+        if source_root == INPUT_ROOT or INPUT_ROOT not in source_root.parents:
+            continue
+        try:
+            receipt = load_json_object(
+                receipt_path,
+                maximum_bytes=MAXIMUM_CONTROL_BYTES,
+            )
+        except RuntimeError:
+            continue
+        expected_fields = {
+            "schema_version": "2.0.0",
+            "status": "P0_P2_SOURCE_MATERIALIZED_V2",
+            "producer_notebook_name": "ag-cu129-p0-p2-source-materializer-v2",
+            "output_dataset_name": "ag-cu129-p0-p2-source-v2",
+            "output_directory": SOURCE_OUTPUT_DIRECTORY,
+            "source_repository_commit": EXPECTED_SOURCE_REPOSITORY_COMMIT,
+            "source_bundle_sha256": EXPECTED_SOURCE_BUNDLE_SHA256,
+            "bundle_manifest_sha256": EXPECTED_BUNDLE_MANIFEST_SHA256,
+            "source_inventory_sha256": EXPECTED_SOURCE_INVENTORY_SHA256,
+            "sha256_manifest_sha256": EXPECTED_SOURCE_MANIFEST_SHA256,
+            "source_file_count": 3,
+            "network_access_permitted": False,
+            "credentials_present": False,
+            "customer_data_present": False,
+            "model_loads": 0,
+            "worker_starts": 0,
+            "model_requests": 0,
+            "benchmark_trajectory_requests": 0,
+            "external_spend": 0,
+        }
+        if all(receipt.get(key) == value for key, value in expected_fields.items()):
+            candidates.append((source_root, receipt))
+    if len(candidates) != 1:
+        raise RuntimeError(
+            "expected exactly one identity-shaped P0-P2 source output, "
+            f"observed {len(candidates)}"
+        )
+    return candidates[0]
+
+
+def validate_source_output(
+    source_root: Path,
+    receipt: dict[str, object],
+) -> tuple[Path, dict[str, object]]:
+    members = sorted(source_root.iterdir(), key=lambda item: item.name)
+    observed_names = {path.name for path in members}
+    if observed_names != EXPECTED_SOURCE_OUTPUT_NAMES:
+        raise RuntimeError(
+            "source output file set drifted; "
+            f"expected={tuple(sorted(EXPECTED_SOURCE_OUTPUT_NAMES))}; "
+            f"observed={tuple(sorted(observed_names))}"
+        )
+    for path in members:
+        validate_regular_file(path, maximum_bytes=MAXIMUM_DIAGNOSTIC_NOTEBOOK_BYTES)
+
+    inventory_path = source_root / SOURCE_INVENTORY_NAME
+    manifest_path = source_root / SOURCE_MANIFEST_NAME
+    if sha256_file(inventory_path) != EXPECTED_SOURCE_INVENTORY_SHA256:
+        raise RuntimeError("source inventory identity drifted")
+    if sha256_file(manifest_path) != EXPECTED_SOURCE_MANIFEST_SHA256:
+        raise RuntimeError("source SHA-256 manifest identity drifted")
+
+    inventory_raw = json.loads(inventory_path.read_text(encoding="utf-8"))
+    manifest_raw = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(inventory_raw, list) or len(inventory_raw) != 3:
+        raise RuntimeError("source inventory must contain exactly three entries")
+    if not isinstance(manifest_raw, dict):
+        raise RuntimeError("source SHA-256 manifest must be one object")
+    manifest = {str(key): value for key, value in manifest_raw.items()}
+
+    roles = []
+    for raw_entry in inventory_raw:
+        if not isinstance(raw_entry, dict):
+            raise RuntimeError("source inventory entry is invalid")
+        path_value = raw_entry.get("path")
+        role_value = raw_entry.get("role")
+        sha_value = raw_entry.get("sha256")
+        size_value = raw_entry.get("size_bytes")
+        if not isinstance(path_value, str):
+            raise RuntimeError("source inventory path is invalid")
+        if not isinstance(role_value, str):
+            raise RuntimeError("source inventory role is invalid")
+        if not isinstance(sha_value, str) or not isinstance(size_value, int):
+            raise RuntimeError("source inventory identity fields are invalid")
+        name = safe_basename(path_value)
+        expected_sha = EXPECTED_SOURCE_IDENTITIES.get(name)
+        if expected_sha is None or sha_value != expected_sha:
+            raise RuntimeError(f"source inventory identity drifted: {name}")
+        path = source_root / name
+        if path.stat().st_size != size_value or sha256_file(path) != expected_sha:
+            raise RuntimeError(f"materialized source identity drifted: {name}")
+        if manifest.get(name) != expected_sha:
+            raise RuntimeError(f"source SHA-256 manifest binding drifted: {name}")
+        roles.append(role_value)
+
+    if roles != [
+        "diagnostic_notebook",
+        "diagnostic_request",
+        "implementation_record",
+    ]:
+        raise RuntimeError("source inventory role ordering drifted")
+    if manifest.get(SOURCE_INVENTORY_NAME) != EXPECTED_SOURCE_INVENTORY_SHA256:
+        raise RuntimeError("source inventory manifest binding drifted")
+    if receipt.get("source_inventory_sha256") != EXPECTED_SOURCE_INVENTORY_SHA256:
+        raise RuntimeError("source receipt inventory binding drifted")
+
+    notebook_path = source_root / DIAGNOSTIC_NOTEBOOK_NAME
+    notebook = load_json_object(
+        notebook_path,
+        maximum_bytes=MAXIMUM_DIAGNOSTIC_NOTEBOOK_BYTES,
+    )
+    if sha256_file(notebook_path) != EXPECTED_DIAGNOSTIC_NOTEBOOK_SHA256:
+        raise RuntimeError("diagnostic notebook identity drifted")
+    cells = notebook.get("cells")
+    if not isinstance(cells, list) or len(cells) != 2:
+        raise RuntimeError("diagnostic notebook cell count drifted")
+    code_cell = cells[1]
+    if not isinstance(code_cell, dict) or code_cell.get("cell_type") != "code":
+        raise RuntimeError("diagnostic notebook code cell is invalid")
+    if code_cell.get("outputs") != [] or code_cell.get("execution_count") is not None:
+        raise RuntimeError("diagnostic notebook contains execution state")
+    source_lines = code_cell.get("source")
+    if not isinstance(source_lines, list) or not all(
+        isinstance(line, str) for line in source_lines
+    ):
+        raise RuntimeError("diagnostic notebook source is invalid")
+    code_source = "".join(source_lines)
+    compile(code_source, DIAGNOSTIC_NOTEBOOK_NAME, "exec")
+    return notebook_path, {"code_source": code_source}
+
+
+def validate_zero_budget(payload: dict[str, object], *, label: str) -> None:
+    expected = {
+        "model_loads": 0,
+        "worker_starts": 0,
+        "model_requests": 0,
+        "benchmark_trajectory_requests": 0,
+        "network_requests": 0,
+    }
+    for field, value in expected.items():
+        if payload.get(field) != value:
+            raise RuntimeError(f"{label} safety budget drifted: {field}")
+
+
+def validate_probe_budgets(
+    output_root: Path,
+) -> tuple[int, int]:
+    p0 = load_json_object(
+        output_root / "platform_identity_report.json",
+        maximum_bytes=MAXIMUM_CONTROL_BYTES,
+    )
+    p1 = load_json_object(
+        output_root / "cuda_driver_linker_report.json",
+        maximum_bytes=MAXIMUM_CONTROL_BYTES,
+    )
+    p2 = load_json_object(
+        output_root / "minimal_triton_kernel_report.json",
+        maximum_bytes=MAXIMUM_CONTROL_BYTES,
+    )
+    for label, probe in (("P0", p0), ("P1", p1), ("P2", p2)):
+        budgets = probe.get("budgets")
+        if not isinstance(budgets, dict):
+            raise RuntimeError(f"{label} budgets are missing")
+        validate_zero_budget(
+            {str(key): value for key, value in budgets.items()},
+            label=label,
+        )
+        if budgets.get("hidden_retries", 0) != 0:
+            raise RuntimeError(f"{label} hidden retry budget drifted")
+
+    p2_budgets_raw = p2.get("budgets")
+    if not isinstance(p2_budgets_raw, dict):
+        raise RuntimeError("P2 budgets are missing")
+    runtime_install_attempts = p2_budgets_raw.get("runtime_install_attempts", 0)
+    kernel_attempts = p2_budgets_raw.get("kernel_compile_and_execution_attempts", 0)
+    if runtime_install_attempts not in {0, 1}:
+        raise RuntimeError("P2 runtime installation attempt budget drifted")
+    if kernel_attempts not in {0, 1}:
+        raise RuntimeError("P2 kernel execution attempt budget drifted")
+    return int(runtime_install_attempts), int(kernel_attempts)
+
+
+def validate_diagnostic_evidence() -> dict[str, object]:
+    if not DIAGNOSTIC_OUTPUT_DIRECTORY.is_dir():
+        raise RuntimeError("diagnostic output directory is missing")
+    validate_regular_file(
+        DIAGNOSTIC_EVIDENCE_ZIP,
+        maximum_bytes=MAXIMUM_DIAGNOSTIC_EVIDENCE_BYTES,
+    )
+    with zipfile.ZipFile(DIAGNOSTIC_EVIDENCE_ZIP, "r") as archive:
+        infos = archive.infolist()
+        names = [info.filename for info in infos]
+        if set(names) != EXPECTED_DIAGNOSTIC_EVIDENCE_NAMES:
+            raise RuntimeError("diagnostic evidence ZIP member set drifted")
+        if len(names) != len(EXPECTED_DIAGNOSTIC_EVIDENCE_NAMES):
+            raise RuntimeError("diagnostic evidence ZIP contains duplicate members")
+        if any(info.is_dir() for info in infos):
+            raise RuntimeError("diagnostic evidence ZIP contains a directory member")
+
+    summary = load_json_object(
+        DIAGNOSTIC_OUTPUT_DIRECTORY / "option_c_platform_diagnostic_summary.json",
+        maximum_bytes=MAXIMUM_CONTROL_BYTES,
+    )
+    validate_zero_budget(summary, label="diagnostic summary")
+    if summary.get("hidden_retries_performed") != 0:
+        raise RuntimeError("diagnostic summary hidden retry budget drifted")
+    if summary.get("full_triton_qualification_attempt_consumed") is not False:
+        raise RuntimeError("full Triton qualification attempt was consumed")
+    if summary.get("status") not in {"PASSED", "FAILED_CLOSED"}:
+        raise RuntimeError("diagnostic summary status is invalid")
+    terminal_decision = summary.get("terminal_decision")
+    if terminal_decision not in {
+        "P0_P2_PLATFORM_DIAGNOSTIC_PASSED",
+        "DIAGNOSTIC_INVALID",
+        "CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED",
+        "CURRENT_STACK_TRITON_INCOMPATIBLE",
+    }:
+        raise RuntimeError("diagnostic terminal decision is invalid")
+    expected_next_gate = (
+        "implement_explicit_triton_attention_backend"
+        if terminal_decision == "P0_P2_PLATFORM_DIAGNOSTIC_PASSED"
+        else "preserve_evidence_and_classify_platform_failure"
+    )
+    if summary.get("next_gate") != expected_next_gate:
+        raise RuntimeError("diagnostic next gate drifted")
+
+    bundle_manifest = load_json_object(
+        DIAGNOSTIC_OUTPUT_DIRECTORY / "bundle_manifest.json",
+        maximum_bytes=MAXIMUM_CONTROL_BYTES,
+    )
+    members = bundle_manifest.get("members")
+    if not isinstance(members, list) or len(members) != 5:
+        raise RuntimeError("diagnostic bundle manifest member set drifted")
+    for raw_member in members:
+        if not isinstance(raw_member, dict):
+            raise RuntimeError("diagnostic bundle manifest member is invalid")
+        name = raw_member.get("path")
+        sha = raw_member.get("sha256")
+        size = raw_member.get("size_bytes")
+        if not isinstance(name, str) or not isinstance(sha, str):
+            raise RuntimeError("diagnostic bundle manifest identity is invalid")
+        if not isinstance(size, int):
+            raise RuntimeError("diagnostic bundle manifest size is invalid")
+        path = DIAGNOSTIC_OUTPUT_DIRECTORY / safe_basename(name)
+        validate_regular_file(path, maximum_bytes=MAXIMUM_CONTROL_BYTES)
+        if path.stat().st_size != size or sha256_file(path) != sha:
+            raise RuntimeError(f"diagnostic evidence identity drifted: {name}")
+
+    runtime_attempts, kernel_attempts = validate_probe_budgets(
+        DIAGNOSTIC_OUTPUT_DIRECTORY
+    )
+    return {
+        "summary": summary,
+        "bundle_manifest": bundle_manifest,
+        "runtime_install_attempts": runtime_attempts,
+        "kernel_compile_and_execution_attempts": kernel_attempts,
+    }
+
+
+def write_fixed_zip_member(
+    archive: zipfile.ZipFile,
+    *,
+    name: str,
+    payload: bytes,
+) -> None:
+    info = zipfile.ZipInfo(name, date_time=ZIP_TIMESTAMP)
+    info.compress_type = zipfile.ZIP_DEFLATED
+    info.external_attr = (0o100644 & 0xFFFF) << 16
+    archive.writestr(info, payload)
+
+
+def write_launcher_evidence(
+    *,
+    source_root: Path,
+    report: dict[str, object],
+    diagnostic: dict[str, object],
+) -> None:
+    report_bytes = canonical_json(report).encode("utf-8")
+    LAUNCHER_REPORT_PATH.write_bytes(report_bytes)
+    if LAUNCHER_EVIDENCE_ZIP.exists():
+        raise RuntimeError("launcher evidence ZIP already exists")
+    members = {
+        LAUNCHER_REPORT_PATH.name: report_bytes,
+        SOURCE_RECEIPT_NAME: (source_root / SOURCE_RECEIPT_NAME).read_bytes(),
+        SOURCE_INVENTORY_NAME: (source_root / SOURCE_INVENTORY_NAME).read_bytes(),
+        SOURCE_MANIFEST_NAME: (source_root / SOURCE_MANIFEST_NAME).read_bytes(),
+        "option_c_platform_diagnostic_summary.json": canonical_json(
+            diagnostic["summary"]
+        ).encode("utf-8"),
+        "bundle_manifest.json": canonical_json(
+            diagnostic["bundle_manifest"]
+        ).encode("utf-8"),
+    }
+    with zipfile.ZipFile(
+        LAUNCHER_EVIDENCE_ZIP,
+        mode="w",
+        compression=zipfile.ZIP_DEFLATED,
+        compresslevel=9,
+    ) as archive:
+        for name in sorted(members):
+            write_fixed_zip_member(
+                archive,
+                name=name,
+                payload=members[name],
+            )
+
+
+def write_failure_evidence(error: Exception) -> None:
+    failure = {
+        "schema_version": "2.0.0",
+        "status": "P0_P2_EXECUTION_LAUNCHER_FAILED_V2",
+        "notebook_name": NOTEBOOK_NAME,
+        "stage": stage,
+        "captured_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
+        "exception_type": type(error).__name__,
+        "safe_message": str(error)[:MAXIMUM_SAFE_MESSAGE_CHARACTERS],
+        "diagnostic_execution_attempts": diagnostic_execution_attempts,
+        "model_loads": 0,
+        "worker_starts": 0,
+        "model_requests": 0,
+        "benchmark_trajectory_requests": 0,
+        "network_requests": 0,
+        "credentials_used": False,
+        "customer_data_present": False,
+        "external_spend": 0,
+        "traceback_tail": "".join(
+            traceback.format_exception(type(error), error, error.__traceback__)
+        )[-32768:],
+        "next_gate": "preserve_failure_evidence_and_review_launcher_v2",
+    }
+    payload = canonical_json(failure).encode("utf-8")
+    LAUNCHER_REPORT_PATH.write_bytes(payload)
+    if LAUNCHER_EVIDENCE_ZIP.exists():
+        LAUNCHER_EVIDENCE_ZIP.unlink()
+    with zipfile.ZipFile(
+        LAUNCHER_EVIDENCE_ZIP,
+        mode="w",
+        compression=zipfile.ZIP_DEFLATED,
+        compresslevel=9,
+    ) as archive:
+        write_fixed_zip_member(
+            archive,
+            name=LAUNCHER_REPORT_PATH.name,
+            payload=payload,
+        )
+
+
+def main() -> None:
+    global stage
+    global diagnostic_execution_attempts
+
+    if LAUNCHER_REPORT_PATH.exists() or LAUNCHER_EVIDENCE_ZIP.exists():
+        raise RuntimeError("launcher output path already exists")
+    if DIAGNOSTIC_OUTPUT_DIRECTORY.exists() or DIAGNOSTIC_EVIDENCE_ZIP.exists():
+        raise RuntimeError("diagnostic output path already exists")
+    credential_names_present = sorted(
+        name for name in CREDENTIAL_ENVIRONMENT_NAMES if os.environ.get(name)
+    )
+    if credential_names_present:
+        raise RuntimeError("credential environment variables are present")
+    os.environ["HF_HUB_OFFLINE"] = "1"
+    os.environ["TRANSFORMERS_OFFLINE"] = "1"
+    os.environ["PIP_NO_INDEX"] = "1"
+    os.environ["PYTHONNOUSERSITE"] = "1"
+
+    stage = "source_output_discovery"
+    source_root, receipt = discover_source_output()
+
+    stage = "source_output_validation"
+    _, notebook_contract = validate_source_output(source_root, receipt)
+    code_source = notebook_contract.get("code_source")
+    if not isinstance(code_source, str):
+        raise RuntimeError("validated diagnostic code source is unavailable")
+
+    stage = "diagnostic_execution"
+    diagnostic_execution_attempts += 1
+    if diagnostic_execution_attempts != 1:
+        raise RuntimeError("diagnostic execution attempt budget exceeded")
+    namespace: dict[str, object] = {
+        "__name__": "__auragateway_p0_p2_platform_diagnostic__",
+    }
+    exec(
+        compile(code_source, DIAGNOSTIC_NOTEBOOK_NAME, "exec"),
+        namespace,
+    )
+
+    stage = "diagnostic_evidence_validation"
+    diagnostic = validate_diagnostic_evidence()
+    summary = diagnostic["summary"]
+    if not isinstance(summary, dict):
+        raise RuntimeError("validated diagnostic summary is unavailable")
+
+    stage = "launcher_evidence_packaging"
+    report = {
+        "schema_version": "2.0.0",
+        "status": "P0_P2_EXECUTION_LAUNCHER_COMPLETED_V2",
+        "notebook_name": NOTEBOOK_NAME,
+        "captured_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
+        "source_root": str(source_root),
+        "source_repository_commit": EXPECTED_SOURCE_REPOSITORY_COMMIT,
+        "source_bundle_sha256": EXPECTED_SOURCE_BUNDLE_SHA256,
+        "source_inventory_sha256": EXPECTED_SOURCE_INVENTORY_SHA256,
+        "diagnostic_notebook_sha256": EXPECTED_DIAGNOSTIC_NOTEBOOK_SHA256,
+        "direct_notebook_output_attachment_supported": True,
+        "standalone_kaggle_dataset_required": False,
+        "diagnostic_execution_attempts": diagnostic_execution_attempts,
+        "runtime_install_attempts": diagnostic[
+            "runtime_install_attempts"
+        ],
+        "kernel_compile_and_execution_attempts": diagnostic[
+            "kernel_compile_and_execution_attempts"
+        ],
+        "diagnostic_status": summary.get("status"),
+        "terminal_decision": summary.get("terminal_decision"),
+        "full_triton_qualification_attempt_consumed": False,
+        "model_loads": 0,
+        "worker_starts": 0,
+        "model_requests": 0,
+        "benchmark_trajectory_requests": 0,
+        "network_requests": 0,
+        "credentials_used": False,
+        "customer_data_present": False,
+        "external_spend": 0,
+        "diagnostic_evidence_zip_sha256": sha256_file(
+            DIAGNOSTIC_EVIDENCE_ZIP
+        ),
+        "next_gate": summary.get("next_gate"),
+    }
+    write_launcher_evidence(
+        source_root=source_root,
+        report=report,
+        diagnostic=diagnostic,
+    )
+    print(
+        canonical_json(
+            {
+                "status": report["status"],
+                "terminal_decision": report["terminal_decision"],
+                "diagnostic_execution_attempts": 1,
+                "runtime_install_attempts": report[
+                    "runtime_install_attempts"
+                ],
+                "kernel_compile_and_execution_attempts": report[
+                    "kernel_compile_and_execution_attempts"
+                ],
+                "model_loads": 0,
+                "worker_starts": 0,
+                "model_requests": 0,
+                "benchmark_trajectory_requests": 0,
+                "network_requests": 0,
+                "external_spend": 0,
+                "launcher_evidence_zip": str(LAUNCHER_EVIDENCE_ZIP),
+                "launcher_evidence_zip_sha256": sha256_file(
+                    LAUNCHER_EVIDENCE_ZIP
+                ),
+                "next_gate": report["next_gate"],
+            }
+        )
+    )
+
+
+try:
+    main()
+except Exception as error:
+    write_failure_evidence(error)
+    raise
