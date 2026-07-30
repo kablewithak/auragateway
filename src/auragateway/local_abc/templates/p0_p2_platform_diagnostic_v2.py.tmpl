@@ -1,0 +1,1274 @@
+from __future__ import annotations
+
+import ctypes.util
+import glob
+import hashlib
+import importlib.metadata
+import importlib.util
+import json
+import os
+import platform
+import shutil
+import subprocess
+import sys
+import zipfile
+from datetime import UTC, datetime
+from pathlib import Path
+
+SCHEMA_VERSION = "2.0.0"
+DIAGNOSTIC_ID = "auragateway-cu129-p0-p2-platform-diagnostic-v2"
+SOURCE_MAIN_COMMIT = "fe297a6f1aeed04119452552874dab22bfe01dee"
+
+OUTPUT_DIRECTORY = Path(
+    "/kaggle/working/ag_cu129_p0_p2_platform_diagnostic_v2"
+)
+EVIDENCE_ZIP = Path(
+    "/kaggle/working/ag-cu129-p0-p2-platform-evidence-v2.zip"
+)
+RUNTIME_OUTPUT_DIRECTORY = "auragateway_vllm_cu129_wheelhouse_v1"
+REAL_DRIVER_DIRECTORY = Path("/usr/local/nvidia/lib64")
+REAL_DRIVER_LINK_PATH = REAL_DRIVER_DIRECTORY / "libcuda.so"
+CUDA_STUB_DIRECTORY = Path("/usr/local/cuda/lib64/stubs")
+REQUIRED_LINK_FLAGS = (
+    "-L/usr/local/nvidia/lib64",
+    "-Wl,-rpath,/usr/local/nvidia/lib64",
+    "-Wl,-t",
+    "-lcuda",
+)
+P1_C_SOURCE = (
+    b"extern int cuInit(unsigned int);\n"
+    b"int main(void) { return cuInit(0); }\n"
+)
+P1_C_SOURCE_SHA256 = hashlib.sha256(P1_C_SOURCE).hexdigest()
+EXPECTED_PACKAGE_COUNT = 176
+EXPECTED_CONTROL_HASHES = {
+    "requirements.in": (
+        "a120c72a5643bb65afbfe0bd3dd072f1ea89a19f57a534dd814c9bafdd41880f"
+    ),
+    "resolution_lock.json": (
+        "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"
+    ),
+    "materialization.lock.txt": (
+        "d061bd9a7ff0a686bb462a2bd016a1f3e1aea833fbdbff353dddf96fdd623e1d"
+    ),
+    "requirements.lock.txt": (
+        "47cb357a53ca74ca597b286768e1d0e9cb831f7431c08fad378fc42ea59b3a27"
+    ),
+    "install_runtime.py": (
+        "68bba3ca131e9a6f36392330562985d2a644be57cf5437fd282b883741c86821"
+    ),
+    "runtime_manifest.json": (
+        "b424d2b952d726b2f7451ebd8f48d604985f650dbe2f6d146969625618b7fc51"
+    ),
+    "sha256_manifest.json": (
+        "789fb23ab7d9c4f28dd909e808a53a65d692c0d7b43bc44da9e974817d771b8d"
+    ),
+    "materialization_receipt.json": (
+        "52aa42b940dd606ab5685686ab893eb085efed2a7466989f654e870f4b360589"
+    ),
+}
+REQUIRED_OUTPUTS = (
+    "platform_identity_report_v2.json",
+    "explicit_cuda_driver_link_report_v2.json",
+    "minimal_triton_kernel_report_v2.json",
+    "p0_p2_platform_diagnostic_summary_v2.json",
+    "bundle_manifest_v2.json",
+    "human_report_v2.md",
+)
+ALLOWLISTED_ENVIRONMENT = (
+    "BUILD_DATE",
+    "GIT_COMMIT",
+    "KAGGLE_KERNEL_RUN_TYPE",
+    "KAGGLE_CONTAINER_NAME",
+    "LD_LIBRARY_PATH",
+    "LIBRARY_PATH",
+    "CUDA_HOME",
+    "CUDA_PATH",
+)
+CREDENTIAL_ENVIRONMENT_NAMES = (
+    "ANTHROPIC_API_KEY",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AZURE_OPENAI_API_KEY",
+    "GOOGLE_API_KEY",
+    "HF_TOKEN",
+    "HUGGING_FACE_HUB_TOKEN",
+    "KAGGLE_KEY",
+    "OPENAI_API_KEY",
+    "OPENROUTER_API_KEY",
+)
+MAXIMUM_CAPTURE_CHARACTERS = 24000
+COMMAND_TIMEOUT_SECONDS = 180
+RUNTIME_INSTALL_TIMEOUT_SECONDS = 1800
+ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
+INITIAL_LINK_ENVIRONMENT = {
+    name: os.environ.get(name)
+    for name in ("LIBRARY_PATH", "LD_LIBRARY_PATH", "LDFLAGS", "CC")
+}
+
+
+def canonical_json(payload: object) -> str:
+    return json.dumps(
+        payload,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def bounded(value: str) -> str:
+    if len(value) <= MAXIMUM_CAPTURE_CHARACTERS:
+        return value
+    return value[-MAXIMUM_CAPTURE_CHARACTERS:]
+
+
+def run_command(
+    argv: list[str],
+    *,
+    timeout: int = COMMAND_TIMEOUT_SECONDS,
+    env: dict[str, str] | None = None,
+) -> dict[str, object]:
+    started_at = datetime.now(UTC).isoformat()
+    try:
+        completed = subprocess.run(
+            argv,
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout,
+            env=env,
+        )
+        return {
+            "argv": argv,
+            "returncode": completed.returncode,
+            "stdout": bounded(completed.stdout),
+            "stderr": bounded(completed.stderr),
+            "timed_out": False,
+            "started_at": started_at,
+            "completed_at": datetime.now(UTC).isoformat(),
+        }
+    except subprocess.TimeoutExpired as error:
+        stdout = (
+            error.stdout.decode("utf-8", errors="replace")
+            if isinstance(error.stdout, bytes)
+            else (error.stdout or "")
+        )
+        stderr = (
+            error.stderr.decode("utf-8", errors="replace")
+            if isinstance(error.stderr, bytes)
+            else (error.stderr or "")
+        )
+        return {
+            "argv": argv,
+            "returncode": None,
+            "stdout": bounded(stdout),
+            "stderr": bounded(stderr),
+            "timed_out": True,
+            "started_at": started_at,
+            "completed_at": datetime.now(UTC).isoformat(),
+        }
+    except OSError as error:
+        return {
+            "argv": argv,
+            "returncode": None,
+            "stdout": "",
+            "stderr": bounded(f"{type(error).__name__}: {error}"),
+            "timed_out": False,
+            "started_at": started_at,
+            "completed_at": datetime.now(UTC).isoformat(),
+        }
+
+
+def write_json(name: str, payload: object) -> None:
+    (OUTPUT_DIRECTORY / name).write_text(
+        canonical_json(payload),
+        encoding="utf-8",
+    )
+
+
+def is_within(path: Path, root: Path) -> bool:
+    candidate = path.resolve(strict=False)
+    boundary = root.resolve(strict=False)
+    return candidate == boundary or boundary in candidate.parents
+
+
+def parse_os_release() -> dict[str, str]:
+    path = Path("/etc/os-release")
+    if not path.is_file():
+        return {}
+    result: dict[str, str] = {}
+    for line in path.read_text(
+        encoding="utf-8",
+        errors="replace",
+    ).splitlines():
+        if "=" not in line:
+            continue
+        key, value = line.split("=", maxsplit=1)
+        result[key] = value.strip().strip('"')
+    return result
+
+
+def command_identity(name: str, args: list[str]) -> dict[str, object]:
+    resolved = shutil.which(name)
+    observation: dict[str, object] = {"name": name, "path": resolved}
+    if resolved is not None:
+        observation["version"] = run_command([resolved, *args])
+    return observation
+
+
+def module_identity(name: str) -> dict[str, object]:
+    spec = importlib.util.find_spec(name)
+    try:
+        distribution_version = importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        distribution_version = None
+    return {
+        "module": name,
+        "origin": None if spec is None else spec.origin,
+        "distribution_version": distribution_version,
+    }
+
+
+def discover_cuda_candidates() -> list[dict[str, object]]:
+    roots = (
+        REAL_DRIVER_DIRECTORY,
+        Path("/usr/local/cuda/lib64"),
+        CUDA_STUB_DIRECTORY,
+        Path("/usr/lib/x86_64-linux-gnu"),
+        Path("/usr/lib64"),
+        Path("/lib/x86_64-linux-gnu"),
+    )
+    seen: set[str] = set()
+    observations: list[dict[str, object]] = []
+    for root in roots:
+        if not root.exists():
+            continue
+        for raw in sorted(glob.glob(str(root / "libcuda.so*"))):
+            path = Path(raw)
+            normalized = str(path)
+            if normalized in seen:
+                continue
+            seen.add(normalized)
+            exists = path.exists()
+            observations.append(
+                {
+                    "path": normalized,
+                    "exists": exists,
+                    "is_symlink": path.is_symlink(),
+                    "resolved_path": str(path.resolve(strict=False)),
+                    "size_bytes": path.stat().st_size if exists else None,
+                    "classification": (
+                        "CUDA_TOOLKIT_STUB"
+                        if is_within(path, CUDA_STUB_DIRECTORY)
+                        else "REAL_OR_DRIVER_MOUNT"
+                    ),
+                }
+            )
+    return observations[:128]
+
+
+def p0_platform_identity() -> tuple[dict[str, object], bool]:
+    credentials = sorted(
+        name for name in CREDENTIAL_ENVIRONMENT_NAMES if os.environ.get(name)
+    )
+    environment = {name: os.environ.get(name) for name in ALLOWLISTED_ENVIRONMENT}
+    nvidia_smi = run_command(
+        [
+            shutil.which("nvidia-smi") or "nvidia-smi",
+            "--query-gpu=index,name,driver_version,memory.total",
+            "--format=csv,noheader,nounits",
+        ]
+    )
+    base_torch: dict[str, object]
+    try:
+        import torch
+
+        devices: list[dict[str, object]] = []
+        for index in range(torch.cuda.device_count()):
+            properties = torch.cuda.get_device_properties(index)
+            devices.append(
+                {
+                    "index": index,
+                    "name": torch.cuda.get_device_name(index),
+                    "compute_capability": list(
+                        torch.cuda.get_device_capability(index)
+                    ),
+                    "total_memory_bytes": properties.total_memory,
+                }
+            )
+        base_torch = {
+            "imported": True,
+            "version": torch.__version__,
+            "cuda_build": torch.version.cuda,
+            "module_origin": torch.__file__,
+            "cuda_available": torch.cuda.is_available(),
+            "device_count": torch.cuda.device_count(),
+            "devices": devices,
+        }
+    except Exception as error:
+        base_torch = {
+            "imported": False,
+            "error_type": type(error).__name__,
+            "safe_error": bounded(str(error)),
+        }
+
+    devices_value = base_torch.get("devices")
+    dual_t4 = (
+        isinstance(devices_value, list)
+        and len(devices_value) == 2
+        and all(
+            isinstance(item, dict)
+            and "T4" in str(item.get("name", "")).upper()
+            and item.get("compute_capability") == [7, 5]
+            for item in devices_value
+        )
+    )
+    tools_available = all(
+        shutil.which(name) is not None
+        for name in ("cc", "ld", "ldd", "readelf")
+    )
+    real_link_present = REAL_DRIVER_LINK_PATH.is_file()
+    real_link_resolved = (
+        real_link_present
+        and is_within(REAL_DRIVER_LINK_PATH.resolve(), REAL_DRIVER_DIRECTORY)
+        and not is_within(REAL_DRIVER_LINK_PATH.resolve(), CUDA_STUB_DIRECTORY)
+    )
+    build_identity_complete = bool(
+        environment.get("BUILD_DATE") and environment.get("GIT_COMMIT")
+    )
+    passed = (
+        not credentials
+        and build_identity_complete
+        and dual_t4
+        and tools_available
+        and real_link_resolved
+        and nvidia_smi.get("returncode") == 0
+        and base_torch.get("cuda_available") is True
+    )
+    report = {
+        "schema_version": SCHEMA_VERSION,
+        "diagnostic_id": DIAGNOSTIC_ID,
+        "probe_id": "P0",
+        "probe_name": "KAGGLE_IMAGE_AND_REAL_DRIVER_PREFLIGHT",
+        "captured_at": datetime.now(UTC).isoformat(),
+        "status": "PASSED" if passed else "FAILED",
+        "decision": (
+            "P0_REAL_DRIVER_PREFLIGHT_PASSED" if passed else "DIAGNOSTIC_INVALID"
+        ),
+        "source_main_commit": SOURCE_MAIN_COMMIT,
+        "python": {
+            "version": platform.python_version(),
+            "implementation": platform.python_implementation(),
+            "executable": sys.executable,
+        },
+        "platform": {
+            "system": platform.system(),
+            "release": platform.release(),
+            "machine": platform.machine(),
+            "os_release": parse_os_release(),
+        },
+        "allowlisted_environment": environment,
+        "credential_environment_names_present": credentials,
+        "nvidia_smi": nvidia_smi,
+        "base_torch": base_torch,
+        "base_modules": [module_identity("torch"), module_identity("triton")],
+        "tools": [
+            command_identity("cc", ["--version"]),
+            command_identity("ld", ["--version"]),
+            command_identity("ldd", ["--version"]),
+            command_identity("readelf", ["--version"]),
+        ],
+        "ctypes_find_library_cuda": ctypes.util.find_library("cuda"),
+        "cuda_candidates": discover_cuda_candidates(),
+        "real_driver_link_path": str(REAL_DRIVER_LINK_PATH),
+        "real_driver_resolved_path": (
+            str(REAL_DRIVER_LINK_PATH.resolve()) if real_link_present else None
+        ),
+        "checks": {
+            "credentials_absent": not credentials,
+            "build_identity_complete": build_identity_complete,
+            "dual_t4_topology": dual_t4,
+            "toolchain_available": tools_available,
+            "real_driver_link_present": real_link_present,
+            "real_driver_link_resolves_inside_mount": real_link_resolved,
+            "base_torch_cuda_available": base_torch.get("cuda_available") is True,
+            "nvidia_smi_succeeded": nvidia_smi.get("returncode") == 0,
+        },
+        "budgets": {
+            "platform_preflight_attempts": 1,
+            "model_loads": 0,
+            "worker_starts": 0,
+            "model_requests": 0,
+            "benchmark_trajectory_requests": 0,
+            "network_requests": 0,
+            "external_spend": 0,
+        },
+    }
+    return report, passed
+
+
+def selected_libcuda_paths(trace_text: str) -> list[str]:
+    selected: set[str] = set()
+    for raw in trace_text.replace("(", " ").replace(")", " ").split():
+        token = raw.strip("'\",:;")
+        if "libcuda.so" not in token:
+            continue
+        candidate = Path(token)
+        if candidate.is_absolute():
+            selected.add(str(candidate.resolve(strict=False)))
+    return sorted(selected)
+
+
+def runtime_libcuda_path(stdout: str) -> str | None:
+    for line in stdout.splitlines():
+        if "libcuda.so.1" not in line or "=>" not in line:
+            continue
+        value = line.split("=>", maxsplit=1)[1].strip().split()[0]
+        return None if value == "not" else value
+    return None
+
+
+def p1_explicit_driver_link() -> tuple[dict[str, object], bool]:
+    workspace = OUTPUT_DIRECTORY / "p1_workspace"
+    workspace.mkdir(parents=True, exist_ok=True)
+    source = workspace / "cuda_driver_link_probe.c"
+    object_file = workspace / "cuda_driver_link_probe.o"
+    executable = workspace / "cuda_driver_link_probe"
+    source.write_bytes(P1_C_SOURCE)
+    observed = source.read_bytes()
+    source_sha256 = hashlib.sha256(observed).hexdigest()
+    source_exact = observed == P1_C_SOURCE
+    compiler = shutil.which("cc")
+    syntax_result = None
+    link_result = None
+    readelf_result = None
+    ldd_result = None
+    execution_result = None
+    selected_paths: list[str] = []
+    selected_path = None
+    runtime_path = None
+    decision = "DIAGNOSTIC_INVALID"
+    stage = "source_materialization"
+
+    source_valid = (
+        source_exact
+        and source_sha256 == P1_C_SOURCE_SHA256
+        and observed.count(b"\n") == 2
+        and b"\\n" not in observed
+        and compiler is not None
+    )
+    if source_valid:
+        stage = "syntax_compilation"
+        syntax_result = run_command(
+            [
+                compiler,
+                "-std=c11",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "-c",
+                str(source),
+                "-o",
+                str(object_file),
+            ]
+        )
+        if syntax_result.get("returncode") == 0 and object_file.is_file():
+            stage = "explicit_cuda_driver_link"
+            link_result = run_command(
+                [
+                    compiler,
+                    str(object_file),
+                    *REQUIRED_LINK_FLAGS,
+                    "-o",
+                    str(executable),
+                ]
+            )
+            trace = str(link_result.get("stdout", "")) + "\n" + str(
+                link_result.get("stderr", "")
+            )
+            selected_paths = selected_libcuda_paths(trace)
+            if link_result.get("returncode") == 0 and executable.is_file():
+                stage = "selected_library_validation"
+                real_paths = [
+                    path
+                    for path in selected_paths
+                    if is_within(Path(path), REAL_DRIVER_DIRECTORY)
+                    and not is_within(Path(path), CUDA_STUB_DIRECTORY)
+                ]
+                stub_paths = [
+                    path
+                    for path in selected_paths
+                    if is_within(Path(path), CUDA_STUB_DIRECTORY)
+                ]
+                if len(real_paths) == 1 and not stub_paths:
+                    selected_path = real_paths[0]
+                    stage = "elf_contract"
+                    readelf_result = run_command(
+                        [shutil.which("readelf") or "readelf", "-d", str(executable)]
+                    )
+                    dynamic = str(readelf_result.get("stdout", ""))
+                    needed = "(NEEDED)" in dynamic and "libcuda.so.1" in dynamic
+                    runpath = (
+                        "(RUNPATH)" in dynamic
+                        and str(REAL_DRIVER_DIRECTORY) in dynamic
+                    )
+                    if readelf_result.get("returncode") == 0 and needed and runpath:
+                        stage = "dynamic_loader_resolution"
+                        ldd_result = run_command(
+                            [shutil.which("ldd") or "ldd", str(executable)]
+                        )
+                        runtime_path = runtime_libcuda_path(
+                            str(ldd_result.get("stdout", ""))
+                        )
+                        runtime_real = (
+                            runtime_path is not None
+                            and is_within(Path(runtime_path), REAL_DRIVER_DIRECTORY)
+                            and not is_within(Path(runtime_path), CUDA_STUB_DIRECTORY)
+                        )
+                        if ldd_result.get("returncode") == 0 and runtime_real:
+                            stage = "driver_initialization"
+                            execution_result = run_command([str(executable)])
+                            if execution_result.get("returncode") == 0:
+                                decision = (
+                                    "EXPLICIT_CUDA_DRIVER_LINK_PATH_CONTRACT_PASSED"
+                                )
+                                stage = "none"
+                            else:
+                                decision = (
+                                    "EXPLICIT_CUDA_DRIVER_INITIALIZATION_FAILED"
+                                )
+                        else:
+                            decision = "EXPLICIT_CUDA_DRIVER_DYNAMIC_LOADER_FAILED"
+                    else:
+                        decision = "EXPLICIT_CUDA_DRIVER_ELF_CONTRACT_FAILED"
+                else:
+                    decision = (
+                        "EXPLICIT_CUDA_DRIVER_LINK_LIBRARY_SELECTION_FAILED"
+                    )
+            else:
+                decision = "EXPLICIT_CUDA_DRIVER_LINK_FAILED"
+
+    environment_after = {
+        name: os.environ.get(name) for name in INITIAL_LINK_ENVIRONMENT
+    }
+    environment_unchanged = environment_after == INITIAL_LINK_ENVIRONMENT
+    if (
+        decision == "EXPLICIT_CUDA_DRIVER_LINK_PATH_CONTRACT_PASSED"
+        and not environment_unchanged
+    ):
+        decision = "EXPLICIT_CUDA_DRIVER_GLOBAL_ENVIRONMENT_MUTATION_DETECTED"
+        stage = "environment_integrity"
+    passed = decision == "EXPLICIT_CUDA_DRIVER_LINK_PATH_CONTRACT_PASSED"
+    dynamic = "" if readelf_result is None else str(readelf_result.get("stdout", ""))
+    report = {
+        "schema_version": SCHEMA_VERSION,
+        "diagnostic_id": DIAGNOSTIC_ID,
+        "probe_id": "P1",
+        "probe_name": "EXPLICIT_CUDA_DRIVER_LINK_CONTRACT",
+        "captured_at": datetime.now(UTC).isoformat(),
+        "status": "PASSED" if passed else "FAILED",
+        "decision": decision,
+        "failure_stage": stage,
+        "compiler_path": compiler,
+        "required_link_flags": list(REQUIRED_LINK_FLAGS),
+        "source_contract": {
+            "expected_sha256": P1_C_SOURCE_SHA256,
+            "observed_sha256": source_sha256,
+            "exact_bytes": source_exact,
+            "newline_count": observed.count(b"\n"),
+            "literal_backslash_n_present": b"\\n" in observed,
+        },
+        "syntax_compile_result": syntax_result,
+        "link_result": link_result,
+        "selected_link_libraries": selected_paths,
+        "selected_link_library": selected_path,
+        "readelf_result": readelf_result,
+        "ldd_result": ldd_result,
+        "runtime_library_path": runtime_path,
+        "execution_result": execution_result,
+        "environment_overrides_applied": [],
+        "checks": {
+            "source_exact": source_exact,
+            "syntax_compile_succeeded": (
+                syntax_result is not None and syntax_result.get("returncode") == 0
+            ),
+            "link_succeeded": (
+                link_result is not None and link_result.get("returncode") == 0
+            ),
+            "selected_link_library_real": selected_path is not None,
+            "cuda_toolkit_stub_rejected": not any(
+                is_within(Path(path), CUDA_STUB_DIRECTORY) for path in selected_paths
+            ),
+            "elf_needed_libcuda_so_1": (
+                "(NEEDED)" in dynamic and "libcuda.so.1" in dynamic
+            ),
+            "elf_runpath_real_driver_directory": (
+                "(RUNPATH)" in dynamic and str(REAL_DRIVER_DIRECTORY) in dynamic
+            ),
+            "runtime_library_real": runtime_path is not None
+            and is_within(Path(runtime_path), REAL_DRIVER_DIRECTORY),
+            "cu_init_zero": execution_result is not None
+            and execution_result.get("returncode") == 0,
+            "global_environment_mutation_absent": environment_unchanged,
+        },
+        "budgets": {
+            "source_materialization_attempts": 1,
+            "syntax_compile_attempts": 1 if syntax_result is not None else 0,
+            "link_attempts": 1 if link_result is not None else 0,
+            "elf_inspection_attempts": 1 if readelf_result is not None else 0,
+            "loader_resolution_attempts": 1 if ldd_result is not None else 0,
+            "driver_initialization_attempts": (
+                1 if execution_result is not None else 0
+            ),
+            "hidden_retries": 0,
+            "model_loads": 0,
+            "worker_starts": 0,
+            "model_requests": 0,
+            "benchmark_trajectory_requests": 0,
+            "network_requests": 0,
+        },
+    }
+    return report, passed
+
+
+def discover_wheelhouse() -> Path:
+    candidates = sorted(
+        path.resolve()
+        for path in Path("/kaggle/input").rglob(RUNTIME_OUTPUT_DIRECTORY)
+        if path.is_dir() and not path.is_symlink()
+    )
+    if len(candidates) != 1:
+        raise RuntimeError(
+            f"expected exactly one governed wheelhouse, observed {len(candidates)}"
+        )
+    return candidates[0]
+
+
+def validate_wheelhouse(wheelhouse: Path) -> dict[str, object]:
+    observed_control_hashes: dict[str, str] = {}
+    for name, expected in EXPECTED_CONTROL_HASHES.items():
+        path = wheelhouse / name
+        if not path.is_file() or path.is_symlink():
+            raise RuntimeError(f"wheelhouse control file is missing or unsafe: {name}")
+        observed = sha256_file(path)
+        observed_control_hashes[name] = observed
+        if observed != expected:
+            raise RuntimeError(f"wheelhouse control identity drifted: {name}")
+    manifest = json.loads(
+        (wheelhouse / "sha256_manifest.json").read_text(encoding="utf-8")
+    )
+    entries = manifest.get("entries")
+    if not isinstance(entries, list):
+        raise RuntimeError("wheelhouse checksum manifest has no entries")
+    wheel_entries = [
+        item
+        for item in entries
+        if isinstance(item, dict)
+        and str(item.get("path", "")).startswith("wheels/")
+    ]
+    if len(wheel_entries) != EXPECTED_PACKAGE_COUNT:
+        raise RuntimeError(f"wheelhouse package count drifted: {len(wheel_entries)}")
+    verified = 0
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise RuntimeError("wheelhouse checksum entry is invalid")
+        relative = entry.get("path")
+        expected_sha = entry.get("sha256")
+        expected_size = entry.get("size_bytes")
+        if (
+            not isinstance(relative, str)
+            or not isinstance(expected_sha, str)
+            or not isinstance(expected_size, int)
+        ):
+            raise RuntimeError("wheelhouse checksum entry fields are invalid")
+        path = wheelhouse / relative
+        if not path.is_file() or path.is_symlink():
+            raise RuntimeError(f"wheelhouse payload is missing or unsafe: {relative}")
+        if path.stat().st_size != expected_size or sha256_file(path) != expected_sha:
+            raise RuntimeError(f"wheelhouse payload identity drifted: {relative}")
+        verified += 1
+    return {
+        "wheelhouse_path": str(wheelhouse),
+        "control_hashes": observed_control_hashes,
+        "manifest_entry_count": len(entries),
+        "wheel_entry_count": len(wheel_entries),
+        "verified_entry_count": verified,
+    }
+
+
+CONTROLLED_TRITON_SCRIPT = r'''
+from __future__ import annotations
+
+import importlib.metadata
+import json
+import os
+import shutil
+from pathlib import Path
+
+import torch
+import triton
+import triton.language as tl
+
+TARGET_SITE = Path(os.environ["AURAGATEWAY_TARGET_SITE_PACKAGES"]).resolve()
+
+
+def inside_target(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    path = Path(value).resolve()
+    return path == TARGET_SITE or TARGET_SITE in path.parents
+
+
+@triton.jit
+def add_kernel(x_ptr, y_ptr, output_ptr, size, BLOCK_SIZE: tl.constexpr):
+    offsets = tl.program_id(axis=0) * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < size
+    x = tl.load(x_ptr + offsets, mask=mask)
+    y = tl.load(y_ptr + offsets, mask=mask)
+    tl.store(output_ptr + offsets, x + y, mask=mask)
+
+
+size = 1024
+x = torch.arange(size, device="cuda", dtype=torch.float32)
+y = torch.full((size,), 2.0, device="cuda", dtype=torch.float32)
+output = torch.empty_like(x)
+add_kernel[(triton.cdiv(size, 256),)](
+    x,
+    y,
+    output,
+    size,
+    BLOCK_SIZE=256,
+)
+torch.cuda.synchronize()
+result_exact = bool(torch.equal(output, x + y))
+payload = {
+    "torch_version": torch.__version__,
+    "torch_cuda_build": torch.version.cuda,
+    "torch_module_origin": torch.__file__,
+    "triton_distribution_version": importlib.metadata.version("triton"),
+    "triton_module_origin": triton.__file__,
+    "torch_origin_inside_target": inside_target(torch.__file__),
+    "triton_origin_inside_target": inside_target(triton.__file__),
+    "cuda_available": torch.cuda.is_available(),
+    "device_count": torch.cuda.device_count(),
+    "device_name": torch.cuda.get_device_name(0),
+    "compute_capability": list(torch.cuda.get_device_capability(0)),
+    "compiler_path": shutil.which("cc"),
+    "ptxas_path": shutil.which("ptxas"),
+    "library_path": os.environ.get("LIBRARY_PATH"),
+    "ld_library_path": os.environ.get("LD_LIBRARY_PATH"),
+    "ldflags": os.environ.get("LDFLAGS"),
+    "result_exact": result_exact,
+    "model_loaded": False,
+    "worker_started": False,
+    "model_requests": 0,
+}
+print("AURAGATEWAY_RESULT=" + json.dumps(payload, sort_keys=True))
+if not result_exact:
+    raise SystemExit(3)
+'''.strip()
+
+CONTROLLED_SCRIPT_BOOTSTRAP = r'''
+import site
+import sys
+import types
+from pathlib import Path
+
+target_site = Path(sys.argv.pop(1)).resolve()
+payload_path = Path(sys.argv.pop(1)).resolve()
+
+
+def sentinel(name):
+    module = types.ModuleType(name)
+    module.__file__ = f"<auragateway-suppressed-{name}>"
+    return module
+
+
+sys.modules["sitecustomize"] = sentinel("sitecustomize")
+sys.modules["usercustomize"] = sentinel("usercustomize")
+site.main()
+cleaned = []
+for value in sys.path:
+    if not value:
+        cleaned.append(value)
+        continue
+    path = Path(value).resolve()
+    is_target = path == target_site or target_site in path.parents
+    is_package = any(
+        part in {"site-packages", "dist-packages"} for part in path.parts
+    )
+    if is_package and not is_target:
+        continue
+    cleaned.append(value)
+if str(target_site) not in cleaned:
+    cleaned.insert(0, str(target_site))
+sys.path[:] = cleaned
+sys.argv = [str(payload_path)]
+payload = payload_path.read_text(encoding="utf-8")
+exec(compile(payload, str(payload_path), "exec"))
+'''.strip()
+
+
+def target_library_directories(site_packages: Path) -> list[Path]:
+    return sorted(
+        {
+            path.resolve()
+            for path in (site_packages / "nvidia").glob("*/lib")
+            if path.is_dir() and not path.is_symlink()
+        }
+    )
+
+
+def parse_controlled_result(stdout: str) -> dict[str, object]:
+    prefix = "AURAGATEWAY_RESULT="
+    matches = [
+        line[len(prefix) :] for line in stdout.splitlines() if line.startswith(prefix)
+    ]
+    if len(matches) != 1:
+        raise RuntimeError("expected exactly one controlled Triton result")
+    parsed = json.loads(matches[0])
+    if not isinstance(parsed, dict):
+        raise RuntimeError("controlled Triton result was not one object")
+    return {str(key): value for key, value in parsed.items()}
+
+
+def p2_minimal_triton() -> tuple[dict[str, object], bool]:
+    captured_at = datetime.now(UTC).isoformat()
+    wheelhouse_validation = None
+    install_result = None
+    probe_result = None
+    parsed_probe = None
+    failure_type = None
+    safe_error = None
+    stage = "wheelhouse_discovery"
+    decision = "GOVERNED_CU129_WHEELHOUSE_INVALID"
+    runtime_root = OUTPUT_DIRECTORY / "target_runtime"
+    site_packages = runtime_root / "site-packages"
+    probe_script = OUTPUT_DIRECTORY / "minimal_triton_probe_v2.py"
+    command_local_environment: dict[str, str] = {}
+    try:
+        wheelhouse = discover_wheelhouse()
+        stage = "wheelhouse_validation"
+        wheelhouse_validation = validate_wheelhouse(wheelhouse)
+        if runtime_root.exists():
+            raise RuntimeError("target runtime directory already exists")
+        site_packages.mkdir(parents=True)
+        install_environment = dict(os.environ)
+        install_environment.pop("PYTHONHOME", None)
+        install_environment.pop("PYTHONPATH", None)
+        install_environment["PIP_NO_INDEX"] = "1"
+        install_environment["PYTHONNOUSERSITE"] = "1"
+        stage = "runtime_installation"
+        decision = "GOVERNED_CU129_RUNTIME_INSTALL_FAILED"
+        install_result = run_command(
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "--isolated",
+                "--disable-pip-version-check",
+                "install",
+                "--no-index",
+                "--require-hashes",
+                "--only-binary=:all:",
+                "--target",
+                str(site_packages),
+                "--find-links",
+                str(wheelhouse / "wheels"),
+                "-r",
+                str(wheelhouse / "requirements.lock.txt"),
+            ],
+            timeout=RUNTIME_INSTALL_TIMEOUT_SECONDS,
+            env=install_environment,
+        )
+        if install_result.get("returncode") != 0:
+            raise RuntimeError("pinned runtime installation failed")
+        probe_script.write_text(CONTROLLED_TRITON_SCRIPT + "\n", encoding="utf-8")
+        libraries = target_library_directories(site_packages)
+        runtime_environment = dict(os.environ)
+        runtime_environment.pop("PYTHONHOME", None)
+        runtime_environment.pop("PYTHONPATH", None)
+        runtime_environment["PYTHONNOUSERSITE"] = "1"
+        runtime_environment["CUDA_VISIBLE_DEVICES"] = "0"
+        runtime_environment["HF_HUB_OFFLINE"] = "1"
+        runtime_environment["TRANSFORMERS_OFFLINE"] = "1"
+        runtime_environment["PIP_NO_INDEX"] = "1"
+        runtime_environment["AURAGATEWAY_TARGET_SITE_PACKAGES"] = str(
+            site_packages.resolve()
+        )
+        runtime_environment["LIBRARY_PATH"] = str(REAL_DRIVER_DIRECTORY)
+        runtime_environment["LDFLAGS"] = (
+            "-L/usr/local/nvidia/lib64 "
+            "-Wl,-rpath,/usr/local/nvidia/lib64"
+        )
+        inherited_ld = runtime_environment.get("LD_LIBRARY_PATH")
+        ld_values = [str(path) for path in libraries]
+        ld_values.append(str(REAL_DRIVER_DIRECTORY))
+        if inherited_ld:
+            ld_values.append(inherited_ld)
+        runtime_environment["LD_LIBRARY_PATH"] = os.pathsep.join(ld_values)
+        command_local_environment = {
+            name: runtime_environment[name]
+            for name in (
+                "LIBRARY_PATH",
+                "LDFLAGS",
+                "LD_LIBRARY_PATH",
+                "CUDA_VISIBLE_DEVICES",
+                "AURAGATEWAY_TARGET_SITE_PACKAGES",
+            )
+        }
+        stage = "triton_kernel_process"
+        decision = "CURRENT_STACK_TRITON_INCOMPATIBLE"
+        probe_result = run_command(
+            [
+                sys.executable,
+                "-S",
+                "-c",
+                CONTROLLED_SCRIPT_BOOTSTRAP,
+                str(site_packages),
+                str(probe_script),
+            ],
+            env=runtime_environment,
+        )
+        if probe_result.get("returncode") != 0:
+            raise RuntimeError("minimal Triton kernel process failed")
+        stage = "runtime_contract_validation"
+        decision = "GOVERNED_CU129_RUNTIME_IMPORT_FAILED"
+        parsed_probe = parse_controlled_result(str(probe_result.get("stdout", "")))
+        exact_runtime = (
+            parsed_probe.get("result_exact") is True
+            and parsed_probe.get("torch_version") == "2.10.0+cu129"
+            and parsed_probe.get("torch_cuda_build") == "12.9"
+            and parsed_probe.get("torch_origin_inside_target") is True
+            and parsed_probe.get("triton_origin_inside_target") is True
+            and parsed_probe.get("compute_capability") == [7, 5]
+            and "T4" in str(parsed_probe.get("device_name", "")).upper()
+            and parsed_probe.get("library_path") == str(REAL_DRIVER_DIRECTORY)
+            and str(REAL_DRIVER_DIRECTORY)
+            in str(parsed_probe.get("ld_library_path", ""))
+        )
+        if not exact_runtime:
+            raise RuntimeError("governed runtime or kernel identity failed")
+        decision = "CURRENT_STACK_TRITON_PRIMITIVE_PASSED"
+        stage = "none"
+        passed = True
+    except Exception as error:
+        passed = False
+        failure_type = type(error).__name__
+        safe_error = bounded(str(error))
+    environment_after = {
+        name: os.environ.get(name) for name in INITIAL_LINK_ENVIRONMENT
+    }
+    environment_unchanged = environment_after == INITIAL_LINK_ENVIRONMENT
+    if passed and not environment_unchanged:
+        passed = False
+        decision = "P2_GLOBAL_ENVIRONMENT_MUTATION_DETECTED"
+        stage = "environment_integrity"
+    report = {
+        "schema_version": SCHEMA_VERSION,
+        "diagnostic_id": DIAGNOSTIC_ID,
+        "probe_id": "P2",
+        "probe_name": "GOVERNED_CU129_MINIMAL_TRITON_KERNEL",
+        "captured_at": captured_at,
+        "status": "PASSED" if passed else "FAILED",
+        "decision": decision,
+        "failure_stage": stage,
+        "wheelhouse_validation": wheelhouse_validation,
+        "runtime_installation": install_result,
+        "target_runtime_root": str(runtime_root),
+        "target_site_packages": str(site_packages),
+        "target_library_directories": [
+            str(path) for path in target_library_directories(site_packages)
+        ]
+        if site_packages.exists()
+        else [],
+        "probe_process": probe_result,
+        "probe_observation": parsed_probe,
+        "failure_type": failure_type,
+        "safe_error": safe_error,
+        "command_local_environment": command_local_environment,
+        "checks": {
+            "wheelhouse_identity_validated": wheelhouse_validation is not None,
+            "runtime_installation_succeeded": install_result is not None
+            and install_result.get("returncode") == 0,
+            "kernel_process_succeeded": probe_result is not None
+            and probe_result.get("returncode") == 0,
+            "kernel_result_exact": parsed_probe is not None
+            and parsed_probe.get("result_exact") is True,
+            "torch_cu129_exact": parsed_probe is not None
+            and parsed_probe.get("torch_version") == "2.10.0+cu129"
+            and parsed_probe.get("torch_cuda_build") == "12.9",
+            "target_runtime_origins_exact": parsed_probe is not None
+            and parsed_probe.get("torch_origin_inside_target") is True
+            and parsed_probe.get("triton_origin_inside_target") is True,
+            "real_driver_command_local_link_path": (
+                command_local_environment.get("LIBRARY_PATH")
+                == str(REAL_DRIVER_DIRECTORY)
+            ),
+            "cuda_toolkit_stub_not_selected": (
+                str(CUDA_STUB_DIRECTORY)
+                not in command_local_environment.get("LIBRARY_PATH", "")
+            ),
+            "global_environment_mutation_absent": environment_unchanged,
+        },
+        "budgets": {
+            "runtime_install_attempts": 1 if install_result is not None else 0,
+            "kernel_compile_and_execution_attempts": (
+                1 if probe_result is not None else 0
+            ),
+            "hidden_retries": 0,
+            "model_loads": 0,
+            "worker_starts": 0,
+            "model_requests": 0,
+            "benchmark_trajectory_requests": 0,
+            "network_requests": 0,
+        },
+    }
+    return report, passed
+
+
+def not_run_report(probe_id: str, name: str, decision: str) -> dict[str, object]:
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "diagnostic_id": DIAGNOSTIC_ID,
+        "probe_id": probe_id,
+        "probe_name": name,
+        "captured_at": datetime.now(UTC).isoformat(),
+        "status": "NOT_RUN_DUE_TO_PRIOR_FAILURE",
+        "decision": decision,
+        "prior_terminal_decision": decision,
+        "budgets": {
+            "runtime_install_attempts": 0,
+            "kernel_compile_and_execution_attempts": 0,
+            "hidden_retries": 0,
+            "model_loads": 0,
+            "worker_starts": 0,
+            "model_requests": 0,
+            "benchmark_trajectory_requests": 0,
+            "network_requests": 0,
+        },
+    }
+
+
+def write_human_report(summary: dict[str, object]) -> None:
+    probes = summary["probes"]
+    lines = [
+        "# AuraGateway P0-P2 platform diagnostic V2",
+        "",
+        f"- Status: {summary['status']}",
+        f"- Terminal decision: {summary['terminal_decision']}",
+        "",
+        "## Probes",
+        "",
+    ]
+    if isinstance(probes, list):
+        for probe in probes:
+            if isinstance(probe, dict):
+                lines.append(
+                    f"- {probe.get('probe_id')}: "
+                    f"{probe.get('status')} / {probe.get('decision')}"
+                )
+    lines.extend(
+        [
+            "",
+            "## Safety",
+            "",
+            "- Model loads: 0",
+            "- Worker starts: 0",
+            "- Model requests: 0",
+            "- Benchmark trajectory requests: 0",
+            "- Network requests: 0",
+            "- Hidden retries: 0",
+            "- Customer data: false",
+            "- Credentials used: false",
+            "- External spend: 0",
+            "",
+            "## Next gate",
+            "",
+            str(summary["next_gate"]),
+            "",
+        ]
+    )
+    (OUTPUT_DIRECTORY / "human_report_v2.md").write_text(
+        "\n".join(lines),
+        encoding="utf-8",
+    )
+
+
+def write_bundle_manifest() -> None:
+    members = []
+    for name in REQUIRED_OUTPUTS:
+        if name == "bundle_manifest_v2.json":
+            continue
+        path = OUTPUT_DIRECTORY / name
+        if not path.is_file():
+            raise RuntimeError(f"required evidence member is missing: {name}")
+        members.append(
+            {
+                "path": name,
+                "sha256": sha256_file(path),
+                "size_bytes": path.stat().st_size,
+            }
+        )
+    write_json(
+        "bundle_manifest_v2.json",
+        {
+            "schema_version": SCHEMA_VERSION,
+            "bundle_id": "auragateway-cu129-p0-p2-platform-evidence-v2",
+            "diagnostic_id": DIAGNOSTIC_ID,
+            "source_main_commit": SOURCE_MAIN_COMMIT,
+            "members": members,
+        },
+    )
+
+
+def build_evidence_zip() -> None:
+    if EVIDENCE_ZIP.exists():
+        raise RuntimeError(f"evidence ZIP already exists: {EVIDENCE_ZIP}")
+    with zipfile.ZipFile(
+        EVIDENCE_ZIP,
+        "w",
+        compression=zipfile.ZIP_DEFLATED,
+    ) as archive:
+        for name in REQUIRED_OUTPUTS:
+            path = OUTPUT_DIRECTORY / name
+            info = zipfile.ZipInfo(name)
+            info.date_time = ZIP_TIMESTAMP
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o100644 << 16
+            archive.writestr(info, path.read_bytes())
+
+
+def main() -> None:
+    if OUTPUT_DIRECTORY.exists() or EVIDENCE_ZIP.exists():
+        raise RuntimeError("diagnostic output already exists")
+    OUTPUT_DIRECTORY.mkdir(parents=True)
+    p0_report, p0_passed = p0_platform_identity()
+    write_json("platform_identity_report_v2.json", p0_report)
+    if not p0_passed:
+        terminal = "DIAGNOSTIC_INVALID"
+        p1_report = not_run_report(
+            "P1",
+            "EXPLICIT_CUDA_DRIVER_LINK_CONTRACT",
+            terminal,
+        )
+        p2_report = not_run_report(
+            "P2",
+            "GOVERNED_CU129_MINIMAL_TRITON_KERNEL",
+            terminal,
+        )
+    else:
+        p1_report, p1_passed = p1_explicit_driver_link()
+        if not p1_passed:
+            terminal = str(p1_report.get("decision", "DIAGNOSTIC_INVALID"))
+            p2_report = not_run_report(
+                "P2",
+                "GOVERNED_CU129_MINIMAL_TRITON_KERNEL",
+                terminal,
+            )
+        else:
+            p2_report, p2_passed = p2_minimal_triton()
+            terminal = (
+                "P0_P2_PLATFORM_DIAGNOSTIC_V2_PASSED"
+                if p2_passed
+                else str(
+                    p2_report.get(
+                        "decision",
+                        "CURRENT_STACK_TRITON_INCOMPATIBLE",
+                    )
+                )
+            )
+    write_json("explicit_cuda_driver_link_report_v2.json", p1_report)
+    write_json("minimal_triton_kernel_report_v2.json", p2_report)
+    probes = [
+        {
+            "probe_id": report["probe_id"],
+            "status": report["status"],
+            "decision": report["decision"],
+        }
+        for report in (p0_report, p1_report, p2_report)
+    ]
+    p2_budgets = p2_report.get("budgets")
+    p2_attempted = (
+        isinstance(p2_budgets, dict)
+        and p2_budgets.get("kernel_compile_and_execution_attempts") == 1
+    )
+    install_attempted = (
+        isinstance(p2_budgets, dict)
+        and p2_budgets.get("runtime_install_attempts") == 1
+    )
+    summary = {
+        "schema_version": SCHEMA_VERSION,
+        "diagnostic_id": DIAGNOSTIC_ID,
+        "source_main_commit": SOURCE_MAIN_COMMIT,
+        "captured_at": datetime.now(UTC).isoformat(),
+        "status": (
+            "PASSED"
+            if terminal == "P0_P2_PLATFORM_DIAGNOSTIC_V2_PASSED"
+            else "FAILED_CLOSED"
+        ),
+        "terminal_decision": terminal,
+        "probes": probes,
+        "stop_on_first_failure": True,
+        "runtime_install_attempts": 1 if install_attempted else 0,
+        "kernel_compile_and_execution_attempts": 1 if p2_attempted else 0,
+        "hidden_retries_performed": 0,
+        "filesystem_mutations_outside_working_directory": 0,
+        "global_environment_mutations_performed": 0,
+        "model_loads": 0,
+        "worker_starts": 0,
+        "model_requests": 0,
+        "benchmark_trajectory_requests": 0,
+        "network_requests": 0,
+        "customer_data_present": False,
+        "credentials_used": False,
+        "external_spend": 0,
+        "full_triton_qualification_attempt_consumed": p2_attempted,
+        "next_gate": (
+            "implement_explicit_triton_attention_backend"
+            if terminal == "P0_P2_PLATFORM_DIAGNOSTIC_V2_PASSED"
+            else "preserve_evidence_and_classify_platform_failure"
+        ),
+    }
+    write_json("p0_p2_platform_diagnostic_summary_v2.json", summary)
+    write_human_report(summary)
+    write_bundle_manifest()
+    build_evidence_zip()
+    print(
+        canonical_json(
+            {
+                "status": summary["status"],
+                "terminal_decision": terminal,
+                "evidence_zip": str(EVIDENCE_ZIP),
+                "evidence_zip_sha256": sha256_file(EVIDENCE_ZIP),
+                "p0_status": p0_report["status"],
+                "p1_status": p1_report["status"],
+                "p2_status": p2_report["status"],
+                "runtime_install_attempts": summary["runtime_install_attempts"],
+                "kernel_compile_and_execution_attempts": summary[
+                    "kernel_compile_and_execution_attempts"
+                ],
+                "model_loads": 0,
+                "worker_starts": 0,
+                "model_requests": 0,
+                "benchmark_trajectory_requests": 0,
+                "network_requests": 0,
+                "hidden_retries_performed": 0,
+                "global_environment_mutations_performed": 0,
+                "external_spend": 0,
+            }
+        )
+    )
+
+
+main()
