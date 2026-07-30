@@ -19,9 +19,9 @@ from pydantic import Field, ValidationError, field_validator, model_validator
 
 from auragateway.local_abc.contracts import LocalABCContract
 
-SOURCE_REPOSITORY_COMMIT: Final = "c3af648ab804629ebac41f2e96b1fcfa81baccd1"
+SOURCE_REPOSITORY_COMMIT: Final = "831b4ad4e8eb4139b51af927eb721989be197cbc"
 DIAGNOSTIC_SOURCE_MAIN_MERGE_COMMIT: Final = "f4f08eda4b4d4747514b4646fe53664d8a78ca6d"
-BRANCH_NAME: Final = "feat/local-abc-cu129-p0-p2-source-materialization"
+BRANCH_NAME: Final = "fix/local-abc-cu129-p1-probe-taxonomy-v1"
 
 REVIEW_RECORD_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_p0_p2_source_materialization_review_v2.json"
@@ -153,8 +153,8 @@ SOURCE_BINDINGS: Final = (
         role="diagnostic_notebook",
         repository_path=("notebooks/auragateway_cu129_p0_p2_platform_diagnostic_v1.ipynb"),
         output_name=("auragateway_cu129_p0_p2_platform_diagnostic_v1.ipynb"),
-        sha256=("caefff1468500ecd75edcd0283b3d806a57b76e9a0a3decb318fc4083806b7f5"),
-        size_bytes=46035,
+        sha256=("2f62c6ebfebba148db6f5f9192a474f22ec7599099c397a4169f811849db8603"),
+        size_bytes=51853,
     ),
     SourceArtifactBinding(
         role="diagnostic_request",
@@ -163,8 +163,8 @@ SOURCE_BINDINGS: Final = (
             "option_c_p0_p2_platform_diagnostic_request.json"
         ),
         output_name="option_c_p0_p2_platform_diagnostic_request.json",
-        sha256=("f1a77d91b4fa6b3d187eb62e527ad3a807caa55e7de6d92bd3f80f4c5c9950f5"),
-        size_bytes=1850,
+        sha256=("ae70648c21ddd4899bc5e2c3c8cb8346387949e4320d5e9858352bf11e774eae"),
+        size_bytes=2113,
     ),
     SourceArtifactBinding(
         role="implementation_record",
@@ -173,8 +173,8 @@ SOURCE_BINDINGS: Final = (
             "auragateway_cu129_p0_p2_platform_diagnostic_implementation_v1.json"
         ),
         output_name=("auragateway_cu129_p0_p2_platform_diagnostic_implementation_v1.json"),
-        sha256=("70c72b2e74fa62146115900d3a32b8e2af82be8b1dc9723e2304f1250e3b96c4"),
-        size_bytes=1968,
+        sha256=("27316b176bda4bf24d293213fe5ff34326b2c27c0ac015359fcdd4858d5765ba"),
+        size_bytes=2544,
     ),
 )
 
@@ -233,7 +233,7 @@ class SourceMaterializationReviewRecord(LocalABCContract):
     decision: Literal["CLEAN_GLOBAL_REBUILD"]
     rejected_architecture: Literal["NESTED_STRING_FRAGMENT_CODE_GENERATION"]
     source_repository_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
-    branch_name: Literal["feat/local-abc-cu129-p0-p2-source-materialization"]
+    branch_name: Literal["fix/local-abc-cu129-p1-probe-taxonomy-v1"]
     source_artifacts: tuple[SourceArtifactBinding, ...]
     source_bundle_name: Literal["ag-cu129-p0-p2-source-bundle-v2.zip"]
     materializer_notebook_name: str

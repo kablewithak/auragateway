@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import json
 import subprocess
@@ -47,6 +48,19 @@ REQUIRED_OUTPUTS: Final = (
     "human_report.md",
 )
 MAXIMUM_KAGGLE_NAME_CHARACTERS: Final = 50
+P1_C_SOURCE_EXPECTED: Final = (
+    b"extern int cuInit(unsigned int);\nint main(void) { return cuInit(0); }\n"
+)
+P1_C_SOURCE_SHA256: Final = hashlib.sha256(P1_C_SOURCE_EXPECTED).hexdigest()
+P1_FAILURE_DECISIONS: Final = (
+    "DIAGNOSTIC_INVALID",
+    "CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED",
+    "CURRENT_KAGGLE_IMAGE_DRIVER_INITIALIZATION_FAILED",
+)
+INVALID_KAGGLE_VERSION: Final = "338921762"
+INVALID_PLATFORM_EVIDENCE_SHA256: Final = (
+    "dc8b5404a4182decd5e600ec4bb3f28d36f9ece836a336e72cd89f2b6bf90728"
+)
 KAGGLE_PROGRAM: Final = r'''
 from __future__ import annotations
 
@@ -117,6 +131,20 @@ CREDENTIAL_ENVIRONMENT_NAMES = (
 MAXIMUM_CAPTURE_CHARACTERS = 24000
 COMMAND_TIMEOUT_SECONDS = 120
 RUNTIME_INSTALL_TIMEOUT_SECONDS = 1800
+P1_C_SOURCE = (
+    b"extern int cuInit(unsigned int);\n"
+    b"int main(void) { return cuInit(0); }\n"
+)
+P1_C_SOURCE_SHA256 = hashlib.sha256(P1_C_SOURCE).hexdigest()
+P1_FAILURE_DECISIONS = {
+    "source_invalid": "DIAGNOSTIC_INVALID",
+    "syntax_compile_failed": "DIAGNOSTIC_INVALID",
+    "link_failed": "CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED",
+    "loader_resolution_failed": "CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED",
+    "driver_initialization_failed": (
+        "CURRENT_KAGGLE_IMAGE_DRIVER_INITIALIZATION_FAILED"
+    ),
+}
 
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
@@ -409,34 +437,113 @@ def p1_cuda_driver_linker() -> tuple[dict[str, object], bool]:
     workspace = OUTPUT_DIRECTORY / "p1_workspace"
     workspace.mkdir(parents=True, exist_ok=True)
     source = workspace / "cuda_driver_link_probe.c"
+    object_file = workspace / "cuda_driver_link_probe.o"
     executable = workspace / "cuda_driver_link_probe"
-    source.write_text(
-        "extern int cuInit(unsigned int);\\nint main(void) { return cuInit(0); }\\n",
-        encoding="utf-8",
-    )
+
+    source.write_bytes(P1_C_SOURCE)
+    observed_source = source.read_bytes()
+    source_sha256 = hashlib.sha256(observed_source).hexdigest()
+    source_exact = observed_source == P1_C_SOURCE
+    source_newline_count = observed_source.count(b"\n")
+    literal_backslash_n_present = b"\\n" in observed_source
+
     compiler = shutil.which("cc")
-    if compiler is None:
-        compile_result = {
-            "argv": ["cc"],
-            "returncode": None,
-            "stdout": "",
-            "stderr": "cc was not found",
-            "timed_out": False,
-        }
-    else:
-        compile_result = run_command(
-            [compiler, str(source), "-Wl,-t", "-lcuda", "-o", str(executable)]
+    syntax_compile_result: dict[str, object] | None = None
+    link_result: dict[str, object] | None = None
+    ldd_result: dict[str, object] | None = None
+    execution_result: dict[str, object] | None = None
+    selected_link_libraries: list[str] = []
+    runtime_library_path: str | None = None
+    decision = P1_FAILURE_DECISIONS["source_invalid"]
+    failure_stage = "source_materialization"
+
+    if (
+        source_exact
+        and source_sha256 == P1_C_SOURCE_SHA256
+        and source_newline_count == 2
+        and not literal_backslash_n_present
+        and compiler is not None
+    ):
+        failure_stage = "syntax_compilation"
+        syntax_compile_result = run_command(
+            [
+                compiler,
+                "-std=c11",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "-c",
+                str(source),
+                "-o",
+                str(object_file),
+            ]
         )
-    trace_text = (
-        str(compile_result.get("stdout", "")) + "\n" + str(compile_result.get("stderr", ""))
-    )
-    selected_link_libraries = sorted(
-        {
-            token
-            for token in trace_text.replace("(", " ").replace(")", " ").split()
-            if "libcuda.so" in token
-        }
-    )
+        if (
+            syntax_compile_result.get("returncode") == 0
+            and object_file.is_file()
+        ):
+            failure_stage = "cuda_driver_link"
+            link_result = run_command(
+                [
+                    compiler,
+                    str(object_file),
+                    "-Wl,-t",
+                    "-lcuda",
+                    "-o",
+                    str(executable),
+                ]
+            )
+            trace_text = (
+                str(link_result.get("stdout", ""))
+                + "\n"
+                + str(link_result.get("stderr", ""))
+            )
+            selected_link_libraries = sorted(
+                {
+                    token
+                    for token in trace_text.replace("(", " ")
+                    .replace(")", " ")
+                    .split()
+                    if "libcuda.so" in token
+                }
+            )
+            if link_result.get("returncode") == 0 and executable.is_file():
+                failure_stage = "dynamic_loader_resolution"
+                ldd_result = run_command(
+                    [shutil.which("ldd") or "ldd", str(executable)]
+                )
+                for line in str(ldd_result.get("stdout", "")).splitlines():
+                    if "libcuda.so.1" in line and "=>" in line:
+                        runtime_library_path = (
+                            line.split("=>", maxsplit=1)[1]
+                            .strip()
+                            .split()[0]
+                        )
+                        break
+                if (
+                    ldd_result.get("returncode") == 0
+                    and runtime_library_path is not None
+                    and runtime_library_path != "not"
+                ):
+                    failure_stage = "driver_initialization"
+                    execution_result = run_command([str(executable)])
+                    if execution_result.get("returncode") == 0:
+                        decision = "CUDA_DRIVER_LINKER_CONTRACT_PASSED"
+                        failure_stage = "none"
+                    else:
+                        decision = P1_FAILURE_DECISIONS[
+                            "driver_initialization_failed"
+                        ]
+                else:
+                    decision = P1_FAILURE_DECISIONS[
+                        "loader_resolution_failed"
+                    ]
+            else:
+                decision = P1_FAILURE_DECISIONS["link_failed"]
+        else:
+            decision = P1_FAILURE_DECISIONS["syntax_compile_failed"]
+
+    passed = decision == "CUDA_DRIVER_LINKER_CONTRACT_PASSED"
     link_library_classification = "UNRESOLVED"
     if selected_link_libraries:
         link_library_classification = (
@@ -444,23 +551,7 @@ def p1_cuda_driver_linker() -> tuple[dict[str, object], bool]:
             if any("/stubs/" in item for item in selected_link_libraries)
             else "REAL_OR_DRIVER_MOUNT"
         )
-    ldd_result: dict[str, object] | None = None
-    execution_result: dict[str, object] | None = None
-    runtime_library_path: str | None = None
-    if compile_result.get("returncode") == 0 and executable.is_file():
-        ldd_result = run_command([shutil.which("ldd") or "ldd", str(executable)])
-        for line in str(ldd_result.get("stdout", "")).splitlines():
-            if "libcuda.so.1" in line and "=>" in line:
-                runtime_library_path = line.split("=>", maxsplit=1)[1].strip().split()[0]
-                break
-        execution_result = run_command([str(executable)])
-    passed = (
-        compile_result.get("returncode") == 0
-        and execution_result is not None
-        and execution_result.get("returncode") == 0
-        and bool(selected_link_libraries)
-        and runtime_library_path is not None
-    )
+
     report = {
         "schema_version": SCHEMA_VERSION,
         "diagnostic_id": DIAGNOSTIC_ID,
@@ -468,13 +559,20 @@ def p1_cuda_driver_linker() -> tuple[dict[str, object], bool]:
         "probe_name": "CUDA_DRIVER_LINKER_VISIBILITY",
         "captured_at": datetime.now(UTC).isoformat(),
         "status": "PASSED" if passed else "FAILED",
-        "decision": (
-            "CUDA_DRIVER_LINKER_CONTRACT_PASSED"
-            if passed
-            else "CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED"
-        ),
+        "decision": decision,
+        "failure_stage": failure_stage,
         "compiler_path": compiler,
-        "compile_result": compile_result,
+        "source_contract": {
+            "path": str(source),
+            "expected_sha256": P1_C_SOURCE_SHA256,
+            "observed_sha256": source_sha256,
+            "size_bytes": len(observed_source),
+            "newline_count": source_newline_count,
+            "literal_backslash_n_present": literal_backslash_n_present,
+            "exact_bytes": source_exact,
+        },
+        "syntax_compile_result": syntax_compile_result,
+        "link_result": link_result,
         "selected_link_libraries": selected_link_libraries,
         "link_library_classification": link_library_classification,
         "ldd_result": ldd_result,
@@ -483,23 +581,47 @@ def p1_cuda_driver_linker() -> tuple[dict[str, object], bool]:
             None
             if runtime_library_path is None
             else (
-                "CUDA_TOOLKIT_STUB" if "/stubs/" in runtime_library_path else "REAL_OR_DRIVER_MOUNT"
+                "CUDA_TOOLKIT_STUB"
+                if "/stubs/" in runtime_library_path
+                else "REAL_OR_DRIVER_MOUNT"
             )
         ),
         "execution_result": execution_result,
-        "filesystem_mutations_performed": [],
+        "filesystem_mutations_performed": [
+            str(source),
+            str(object_file) if object_file.exists() else None,
+            str(executable) if executable.exists() else None,
+        ],
         "environment_overrides_applied": [],
         "checks": {
-            "compile_and_link_succeeded": compile_result.get("returncode") == 0,
+            "source_bytes_exact": source_exact,
+            "source_sha256_exact": source_sha256 == P1_C_SOURCE_SHA256,
+            "source_has_two_lf_bytes": source_newline_count == 2,
+            "literal_backslash_n_absent": not literal_backslash_n_present,
+            "compiler_available": compiler is not None,
+            "syntax_compile_succeeded": (
+                syntax_compile_result is not None
+                and syntax_compile_result.get("returncode") == 0
+            ),
+            "cuda_driver_link_succeeded": (
+                link_result is not None
+                and link_result.get("returncode") == 0
+            ),
             "link_library_identified": bool(selected_link_libraries),
             "runtime_library_identified": runtime_library_path is not None,
             "cuInit_succeeded": (
-                execution_result is not None and execution_result.get("returncode") == 0
+                execution_result is not None
+                and execution_result.get("returncode") == 0
             ),
             "unapproved_filesystem_mutation_absent": True,
         },
         "budgets": {
-            "compile_attempts": 1,
+            "source_materialization_attempts": 1,
+            "syntax_compile_attempts": (
+                1 if syntax_compile_result is not None else 0
+            ),
+            "link_attempts": 1 if link_result is not None else 0,
+            "loader_resolution_attempts": 1 if ldd_result is not None else 0,
             "execution_attempts": 1 if execution_result is not None else 0,
             "hidden_retries": 0,
             "model_loads": 0,
@@ -509,6 +631,11 @@ def p1_cuda_driver_linker() -> tuple[dict[str, object], bool]:
             "network_requests": 0,
         },
     }
+    report["filesystem_mutations_performed"] = [
+        item
+        for item in report["filesystem_mutations_performed"]
+        if item is not None
+    ]
     return report, passed
 
 
@@ -959,12 +1086,19 @@ def main() -> None:
     else:
         p1_report, p1_passed = p1_cuda_driver_linker()
         if not p1_passed:
+            p1_decision = p1_report.get("decision")
+            if p1_decision not in {
+                "DIAGNOSTIC_INVALID",
+                "CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED",
+                "CURRENT_KAGGLE_IMAGE_DRIVER_INITIALIZATION_FAILED",
+            }:
+                p1_decision = "DIAGNOSTIC_INVALID"
             p2_report = not_run_report(
                 "P2",
                 "MINIMAL_TRITON_KERNEL",
-                "CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED",
+                str(p1_decision),
             )
-            terminal_decision = "CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED"
+            terminal_decision = str(p1_decision)
         else:
             p2_report, p2_passed = p2_minimal_triton()
             terminal_decision = (
@@ -1077,6 +1211,15 @@ class ProbeRequest(_StrictModel):
         "CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED",
         "CURRENT_STACK_TRITON_INCOMPATIBLE",
     ]
+    permitted_fail_decisions: tuple[
+        Literal[
+            "DIAGNOSTIC_INVALID",
+            "CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED",
+            "CURRENT_KAGGLE_IMAGE_DRIVER_INITIALIZATION_FAILED",
+            "CURRENT_STACK_TRITON_INCOMPATIBLE",
+        ],
+        ...,
+    ]
 
 
 class PlatformDiagnosticRequest(_StrictModel):
@@ -1116,6 +1259,14 @@ class PlatformDiagnosticRequest(_StrictModel):
             raise ValueError("P0-P2 probe order drifted")
         if self.required_outputs != REQUIRED_OUTPUTS:
             raise ValueError("P0-P2 required output contract drifted")
+        expected_failure_sets = (
+            ("DIAGNOSTIC_INVALID",),
+            P1_FAILURE_DECISIONS,
+            ("CURRENT_STACK_TRITON_INCOMPATIBLE",),
+        )
+        observed_failure_sets = tuple(item.permitted_fail_decisions for item in self.probes)
+        if observed_failure_sets != expected_failure_sets:
+            raise ValueError("P0-P2 failure taxonomy drifted")
         for value in (self.notebook_name, self.failed_notebook_name):
             if len(value) > MAXIMUM_KAGGLE_NAME_CHARACTERS:
                 raise ValueError("Kaggle notebook name exceeds 50 characters")
@@ -1136,8 +1287,28 @@ class ImplementationSafety(_StrictModel):
     external_spend: Literal[0]
 
 
+class DiagnosticRemediationRecord(_StrictModel):
+    remediation_id: Literal["auragateway-cu129-p1-probe-taxonomy-remediation-v1"]
+    invalid_kaggle_version: Literal["338921762"]
+    invalid_platform_evidence_sha256: str
+    confirmed_defect: Literal["literal_backslash_n_in_generated_c_probe"]
+    corrected_source_sha256: str
+    exact_source_bytes_validated: Literal[True]
+    staged_failure_taxonomy_validated: Literal[True]
+    unchanged_replay_authorized: Literal[False]
+    corrected_replay_authorized_after_merge: Literal[True]
+
+    @model_validator(mode="after")
+    def validate_remediation(self) -> Self:
+        if self.invalid_platform_evidence_sha256 != (INVALID_PLATFORM_EVIDENCE_SHA256):
+            raise ValueError("invalid evidence identity drifted")
+        if self.corrected_source_sha256 != P1_C_SOURCE_SHA256:
+            raise ValueError("corrected P1 source identity drifted")
+        return self
+
+
 class PlatformDiagnosticImplementationRecord(_StrictModel):
-    schema_version: Literal["1.0.0"]
+    schema_version: Literal["1.1.0"]
     record_id: Literal["auragateway-cu129-p0-p2-platform-diagnostic-implementation-v1"]
     source_main_merge_commit: Literal["f4f08eda4b4d4747514b4646fe53664d8a78ca6d"]
     request_path: Literal[
@@ -1154,8 +1325,9 @@ class PlatformDiagnosticImplementationRecord(_StrictModel):
     evidence_zip_name: Literal["ag-cu129-p0-p2-platform-evidence-v1.zip"]
     required_outputs: tuple[str, ...] = Field(min_length=6, max_length=6)
     safety: ImplementationSafety
-    implementation_status: Literal["IMPLEMENTED_NOT_EXECUTED"]
-    next_gate: Literal["review_and_materialize_p0_p2_platform_diagnostic"]
+    remediation: DiagnosticRemediationRecord
+    implementation_status: Literal["REMEDIATED_NOT_EXECUTED"]
+    next_gate: Literal["review_and_materialize_corrected_p0_p2_platform_diagnostic"]
     non_claims: tuple[str, ...] = Field(min_length=10)
 
     @model_validator(mode="after")
@@ -1175,6 +1347,24 @@ def _canonical_json(payload: object) -> str:
 
 def _sha256_bytes(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
+
+
+def p1_probe_source_bytes() -> bytes:
+    """Extract the exact generated P1 C source bytes from the notebook program."""
+
+    tree = ast.parse(KAGGLE_PROGRAM)
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if not any(
+            isinstance(target, ast.Name) and target.id == "P1_C_SOURCE" for target in node.targets
+        ):
+            continue
+        value = ast.literal_eval(node.value)
+        if not isinstance(value, bytes):
+            raise P0P2PlatformDiagnosticError("generated P1 C source constant is not bytes")
+        return value
+    raise P0P2PlatformDiagnosticError("generated P1 C source constant is missing")
 
 
 def _notebook_document() -> dict[str, object]:
@@ -1300,6 +1490,20 @@ def validate_notebook(path: Path) -> dict[str, object]:
     )
     if any(marker not in KAGGLE_PROGRAM for marker in required_markers):
         raise P0P2PlatformDiagnosticError("P0-P2 program lost required behavior")
+    observed_p1_source = p1_probe_source_bytes()
+    if observed_p1_source != P1_C_SOURCE_EXPECTED:
+        raise P0P2PlatformDiagnosticError("generated P1 C source bytes drifted")
+    if b"\\n" in observed_p1_source or observed_p1_source.count(b"\n") != 2:
+        raise P0P2PlatformDiagnosticError("generated P1 C source newline contract drifted")
+    required_p1_taxonomy = (
+        "syntax_compile_failed",
+        "link_failed",
+        "loader_resolution_failed",
+        "driver_initialization_failed",
+        "CURRENT_KAGGLE_IMAGE_DRIVER_INITIALIZATION_FAILED",
+    )
+    if any(marker not in KAGGLE_PROGRAM for marker in required_p1_taxonomy):
+        raise P0P2PlatformDiagnosticError("generated P1 failure taxonomy drifted")
     prohibited_markers = (
         "Qwen/Qwen",
         "vllm.entrypoints.openai.api_server",
