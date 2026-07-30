@@ -1,0 +1,17 @@
+8.4s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.4s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.4s 3 0.00s - to python to disable frozen modules.
+8.4s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+9.2s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+9.2s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+9.2s 7 0.00s - to python to disable frozen modules.
+9.2s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+10.6s 9 {"benchmark_trajectory_requests":0,"bundle_manifest_sha256":"463b58b32d34f39d8c189e69cb9614cd7ca2ad2124f73e239c29b96a97f1728f","credentials_used":false,"customer_data_present":false,"dataset_root":"/kaggle/input/notebooks/kabomolefe/ag-cu129-p0-p2-source-materializer-v2/ag_cu129_p0_p2_source_materializer_v2_output","external_spend":0,"inspection_evidence_zip":"/kaggle/working/ag-cu129-p0-p2-source-inspection-v2.zip","inspection_evidence_zip_sha256":"cc04c6e287c50d3c2ba6187523174167c7e14219f1d3c96d8c7bec56eefcb21f","inspection_notebook_name":"ag-cu129-p0-p2-source-inspection-v2","model_loads":0,"model_requests":0,"network_requests":0,"next_gate":"integrate_materialized_p0_p2_source_with_execution_launcher_v2","notebook_execution_counts_present":false,"notebook_outputs_present":false,"output_dataset_name":"ag-cu129-p0-p2-source-v2","schema_version":"2.0.0","source_bundle_sha256":"49cba1ecdf8e754792fefc05a668e81a75371dd5bef35ac7807ba7e0f2259a53","source_file_count":3,"source_inventory_sha256":"855b1e77900cd5e022255d12189fce4207bf93f74671fed9ec0d74caaf29d505","source_main_base_commit":"24914d79ef4b4d33285f111c8920d16c36244614","status":"P0_P2_SOURCE_INPUT_INSPECTION_PASSED_V2","worker_starts":0}
+13.8s 10 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+13.8s 11 cells[i][c] = re.sub('\\\\\|', '|', cell)
+14.0s 12 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+14.0s 13 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+14.8s 14 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+15.1s 15 [NbConvertApp] Writing 16069 bytes to __notebook__.ipynb
+18.2s 16 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+19.3s 17 [NbConvertApp] Writing 316447 bytes to __results__.html

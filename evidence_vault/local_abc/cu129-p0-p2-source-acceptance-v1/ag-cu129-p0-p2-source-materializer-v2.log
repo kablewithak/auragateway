@@ -1,0 +1,17 @@
+9.1s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+9.1s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+9.1s 3 0.00s - to python to disable frozen modules.
+9.1s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+9.9s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+9.9s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+9.9s 7 0.00s - to python to disable frozen modules.
+9.9s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+11.3s 9 {"next_gate":"execute_metadata_only_p0_p2_source_inspection_v2","output_dataset_name":"ag-cu129-p0-p2-source-v2","output_directory":"/kaggle/working/ag_cu129_p0_p2_source_materializer_v2_output","source_bundle_sha256":"49cba1ecdf8e754792fefc05a668e81a75371dd5bef35ac7807ba7e0f2259a53","source_file_count":3,"status":"P0_P2_SOURCE_MATERIALIZED_V2"}
+14.4s 10 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+14.4s 11 cells[i][c] = re.sub('\\\\\|', '|', cell)
+14.6s 12 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+14.6s 13 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+15.4s 14 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+15.8s 15 [NbConvertApp] Writing 35880 bytes to __notebook__.ipynb
+18.8s 16 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+19.9s 17 [NbConvertApp] Writing 336035 bytes to __results__.html
