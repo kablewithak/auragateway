@@ -14,6 +14,9 @@ from typing import Final, Literal, Never, Self, cast
 from pydantic import Field, ValidationError, model_validator
 
 import auragateway.local_abc.p0_p2_source_acceptance_v1 as source_acceptance
+from auragateway.local_abc import (
+    p0_p2_execution_launcher_source_authority_remediation_v1 as source_authority_remediation,
+)
 from auragateway.local_abc.contracts import LocalABCContract
 
 SOURCE_MAIN_BASE_COMMIT: Final = "24914d79ef4b4d33285f111c8920d16c36244614"
@@ -65,6 +68,7 @@ EXPECTED_SOURCE_BUNDLE_SHA256: Final = (
 EXPECTED_SOURCE_INVENTORY_SHA256: Final = (
     "855b1e77900cd5e022255d12189fce4207bf93f74671fed9ec0d74caaf29d505"
 )
+EXPECTED_BUNDLE_MANIFEST_SHA256: Final = source_acceptance.BUNDLE_MANIFEST_SHA256
 EXPECTED_DIAGNOSTIC_NOTEBOOK_SHA256: Final = (
     "2f62c6ebfebba148db6f5f9192a474f22ec7599099c397a4169f811849db8603"
 )
@@ -219,6 +223,7 @@ class ExecutionLauncherRecord(LocalABCContract):
     direct_notebook_output_attachment: Literal[True]
     standalone_kaggle_dataset_required: Literal[False]
     source_bundle_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    bundle_manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     source_inventory_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     diagnostic_notebook_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     runtime_output_directory: str
@@ -247,6 +252,8 @@ class ExecutionLauncherRecord(LocalABCContract):
             raise ValueError("accepted inspection version drifted")
         if self.source_bundle_sha256 != EXPECTED_SOURCE_BUNDLE_SHA256:
             raise ValueError("source bundle identity drifted")
+        if self.bundle_manifest_sha256 != EXPECTED_BUNDLE_MANIFEST_SHA256:
+            raise ValueError("bundle manifest identity drifted")
         if self.source_inventory_sha256 != EXPECTED_SOURCE_INVENTORY_SHA256:
             raise ValueError("source inventory identity drifted")
         if self.diagnostic_notebook_sha256 != EXPECTED_DIAGNOSTIC_NOTEBOOK_SHA256:
@@ -346,6 +353,7 @@ def _validate_bound_file(path: Path, expected_sha256: str) -> None:
 def _validate_source_authorities(
     repo_root: Path,
 ) -> source_acceptance.P0P2SourceAcceptanceRecord:
+    source_authority_remediation.validate(repo_root)
     acceptance = source_acceptance.validate(repo_root)
     materialization = _load_json_object(repo_root / SOURCE_MATERIALIZATION_RECORD_PATH)
     expected_materialization = {
@@ -388,10 +396,25 @@ def _load_template(repo_root: Path) -> str:
             "launcher template is missing",
             LAUNCHER_TEMPLATE_PATH.as_posix(),
         ) from error
+
+    bundle_manifest_marker = "__BUNDLE_MANIFEST_SHA256__"
+    if source.count(bundle_manifest_marker) != 1:
+        raise P0P2ExecutionLauncherV2Error(
+            "P0_P2_LAUNCHER_V2_TEMPLATE_MARKER_DRIFT",
+            "bundle-manifest template marker is missing or duplicated",
+            LAUNCHER_TEMPLATE_PATH.as_posix(),
+        )
+    source = source.replace(
+        bundle_manifest_marker,
+        EXPECTED_BUNDLE_MANIFEST_SHA256,
+        1,
+    )
+
     unresolved_markers = (
         "__SOURCE_MAIN_BASE_COMMIT__",
         "__DIAGNOSTIC_NOTEBOOK_SHA256__",
         "__SOURCE_BUNDLE_SHA256__",
+        bundle_manifest_marker,
     )
     if any(marker in source for marker in unresolved_markers):
         raise P0P2ExecutionLauncherV2Error(
@@ -426,6 +449,7 @@ def _validate_generated_source(source: str) -> int:
         "vllm",
         "AutoModel",
         "requests.get(",
+        source_authority_remediation.STALE_BUNDLE_MANIFEST_SHA256,
     )
     for fragment in prohibited_fragments:
         if fragment in source:
@@ -439,6 +463,7 @@ def _validate_generated_source(source: str) -> int:
         "standalone_kaggle_dataset_required",
         "exec(",
         "validate_diagnostic_evidence",
+        EXPECTED_BUNDLE_MANIFEST_SHA256,
     )
     for fragment in required_fragments:
         if fragment not in source:
@@ -479,6 +504,7 @@ def _notebook_bytes(
             "auragateway": {
                 "accepted_inspection_version": ACCEPTED_INSPECTION_VERSION,
                 "accepted_materializer_version": ACCEPTED_MATERIALIZER_VERSION,
+                "bundle_manifest_sha256": EXPECTED_BUNDLE_MANIFEST_SHA256,
                 "source_acceptance_record_sha256": (source_acceptance_record_sha256),
                 "direct_notebook_output_attachment": True,
                 "launcher_evidence_zip_name": LAUNCHER_EVIDENCE_ZIP_NAME,
@@ -548,6 +574,7 @@ def build_generated_launcher(repo_root: Path) -> GeneratedLauncher:
         direct_notebook_output_attachment=True,
         standalone_kaggle_dataset_required=False,
         source_bundle_sha256=EXPECTED_SOURCE_BUNDLE_SHA256,
+        bundle_manifest_sha256=EXPECTED_BUNDLE_MANIFEST_SHA256,
         source_inventory_sha256=EXPECTED_SOURCE_INVENTORY_SHA256,
         diagnostic_notebook_sha256=EXPECTED_DIAGNOSTIC_NOTEBOOK_SHA256,
         runtime_output_directory=RUNTIME_OUTPUT_DIRECTORY,

@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import shutil
+import zipfile
+from collections.abc import Callable
 from pathlib import Path
+from typing import cast
 
 import pytest
 from pydantic import ValidationError
@@ -13,6 +17,9 @@ from pydantic import ValidationError
 import auragateway.local_abc.p0_p2_source_acceptance_v1 as source_acceptance
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_p0_p2_execution_launcher_v2 as subject,
+)
+from auragateway.local_abc import (
+    p0_p2_execution_launcher_source_authority_remediation_v1 as source_authority_remediation,
 )
 
 
@@ -75,6 +82,16 @@ def _write_fixture_repo(tmp_path: Path) -> Path:
         *source_acceptance.BOUND_EVIDENCE_PATHS,
     )
     for relative in acceptance_paths:
+        source = source_root / relative
+        target = repo_root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+
+    remediation_paths = (
+        source_authority_remediation.REMEDIATION_RECORD_PATH,
+        *source_authority_remediation.BOUND_EVIDENCE_PATHS,
+    )
+    for relative in remediation_paths:
         source = source_root / relative
         target = repo_root / relative
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -241,3 +258,61 @@ def test_launcher_binds_accepted_source_evidence(tmp_path: Path) -> None:
     )
     assert "PENDING_CORRECTED_MATERIALIZER" not in generated.notebook_bytes.decode("utf-8")
     assert "PENDING_CORRECTED_INSPECTION" not in generated.notebook_bytes.decode("utf-8")
+
+
+def _launcher_namespace_without_main(source: str) -> dict[str, object]:
+    tree = ast.parse(source)
+    retained: list[ast.stmt] = []
+    for node in tree.body:
+        calls_main = any(
+            isinstance(candidate, ast.Call)
+            and isinstance(candidate.func, ast.Name)
+            and candidate.func.id == "main"
+            for candidate in ast.walk(node)
+        )
+        if calls_main:
+            continue
+        retained.append(node)
+    tree.body = retained
+    ast.fix_missing_locations(tree)
+    namespace: dict[str, object] = {}
+    exec(compile(tree, "launcher-runtime-regression", "exec"), namespace)
+    return namespace
+
+
+def test_launcher_renders_accepted_bundle_manifest_authority(
+    tmp_path: Path,
+) -> None:
+    generated = subject.build_generated_launcher(_write_fixture_repo(tmp_path))
+    source = _code_source(generated.notebook_bytes)
+
+    assert subject.EXPECTED_BUNDLE_MANIFEST_SHA256 == source_acceptance.BUNDLE_MANIFEST_SHA256
+    assert subject.EXPECTED_BUNDLE_MANIFEST_SHA256 in source
+    assert source_authority_remediation.STALE_BUNDLE_MANIFEST_SHA256 not in source
+    assert generated.record.bundle_manifest_sha256 == source_acceptance.BUNDLE_MANIFEST_SHA256
+
+
+def test_discovery_accepts_the_bound_materializer_archive(
+    tmp_path: Path,
+) -> None:
+    generated = subject.build_generated_launcher(_write_fixture_repo(tmp_path))
+    source = _code_source(generated.notebook_bytes)
+    namespace = _launcher_namespace_without_main(source)
+
+    source_root = Path(__file__).resolve().parents[3]
+    input_root = tmp_path / "kaggle-input"
+    mounted_root = input_root / "accepted-materializer"
+    mounted_root.mkdir(parents=True)
+    archive_path = source_root / source_acceptance.MATERIALIZER_RESULTS_ZIP_PATH
+    with zipfile.ZipFile(archive_path) as archive:
+        archive.extractall(mounted_root)
+
+    namespace["INPUT_ROOT"] = input_root.resolve()
+    discover = cast(
+        Callable[[], tuple[Path, dict[str, object]]],
+        namespace["discover_source_output"],
+    )
+    discovered_root, receipt = discover()
+
+    assert discovered_root.name == source_acceptance.MATERIALIZER_ROOT
+    assert receipt["bundle_manifest_sha256"] == source_acceptance.BUNDLE_MANIFEST_SHA256
