@@ -60,6 +60,7 @@ def _write_fixture_repo(tmp_path: Path) -> Path:
         repo_root / subject.SOURCE_MATERIALIZATION_RECORD_PATH,
         {
             "status": "P0_P2_SOURCE_MATERIALIZATION_TOOLCHAIN_V2_VALID",
+            "source_main_base_commit": subject.SOURCE_MAIN_BASE_COMMIT,
             "source_bundle_sha256": subject.EXPECTED_SOURCE_BUNDLE_SHA256,
             "source_inventory_sha256": subject.EXPECTED_SOURCE_INVENTORY_SHA256,
             "output_directory_name": "ag_cu129_p0_p2_source_materializer_v2_output",
@@ -186,3 +187,23 @@ def test_validation_rejects_generated_notebook_drift(tmp_path: Path) -> None:
     (repo_root / subject.LAUNCHER_NOTEBOOK_PATH).write_bytes(b"drift")
     with pytest.raises(subject.P0P2ExecutionLauncherV2Error, match="differs"):
         subject.validate(repo_root)
+
+
+def test_launcher_lineage_contract_uses_base_commit_semantics(tmp_path: Path) -> None:
+    generated = subject.build_generated_launcher(_write_fixture_repo(tmp_path))
+    assert generated.record.source_main_base_commit == subject.SOURCE_MAIN_BASE_COMMIT
+
+    raw = json.loads(generated.notebook_bytes.decode("utf-8"))
+    assert isinstance(raw, dict)
+    metadata = raw["metadata"]
+    assert isinstance(metadata, dict)
+    auragateway = metadata["auragateway"]
+    assert isinstance(auragateway, dict)
+    assert auragateway["source_main_base_commit"] == subject.SOURCE_MAIN_BASE_COMMIT
+    assert "source_main_merge_commit" not in auragateway
+
+    source = _code_source(generated.notebook_bytes)
+    assert "EXPECTED_SOURCE_MAIN_BASE_COMMIT" in source
+    assert '"source_main_base_commit"' in source
+    assert "EXPECTED_SOURCE_REPOSITORY_COMMIT" not in source
+    assert '"source_repository_commit"' not in source

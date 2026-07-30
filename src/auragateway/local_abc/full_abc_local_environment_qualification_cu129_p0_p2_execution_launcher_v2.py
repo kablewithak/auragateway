@@ -15,8 +15,8 @@ from pydantic import Field, ValidationError, model_validator
 
 from auragateway.local_abc.contracts import LocalABCContract
 
-SOURCE_MAIN_MERGE_COMMIT: Final = "831b4ad4e8eb4139b51af927eb721989be197cbc"
-BRANCH_NAME: Final = "fix/local-abc-cu129-p1-probe-taxonomy-v1"
+SOURCE_MAIN_BASE_COMMIT: Final = "24914d79ef4b4d33285f111c8920d16c36244614"
+ARCHITECTURE_ORIGIN_BRANCH: Final = "fix/local-abc-cu129-p1-probe-taxonomy-v1"
 SOURCE_MATERIALIZATION_RECORD_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_p0_p2_source_materialization_toolchain_v2.json"
 )
@@ -59,7 +59,7 @@ RUNTIME_OUTPUT_DIRECTORY: Final = "auragateway_vllm_cu129_wheelhouse_v1"
 ACCEPTED_MATERIALIZER_VERSION: Final = "PENDING_CORRECTED_MATERIALIZER"
 ACCEPTED_INSPECTION_VERSION: Final = "PENDING_CORRECTED_INSPECTION"
 EXPECTED_SOURCE_BUNDLE_SHA256: Final = (
-    "8c90a0f294cd33a74b5e90da6b9f5671f2fab5bf1dcc0359f275664fce51f00c"
+    "49cba1ecdf8e754792fefc05a668e81a75371dd5bef35ac7807ba7e0f2259a53"
 )
 EXPECTED_SOURCE_INVENTORY_SHA256: Final = (
     "855b1e77900cd5e022255d12189fce4207bf93f74671fed9ec0d74caaf29d505"
@@ -137,8 +137,8 @@ class ExecutionLauncherReviewRecord(LocalABCContract):
     schema_version: Literal["2.0.0"] = "2.0.0"
     record_id: Literal["auragateway-cu129-p0-p2-execution-launcher-review-v2"]
     decision: Literal["DEDICATED_EXECUTION_LAUNCHER"]
-    source_main_merge_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
-    branch_name: Literal["fix/local-abc-cu129-p1-probe-taxonomy-v1"]
+    source_main_base_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    architecture_origin_branch: Literal["fix/local-abc-cu129-p1-probe-taxonomy-v1"]
     launcher_notebook_name: str
     failed_notebook_name: str
     direct_notebook_output_attachment: Literal[True]
@@ -155,8 +155,8 @@ class ExecutionLauncherReviewRecord(LocalABCContract):
     def validate_review(self) -> Self:
         """Validate the exact approved architecture."""
 
-        if self.source_main_merge_commit != SOURCE_MAIN_MERGE_COMMIT:
-            raise ValueError("review source main merge commit drifted")
+        if self.source_main_base_commit != SOURCE_MAIN_BASE_COMMIT:
+            raise ValueError("review source main base commit drifted")
         if self.launcher_notebook_name != LAUNCHER_NOTEBOOK_NAME:
             raise ValueError("launcher notebook name drifted")
         if self.failed_notebook_name != FAILED_LAUNCHER_NOTEBOOK_NAME:
@@ -207,7 +207,7 @@ class ExecutionLauncherRecord(LocalABCContract):
     schema_version: Literal["2.0.0"] = "2.0.0"
     record_id: Literal["auragateway-cu129-p0-p2-execution-launcher-record-v2"]
     status: Literal["P0_P2_EXECUTION_LAUNCHER_V2_VALID"]
-    source_main_merge_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    source_main_base_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
     launcher: GeneratedNotebookReceipt
     source_materializer_notebook_name: str
     accepted_materializer_version: str
@@ -231,8 +231,8 @@ class ExecutionLauncherRecord(LocalABCContract):
     def validate_record(self) -> Self:
         """Validate all fixed launcher identities."""
 
-        if self.source_main_merge_commit != SOURCE_MAIN_MERGE_COMMIT:
-            raise ValueError("launcher source main merge commit drifted")
+        if self.source_main_base_commit != SOURCE_MAIN_BASE_COMMIT:
+            raise ValueError("launcher source main base commit drifted")
         if self.launcher.notebook_name != LAUNCHER_NOTEBOOK_NAME:
             raise ValueError("launcher notebook name drifted")
         if self.source_materializer_notebook_name != SOURCE_MATERIALIZER_NOTEBOOK_NAME:
@@ -343,6 +343,7 @@ def _validate_source_authorities(repo_root: Path) -> None:
     materialization = _load_json_object(repo_root / SOURCE_MATERIALIZATION_RECORD_PATH)
     expected_materialization = {
         "status": "P0_P2_SOURCE_MATERIALIZATION_TOOLCHAIN_V2_VALID",
+        "source_main_base_commit": SOURCE_MAIN_BASE_COMMIT,
         "source_bundle_sha256": EXPECTED_SOURCE_BUNDLE_SHA256,
         "source_inventory_sha256": EXPECTED_SOURCE_INVENTORY_SHA256,
         "output_directory_name": "ag_cu129_p0_p2_source_materializer_v2_output",
@@ -380,7 +381,7 @@ def _load_template(repo_root: Path) -> str:
             LAUNCHER_TEMPLATE_PATH.as_posix(),
         ) from error
     unresolved_markers = (
-        "__SOURCE_MAIN_MERGE_COMMIT__",
+        "__SOURCE_MAIN_BASE_COMMIT__",
         "__DIAGNOSTIC_NOTEBOOK_SHA256__",
         "__SOURCE_BUNDLE_SHA256__",
     )
@@ -470,7 +471,7 @@ def _notebook_bytes(source: str) -> bytes:
                 "direct_notebook_output_attachment": True,
                 "launcher_evidence_zip_name": LAUNCHER_EVIDENCE_ZIP_NAME,
                 "notebook_name": LAUNCHER_NOTEBOOK_NAME,
-                "source_main_merge_commit": SOURCE_MAIN_MERGE_COMMIT,
+                "source_main_base_commit": SOURCE_MAIN_BASE_COMMIT,
                 "standalone_kaggle_dataset_required": False,
             },
             "kaggle": {
@@ -520,7 +521,7 @@ def build_generated_launcher(repo_root: Path) -> GeneratedLauncher:
     record = ExecutionLauncherRecord(
         record_id="auragateway-cu129-p0-p2-execution-launcher-record-v2",
         status="P0_P2_EXECUTION_LAUNCHER_V2_VALID",
-        source_main_merge_commit=SOURCE_MAIN_MERGE_COMMIT,
+        source_main_base_commit=SOURCE_MAIN_BASE_COMMIT,
         launcher=GeneratedNotebookReceipt(
             notebook_name=LAUNCHER_NOTEBOOK_NAME,
             repository_path=LAUNCHER_NOTEBOOK_PATH.as_posix(),
