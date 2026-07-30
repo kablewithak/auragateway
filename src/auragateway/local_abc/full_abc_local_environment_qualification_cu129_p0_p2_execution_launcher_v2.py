@@ -15,8 +15,8 @@ from pydantic import Field, ValidationError, model_validator
 
 from auragateway.local_abc.contracts import LocalABCContract
 
-SOURCE_MAIN_MERGE_COMMIT: Final = "eb809180e2139713a24a09c4eb1ff900f48d329e"
-BRANCH_NAME: Final = "feat/local-abc-cu129-p0-p2-execution-launcher-v2"
+SOURCE_MAIN_MERGE_COMMIT: Final = "831b4ad4e8eb4139b51af927eb721989be197cbc"
+BRANCH_NAME: Final = "fix/local-abc-cu129-p1-probe-taxonomy-v1"
 SOURCE_MATERIALIZATION_RECORD_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_p0_p2_source_materialization_toolchain_v2.json"
 )
@@ -56,22 +56,22 @@ FAILED_LAUNCHER_NOTEBOOK_NAME: Final = "ag-cu129-p0-p2-exec-failed-v2"
 LAUNCHER_EVIDENCE_ZIP_NAME: Final = "ag-cu129-p0-p2-execution-launcher-v2.zip"
 SOURCE_MATERIALIZER_NOTEBOOK_NAME: Final = "ag-cu129-p0-p2-source-materializer-v2"
 RUNTIME_OUTPUT_DIRECTORY: Final = "auragateway_vllm_cu129_wheelhouse_v1"
-ACCEPTED_MATERIALIZER_VERSION: Final = "338895141"
-ACCEPTED_INSPECTION_VERSION: Final = "338900497"
+ACCEPTED_MATERIALIZER_VERSION: Final = "PENDING_CORRECTED_MATERIALIZER"
+ACCEPTED_INSPECTION_VERSION: Final = "PENDING_CORRECTED_INSPECTION"
 EXPECTED_SOURCE_BUNDLE_SHA256: Final = (
-    "bd097235f858500adcce86ddc99d15c9e01c2848fc3fece9a4ea587a0e66b88b"
+    "8c90a0f294cd33a74b5e90da6b9f5671f2fab5bf1dcc0359f275664fce51f00c"
 )
 EXPECTED_SOURCE_INVENTORY_SHA256: Final = (
-    "462dbbaf58d6e0bd1568b5ff712955bc452cd56bfeaea0f5d75a3ba0fb657ff7"
+    "855b1e77900cd5e022255d12189fce4207bf93f74671fed9ec0d74caaf29d505"
 )
 EXPECTED_DIAGNOSTIC_NOTEBOOK_SHA256: Final = (
-    "caefff1468500ecd75edcd0283b3d806a57b76e9a0a3decb318fc4083806b7f5"
+    "2f62c6ebfebba148db6f5f9192a474f22ec7599099c397a4169f811849db8603"
 )
 EXPECTED_DIAGNOSTIC_REQUEST_SHA256: Final = (
-    "f1a77d91b4fa6b3d187eb62e527ad3a807caa55e7de6d92bd3f80f4c5c9950f5"
+    "ae70648c21ddd4899bc5e2c3c8cb8346387949e4320d5e9858352bf11e774eae"
 )
 EXPECTED_IMPLEMENTATION_RECORD_SHA256: Final = (
-    "70c72b2e74fa62146115900d3a32b8e2af82be8b1dc9723e2304f1250e3b96c4"
+    "27316b176bda4bf24d293213fe5ff34326b2c27c0ac015359fcdd4858d5765ba"
 )
 MAXIMUM_KAGGLE_NAME_CHARACTERS: Final = 50
 MAXIMUM_GENERATED_LINE_LENGTH: Final = 100
@@ -138,7 +138,7 @@ class ExecutionLauncherReviewRecord(LocalABCContract):
     record_id: Literal["auragateway-cu129-p0-p2-execution-launcher-review-v2"]
     decision: Literal["DEDICATED_EXECUTION_LAUNCHER"]
     source_main_merge_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
-    branch_name: Literal["feat/local-abc-cu129-p0-p2-execution-launcher-v2"]
+    branch_name: Literal["fix/local-abc-cu129-p1-probe-taxonomy-v1"]
     launcher_notebook_name: str
     failed_notebook_name: str
     direct_notebook_output_attachment: Literal[True]

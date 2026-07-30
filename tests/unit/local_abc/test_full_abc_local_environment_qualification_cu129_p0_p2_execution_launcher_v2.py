@@ -141,6 +141,16 @@ def test_launcher_has_one_execution_attempt_and_zero_model_budget(tmp_path: Path
     assert generated.record.execution_budget.maximum_benchmark_trajectory_requests == 0
 
 
+def test_launcher_validates_corrected_p1_taxonomy(tmp_path: Path) -> None:
+    generated = subject.build_generated_launcher(_write_fixture_repo(tmp_path))
+    source = _code_source(generated.notebook_bytes)
+
+    assert "P1 decision taxonomy drifted" in source
+    assert "P1 failure-stage attribution drifted" in source
+    assert "P1 source byte contract drifted" in source
+    assert "CURRENT_KAGGLE_IMAGE_DRIVER_INITIALIZATION_FAILED" in source
+
+
 def test_source_identity_drift_is_rejected(tmp_path: Path) -> None:
     repo_root = _write_fixture_repo(tmp_path)
     (repo_root / subject.DIAGNOSTIC_NOTEBOOK_PATH).write_bytes(b"tampered")
