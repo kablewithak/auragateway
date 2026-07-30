@@ -1,0 +1,17 @@
+6.2s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.2s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.2s 3 0.00s - to python to disable frozen modules.
+6.2s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+6.7s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.7s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.7s 7 0.00s - to python to disable frozen modules.
+6.7s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+12.3s 9 {"benchmark_trajectory_requests":0,"evidence_zip":"/kaggle/working/ag-cu129-explicit-driver-link-evidence-v2.zip","evidence_zip_sha256":"8be080c46a077d88dcd0d51325fe2a751936a599d3b350ba7def3bdf5eb7b33c","external_spend":0,"kernel_compile_and_execution_attempts":0,"model_loads":0,"model_requests":0,"network_requests":0,"p2_performed":false,"runtime_install_attempts":0,"status":"PASSED","terminal_decision":"EXPLICIT_CUDA_DRIVER_LINK_PATH_CONTRACT_PASSED","worker_starts":0}
+16.2s 10 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+16.2s 11 cells[i][c] = re.sub('\\\\\|', '|', cell)
+16.3s 12 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+16.3s 13 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+16.9s 14 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+17.2s 15 [NbConvertApp] Writing 43138 bytes to __notebook__.ipynb
+19.5s 16 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+20.3s 17 [NbConvertApp] Writing 392068 bytes to __results__.html
