@@ -13,6 +13,7 @@ from typing import Final, Literal, Never, Self, cast
 
 from pydantic import Field, ValidationError, model_validator
 
+import auragateway.local_abc.p0_p2_source_acceptance_v1 as source_acceptance
 from auragateway.local_abc.contracts import LocalABCContract
 
 SOURCE_MAIN_BASE_COMMIT: Final = "24914d79ef4b4d33285f111c8920d16c36244614"
@@ -56,8 +57,8 @@ FAILED_LAUNCHER_NOTEBOOK_NAME: Final = "ag-cu129-p0-p2-exec-failed-v2"
 LAUNCHER_EVIDENCE_ZIP_NAME: Final = "ag-cu129-p0-p2-execution-launcher-v2.zip"
 SOURCE_MATERIALIZER_NOTEBOOK_NAME: Final = "ag-cu129-p0-p2-source-materializer-v2"
 RUNTIME_OUTPUT_DIRECTORY: Final = "auragateway_vllm_cu129_wheelhouse_v1"
-ACCEPTED_MATERIALIZER_VERSION: Final = "PENDING_CORRECTED_MATERIALIZER"
-ACCEPTED_INSPECTION_VERSION: Final = "PENDING_CORRECTED_INSPECTION"
+ACCEPTED_MATERIALIZER_VERSION: Final = str(source_acceptance.MATERIALIZER_SAVED_VERSION_ID)
+ACCEPTED_INSPECTION_VERSION: Final = str(source_acceptance.INSPECTION_SAVED_VERSION_ID)
 EXPECTED_SOURCE_BUNDLE_SHA256: Final = (
     "49cba1ecdf8e754792fefc05a668e81a75371dd5bef35ac7807ba7e0f2259a53"
 )
@@ -168,6 +169,7 @@ class ExecutionLauncherReviewRecord(LocalABCContract):
         required_architecture = {
             "direct_notebook_output_discovery",
             "receipt_inventory_and_manifest_validation",
+            "accepted_source_evidence_validation",
             "exact_diagnostic_notebook_identity",
             "single_execution_attempt",
             "post_execution_evidence_validation",
@@ -178,6 +180,7 @@ class ExecutionLauncherReviewRecord(LocalABCContract):
             raise ValueError("architecture requirement set drifted")
         required_prohibitions = {
             "standalone_dataset_requirement",
+            "unbound_kaggle_saved_version",
             "manual_generated_notebook_edits",
             "hidden_retries",
             "model_or_worker_execution",
@@ -208,6 +211,7 @@ class ExecutionLauncherRecord(LocalABCContract):
     record_id: Literal["auragateway-cu129-p0-p2-execution-launcher-record-v2"]
     status: Literal["P0_P2_EXECUTION_LAUNCHER_V2_VALID"]
     source_main_base_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    source_acceptance_record_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     launcher: GeneratedNotebookReceipt
     source_materializer_notebook_name: str
     accepted_materializer_version: str
@@ -339,7 +343,10 @@ def _validate_bound_file(path: Path, expected_sha256: str) -> None:
         )
 
 
-def _validate_source_authorities(repo_root: Path) -> None:
+def _validate_source_authorities(
+    repo_root: Path,
+) -> source_acceptance.P0P2SourceAcceptanceRecord:
+    acceptance = source_acceptance.validate(repo_root)
     materialization = _load_json_object(repo_root / SOURCE_MATERIALIZATION_RECORD_PATH)
     expected_materialization = {
         "status": "P0_P2_SOURCE_MATERIALIZATION_TOOLCHAIN_V2_VALID",
@@ -368,6 +375,7 @@ def _validate_source_authorities(repo_root: Path) -> None:
         repo_root / DIAGNOSTIC_IMPLEMENTATION_PATH,
         EXPECTED_IMPLEMENTATION_RECORD_SHA256,
     )
+    return acceptance
 
 
 def _load_template(repo_root: Path) -> str:
@@ -441,7 +449,10 @@ def _validate_generated_source(source: str) -> int:
     return maximum
 
 
-def _notebook_bytes(source: str) -> bytes:
+def _notebook_bytes(
+    source: str,
+    source_acceptance_record_sha256: str,
+) -> bytes:
     payload = {
         "cells": [
             {
@@ -468,6 +479,7 @@ def _notebook_bytes(source: str) -> bytes:
             "auragateway": {
                 "accepted_inspection_version": ACCEPTED_INSPECTION_VERSION,
                 "accepted_materializer_version": ACCEPTED_MATERIALIZER_VERSION,
+                "source_acceptance_record_sha256": (source_acceptance_record_sha256),
                 "direct_notebook_output_attachment": True,
                 "launcher_evidence_zip_name": LAUNCHER_EVIDENCE_ZIP_NAME,
                 "notebook_name": LAUNCHER_NOTEBOOK_NAME,
@@ -508,11 +520,12 @@ def _notebook_bytes(source: str) -> bytes:
 def build_generated_launcher(repo_root: Path) -> GeneratedLauncher:
     """Build the deterministic launcher notebook and record in memory."""
 
-    _validate_source_authorities(repo_root)
+    acceptance = _validate_source_authorities(repo_root)
+    acceptance_sha256 = _sha256_bytes(acceptance.canonical_json().encode("utf-8"))
     source = _load_template(repo_root)
     maximum = _validate_generated_source(source)
-    first = _notebook_bytes(source)
-    second = _notebook_bytes(source)
+    first = _notebook_bytes(source, acceptance_sha256)
+    second = _notebook_bytes(source, acceptance_sha256)
     if first != second:
         raise P0P2ExecutionLauncherV2Error(
             "P0_P2_LAUNCHER_V2_GENERATION_NONDETERMINISTIC",
@@ -522,6 +535,7 @@ def build_generated_launcher(repo_root: Path) -> GeneratedLauncher:
         record_id="auragateway-cu129-p0-p2-execution-launcher-record-v2",
         status="P0_P2_EXECUTION_LAUNCHER_V2_VALID",
         source_main_base_commit=SOURCE_MAIN_BASE_COMMIT,
+        source_acceptance_record_sha256=acceptance_sha256,
         launcher=GeneratedNotebookReceipt(
             notebook_name=LAUNCHER_NOTEBOOK_NAME,
             repository_path=LAUNCHER_NOTEBOOK_PATH.as_posix(),
@@ -662,6 +676,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "status": status,
                     "launcher_notebook_name": record.launcher.notebook_name,
                     "launcher_notebook_sha256": record.launcher.sha256,
+                    "source_acceptance_record_sha256": (record.source_acceptance_record_sha256),
+                    "accepted_materializer_version": (record.accepted_materializer_version),
+                    "accepted_inspection_version": (record.accepted_inspection_version),
                     "direct_notebook_output_attachment": (record.direct_notebook_output_attachment),
                     "standalone_kaggle_dataset_required": (
                         record.standalone_kaggle_dataset_required

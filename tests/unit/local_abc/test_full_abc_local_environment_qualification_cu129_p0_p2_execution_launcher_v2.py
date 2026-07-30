@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
+import auragateway.local_abc.p0_p2_source_acceptance_v1 as source_acceptance
 from auragateway.local_abc import (
     full_abc_local_environment_qualification_cu129_p0_p2_execution_launcher_v2 as subject,
 )
@@ -68,6 +70,16 @@ def _write_fixture_repo(tmp_path: Path) -> Path:
         },
     )
     _write_json(repo_root / subject.SOURCE_MATERIALIZATION_REVIEW_PATH, {"ok": True})
+    acceptance_paths = (
+        source_acceptance.ACCEPTANCE_RECORD_PATH,
+        *source_acceptance.BOUND_EVIDENCE_PATHS,
+    )
+    for relative in acceptance_paths:
+        source = source_root / relative
+        target = repo_root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+
     review_target = repo_root / subject.REVIEW_RECORD_PATH
     review_target.parent.mkdir(parents=True, exist_ok=True)
     review_target.write_bytes((source_root / subject.REVIEW_RECORD_PATH).read_bytes())
@@ -207,3 +219,25 @@ def test_launcher_lineage_contract_uses_base_commit_semantics(tmp_path: Path) ->
     assert '"source_main_base_commit"' in source
     assert "EXPECTED_SOURCE_REPOSITORY_COMMIT" not in source
     assert '"source_repository_commit"' not in source
+
+
+def test_launcher_binds_accepted_source_evidence(tmp_path: Path) -> None:
+    generated = subject.build_generated_launcher(_write_fixture_repo(tmp_path))
+    assert generated.record.accepted_materializer_version == "339075357"
+    assert generated.record.accepted_inspection_version == "339077364"
+    assert len(generated.record.source_acceptance_record_sha256) == 64
+
+    raw = json.loads(generated.notebook_bytes.decode("utf-8"))
+    assert isinstance(raw, dict)
+    metadata = raw["metadata"]
+    assert isinstance(metadata, dict)
+    auragateway = metadata["auragateway"]
+    assert isinstance(auragateway, dict)
+    assert auragateway["accepted_materializer_version"] == "339075357"
+    assert auragateway["accepted_inspection_version"] == "339077364"
+    assert (
+        auragateway["source_acceptance_record_sha256"]
+        == generated.record.source_acceptance_record_sha256
+    )
+    assert "PENDING_CORRECTED_MATERIALIZER" not in generated.notebook_bytes.decode("utf-8")
+    assert "PENDING_CORRECTED_INSPECTION" not in generated.notebook_bytes.decode("utf-8")
