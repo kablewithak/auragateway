@@ -19,9 +19,9 @@ from pydantic import Field, ValidationError, field_validator, model_validator
 
 from auragateway.local_abc.contracts import LocalABCContract
 
-SOURCE_REPOSITORY_COMMIT: Final = "831b4ad4e8eb4139b51af927eb721989be197cbc"
-DIAGNOSTIC_SOURCE_MAIN_MERGE_COMMIT: Final = "f4f08eda4b4d4747514b4646fe53664d8a78ca6d"
-BRANCH_NAME: Final = "fix/local-abc-cu129-p1-probe-taxonomy-v1"
+SOURCE_MAIN_BASE_COMMIT: Final = "24914d79ef4b4d33285f111c8920d16c36244614"
+OPTION_C_DECISION_MERGE_COMMIT: Final = "f4f08eda4b4d4747514b4646fe53664d8a78ca6d"
+ARCHITECTURE_ORIGIN_BRANCH: Final = "fix/local-abc-cu129-p1-probe-taxonomy-v1"
 
 REVIEW_RECORD_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_p0_p2_source_materialization_review_v2.json"
@@ -41,6 +41,10 @@ MATERIALIZER_TEMPLATE_PATH: Final = Path(
 INSPECTION_TEMPLATE_PATH: Final = Path(
     "src/auragateway/local_abc/templates/p0_p2_source_input_inspection_v2.py.tmpl"
 )
+LINEAGE_REMEDIATION_RECORD_PATH: Final = Path(
+    "benchmarks/local_abc/auragateway_cu129_p0_p2_lineage_semantics_remediation_v1.json"
+)
+
 AUTHORIZATION_PATH: Final = Path(
     "benchmarks/local_abc/"
     "auragateway_full_abc_local_full_run_environment_qualification_"
@@ -186,8 +190,8 @@ class SourceBundleManifest(LocalABCContract):
     bundle_id: Literal["auragateway-cu129-p0-p2-source-bundle-v2"] = (
         "auragateway-cu129-p0-p2-source-bundle-v2"
     )
-    source_repository_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
-    diagnostic_source_main_merge_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    source_main_base_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    option_c_decision_merge_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
     artifacts: tuple[SourceArtifactBinding, ...]
 
     @model_validator(mode="after")
@@ -232,8 +236,8 @@ class SourceMaterializationReviewRecord(LocalABCContract):
     record_id: Literal["auragateway-cu129-p0-p2-source-materialization-review-v2"]
     decision: Literal["CLEAN_GLOBAL_REBUILD"]
     rejected_architecture: Literal["NESTED_STRING_FRAGMENT_CODE_GENERATION"]
-    source_repository_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
-    branch_name: Literal["fix/local-abc-cu129-p1-probe-taxonomy-v1"]
+    source_main_base_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    architecture_origin_branch: Literal["fix/local-abc-cu129-p1-probe-taxonomy-v1"]
     source_artifacts: tuple[SourceArtifactBinding, ...]
     source_bundle_name: Literal["ag-cu129-p0-p2-source-bundle-v2.zip"]
     materializer_notebook_name: str
@@ -248,8 +252,8 @@ class SourceMaterializationReviewRecord(LocalABCContract):
     def validate_review(self) -> Self:
         """Validate the exact approved V2 redesign."""
 
-        if self.source_repository_commit != SOURCE_REPOSITORY_COMMIT:
-            raise ValueError("review source repository commit drifted")
+        if self.source_main_base_commit != SOURCE_MAIN_BASE_COMMIT:
+            raise ValueError("review source main base commit drifted")
         if self.source_artifacts != SOURCE_BINDINGS:
             raise ValueError("review source artifact bindings drifted")
         if self.materializer_notebook_name != MATERIALIZER_NOTEBOOK_NAME:
@@ -298,7 +302,7 @@ class SourceMaterializationToolchainRecord(LocalABCContract):
     schema_version: Literal["2.0.0"] = "2.0.0"
     record_id: Literal["auragateway-cu129-p0-p2-source-materialization-toolchain-v2"]
     status: Literal["P0_P2_SOURCE_MATERIALIZATION_TOOLCHAIN_V2_VALID"]
-    source_repository_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    source_main_base_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
     source_bundle_name: str
     source_bundle_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     bundle_manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
@@ -462,14 +466,14 @@ def build_source_bundle(
     repo_root: Path,
     bindings: Sequence[SourceArtifactBinding] | None = None,
     *,
-    source_repository_commit: str = SOURCE_REPOSITORY_COMMIT,
+    source_main_base_commit: str = SOURCE_MAIN_BASE_COMMIT,
 ) -> tuple[bytes, bytes, bytes]:
     """Build the deterministic source bundle and canonical control payloads."""
 
     artifacts = SOURCE_BINDINGS if bindings is None else tuple(bindings)
     manifest = SourceBundleManifest(
-        source_repository_commit=source_repository_commit,
-        diagnostic_source_main_merge_commit=(DIAGNOSTIC_SOURCE_MAIN_MERGE_COMMIT),
+        source_main_base_commit=source_main_base_commit,
+        option_c_decision_merge_commit=(OPTION_C_DECISION_MERGE_COMMIT),
         artifacts=artifacts,
     )
     manifest_bytes = manifest.canonical_json().encode("utf-8")
@@ -633,14 +637,14 @@ def build_generated_toolchain(
     repo_root: Path,
     bindings: Sequence[SourceArtifactBinding] | None = None,
     *,
-    source_repository_commit: str = SOURCE_REPOSITORY_COMMIT,
+    source_main_base_commit: str = SOURCE_MAIN_BASE_COMMIT,
 ) -> GeneratedToolchain:
     """Build all generated V2 artifacts in memory."""
 
     bundle_bytes, manifest_bytes, inventory_bytes = build_source_bundle(
         repo_root,
         bindings,
-        source_repository_commit=source_repository_commit,
+        source_main_base_commit=source_main_base_commit,
     )
     bundle_sha256 = _sha256_bytes(bundle_bytes)
     manifest_sha256 = _sha256_bytes(manifest_bytes)
@@ -652,7 +656,7 @@ def build_generated_toolchain(
         "SOURCE_BUNDLE_SHA256": bundle_sha256,
         "BUNDLE_MANIFEST_SHA256": manifest_sha256,
         "SOURCE_INVENTORY_SHA256": inventory_sha256,
-        "SOURCE_REPOSITORY_COMMIT": source_repository_commit,
+        "SOURCE_MAIN_BASE_COMMIT": source_main_base_commit,
     }
     materializer_source = _render_template(
         _load_template(repo_root, MATERIALIZER_TEMPLATE_PATH),
@@ -670,7 +674,7 @@ def build_generated_toolchain(
             "SOURCE_BUNDLE_SHA256": bundle_sha256,
             "BUNDLE_MANIFEST_SHA256": manifest_sha256,
             "SOURCE_INVENTORY_SHA256": inventory_sha256,
-            "SOURCE_REPOSITORY_COMMIT": source_repository_commit,
+            "SOURCE_MAIN_BASE_COMMIT": source_main_base_commit,
             "INSPECTION_NOTEBOOK_NAME": INSPECTION_NOTEBOOK_NAME,
             "INSPECTION_REPORT_NAME": ("p0_p2_source_input_inspection_report.json"),
             "INSPECTION_EVIDENCE_ZIP_NAME": (INSPECTION_EVIDENCE_ZIP_NAME),
@@ -707,7 +711,7 @@ def build_generated_toolchain(
     record = SourceMaterializationToolchainRecord(
         record_id=("auragateway-cu129-p0-p2-source-materialization-toolchain-v2"),
         status="P0_P2_SOURCE_MATERIALIZATION_TOOLCHAIN_V2_VALID",
-        source_repository_commit=source_repository_commit,
+        source_main_base_commit=source_main_base_commit,
         source_bundle_name=SOURCE_BUNDLE_NAME,
         source_bundle_sha256=bundle_sha256,
         bundle_manifest_sha256=manifest_sha256,

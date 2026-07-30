@@ -13,7 +13,7 @@ EXPECTED_BUNDLE_MANIFEST_SHA256 = "__BUNDLE_MANIFEST_SHA256__"
 EXPECTED_SOURCE_INVENTORY_SHA256 = (
     "__SOURCE_INVENTORY_SHA256__"
 )
-EXPECTED_SOURCE_REPOSITORY_COMMIT = "__SOURCE_REPOSITORY_COMMIT__"
+EXPECTED_SOURCE_MAIN_BASE_COMMIT = "__SOURCE_MAIN_BASE_COMMIT__"
 MATERIALIZATION_RECEIPT_NAME = "materialization_receipt.json"
 SOURCE_INVENTORY_NAME = "source_inventory.json"
 SHA256_MANIFEST_NAME = "sha256_manifest.json"
@@ -78,8 +78,8 @@ def discover_dataset() -> tuple[Path, dict[str, object]]:
             == EXPECTED_DATASET_NAME
             and receipt.get("output_directory")
             == EXPECTED_OUTPUT_DIRECTORY
-            and receipt.get("source_repository_commit")
-            == EXPECTED_SOURCE_REPOSITORY_COMMIT
+            and receipt.get("source_main_base_commit")
+            == EXPECTED_SOURCE_MAIN_BASE_COMMIT
             and receipt.get("source_bundle_sha256")
             == EXPECTED_SOURCE_BUNDLE_SHA256
         ):
@@ -203,7 +203,7 @@ def main() -> None:
         "schema_version": "2.0.0",
         "status": "P0_P2_SOURCE_INPUT_INSPECTION_PASSED_V2",
         "inspection_notebook_name": NOTEBOOK_NAME,
-        "source_repository_commit": EXPECTED_SOURCE_REPOSITORY_COMMIT,
+        "source_main_base_commit": EXPECTED_SOURCE_MAIN_BASE_COMMIT,
         "dataset_root": str(dataset_root),
         "output_dataset_name": EXPECTED_DATASET_NAME,
         "source_bundle_sha256": EXPECTED_SOURCE_BUNDLE_SHA256,

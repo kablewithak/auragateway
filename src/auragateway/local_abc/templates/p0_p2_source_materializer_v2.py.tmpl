@@ -17,7 +17,7 @@ EXPECTED_BUNDLE_MANIFEST_SHA256 = "__BUNDLE_MANIFEST_SHA256__"
 EXPECTED_SOURCE_INVENTORY_SHA256 = (
     "__SOURCE_INVENTORY_SHA256__"
 )
-EXPECTED_SOURCE_REPOSITORY_COMMIT = "__SOURCE_REPOSITORY_COMMIT__"
+EXPECTED_SOURCE_MAIN_BASE_COMMIT = "__SOURCE_MAIN_BASE_COMMIT__"
 BUNDLE_MANIFEST_NAME = "bundle_manifest.json"
 SOURCE_INVENTORY_NAME = "source_inventory.json"
 SHA256_MANIFEST_NAME = "sha256_manifest.json"
@@ -97,10 +97,10 @@ def main() -> None:
         if not isinstance(manifest, dict):
             raise RuntimeError("source bundle manifest must be one object")
         if (
-            manifest.get("source_repository_commit")
-            != EXPECTED_SOURCE_REPOSITORY_COMMIT
+            manifest.get("source_main_base_commit")
+            != EXPECTED_SOURCE_MAIN_BASE_COMMIT
         ):
-            raise RuntimeError("source repository commit drifted")
+            raise RuntimeError("source main base commit drifted")
         raw_artifacts = manifest.get("artifacts")
         if not isinstance(raw_artifacts, list) or len(raw_artifacts) != 3:
             raise RuntimeError("source bundle artifact count drifted")
@@ -161,7 +161,7 @@ def main() -> None:
             "producer_notebook_name": NOTEBOOK_NAME,
             "output_dataset_name": OUTPUT_DATASET_NAME,
             "output_directory": OUTPUT_DIRECTORY_NAME,
-            "source_repository_commit": EXPECTED_SOURCE_REPOSITORY_COMMIT,
+            "source_main_base_commit": EXPECTED_SOURCE_MAIN_BASE_COMMIT,
             "source_bundle_name": SOURCE_BUNDLE_NAME,
             "source_bundle_sha256": EXPECTED_SOURCE_BUNDLE_SHA256,
             "bundle_manifest_sha256": EXPECTED_BUNDLE_MANIFEST_SHA256,

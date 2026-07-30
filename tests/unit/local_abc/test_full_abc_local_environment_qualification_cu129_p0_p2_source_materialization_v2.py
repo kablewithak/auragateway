@@ -146,12 +146,12 @@ def test_source_bundle_is_byte_deterministic(tmp_path: Path) -> None:
     first = subject.build_source_bundle(
         repo_root,
         bindings,
-        source_repository_commit=subject.SOURCE_REPOSITORY_COMMIT,
+        source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
     )
     second = subject.build_source_bundle(
         repo_root,
         bindings,
-        source_repository_commit=subject.SOURCE_REPOSITORY_COMMIT,
+        source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
     )
 
     assert first == second
@@ -162,7 +162,7 @@ def test_source_bundle_has_safe_fixed_members(tmp_path: Path) -> None:
     bundle_bytes, _, _ = subject.build_source_bundle(
         repo_root,
         bindings,
-        source_repository_commit=subject.SOURCE_REPOSITORY_COMMIT,
+        source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
     )
 
     bundle_path = tmp_path / "bundle.zip"
@@ -188,7 +188,7 @@ def test_generated_notebooks_compile_and_respect_line_policy(
     toolchain = subject.build_generated_toolchain(
         repo_root,
         bindings,
-        source_repository_commit=subject.SOURCE_REPOSITORY_COMMIT,
+        source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
     )
 
     for label, notebook_bytes in (
@@ -206,7 +206,7 @@ def test_generated_notebooks_are_unexecuted(tmp_path: Path) -> None:
     toolchain = subject.build_generated_toolchain(
         repo_root,
         bindings,
-        source_repository_commit=subject.SOURCE_REPOSITORY_COMMIT,
+        source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
     )
 
     for notebook_bytes in (
@@ -229,7 +229,7 @@ def test_embedded_bundle_uses_fixed_width_chunks(tmp_path: Path) -> None:
     toolchain = subject.build_generated_toolchain(
         repo_root,
         bindings,
-        source_repository_commit=subject.SOURCE_REPOSITORY_COMMIT,
+        source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
     )
     source = _code_source(toolchain.materializer_notebook_bytes)
 
@@ -253,7 +253,7 @@ def test_source_identity_drift_is_rejected(tmp_path: Path) -> None:
         subject.build_source_bundle(
             repo_root,
             bindings,
-            source_repository_commit=subject.SOURCE_REPOSITORY_COMMIT,
+            source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
         )
 
 
@@ -274,12 +274,12 @@ def test_generation_is_byte_deterministic(tmp_path: Path) -> None:
     first = subject.build_generated_toolchain(
         repo_root,
         bindings,
-        source_repository_commit=subject.SOURCE_REPOSITORY_COMMIT,
+        source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
     )
     second = subject.build_generated_toolchain(
         repo_root,
         bindings,
-        source_repository_commit=subject.SOURCE_REPOSITORY_COMMIT,
+        source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
     )
 
     assert first.materializer_notebook_bytes == second.materializer_notebook_bytes
@@ -292,8 +292,8 @@ def test_review_record_rejects_missing_architecture_gate() -> None:
         "record_id": ("auragateway-cu129-p0-p2-source-materialization-review-v2"),
         "decision": "CLEAN_GLOBAL_REBUILD",
         "rejected_architecture": ("NESTED_STRING_FRAGMENT_CODE_GENERATION"),
-        "source_repository_commit": subject.SOURCE_REPOSITORY_COMMIT,
-        "branch_name": subject.BRANCH_NAME,
+        "source_main_base_commit": subject.SOURCE_MAIN_BASE_COMMIT,
+        "architecture_origin_branch": subject.ARCHITECTURE_ORIGIN_BRANCH,
         "source_artifacts": [
             binding.model_dump(mode="json") for binding in subject.SOURCE_BINDINGS
         ],
@@ -330,8 +330,8 @@ def test_generate_and_validate_end_to_end(
         record_id=("auragateway-cu129-p0-p2-source-materialization-review-v2"),
         decision="CLEAN_GLOBAL_REBUILD",
         rejected_architecture="NESTED_STRING_FRAGMENT_CODE_GENERATION",
-        source_repository_commit=subject.SOURCE_REPOSITORY_COMMIT,
-        branch_name=subject.BRANCH_NAME,
+        source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
+        architecture_origin_branch=subject.ARCHITECTURE_ORIGIN_BRANCH,
         source_artifacts=bindings,
         source_bundle_name=subject.SOURCE_BUNDLE_NAME,
         materializer_notebook_name=subject.MATERIALIZER_NOTEBOOK_NAME,
@@ -366,3 +366,42 @@ def test_generate_and_validate_end_to_end(
     validated = subject.validate(repo_root)
 
     assert validated == generated
+
+
+def test_lineage_contract_uses_base_commit_semantics(tmp_path: Path) -> None:
+    repo_root, bindings = _write_fixture_repo(tmp_path)
+    toolchain = subject.build_generated_toolchain(
+        repo_root,
+        bindings,
+        source_main_base_commit=subject.SOURCE_MAIN_BASE_COMMIT,
+    )
+    manifest = json.loads(toolchain.bundle_manifest_bytes.decode("utf-8"))
+    assert isinstance(manifest, dict)
+    assert manifest["source_main_base_commit"] == subject.SOURCE_MAIN_BASE_COMMIT
+    assert manifest["option_c_decision_merge_commit"] == subject.OPTION_C_DECISION_MERGE_COMMIT
+    assert "source_repository_commit" not in manifest
+    assert "diagnostic_source_main_merge_commit" not in manifest
+
+    materializer_source = _code_source(toolchain.materializer_notebook_bytes)
+    inspection_source = _code_source(toolchain.inspection_notebook_bytes)
+    for source in (materializer_source, inspection_source):
+        assert "EXPECTED_SOURCE_MAIN_BASE_COMMIT" in source
+        assert '"source_main_base_commit"' in source
+        assert "EXPECTED_SOURCE_REPOSITORY_COMMIT" not in source
+        assert '"source_repository_commit"' not in source
+
+
+def test_lineage_remediation_record_has_no_legacy_authority_fields() -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    payload = json.loads(
+        (repo_root / subject.LINEAGE_REMEDIATION_RECORD_PATH).read_text(encoding="utf-8")
+    )
+    assert isinstance(payload, dict)
+    assert payload["source_main_base_commit"] == subject.SOURCE_MAIN_BASE_COMMIT
+    assert payload["architecture_origin_branch"] == subject.ARCHITECTURE_ORIGIN_BRANCH
+    assert payload["legacy_fields_rejected"] == [
+        "branch_name",
+        "diagnostic_source_main_merge_commit",
+        "source_main_merge_commit",
+        "source_repository_commit",
+    ]

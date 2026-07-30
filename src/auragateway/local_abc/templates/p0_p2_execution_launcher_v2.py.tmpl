@@ -26,9 +26,9 @@ DIAGNOSTIC_EVIDENCE_ZIP = WORK_ROOT / "ag-cu129-p0-p2-platform-evidence-v1.zip"
 LAUNCHER_REPORT_PATH = WORK_ROOT / "p0_p2_execution_launcher_report_v2.json"
 LAUNCHER_EVIDENCE_ZIP = WORK_ROOT / "ag-cu129-p0-p2-execution-launcher-v2.zip"
 
-EXPECTED_SOURCE_REPOSITORY_COMMIT = "831b4ad4e8eb4139b51af927eb721989be197cbc"
+EXPECTED_SOURCE_MAIN_BASE_COMMIT = "24914d79ef4b4d33285f111c8920d16c36244614"
 EXPECTED_SOURCE_BUNDLE_SHA256 = (
-    "8c90a0f294cd33a74b5e90da6b9f5671f2fab5bf1dcc0359f275664fce51f00c"
+    "49cba1ecdf8e754792fefc05a668e81a75371dd5bef35ac7807ba7e0f2259a53"
 )
 EXPECTED_BUNDLE_MANIFEST_SHA256 = (
     "246937c7fe66460953d88ea05fce2a9244ea4f104793b54ab6a40b122cba4ede"
@@ -164,7 +164,7 @@ def discover_source_output() -> tuple[Path, dict[str, object]]:
             "producer_notebook_name": "ag-cu129-p0-p2-source-materializer-v2",
             "output_dataset_name": "ag-cu129-p0-p2-source-v2",
             "output_directory": SOURCE_OUTPUT_DIRECTORY,
-            "source_repository_commit": EXPECTED_SOURCE_REPOSITORY_COMMIT,
+            "source_main_base_commit": EXPECTED_SOURCE_MAIN_BASE_COMMIT,
             "source_bundle_sha256": EXPECTED_SOURCE_BUNDLE_SHA256,
             "bundle_manifest_sha256": EXPECTED_BUNDLE_MANIFEST_SHA256,
             "source_inventory_sha256": EXPECTED_SOURCE_INVENTORY_SHA256,
@@ -587,7 +587,7 @@ def main() -> None:
         "notebook_name": NOTEBOOK_NAME,
         "captured_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "source_root": str(source_root),
-        "source_repository_commit": EXPECTED_SOURCE_REPOSITORY_COMMIT,
+        "source_main_base_commit": EXPECTED_SOURCE_MAIN_BASE_COMMIT,
         "source_bundle_sha256": EXPECTED_SOURCE_BUNDLE_SHA256,
         "source_inventory_sha256": EXPECTED_SOURCE_INVENTORY_SHA256,
         "diagnostic_notebook_sha256": EXPECTED_DIAGNOSTIC_NOTEBOOK_SHA256,
