@@ -1,0 +1,18 @@
+7.6s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.6s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.6s 3 0.00s - to python to disable frozen modules.
+7.6s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+8.2s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.2s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.2s 7 0.00s - to python to disable frozen modules.
+8.2s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+14.8s 9 {"benchmark_trajectory_requests":0,"evidence_zip":"/kaggle/working/ag-cu129-p0-p2-platform-evidence-v1.zip","evidence_zip_sha256":"5a80b63da417456d2bc328fb91a97d4a3b8b2768a9b054012d42d92f35633a1b","model_loads":0,"model_requests":0,"network_requests":0,"status":"FAILED_CLOSED","terminal_decision":"CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED","worker_starts":0}
+14.8s 10 {"benchmark_trajectory_requests":0,"diagnostic_execution_attempts":1,"external_spend":0,"kernel_compile_and_execution_attempts":0,"launcher_evidence_zip":"/kaggle/working/ag-cu129-p0-p2-execution-launcher-v2.zip","launcher_evidence_zip_sha256":"bc962deb82bbb6e009bfd1e10bb41622af3e77cf5e4a70cc7c329b991beba219","model_loads":0,"model_requests":0,"network_requests":0,"next_gate":"preserve_evidence_and_classify_platform_failure","runtime_install_attempts":0,"status":"P0_P2_EXECUTION_LAUNCHER_COMPLETED_V2","terminal_decision":"CURRENT_KAGGLE_IMAGE_LINKER_CONTRACT_FAILED","worker_starts":0}
+20.0s 11 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+20.0s 12 cells[i][c] = re.sub('\\\\\|', '|', cell)
+20.1s 13 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+20.1s 14 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+20.8s 15 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+21.1s 16 [NbConvertApp] Writing 36671 bytes to __notebook__.ipynb
+23.6s 17 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+24.5s 18 [NbConvertApp] Writing 378797 bytes to __results__.html
