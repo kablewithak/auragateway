@@ -1,0 +1,17 @@
+6.6s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.6s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.6s 3 0.00s - to python to disable frozen modules.
+6.6s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+7.2s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.2s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.2s 7 0.00s - to python to disable frozen modules.
+7.2s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+362.2s 9 {"benchmark_trajectory_requests":0,"evidence_zip":"/kaggle/working/ag-cu129-p0-p2-platform-evidence-v2.zip","evidence_zip_sha256":"e115d2f8c6c000a7666e0482e4d3d9f69bb74599fbf4f657304d456930de3240","external_spend":0,"global_environment_mutations_performed":0,"hidden_retries_performed":0,"kernel_compile_and_execution_attempts":1,"model_loads":0,"model_requests":0,"network_requests":0,"p0_status":"PASSED","p1_status":"PASSED","p2_status":"PASSED","runtime_install_attempts":1,"status":"PASSED","terminal_decision":"P0_P2_PLATFORM_DIAGNOSTIC_V2_PASSED","worker_starts":0}
+367.4s 10 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+367.4s 11 cells[i][c] = re.sub('\\\\\|', '|', cell)
+367.6s 12 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+367.6s 13 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+368.4s 14 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+368.7s 15 [NbConvertApp] Writing 61471 bytes to __notebook__.ipynb
+371.2s 16 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+372.4s 17 [NbConvertApp] Writing 455938 bytes to __results__.html
