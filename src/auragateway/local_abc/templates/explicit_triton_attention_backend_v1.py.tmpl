@@ -1,0 +1,1149 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import zipfile
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import NoReturn
+
+SOURCE_MAIN_COMMIT = "81597c1ebc6add70f6c35e3f2287acba9c078519"
+SCHEMA_VERSION = "1.0.0"
+PROBE_ID = "auragateway-cu129-explicit-triton-attention-backend-v1"
+OUTPUT_DIRECTORY = Path("/kaggle/working/explicit_triton_attention_backend_v1")
+EVIDENCE_ZIP = Path("/kaggle/working/ag-cu129-triton-attention-evidence-v1.zip")
+RUNTIME_OUTPUT_DIRECTORY = "auragateway_vllm_cu129_wheelhouse_v1"
+TARGET_RUNTIME = OUTPUT_DIRECTORY / "target_runtime"
+TARGET_SITE = TARGET_RUNTIME / "site-packages"
+PROBE_SCRIPT = OUTPUT_DIRECTORY / "controlled_attention_backend_probe_v1.py"
+REAL_DRIVER_DIRECTORY = Path("/usr/local/nvidia/lib64")
+EXPECTED_VLLM_VERSION = "0.19.1"
+EXPECTED_TORCH_VERSION = "2.10.0+cu129"
+EXPECTED_TRITON_VERSION = "3.6.0"
+EXPECTED_BACKEND_PATH = (
+    "vllm.v1.attention.backends.triton_attn.TritonAttentionBackend"
+)
+EXPECTED_PRIMITIVE_MODULE = "vllm.v1.attention.ops.triton_prefill_attention"
+EXPECTED_PRIMITIVE_NAME = "context_attention_fwd"
+EXPECTED_GPU_NAME = "Tesla T4"
+EXPECTED_CAPABILITY = [7, 5]
+EXPECTED_PACKAGE_COUNT = 176
+EXPECTED_MANIFEST_COUNT = 182
+RUNTIME_INSTALL_TIMEOUT_SECONDS = 1800
+BACKEND_PROCESS_TIMEOUT_SECONDS = 900
+ZIP_TIMESTAMP = (2026, 7, 31, 0, 0, 0)
+REQUIRED_OUTPUTS = (
+    "platform_identity_report_v1.json",
+    "backend_discovery_report_v1.json",
+    "backend_import_report_v1.json",
+    "backend_capability_report_v1.json",
+    "attention_primitive_report_v1.json",
+    "explicit_triton_attention_backend_summary_v1.json",
+    "bundle_manifest_v1.json",
+    "human_report_v1.md",
+)
+ENVIRONMENT_KEYS = (
+    "CC",
+    "CUDA_VISIBLE_DEVICES",
+    "LDFLAGS",
+    "LD_LIBRARY_PATH",
+    "LIBRARY_PATH",
+    "PYTHONHOME",
+    "PYTHONPATH",
+)
+PARENT_ATTEMPTS = {
+    "runtime_install_attempts": 0,
+    "backend_process_attempts": 0,
+}
+EXPECTED_CONTROL_HASHES = {
+    "requirements.in": (
+        "a120c72a5643bb65afbfe0bd3dd072f1ea89a19f57a534dd814c9bafdd41880f"
+    ),
+    "resolution_lock.json": (
+        "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"
+    ),
+    "materialization.lock.txt": (
+        "d061bd9a7ff0a686bb462a2bd016a1f3e1aea833fbdbff353dddf96fdd623e1d"
+    ),
+    "requirements.lock.txt": (
+        "47cb357a53ca74ca597b286768e1d0e9cb831f7431c08fad378fc42ea59b3a27"
+    ),
+    "install_runtime.py": (
+        "68bba3ca131e9a6f36392330562985d2a644be57cf5437fd282b883741c86821"
+    ),
+    "runtime_manifest.json": (
+        "b424d2b952d726b2f7451ebd8f48d604985f650dbe2f6d146969625618b7fc51"
+    ),
+    "sha256_manifest.json": (
+        "789fb23ab7d9c4f28dd909e808a53a65d692c0d7b43bc44da9e974817d771b8d"
+    ),
+    "materialization_receipt.json": (
+        "52aa42b940dd606ab5685686ab893eb085efed2a7466989f654e870f4b360589"
+    ),
+}
+
+
+class ProbeFailure(RuntimeError):
+    def __init__(self, code: str, stage: str, safe_message: str) -> None:
+        super().__init__(safe_message)
+        self.code = code
+        self.stage = stage
+        self.safe_message = safe_message
+
+    def payload(self) -> dict[str, object]:
+        return {
+            "error_code": self.code,
+            "stage": self.stage,
+            "safe_message": self.safe_message,
+        }
+
+
+def fail(code: str, stage: str, safe_message: str) -> NoReturn:
+    raise ProbeFailure(code, stage, safe_message)
+
+
+def canonical_json(payload: object) -> str:
+    return json.dumps(
+        payload,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    return sha256_bytes(path.read_bytes())
+
+
+def write_text(name: str, payload: str) -> None:
+    path = OUTPUT_DIRECTORY / name
+    path.write_text(payload, encoding="utf-8", newline="\n")
+
+
+def write_json(name: str, payload: object) -> None:
+    write_text(name, canonical_json(payload))
+
+
+def run_command(
+    argv: list[str],
+    *,
+    timeout: int,
+    env: dict[str, str] | None = None,
+) -> dict[str, object]:
+    try:
+        result = subprocess.run(
+            argv,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env=env,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return {
+            "argv": argv,
+            "returncode": None,
+            "stdout": "",
+            "stderr": type(error).__name__,
+        }
+    return {
+        "argv": argv,
+        "returncode": result.returncode,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+    }
+
+
+def environment_snapshot() -> dict[str, str | None]:
+    return {name: os.environ.get(name) for name in ENVIRONMENT_KEYS}
+
+
+def platform_identity() -> tuple[dict[str, object], bool]:
+    captured_at = datetime.now(UTC).isoformat()
+    nvidia = run_command(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,name,driver_version,memory.total",
+            "--format=csv,noheader,nounits",
+        ],
+        timeout=60,
+    )
+    try:
+        import torch
+
+        cuda_available = bool(torch.cuda.is_available())
+        device_count = int(torch.cuda.device_count())
+        names = [torch.cuda.get_device_name(index) for index in range(device_count)]
+        capabilities = [
+            list(torch.cuda.get_device_capability(index))
+            for index in range(device_count)
+        ]
+        base_torch_version = str(torch.__version__)
+        base_cuda_build = str(torch.version.cuda)
+    except Exception as error:
+        cuda_available = False
+        device_count = 0
+        names = []
+        capabilities = []
+        base_torch_version = "UNAVAILABLE"
+        base_cuda_build = "UNAVAILABLE"
+        torch_error = type(error).__name__
+    else:
+        torch_error = None
+    passed = (
+        nvidia.get("returncode") == 0
+        and cuda_available
+        and device_count == 2
+        and names == [EXPECTED_GPU_NAME, EXPECTED_GPU_NAME]
+        and capabilities == [EXPECTED_CAPABILITY, EXPECTED_CAPABILITY]
+        and REAL_DRIVER_DIRECTORY.is_dir()
+    )
+    report = {
+        "schema_version": SCHEMA_VERSION,
+        "probe_id": PROBE_ID,
+        "stage": "platform_preflight",
+        "captured_at": captured_at,
+        "status": "PASSED" if passed else "FAILED_CLOSED",
+        "decision": (
+            "ATTENTION_BACKEND_PLATFORM_PREFLIGHT_PASSED"
+            if passed
+            else "ATTENTION_BACKEND_PLATFORM_IDENTITY_MISMATCH"
+        ),
+        "nvidia_smi": nvidia,
+        "cuda_available": cuda_available,
+        "gpu_count": device_count,
+        "gpu_names": names,
+        "compute_capabilities": capabilities,
+        "base_torch_version": base_torch_version,
+        "base_cuda_build": base_cuda_build,
+        "torch_error": torch_error,
+        "real_driver_directory": str(REAL_DRIVER_DIRECTORY),
+        "model_loads": 0,
+        "worker_starts": 0,
+        "model_requests": 0,
+    }
+    return report, passed
+
+
+def discover_wheelhouse() -> Path:
+    candidates = sorted(
+        path.resolve()
+        for path in Path("/kaggle/input").rglob(RUNTIME_OUTPUT_DIRECTORY)
+        if path.is_dir() and not path.is_symlink()
+    )
+    if len(candidates) != 1:
+        fail(
+            "ATTENTION_BACKEND_WHEELHOUSE_INVALID",
+            "wheelhouse_discovery",
+            f"expected one governed wheelhouse, observed {len(candidates)}",
+        )
+    return candidates[0]
+
+
+def validate_wheelhouse(wheelhouse: Path) -> dict[str, object]:
+    observed_controls: dict[str, str] = {}
+    for name, expected in EXPECTED_CONTROL_HASHES.items():
+        path = wheelhouse / name
+        if not path.is_file() or path.is_symlink():
+            fail(
+                "ATTENTION_BACKEND_WHEELHOUSE_INVALID",
+                "wheelhouse_validation",
+                f"wheelhouse control file is missing or unsafe: {name}",
+            )
+        observed = sha256_file(path)
+        observed_controls[name] = observed
+        if observed != expected:
+            fail(
+                "ATTENTION_BACKEND_WHEELHOUSE_INVALID",
+                "wheelhouse_validation",
+                f"wheelhouse control identity drifted: {name}",
+            )
+    manifest = json.loads(
+        (wheelhouse / "sha256_manifest.json").read_text(encoding="utf-8")
+    )
+    entries = manifest.get("entries")
+    if not isinstance(entries, list) or len(entries) != EXPECTED_MANIFEST_COUNT:
+        fail(
+            "ATTENTION_BACKEND_WHEELHOUSE_INVALID",
+            "wheelhouse_validation",
+            "wheelhouse checksum manifest entry count drifted",
+        )
+    wheel_entries = [
+        item
+        for item in entries
+        if isinstance(item, dict)
+        and str(item.get("path", "")).startswith("wheels/")
+    ]
+    if len(wheel_entries) != EXPECTED_PACKAGE_COUNT:
+        fail(
+            "ATTENTION_BACKEND_WHEELHOUSE_INVALID",
+            "wheelhouse_validation",
+            "wheelhouse package count drifted",
+        )
+    verified = 0
+    for entry in entries:
+        if not isinstance(entry, dict):
+            fail(
+                "ATTENTION_BACKEND_WHEELHOUSE_INVALID",
+                "wheelhouse_validation",
+                "wheelhouse checksum entry is invalid",
+            )
+        relative = entry.get("path")
+        expected_sha = entry.get("sha256")
+        expected_size = entry.get("size_bytes")
+        if (
+            not isinstance(relative, str)
+            or not isinstance(expected_sha, str)
+            or not isinstance(expected_size, int)
+        ):
+            fail(
+                "ATTENTION_BACKEND_WHEELHOUSE_INVALID",
+                "wheelhouse_validation",
+                "wheelhouse checksum entry fields are invalid",
+            )
+        path = wheelhouse / relative
+        if not path.is_file() or path.is_symlink():
+            fail(
+                "ATTENTION_BACKEND_WHEELHOUSE_INVALID",
+                "wheelhouse_validation",
+                f"wheelhouse payload is missing or unsafe: {relative}",
+            )
+        if path.stat().st_size != expected_size or sha256_file(path) != expected_sha:
+            fail(
+                "ATTENTION_BACKEND_WHEELHOUSE_INVALID",
+                "wheelhouse_validation",
+                f"wheelhouse payload identity drifted: {relative}",
+            )
+        verified += 1
+    return {
+        "wheelhouse_path": str(wheelhouse),
+        "control_hashes": observed_controls,
+        "manifest_entry_count": len(entries),
+        "wheel_entry_count": len(wheel_entries),
+        "verified_entry_count": verified,
+    }
+
+
+CONTROLLED_BACKEND_SCRIPT = r'''
+from __future__ import annotations
+
+import hashlib
+import importlib
+import importlib.metadata
+import json
+import math
+import os
+import sys
+from pathlib import Path
+
+import torch
+import torch.nn.functional
+import triton
+
+TARGET_SITE = Path(os.environ["AURAGATEWAY_TARGET_SITE_PACKAGES"]).resolve()
+EXPECTED_BACKEND_PATH = (
+    "vllm.v1.attention.backends.triton_attn.TritonAttentionBackend"
+)
+EXPECTED_PRIMITIVE_MODULE = "vllm.v1.attention.ops.triton_prefill_attention"
+EXPECTED_PRIMITIVE_NAME = "context_attention_fwd"
+ATTEMPTS = {
+    "backend_discovery_attempts": 0,
+    "backend_import_attempts": 0,
+    "backend_capability_validation_attempts": 0,
+    "attention_primitive_attempts": 0,
+}
+REPORTS = {}
+
+
+class ControlledFailure(RuntimeError):
+    def __init__(self, code: str, stage: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.stage = stage
+        self.message = message
+
+
+def controlled_fail(code: str, stage: str, message: str):
+    raise ControlledFailure(code, stage, message)
+
+
+def inside_target(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    path = Path(value).resolve()
+    return path == TARGET_SITE or TARGET_SITE in path.parents
+
+
+def module_origin(module: object) -> str | None:
+    value = getattr(module, "__file__", None)
+    return str(value) if value is not None else None
+
+
+def tensor_sha256(tensor: torch.Tensor) -> str:
+    payload = tensor.detach().float().cpu().contiguous().numpy().tobytes()
+    return hashlib.sha256(payload).hexdigest()
+
+
+def main() -> None:
+    if importlib.metadata.version("vllm") != "0.19.1":
+        controlled_fail(
+            "ATTENTION_BACKEND_VLLM_VERSION_MISMATCH",
+            "vllm_distribution_identity",
+            "vLLM distribution version differs from 0.19.1",
+        )
+    if torch.__version__ != "2.10.0+cu129" or torch.version.cuda != "12.9":
+        controlled_fail(
+            "ATTENTION_BACKEND_TARGET_IMPORT_FAILED",
+            "target_runtime_import",
+            "target Torch identity differs from the accepted CUDA 12.9 tuple",
+        )
+    if importlib.metadata.version("triton") != "3.6.0":
+        controlled_fail(
+            "ATTENTION_BACKEND_TARGET_IMPORT_FAILED",
+            "target_runtime_import",
+            "target Triton identity differs from 3.6.0",
+        )
+    ATTEMPTS["backend_discovery_attempts"] = 1
+    registry = importlib.import_module("vllm.v1.attention.backends.registry")
+    ATTEMPTS["backend_import_attempts"] = 1
+    backend_module = importlib.import_module(
+        "vllm.v1.attention.backends.triton_attn"
+    )
+    primitive_module = importlib.import_module(EXPECTED_PRIMITIVE_MODULE)
+    backend_contract = importlib.import_module("vllm.v1.attention.backend")
+    platform_contract = importlib.import_module("vllm.platforms.interface")
+    origins = {
+        "torch": module_origin(torch),
+        "triton": module_origin(triton),
+        "registry": module_origin(registry),
+        "backend": module_origin(backend_module),
+        "primitive": module_origin(primitive_module),
+        "backend_contract": module_origin(backend_contract),
+        "platform_contract": module_origin(platform_contract),
+    }
+    if not all(inside_target(value) for value in origins.values()):
+        controlled_fail(
+            "ATTENTION_BACKEND_TARGET_ORIGIN_MISMATCH",
+            "target_package_origin",
+            "one or more target modules originated outside the governed target",
+        )
+    selected_backend = registry.AttentionBackendEnum["TRITON_ATTN"]
+    if selected_backend.is_overridden():
+        controlled_fail(
+            "ATTENTION_BACKEND_OVERRIDE_DETECTED",
+            "backend_registry_override",
+            "TRITON_ATTN has a runtime registry override",
+        )
+    backend_path = selected_backend.get_path()
+    if backend_path != EXPECTED_BACKEND_PATH:
+        controlled_fail(
+            "ATTENTION_BACKEND_REGISTRY_MISMATCH",
+            "backend_registry_discovery",
+            "TRITON_ATTN registry path differs from the pinned source contract",
+        )
+    REPORTS["backend_discovery"] = {
+        "registry_enum": "AttentionBackendEnum.TRITON_ATTN",
+        "registry_overridden": False,
+        "backend_path": backend_path,
+    }
+    backend_class = selected_backend.get_class()
+    if (
+        backend_class.__module__ + "." + backend_class.__qualname__
+        != EXPECTED_BACKEND_PATH
+    ):
+        controlled_fail(
+            "ATTENTION_BACKEND_CLASS_IMPORT_FAILED",
+            "backend_class_import",
+            "resolved backend class attribution differs from TRITON_ATTN",
+        )
+    if backend_class.get_name() != "TRITON_ATTN":
+        controlled_fail(
+            "ATTENTION_BACKEND_FALLBACK_DETECTED",
+            "explicit_backend_attribution",
+            "resolved backend did not identify itself as TRITON_ATTN",
+        )
+    REPORTS["backend_import"] = {
+        "backend_class": EXPECTED_BACKEND_PATH,
+        "backend_name": backend_class.get_name(),
+        "module_origins": origins,
+        "all_origins_inside_target": True,
+        "vllm_distribution_version": importlib.metadata.version("vllm"),
+        "torch_version": torch.__version__,
+        "torch_cuda_build": torch.version.cuda,
+        "triton_distribution_version": importlib.metadata.version("triton"),
+    }
+    capability = platform_contract.DeviceCapability(major=7, minor=5)
+    ATTEMPTS["backend_capability_validation_attempts"] = 1
+    invalid_reasons = backend_class.validate_configuration(
+        head_size=64,
+        dtype=torch.float16,
+        kv_cache_dtype="auto",
+        block_size=16,
+        use_mla=False,
+        has_sink=False,
+        use_sparse=False,
+        use_mm_prefix=False,
+        use_per_head_quant_scales=False,
+        device_capability=capability,
+        attn_type=backend_contract.AttentionType.DECODER,
+    )
+    if invalid_reasons:
+        controlled_fail(
+            "ATTENTION_BACKEND_CAPABILITY_REJECTED",
+            "backend_capability_validation",
+            "TRITON_ATTN rejected the governed T4 decoder configuration",
+        )
+    REPORTS["backend_capability"] = {
+        "device_name": torch.cuda.get_device_name(0),
+        "compute_capability": list(torch.cuda.get_device_capability(0)),
+        "head_size": 64,
+        "dtype": "float16",
+        "kv_cache_dtype": "auto",
+        "block_size": 16,
+        "attention_type": "decoder",
+        "invalid_reasons": invalid_reasons,
+    }
+    if not torch.cuda.is_available() or torch.cuda.device_count() != 1:
+        controlled_fail(
+            "ATTENTION_BACKEND_PLATFORM_IDENTITY_MISMATCH",
+            "attention_primitive_execution",
+            "the isolated process did not expose exactly one CUDA device",
+        )
+    if torch.cuda.get_device_name(0) != "Tesla T4":
+        controlled_fail(
+            "ATTENTION_BACKEND_PLATFORM_IDENTITY_MISMATCH",
+            "attention_primitive_execution",
+            "the isolated device is not a Tesla T4",
+        )
+    if list(torch.cuda.get_device_capability(0)) != [7, 5]:
+        controlled_fail(
+            "ATTENTION_BACKEND_PLATFORM_IDENTITY_MISMATCH",
+            "attention_primitive_execution",
+            "the isolated device capability is not 7.5",
+        )
+    backend_primitive = getattr(backend_module, EXPECTED_PRIMITIVE_NAME)
+    source_primitive = getattr(primitive_module, EXPECTED_PRIMITIVE_NAME)
+    if backend_primitive is not source_primitive:
+        controlled_fail(
+            "ATTENTION_BACKEND_FALLBACK_DETECTED",
+            "explicit_backend_attribution",
+            "backend primitive is not the pinned Triton prefill primitive",
+        )
+    sequence_length = 8
+    num_heads = 2
+    head_size = 64
+    element_count = sequence_length * num_heads * head_size
+    base = torch.arange(element_count, dtype=torch.float32)
+    base = base.reshape(sequence_length, num_heads, head_size)
+    query = torch.sin(base / 17.0).to(device="cuda", dtype=torch.float16)
+    key = torch.cos(base / 19.0).to(device="cuda", dtype=torch.float16)
+    value = torch.tanh(base / 23.0).to(device="cuda", dtype=torch.float16)
+    output = torch.empty_like(query)
+    start_locations = torch.tensor(
+        [0, sequence_length],
+        device="cuda",
+        dtype=torch.int32,
+    )
+    sequence_lengths = torch.tensor(
+        [sequence_length],
+        device="cuda",
+        dtype=torch.int32,
+    )
+    scale = 1.0 / math.sqrt(head_size)
+    ATTEMPTS["attention_primitive_attempts"] = 1
+    backend_primitive(
+        q=query,
+        k=key,
+        v=value,
+        o=output,
+        b_start_loc=start_locations,
+        b_seq_len=sequence_lengths,
+        max_input_len=sequence_length,
+        is_causal=False,
+        softmax_scale=scale,
+        sliding_window_q=-1,
+        sliding_window_k=-1,
+    )
+    torch.cuda.synchronize()
+    reference = torch.nn.functional.scaled_dot_product_attention(
+        query.permute(1, 0, 2).unsqueeze(0),
+        key.permute(1, 0, 2).unsqueeze(0),
+        value.permute(1, 0, 2).unsqueeze(0),
+        dropout_p=0.0,
+        is_causal=False,
+        scale=scale,
+    )
+    reference = reference.squeeze(0).permute(1, 0, 2).contiguous()
+    maximum_absolute_error = float(
+        (output.float() - reference.float()).abs().max().item()
+    )
+    result_close = bool(
+        torch.allclose(output.float(), reference.float(), atol=0.03, rtol=0.03)
+    )
+    if not result_close:
+        controlled_fail(
+            "ATTENTION_BACKEND_RESULT_MISMATCH",
+            "pytorch_sdpa_comparison",
+            "TRITON_ATTN output differs from the PyTorch SDPA reference",
+        )
+    REPORTS["attention_primitive"] = {
+        "module": EXPECTED_PRIMITIVE_MODULE,
+        "name": EXPECTED_PRIMITIVE_NAME,
+        "backend_owns_exact_primitive": True,
+        "sequence_length": sequence_length,
+        "num_heads": num_heads,
+        "head_size": head_size,
+        "causal": False,
+        "maximum_absolute_error": maximum_absolute_error,
+        "atol": 0.03,
+        "rtol": 0.03,
+        "result_close": result_close,
+        "output_sha256": tensor_sha256(output),
+        "reference_sha256": tensor_sha256(reference),
+        "decision": "ATTENTION_BACKEND_PRIMITIVE_PASSED",
+    }
+    payload = {
+        "status": "PASSED",
+        "attempts": ATTEMPTS,
+        "reports": REPORTS,
+        "terminal_decision": "EXPLICIT_TRITON_ATTENTION_BACKEND_V1_PASSED",
+        "backend_discovery": REPORTS["backend_discovery"],
+        "backend_import": REPORTS["backend_import"],
+        "backend_capability": REPORTS["backend_capability"],
+        "attention_primitive": REPORTS["attention_primitive"],
+        "safety": {
+            "model_loads": 0,
+            "worker_starts": 0,
+            "model_requests": 0,
+            "benchmark_trajectory_requests": 0,
+            "network_requests": 0,
+            "hidden_retries": 0,
+        },
+    }
+    print("AURAGATEWAY_RESULT=" + json.dumps(payload, sort_keys=True))
+
+
+try:
+    main()
+except ControlledFailure as error:
+    payload = {
+        "error_code": error.code,
+        "stage": error.stage,
+        "safe_message": error.message,
+        "attempts": ATTEMPTS,
+        "reports": REPORTS,
+    }
+    print("AURAGATEWAY_ERROR=" + json.dumps(payload, sort_keys=True))
+    raise SystemExit(3)
+'''.strip()
+
+CONTROLLED_SCRIPT_BOOTSTRAP = r'''
+import site
+import sys
+import types
+from pathlib import Path
+
+target_site = Path(sys.argv.pop(1)).resolve()
+payload_path = Path(sys.argv.pop(1)).resolve()
+
+
+def sentinel(name):
+    module = types.ModuleType(name)
+    module.__file__ = f"<auragateway-suppressed-{name}>"
+    return module
+
+
+sys.modules["sitecustomize"] = sentinel("sitecustomize")
+sys.modules["usercustomize"] = sentinel("usercustomize")
+site.main()
+cleaned = []
+for value in sys.path:
+    if not value:
+        cleaned.append(value)
+        continue
+    path = Path(value).resolve()
+    is_target = path == target_site or target_site in path.parents
+    is_package = any(
+        part in {"site-packages", "dist-packages"} for part in path.parts
+    )
+    if is_package and not is_target:
+        continue
+    cleaned.append(value)
+if str(target_site) not in cleaned:
+    cleaned.insert(0, str(target_site))
+sys.path[:] = cleaned
+sys.argv = [str(payload_path)]
+payload = payload_path.read_text(encoding="utf-8")
+exec(compile(payload, str(payload_path), "exec"))
+'''.strip()
+
+
+def target_library_directories(site_packages: Path) -> list[Path]:
+    return sorted(
+        {
+            path.resolve()
+            for path in (site_packages / "nvidia").glob("*/lib")
+            if path.is_dir() and not path.is_symlink()
+        }
+    )
+
+
+def parse_prefixed_json(stdout: str, prefix: str) -> dict[str, object] | None:
+    matches = [
+        line[len(prefix) :]
+        for line in stdout.splitlines()
+        if line.startswith(prefix)
+    ]
+    if len(matches) != 1:
+        return None
+    parsed = json.loads(matches[0])
+    if not isinstance(parsed, dict):
+        return None
+    return {str(key): value for key, value in parsed.items()}
+
+
+def install_and_probe() -> tuple[
+    dict[str, object] | None,
+    dict[str, object],
+    dict[str, object] | None,
+]:
+    wheelhouse = discover_wheelhouse()
+    wheelhouse_report = validate_wheelhouse(wheelhouse)
+    if TARGET_RUNTIME.exists():
+        fail(
+            "ATTENTION_BACKEND_RUNTIME_INSTALL_FAILED",
+            "offline_target_installation",
+            "target runtime directory already exists",
+        )
+    TARGET_SITE.mkdir(parents=True)
+    install_environment = dict(os.environ)
+    install_environment.pop("PYTHONHOME", None)
+    install_environment.pop("PYTHONPATH", None)
+    install_environment["PIP_NO_INDEX"] = "1"
+    install_environment["PYTHONNOUSERSITE"] = "1"
+    PARENT_ATTEMPTS["runtime_install_attempts"] = 1
+    install_result = run_command(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "--isolated",
+            "--disable-pip-version-check",
+            "install",
+            "--no-index",
+            "--require-hashes",
+            "--only-binary=:all:",
+            "--target",
+            str(TARGET_SITE),
+            "--find-links",
+            str(wheelhouse / "wheels"),
+            "-r",
+            str(wheelhouse / "requirements.lock.txt"),
+        ],
+        timeout=RUNTIME_INSTALL_TIMEOUT_SECONDS,
+        env=install_environment,
+    )
+    if install_result.get("returncode") != 0:
+        fail(
+            "ATTENTION_BACKEND_RUNTIME_INSTALL_FAILED",
+            "offline_target_installation",
+            "pinned offline target installation failed",
+        )
+    PROBE_SCRIPT.write_text(
+        CONTROLLED_BACKEND_SCRIPT + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    runtime_environment = dict(os.environ)
+    runtime_environment.pop("PYTHONHOME", None)
+    runtime_environment.pop("PYTHONPATH", None)
+    runtime_environment["PYTHONNOUSERSITE"] = "1"
+    runtime_environment["CUDA_VISIBLE_DEVICES"] = "0"
+    runtime_environment["HF_HUB_OFFLINE"] = "1"
+    runtime_environment["TRANSFORMERS_OFFLINE"] = "1"
+    runtime_environment["PIP_NO_INDEX"] = "1"
+    runtime_environment["AURAGATEWAY_TARGET_SITE_PACKAGES"] = str(
+        TARGET_SITE.resolve()
+    )
+    runtime_environment["LIBRARY_PATH"] = str(REAL_DRIVER_DIRECTORY)
+    runtime_environment["LDFLAGS"] = (
+        "-L/usr/local/nvidia/lib64 -Wl,-rpath,/usr/local/nvidia/lib64"
+    )
+    inherited_ld = runtime_environment.get("LD_LIBRARY_PATH")
+    ld_values = [str(path) for path in target_library_directories(TARGET_SITE)]
+    ld_values.append(str(REAL_DRIVER_DIRECTORY))
+    if inherited_ld:
+        ld_values.append(inherited_ld)
+    runtime_environment["LD_LIBRARY_PATH"] = os.pathsep.join(ld_values)
+    PARENT_ATTEMPTS["backend_process_attempts"] = 1
+    process_result = run_command(
+        [
+            sys.executable,
+            "-S",
+            "-c",
+            CONTROLLED_SCRIPT_BOOTSTRAP,
+            str(TARGET_SITE),
+            str(PROBE_SCRIPT),
+        ],
+        timeout=BACKEND_PROCESS_TIMEOUT_SECONDS,
+        env=runtime_environment,
+    )
+    result = parse_prefixed_json(
+        str(process_result.get("stdout", "")),
+        "AURAGATEWAY_RESULT=",
+    )
+    error = parse_prefixed_json(
+        str(process_result.get("stdout", "")),
+        "AURAGATEWAY_ERROR=",
+    )
+    execution = {
+        "wheelhouse": wheelhouse_report,
+        "install": install_result,
+        "process": process_result,
+        "command_local_environment": {
+            "LIBRARY_PATH": runtime_environment["LIBRARY_PATH"],
+            "LDFLAGS": runtime_environment["LDFLAGS"],
+            "LD_LIBRARY_PATH": runtime_environment["LD_LIBRARY_PATH"],
+            "CUDA_VISIBLE_DEVICES": runtime_environment["CUDA_VISIBLE_DEVICES"],
+            "AURAGATEWAY_TARGET_SITE_PACKAGES": runtime_environment[
+                "AURAGATEWAY_TARGET_SITE_PACKAGES"
+            ],
+        },
+    }
+    if process_result.get("returncode") != 0 or result is None:
+        if error is not None:
+            return None, execution, error
+        fail(
+            "ATTENTION_BACKEND_PRIMITIVE_FAILED",
+            "attention_backend_process",
+            "controlled attention-backend process failed without a valid result",
+        )
+    return result, execution, None
+
+
+def not_executed_report(name: str, blocked_by: str) -> dict[str, object]:
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "probe_id": PROBE_ID,
+        "stage": name,
+        "status": "NOT_EXECUTED",
+        "decision": "BLOCKED_BY_UPSTREAM_FAILURE",
+        "blocked_by": blocked_by,
+    }
+
+
+def report_from_result(
+    name: str,
+    key: str,
+    result: dict[str, object],
+) -> dict[str, object]:
+    payload = result.get(key)
+    if not isinstance(payload, dict):
+        fail(
+            "ATTENTION_BACKEND_PRIMITIVE_FAILED",
+            name,
+            f"controlled result omitted the {key} report",
+        )
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "probe_id": PROBE_ID,
+        "stage": name,
+        "status": "PASSED",
+        "captured_at": datetime.now(UTC).isoformat(),
+        **{str(item): value for item, value in payload.items()},
+    }
+
+
+def write_human_report(summary: dict[str, object]) -> None:
+    lines = [
+        "# Explicit Triton attention-backend V1",
+        "",
+        f"Status: `{summary['status']}`",
+        "",
+        f"Terminal decision: `{summary['terminal_decision']}`",
+        "",
+        "## Boundary",
+        "",
+        "- Explicit registry backend: `TRITON_ATTN`",
+        "- Model loads: 0",
+        "- Worker starts: 0",
+        "- Model requests: 0",
+        "- Benchmark trajectories: 0",
+        "- Network requests: 0",
+        "- Hidden retries: 0",
+        "- Customer data: false",
+        "- Credentials used: false",
+        "- External spend: 0",
+        "",
+        "## Next gate",
+        "",
+        str(summary["next_gate"]),
+        "",
+    ]
+    write_text("human_report_v1.md", "\n".join(lines))
+
+
+def write_bundle_manifest() -> None:
+    members = []
+    for name in REQUIRED_OUTPUTS:
+        if name == "bundle_manifest_v1.json":
+            continue
+        path = OUTPUT_DIRECTORY / name
+        if not path.is_file() or path.is_symlink():
+            raise RuntimeError(f"required evidence member is missing: {name}")
+        members.append(
+            {
+                "path": name,
+                "sha256": sha256_file(path),
+                "size_bytes": path.stat().st_size,
+            }
+        )
+    write_json(
+        "bundle_manifest_v1.json",
+        {
+            "schema_version": SCHEMA_VERSION,
+            "bundle_id": "auragateway-cu129-triton-attention-evidence-v1",
+            "probe_id": PROBE_ID,
+            "source_main_commit": SOURCE_MAIN_COMMIT,
+            "members": members,
+        },
+    )
+
+
+def build_evidence_zip() -> None:
+    if EVIDENCE_ZIP.exists():
+        raise RuntimeError(f"evidence ZIP already exists: {EVIDENCE_ZIP}")
+    with zipfile.ZipFile(
+        EVIDENCE_ZIP,
+        "w",
+        compression=zipfile.ZIP_DEFLATED,
+    ) as archive:
+        for name in REQUIRED_OUTPUTS:
+            path = OUTPUT_DIRECTORY / name
+            info = zipfile.ZipInfo(name)
+            info.date_time = ZIP_TIMESTAMP
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o100644 << 16
+            archive.writestr(info, path.read_bytes())
+
+
+def main() -> None:
+    if OUTPUT_DIRECTORY.exists() or EVIDENCE_ZIP.exists():
+        raise RuntimeError("attention-backend output already exists")
+    OUTPUT_DIRECTORY.mkdir(parents=True)
+    original_environment = environment_snapshot()
+    platform_report, platform_passed = platform_identity()
+    write_json("platform_identity_report_v1.json", platform_report)
+    execution: dict[str, object] | None = None
+    failure: ProbeFailure | None = None
+    result: dict[str, object] | None = None
+    child_error: dict[str, object] | None = None
+    if platform_passed:
+        try:
+            result, execution, child_error = install_and_probe()
+            if child_error is not None:
+                failure = ProbeFailure(
+                    str(
+                        child_error.get(
+                            "error_code",
+                            "ATTENTION_BACKEND_PRIMITIVE_FAILED",
+                        )
+                    ),
+                    str(child_error.get("stage", "attention_backend_process")),
+                    str(
+                        child_error.get(
+                            "safe_message",
+                            "attention backend process failed",
+                        )
+                    ),
+                )
+        except ProbeFailure as error:
+            failure = error
+    else:
+        failure = ProbeFailure(
+            "ATTENTION_BACKEND_PLATFORM_IDENTITY_MISMATCH",
+            "platform_preflight",
+            "platform identity did not satisfy the governed dual-T4 contract",
+        )
+    report_specs = (
+        ("backend_discovery", "backend_discovery_report_v1.json"),
+        ("backend_import", "backend_import_report_v1.json"),
+        ("backend_capability", "backend_capability_report_v1.json"),
+        ("attention_primitive", "attention_primitive_report_v1.json"),
+    )
+    child_payload = result if result is not None else child_error
+    child_reports = (
+        child_payload.get("reports")
+        if isinstance(child_payload, dict)
+        else None
+    )
+    stage_to_report = {
+        "vllm_distribution_identity": "backend_import",
+        "target_runtime_import": "backend_import",
+        "target_package_origin": "backend_import",
+        "backend_registry_discovery": "backend_discovery",
+        "backend_registry_override": "backend_discovery",
+        "backend_class_import": "backend_import",
+        "backend_capability_validation": "backend_capability",
+        "explicit_backend_attribution": "attention_primitive",
+        "attention_primitive_execution": "attention_primitive",
+        "pytorch_sdpa_comparison": "attention_primitive",
+    }
+    failed_report = (
+        stage_to_report.get(failure.stage) if failure is not None else None
+    )
+    for key, filename in report_specs:
+        payload = (
+            child_reports.get(key)
+            if isinstance(child_reports, dict)
+            else None
+        )
+        if isinstance(payload, dict):
+            report = {
+                "schema_version": SCHEMA_VERSION,
+                "probe_id": PROBE_ID,
+                "stage": key,
+                "status": "PASSED",
+                "captured_at": datetime.now(UTC).isoformat(),
+                **{str(item): value for item, value in payload.items()},
+            }
+        elif key == failed_report and failure is not None:
+            report = {
+                "schema_version": SCHEMA_VERSION,
+                "probe_id": PROBE_ID,
+                "stage": key,
+                "status": "FAILED_CLOSED",
+                "decision": failure.code,
+                "first_divergence": failure.stage,
+                "safe_message": failure.safe_message,
+            }
+        else:
+            blocked_by = failure.stage if failure is not None else "unknown"
+            report = not_executed_report(key, blocked_by)
+        write_json(filename, report)
+    environment_unchanged = environment_snapshot() == original_environment
+    if not environment_unchanged and failure is None:
+        failure = ProbeFailure(
+            "ATTENTION_BACKEND_GLOBAL_ENVIRONMENT_MUTATION_DETECTED",
+            "environment_integrity",
+            "the notebook process environment changed during the probe",
+        )
+    passed = result is not None and failure is None and environment_unchanged
+    terminal = (
+        "EXPLICIT_TRITON_ATTENTION_BACKEND_V1_PASSED"
+        if passed
+        else (
+            failure.code
+            if failure is not None
+            else "ATTENTION_BACKEND_PRIMITIVE_FAILED"
+        )
+    )
+    summary = {
+        "schema_version": SCHEMA_VERSION,
+        "probe_id": PROBE_ID,
+        "source_main_commit": SOURCE_MAIN_COMMIT,
+        "captured_at": datetime.now(UTC).isoformat(),
+        "status": "PASSED" if passed else "FAILED_CLOSED",
+        "terminal_decision": terminal,
+        "failure": failure.payload() if failure is not None else None,
+        "stop_on_first_failure": True,
+        "runtime_install_attempts": PARENT_ATTEMPTS[
+            "runtime_install_attempts"
+        ],
+        "backend_process_attempts": PARENT_ATTEMPTS[
+            "backend_process_attempts"
+        ],
+        "backend_discovery_attempts": (
+            child_payload.get("attempts", {}).get(
+                "backend_discovery_attempts",
+                0,
+            )
+            if isinstance(child_payload, dict)
+            and isinstance(child_payload.get("attempts"), dict)
+            else 0
+        ),
+        "backend_import_attempts": (
+            child_payload.get("attempts", {}).get(
+                "backend_import_attempts",
+                0,
+            )
+            if isinstance(child_payload, dict)
+            and isinstance(child_payload.get("attempts"), dict)
+            else 0
+        ),
+        "backend_capability_validation_attempts": (
+            child_payload.get("attempts", {}).get(
+                "backend_capability_validation_attempts",
+                0,
+            )
+            if isinstance(child_payload, dict)
+            and isinstance(child_payload.get("attempts"), dict)
+            else 0
+        ),
+        "attention_primitive_attempts": (
+            child_payload.get("attempts", {}).get(
+                "attention_primitive_attempts",
+                0,
+            )
+            if isinstance(child_payload, dict)
+            and isinstance(child_payload.get("attempts"), dict)
+            else 0
+        ),
+        "hidden_retries_performed": 0,
+        "global_environment_mutations_performed": (
+            0 if environment_unchanged else 1
+        ),
+        "model_loads": 0,
+        "worker_starts": 0,
+        "model_requests": 0,
+        "benchmark_trajectory_requests": 0,
+        "network_requests": 0,
+        "customer_data_present": False,
+        "credentials_used": False,
+        "external_spend": 0,
+        "execution": execution,
+        "next_gate": (
+            "preserve_evidence_and_accept_attention_backend_execution"
+            if passed
+            else "preserve_evidence_and_classify_attention_backend_failure"
+        ),
+    }
+    write_json("explicit_triton_attention_backend_summary_v1.json", summary)
+    write_human_report(summary)
+    write_bundle_manifest()
+    build_evidence_zip()
+    print(
+        canonical_json(
+            {
+                "status": summary["status"],
+                "terminal_decision": terminal,
+                "evidence_zip": str(EVIDENCE_ZIP),
+                "evidence_zip_sha256": sha256_file(EVIDENCE_ZIP),
+                "runtime_install_attempts": summary["runtime_install_attempts"],
+                "backend_import_attempts": summary["backend_import_attempts"],
+                "attention_primitive_attempts": summary[
+                    "attention_primitive_attempts"
+                ],
+                "model_loads": 0,
+                "worker_starts": 0,
+                "model_requests": 0,
+                "benchmark_trajectory_requests": 0,
+                "network_requests": 0,
+                "hidden_retries_performed": 0,
+                "global_environment_mutations_performed": summary[
+                    "global_environment_mutations_performed"
+                ],
+                "external_spend": 0,
+            }
+        )
+    )
+
+
+main()
