@@ -1,0 +1,17 @@
+11.4s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+11.4s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+11.4s 3 0.00s - to python to disable frozen modules.
+11.4s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+12.2s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+12.2s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+12.2s 7 0.00s - to python to disable frozen modules.
+12.2s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+344.7s 9 {"attention_primitive_attempts":1,"backend_import_attempts":1,"benchmark_trajectory_requests":0,"evidence_zip":"/kaggle/working/ag-cu129-triton-attention-evidence-v1.zip","evidence_zip_sha256":"858e84c68703850fcd1651575bbc8223b01f46d5a8aaf39cec7fa91c0c65b3a9","external_spend":0,"global_environment_mutations_performed":0,"hidden_retries_performed":0,"model_loads":0,"model_requests":0,"network_requests":0,"runtime_install_attempts":1,"status":"PASSED","terminal_decision":"EXPLICIT_TRITON_ATTENTION_BACKEND_V1_PASSED","worker_starts":0}
+350.8s 10 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+350.8s 11 cells[i][c] = re.sub('\\\\\|', '|', cell)
+351.2s 12 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+351.2s 13 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+352.3s 14 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+352.6s 15 [NbConvertApp] Writing 53505 bytes to __notebook__.ipynb
+354.9s 16 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+356.4s 17 [NbConvertApp] Writing 404759 bytes to __results__.html
