@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import shutil
 from pathlib import Path
 
@@ -102,6 +103,34 @@ def test_safety_and_next_gate_are_exact(tmp_path: Path) -> None:
     assert record.safety.benchmark_trajectory_requests == 0
     assert record.p3_p6_runtime_diagnostic_implementation_authorized is True
     assert record.next_gate == "design_and_implement_p3_p6_runtime_diagnostic_v1"
+
+
+def test_repository_evidence_bindings_match_committed_bytes() -> None:
+    source_root = Path(__file__).resolve().parents[3]
+    bindings = (
+        (subject.LOG_PATH, subject.LOG_SHA256),
+        (subject.EVIDENCE_ZIP_PATH, subject.EVIDENCE_ZIP_SHA256),
+        (
+            subject.AUTHORIZATION_EVIDENCE_PATH,
+            subject.AUTHORIZATION_SHA256,
+        ),
+        (
+            subject.CONSUMPTION_EVIDENCE_PATH,
+            subject.CONSUMPTION_SHA256,
+        ),
+        (
+            subject.INSPECTION_MANIFEST_PATH,
+            subject.INSPECTION_MANIFEST_SHA256,
+        ),
+    )
+
+    observed = {
+        relative.as_posix(): hashlib.sha256((source_root / relative).read_bytes()).hexdigest()
+        for relative, _ in bindings
+    }
+    expected = {relative.as_posix(): expected_sha256 for relative, expected_sha256 in bindings}
+
+    assert observed == expected
 
 
 @pytest.mark.parametrize(

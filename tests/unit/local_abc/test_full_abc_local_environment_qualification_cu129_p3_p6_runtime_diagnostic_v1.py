@@ -255,3 +255,19 @@ def test_template_compiles_and_python_lines_are_bounded(
 def test_names_fit_kaggle_limit() -> None:
     assert len(subject.NOTEBOOK_NAME) <= 50
     assert len(subject.FAILED_NOTEBOOK_NAME) <= 50
+
+
+def test_template_and_notebook_exclude_unused_runtime_imports(
+    tmp_path: Path,
+) -> None:
+    repo_root = _fixture_repo(tmp_path)
+    generated = subject.build_generated(repo_root)
+    template_source = (repo_root / subject.TEMPLATE_PATH).read_text(encoding="utf-8")
+    notebook_payload = json.loads(generated.notebook_bytes.decode("utf-8"))
+    code_source = "".join(
+        next(cell["source"] for cell in notebook_payload["cells"] if cell["cell_type"] == "code")
+    )
+
+    for source in (template_source, code_source):
+        assert "import tempfile" not in source
+        assert "from datetime import UTC, datetime" not in source

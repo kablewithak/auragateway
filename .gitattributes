@@ -15,3 +15,10 @@ evidence_vault/local_abc/cu129-environment-qualification-attempt-5/execution.log
 
 # Preserve immutable FlashInfer qualification-failure evidence bytes.
 evidence_vault/local_abc/cu129-flashinfer-link-failure-v1/ag-full-abc-env-qualification-v1.log -text -whitespace
+
+# Preserve immutable explicit Triton attention-backend acceptance evidence bytes.
+evidence_vault/local_abc/cu129-explicit-triton-attention-backend-execution-acceptance-v1/ag-cu129-triton-attention-backend-v1-339181603.log -text
+evidence_vault/local_abc/cu129-explicit-triton-attention-backend-execution-acceptance-v1/ag-cu129-triton-attention-evidence-v1-339181603.zip -text
+evidence_vault/local_abc/cu129-explicit-triton-attention-backend-execution-acceptance-v1/execution_authorization_v1-339181603.json -text
+evidence_vault/local_abc/cu129-explicit-triton-attention-backend-execution-acceptance-v1/execution_authorization_consumption_v1-339181603.json -text
+evidence_vault/local_abc/cu129-explicit-triton-attention-backend-execution-acceptance-v1/inspection_manifest_v1-339181603.json -text
