@@ -1,0 +1,2132 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import shutil
+import socket
+import stat
+import subprocess
+import sys
+import threading
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+import zipfile
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Final
+
+NOTEBOOK_NAME: Final = "__NOTEBOOK_NAME__"
+SOURCE_MAIN_COMMIT: Final = "__SOURCE_MAIN_COMMIT__"
+FAILURE_ACCEPTANCE_RECORD_SHA256: Final = (
+    "__FAILURE_ACCEPTANCE_RECORD_SHA256__"
+)
+FAILURE_ACCEPTANCE_REVIEW_SHA256: Final = (
+    "__FAILURE_ACCEPTANCE_REVIEW_SHA256__"
+)
+V2_IMPLEMENTATION_RECORD_SHA256: Final = (
+    "__V2_IMPLEMENTATION_RECORD_SHA256__"
+)
+MODEL_SNAPSHOT_SHA256: Final = "__MODEL_SNAPSHOT_SHA256__"
+
+INPUT_ROOT = Path("/kaggle/input").resolve()
+WORK_ROOT = Path("/kaggle/working").resolve()
+OUTPUT_ROOT = WORK_ROOT / "p3_p6_runtime_diagnostic_v3"
+SCRATCH_ROOT = WORK_ROOT / "p3_p6_runtime_diagnostic_v3_scratch"
+TARGET_ROOT = SCRATCH_ROOT / "target_runtime"
+TARGET_SITE = TARGET_ROOT / "site-packages"
+LOG_ROOT = OUTPUT_ROOT / "worker_logs"
+EVIDENCE_ZIP = WORK_ROOT / "__EVIDENCE_ZIP_NAME__"
+
+RUNTIME_OUTPUT_DIRECTORY = "auragateway_vllm_cu129_wheelhouse_v1"
+MODEL_REVISION = "7ae557604adf67be50417f59c2c2f167def9a775"
+MODEL_REPOSITORY = "Qwen/Qwen2.5-0.5B-Instruct"
+SERVED_MODEL_NAME = "local-qwen2.5-0.5b-instruct"
+EXPECTED_VLLM_VERSION = "0.19.1"
+EXPECTED_TORCH_VERSION = "2.10.0+cu129"
+EXPECTED_TORCH_CUDA = "12.9"
+EXPECTED_TRITON_VERSION = "3.6.0"
+EXPECTED_GPU_NAME = "Tesla T4"
+EXPECTED_COMPUTE_CAPABILITY = "7.5"
+EXPECTED_BACKEND = "TRITON_ATTN"
+EXPECTED_BACKEND_CLASS = (
+    "vllm.v1.attention.backends.triton_attn.TritonAttentionBackend"
+)
+REAL_DRIVER_DIRECTORY = "/usr/local/nvidia/lib64"
+EXPECTED_CHILD_PYTHON = Path("/usr/bin/python3")
+IMPORT_CLOSURE_MODULES = (
+    "vllm",
+    "torch",
+    "triton",
+    "transformers",
+    "vllm.model_executor.models.registry",
+)
+
+MAX_HEALTH_POLLS = 90
+HEALTH_POLL_SECONDS = 2.0
+HTTP_TIMEOUT_SECONDS = 120.0
+MAX_STREAM_BYTES = 131072
+MAX_INSTALL_EXCERPT_CHARACTERS = 16000
+MAX_EVIDENCE_ZIP_BYTES = 2 * 1024**2
+MAX_MODEL_BYTES = 16 * 1024**3
+
+EXPECTED_CONTROL_HASHES = {
+    "requirements.in": (
+        "a120c72a5643bb65afbfe0bd3dd072f1ea89a19f57a534dd814c9bafdd41880f"
+    ),
+    "resolution_lock.json": (
+        "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c"
+    ),
+    "materialization.lock.txt": (
+        "d061bd9a7ff0a686bb462a2bd016a1f3e1aea833fbdbff353dddf96fdd623e1d"
+    ),
+    "requirements.lock.txt": (
+        "47cb357a53ca74ca597b286768e1d0e9cb831f7431c08fad378fc42ea59b3a27"
+    ),
+    "install_runtime.py": (
+        "68bba3ca131e9a6f36392330562985d2a644be57cf5437fd282b883741c86821"
+    ),
+    "runtime_manifest.json": (
+        "b424d2b952d726b2f7451ebd8f48d604985f650dbe2f6d146969625618b7fc51"
+    ),
+    "sha256_manifest.json": (
+        "789fb23ab7d9c4f28dd909e808a53a65d692c0d7b43bc44da9e974817d771b8d"
+    ),
+    "materialization_receipt.json": (
+        "52aa42b940dd606ab5685686ab893eb085efed2a7466989f654e870f4b360589"
+    ),
+}
+
+OUTPUT_NAMES = (
+    "runtime_install_report_v3.json",
+    "runtime_import_closure_report_v3.json",
+    "p3_worker_startup_report_v3.json",
+    "p4_deterministic_request_report_v3.json",
+    "p5_prefix_cache_reset_report_v3.json",
+    "p6_dual_worker_isolation_report_v3.json",
+    "scratch_cleanup_report_v3.json",
+    "p3_p6_runtime_diagnostic_summary_v3.json",
+    "failure_report_v3.json",
+    "bundle_manifest_v3.json",
+    "human_report_v3.md",
+)
+
+CREDENTIAL_ENV_NAMES = (
+    "ANTHROPIC_API_KEY",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AZURE_OPENAI_API_KEY",
+    "GOOGLE_API_KEY",
+    "HF_TOKEN",
+    "HUGGING_FACE_HUB_TOKEN",
+    "OPENAI_API_KEY",
+    "OPENROUTER_API_KEY",
+)
+
+FIXED_PREFIX = (
+    (
+        "AuraGateway deterministic prefix-cache reliability probe. "
+        "This text is synthetic, contains no customer data, and must remain "
+        "byte-identical across requests. "
+    )
+    * 24
+    + (
+        "Return only the exact JSON object supplied in the final user "
+        "message, with no markdown or additional text."
+    )
+)
+
+ACTION_BUDGET_LIMITS = {
+    "runtime_install_attempts": 1,
+    "runtime_import_closure_probes": 1,
+    "model_loads": 3,
+    "worker_starts": 3,
+    "model_requests": 5,
+}
+
+FAILURE_CODES = {
+    "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+    "P3_P6_PLATFORM_IDENTITY_MISMATCH",
+    "P3_P6_WHEELHOUSE_INVALID",
+    "P3_P6_RUNTIME_INSTALL_FAILED",
+    "P3_P6_RUNTIME_INSTALL_NONZERO_EXIT",
+    "P3_P6_RUNTIME_INSTALL_TIMEOUT",
+    "P3_P6_RUNTIME_INSTALL_LAUNCH_FAILED",
+    "P3_P6_MODEL_IDENTITY_MISMATCH",
+    "P3_P6_EXPLICIT_BACKEND_NOT_REALIZED",
+    "P3_P6_WORKER_STARTUP_FAILED",
+    "P3_P6_MODEL_INVENTORY_MISMATCH",
+    "P3_P6_REQUEST_FAILED",
+    "P3_P6_METRIC_SEMANTIC_UNAVAILABLE",
+    "P3_P6_CACHE_REUSE_NOT_OBSERVED",
+    "P3_P6_RESET_NOT_PROVEN",
+    "P3_P6_DUAL_WORKER_ISOLATION_FAILED",
+    "P3_P6_ACTION_BUDGET_EXCEEDED",
+    "P3_P6_PRIVACY_BOUNDARY_VIOLATION",
+    "P3_P6_SCRATCH_CLEANUP_FAILED",
+}
+
+
+class DiagnosticFailure(RuntimeError):
+    def __init__(self, error_code: str, safe_message: str) -> None:
+        if error_code not in FAILURE_CODES:
+            raise ValueError("unsupported P3-P6 failure code")
+        super().__init__(safe_message)
+        self.error_code = error_code
+        self.safe_message = safe_message
+
+
+def consume_actions(
+    counters: dict[str, int],
+    *action_names: str,
+) -> None:
+    for name in action_names:
+        limit = ACTION_BUDGET_LIMITS.get(name)
+        if limit is None:
+            raise DiagnosticFailure(
+                "P3_P6_ACTION_BUDGET_EXCEEDED",
+                f"unknown bounded action: {name}",
+            )
+        if counters[name] >= limit:
+            raise DiagnosticFailure(
+                "P3_P6_ACTION_BUDGET_EXCEEDED",
+                f"action budget exhausted: {name}",
+            )
+    for name in action_names:
+        counters[name] += 1
+
+
+def canonical_json(payload: object) -> str:
+    return json.dumps(
+        payload,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
+def sha256_text(payload: str) -> str:
+    return sha256_bytes(payload.encode("utf-8"))
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def write_json(path: Path, payload: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(canonical_json(payload), encoding="utf-8")
+
+
+def write_text(path: Path, payload: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(payload, encoding="utf-8", newline="\n")
+
+
+def bounded_loopback(url: str) -> str:
+    parsed = urllib.parse.urlsplit(url)
+    if parsed.scheme != "http":
+        raise RuntimeError("runtime HTTP must use plain loopback HTTP")
+    if parsed.hostname not in {"127.0.0.1", "localhost"}:
+        raise RuntimeError("runtime HTTP is restricted to loopback")
+    if parsed.username is not None or parsed.password is not None:
+        raise RuntimeError("loopback URLs cannot contain credentials")
+    if parsed.query or parsed.fragment:
+        raise RuntimeError("loopback URLs cannot contain query or fragment")
+    return url
+
+
+def get_text(url: str, timeout: float = 10.0) -> str:
+    request = urllib.request.Request(bounded_loopback(url), method="GET")
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.read().decode("utf-8")
+
+
+def get_json(url: str, timeout: float = 10.0) -> dict[str, object]:
+    payload = json.loads(get_text(url, timeout=timeout))
+    if not isinstance(payload, dict):
+        raise RuntimeError("loopback response root must be one JSON object")
+    return payload
+
+
+def post_json(
+    url: str,
+    payload: dict[str, object],
+    timeout: float = HTTP_TIMEOUT_SECONDS,
+) -> dict[str, object]:
+    encoded = canonical_json(payload).encode("utf-8")
+    request = urllib.request.Request(
+        bounded_loopback(url),
+        data=encoded,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        observed = json.loads(response.read().decode("utf-8"))
+    if not isinstance(observed, dict):
+        raise RuntimeError("loopback response root must be one JSON object")
+    return observed
+
+
+def port_open(port: int) -> bool:
+    try:
+        with socket.create_connection(("127.0.0.1", port), timeout=1.0):
+            return True
+    except OSError:
+        return False
+
+
+def require_private_environment() -> None:
+    present = tuple(name for name in CREDENTIAL_ENV_NAMES if os.environ.get(name))
+    if present:
+        raise DiagnosticFailure(
+            "P3_P6_PRIVACY_BOUNDARY_VIOLATION",
+            "credential-bearing environment variables are prohibited",
+        )
+    if os.environ.get("AURAGATEWAY_CUSTOMER_DATA_PRESENT") == "1":
+        raise DiagnosticFailure(
+            "P3_P6_PRIVACY_BOUNDARY_VIOLATION",
+            "customer data is prohibited",
+        )
+
+
+def safe_directory_sha256(root: Path, maximum_bytes: int) -> str:
+    if not root.is_dir() or root.is_symlink():
+        raise RuntimeError("expected one real directory")
+    entries: list[dict[str, object]] = []
+    total = 0
+    for path in sorted(root.rglob("*"), key=lambda item: item.as_posix()):
+        if path.is_symlink():
+            raise RuntimeError("directory contains a symbolic link")
+        if path.is_dir():
+            continue
+        mode = path.stat().st_mode
+        if not stat.S_ISREG(mode):
+            raise RuntimeError("directory contains a non-regular member")
+        total += path.stat().st_size
+        if total > maximum_bytes:
+            raise RuntimeError("directory exceeds the byte budget")
+        entries.append(
+            {
+                "path": path.relative_to(root).as_posix(),
+                "sha256": file_sha256(path),
+                "size_bytes": path.stat().st_size,
+            }
+        )
+    if not entries:
+        raise RuntimeError("directory is empty")
+    envelope = {"schema_version": "1.0.0", "files": entries}
+    return sha256_text(canonical_json(envelope))
+
+
+def discover_one_directory(name: str) -> Path:
+    matches = tuple(
+        path.resolve()
+        for path in INPUT_ROOT.rglob(name)
+        if path.is_dir() and not path.is_symlink()
+    )
+    unique = tuple(dict.fromkeys(matches))
+    if len(unique) != 1:
+        raise RuntimeError(f"expected one {name} directory; observed {len(unique)}")
+    return unique[0]
+
+
+def discover_model_snapshot() -> Path:
+    matches = tuple(
+        path.parent.resolve()
+        for path in INPUT_ROOT.rglob(f"snapshots/{MODEL_REVISION}/config.json")
+        if path.is_file() and not path.is_symlink()
+    )
+    unique = tuple(dict.fromkeys(matches))
+    if len(unique) != 1:
+        raise RuntimeError(
+            "expected one exact expanded model snapshot; "
+            f"observed {len(unique)}"
+        )
+    snapshot = unique[0]
+    if safe_directory_sha256(snapshot, MAX_MODEL_BYTES) != MODEL_SNAPSHOT_SHA256:
+        raise RuntimeError("model snapshot identity drifted")
+    return snapshot
+
+
+def prepare_model_home(snapshot: Path) -> tuple[Path, Path]:
+    model_home = SCRATCH_ROOT / "model_home"
+    destination = (
+        model_home
+        / "hub"
+        / "models--Qwen--Qwen2.5-0.5B-Instruct"
+        / "snapshots"
+        / MODEL_REVISION
+    )
+    if model_home.exists():
+        raise RuntimeError("writable model home already exists")
+    total = 0
+    files: list[tuple[Path, Path]] = []
+    for path in sorted(snapshot.rglob("*"), key=lambda item: item.as_posix()):
+        if path.is_symlink():
+            raise RuntimeError("model snapshot contains a symbolic link")
+        if path.is_dir():
+            continue
+        if not stat.S_ISREG(path.stat().st_mode):
+            raise RuntimeError("model snapshot contains a non-regular member")
+        total += path.stat().st_size
+        if total > MAX_MODEL_BYTES:
+            raise RuntimeError("model snapshot exceeds the copy budget")
+        files.append((path, destination / path.relative_to(snapshot)))
+    if not files:
+        raise RuntimeError("model snapshot is empty")
+    for source, target in files:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target, follow_symlinks=False)
+    if safe_directory_sha256(destination, MAX_MODEL_BYTES) != MODEL_SNAPSHOT_SHA256:
+        raise RuntimeError("writable model snapshot identity drifted")
+    return model_home, destination
+
+
+def validate_wheelhouse(root: Path) -> None:
+    for name, expected in EXPECTED_CONTROL_HASHES.items():
+        path = root / name
+        if not path.is_file() or path.is_symlink():
+            raise RuntimeError(f"wheelhouse control file missing: {name}")
+        if file_sha256(path) != expected:
+            raise RuntimeError(f"wheelhouse control identity drifted: {name}")
+    manifest = json.loads((root / "sha256_manifest.json").read_text(encoding="utf-8"))
+    if not isinstance(manifest, dict):
+        raise RuntimeError("wheelhouse checksum manifest is invalid")
+    entries = manifest.get("entries")
+    if not isinstance(entries, list) or len(entries) != 182:
+        raise RuntimeError("wheelhouse manifest entry count drifted")
+    verified = 0
+    wheels = 0
+    for raw in entries:
+        if not isinstance(raw, dict):
+            raise RuntimeError("wheelhouse manifest entry is invalid")
+        name = raw.get("path")
+        digest = raw.get("sha256")
+        size = raw.get("size_bytes")
+        if not isinstance(name, str):
+            raise RuntimeError("wheelhouse manifest path is invalid")
+        if not isinstance(digest, str) or not isinstance(size, int):
+            raise RuntimeError("wheelhouse manifest identity is invalid")
+        path = root / name
+        if not path.is_file() or path.is_symlink():
+            raise RuntimeError(f"wheelhouse member missing: {name}")
+        if file_sha256(path) != digest or path.stat().st_size != size:
+            raise RuntimeError(f"wheelhouse member drifted: {name}")
+        verified += 1
+        if path.suffix == ".whl":
+            wheels += 1
+    if verified != 182 or wheels != 176:
+        raise RuntimeError("wheelhouse verification counts drifted")
+
+
+class BoundedCapture:
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        self.buffer = bytearray()
+        self.observed = 0
+        self.lock = threading.Lock()
+        self.thread: threading.Thread | None = None
+
+    def start(self, source: object) -> None:
+        if source is None:
+            return
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.thread = threading.Thread(
+            target=self.consume,
+            args=(source,),
+            daemon=True,
+        )
+        self.thread.start()
+
+    def consume(self, source: object) -> None:
+        while True:
+            chunk = source.read(8192)
+            if not chunk:
+                break
+            with self.lock:
+                self.observed += len(chunk)
+                self.buffer.extend(chunk)
+                overflow = len(self.buffer) - MAX_STREAM_BYTES
+                if overflow > 0:
+                    del self.buffer[:overflow]
+                self.path.write_bytes(bytes(self.buffer))
+        source.close()
+
+    def snapshot(self) -> dict[str, object]:
+        with self.lock:
+            payload = bytes(self.buffer)
+            return {
+                "observed_bytes": self.observed,
+                "retained_bytes": len(payload),
+                "tail_sha256": sha256_bytes(payload),
+            }
+
+    def text(self) -> str:
+        with self.lock:
+            return bytes(self.buffer).decode("utf-8", errors="replace")
+
+
+def sanitize_excerpt(value: str) -> str:
+    bounded = value[-MAX_INSTALL_EXCERPT_CHARACTERS:]
+    replacements = {
+        str(INPUT_ROOT): "<input>",
+        str(WORK_ROOT): "<working>",
+        os.environ.get("HOME", ""): "<home>",
+    }
+    for source, replacement in replacements.items():
+        if source:
+            bounded = bounded.replace(source, replacement)
+    return bounded
+
+
+def disk_snapshot(path: Path) -> dict[str, int]:
+    usage = shutil.disk_usage(path)
+    return {
+        "total_bytes": usage.total,
+        "used_bytes": usage.used,
+        "free_bytes": usage.free,
+    }
+
+
+def directory_snapshot(path: Path) -> dict[str, object]:
+    if not path.exists():
+        return {
+            "exists": False,
+            "file_count": 0,
+            "size_bytes": 0,
+        }
+    if not path.is_dir() or path.is_symlink():
+        raise RuntimeError("target runtime path is not one real directory")
+    file_count = 0
+    size_bytes = 0
+    for member in path.rglob("*"):
+        if member.is_symlink():
+            raise RuntimeError("target runtime contains a symbolic link")
+        if member.is_dir():
+            continue
+        if not stat.S_ISREG(member.stat().st_mode):
+            raise RuntimeError("target runtime contains a non-regular member")
+        file_count += 1
+        size_bytes += member.stat().st_size
+    return {
+        "exists": True,
+        "file_count": file_count,
+        "size_bytes": size_bytes,
+    }
+
+
+def install_failure_signals(stdout_tail: str, stderr_tail: str) -> tuple[str, ...]:
+    text = (stdout_tail + "\n" + stderr_tail).lower()
+    signals: list[str] = []
+    patterns = (
+        ("no space left on device", "DISK_EXHAUSTION_SIGNAL"),
+        ("these packages do not match the hashes", "HASH_MISMATCH_SIGNAL"),
+        ("hashes are required", "HASH_REQUIREMENT_SIGNAL"),
+        ("no matching distribution found", "DISTRIBUTION_UNAVAILABLE_SIGNAL"),
+        ("could not find a version that satisfies", "DISTRIBUTION_UNAVAILABLE_SIGNAL"),
+        ("not a supported wheel on this platform", "UNSUPPORTED_WHEEL_SIGNAL"),
+        ("resolutionimpossible", "DEPENDENCY_RESOLUTION_SIGNAL"),
+        ("conflicting dependencies", "DEPENDENCY_RESOLUTION_SIGNAL"),
+    )
+    for phrase, signal in patterns:
+        if phrase in text and signal not in signals:
+            signals.append(signal)
+    return tuple(signals)
+
+
+def run_bounded_process(
+    role: str,
+    argv: list[str],
+    *,
+    timeout_seconds: float,
+    environment: dict[str, str],
+    capture_root: Path,
+) -> dict[str, object]:
+    started_monotonic = time.monotonic()
+    started_at = datetime.now(UTC).isoformat(timespec="seconds")
+    stdout_capture = BoundedCapture(capture_root / f"{role}.stdout.log")
+    stderr_capture = BoundedCapture(capture_root / f"{role}.stderr.log")
+    process: subprocess.Popen[bytes] | None = None
+    launch_error_type: str | None = None
+    launch_error_message: str | None = None
+    timed_out = False
+    try:
+        process = subprocess.Popen(
+            argv,
+            env=environment,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=False,
+            bufsize=0,
+        )
+        stdout_capture.start(process.stdout)
+        stderr_capture.start(process.stderr)
+        try:
+            process.wait(timeout=timeout_seconds)
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            process.terminate()
+            try:
+                process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait(timeout=10)
+    except OSError as error:
+        launch_error_type = type(error).__name__
+        launch_error_message = sanitize_excerpt(str(error))
+    finally:
+        if stdout_capture.thread is not None:
+            stdout_capture.thread.join(timeout=5)
+        if stderr_capture.thread is not None:
+            stderr_capture.thread.join(timeout=5)
+
+    finished_at = datetime.now(UTC).isoformat(timespec="seconds")
+    stdout_tail = sanitize_excerpt(stdout_capture.text())
+    stderr_tail = sanitize_excerpt(stderr_capture.text())
+    returncode = None if process is None else process.returncode
+    if launch_error_type is not None:
+        process_outcome = "LAUNCH_ERROR"
+    elif timed_out:
+        process_outcome = "TIMEOUT"
+    elif returncode == 0:
+        process_outcome = "PASSED"
+    else:
+        process_outcome = "NONZERO_EXIT"
+    return {
+        "schema_version": "1.0.0",
+        "command_role": role,
+        "status": "PASSED" if process_outcome == "PASSED" else "FAILED",
+        "process_outcome": process_outcome,
+        "argv": [sanitize_excerpt(item) for item in argv],
+        "argv_sha256": sha256_text(canonical_json(argv)),
+        "started_at": started_at,
+        "finished_at": finished_at,
+        "duration_ms": int((time.monotonic() - started_monotonic) * 1000),
+        "returncode": returncode,
+        "timed_out": timed_out,
+        "launch_error_type": launch_error_type,
+        "launch_error_message": launch_error_message,
+        "stdout_observed_bytes": stdout_capture.observed,
+        "stderr_observed_bytes": stderr_capture.observed,
+        "stdout_tail": stdout_tail,
+        "stderr_tail": stderr_tail,
+        "failure_signals": install_failure_signals(stdout_tail, stderr_tail),
+    }
+
+
+def install_runtime(wheelhouse: Path, counters: dict[str, int]) -> dict[str, object]:
+    if TARGET_ROOT.exists():
+        raise RuntimeError("target runtime already exists")
+    wheels = wheelhouse / "wheels"
+    if not wheels.is_dir() or wheels.is_symlink():
+        raise RuntimeError("wheelhouse wheels directory is missing or unsafe")
+    TARGET_SITE.mkdir(parents=True, exist_ok=False)
+    argv = [
+        sys.executable,
+        "-m",
+        "pip",
+        "--isolated",
+        "--disable-pip-version-check",
+        "install",
+        "--no-index",
+        "--require-hashes",
+        "--only-binary=:all:",
+        "--target",
+        str(TARGET_SITE),
+        "--find-links",
+        str(wheels),
+        "-r",
+        str(wheelhouse / "requirements.lock.txt"),
+    ]
+    environment = {**os.environ}
+    environment.pop("PIP_INDEX_URL", None)
+    environment.pop("PIP_EXTRA_INDEX_URL", None)
+    environment.update(
+        {
+            "PIP_NO_INDEX": "1",
+            "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+            "PIP_NO_CACHE_DIR": "1",
+        }
+    )
+    before_disk = disk_snapshot(WORK_ROOT)
+    consume_actions(counters, "runtime_install_attempts")
+    process = run_bounded_process(
+        "offline_target_runtime_install",
+        argv,
+        timeout_seconds=900.0,
+        environment=environment,
+        capture_root=SCRATCH_ROOT / "install_logs",
+    )
+    report = {
+        **process,
+        "report_id": "auragateway-p3-p6-runtime-install-report-v3",
+        "executor": "BASE_PYTHON_PIP_TARGET_DIRECTORY",
+        "find_links_scope": "wheelhouse/wheels",
+        "requirements_lock_sha256": file_sha256(
+            wheelhouse / "requirements.lock.txt"
+        ),
+        "wheelhouse_manifest_sha256": file_sha256(
+            wheelhouse / "sha256_manifest.json"
+        ),
+        "working_disk_before": before_disk,
+        "working_disk_after": disk_snapshot(WORK_ROOT),
+        "target_runtime_after": directory_snapshot(TARGET_ROOT),
+        "model_copy_completed_before_install": False,
+        "network_access_requested": False,
+        "hidden_retry_count": 0,
+        "root_cause_review_required": process["status"] != "PASSED",
+    }
+    write_json(OUTPUT_ROOT / "runtime_install_report_v3.json", report)
+    outcome = process["process_outcome"]
+    if outcome == "LAUNCH_ERROR":
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_INSTALL_LAUNCH_FAILED",
+            "offline target-runtime installer could not be launched",
+        )
+    if outcome == "TIMEOUT":
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_INSTALL_TIMEOUT",
+            "offline target-runtime installation timed out",
+        )
+    if outcome == "NONZERO_EXIT":
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_INSTALL_NONZERO_EXIT",
+            "offline target-runtime installation returned nonzero",
+        )
+    return report
+
+def target_library_directories() -> tuple[Path, ...]:
+    names = (
+        "nvidia/cublas/lib",
+        "nvidia/cuda_cupti/lib",
+        "nvidia/cuda_nvrtc/lib",
+        "nvidia/cuda_runtime/lib",
+        "nvidia/cudnn/lib",
+        "nvidia/cufft/lib",
+        "nvidia/cufile/lib",
+        "nvidia/curand/lib",
+        "nvidia/cusolver/lib",
+        "nvidia/cusparse/lib",
+        "nvidia/nccl/lib",
+        "nvidia/nvjitlink/lib",
+        "nvidia/nvshmem/lib",
+    )
+    result = tuple(
+        path
+        for name in names
+        if (path := TARGET_SITE / name).is_dir()
+    )
+    if not result:
+        raise RuntimeError("target NVIDIA library directories are unavailable")
+    return result
+
+
+BOOTSTRAP = r"""
+import runpy
+import site
+import sys
+import types
+from pathlib import Path
+
+target_site = Path(sys.argv.pop(1)).resolve()
+module_name = sys.argv.pop(1)
+
+def sentinel(name):
+    module = types.ModuleType(name)
+    module.__file__ = f"<auragateway-suppressed-{name}>"
+    return module
+
+sys.modules["sitecustomize"] = sentinel("sitecustomize")
+sys.modules["usercustomize"] = sentinel("usercustomize")
+site.main()
+
+cleaned = []
+for value in sys.path:
+    if not value:
+        cleaned.append(value)
+        continue
+    path = Path(value).resolve()
+    is_target = path == target_site or target_site in path.parents
+    is_package_path = any(
+        part in {"site-packages", "dist-packages"}
+        for part in path.parts
+    )
+    if is_package_path and not is_target:
+        continue
+    cleaned.append(value)
+
+if str(target_site) not in cleaned:
+    cleaned.insert(0, str(target_site))
+sys.path[:] = cleaned
+sys.argv = [module_name, *sys.argv[1:]]
+runpy.run_module(module_name, run_name="__main__")
+"""
+
+
+def controlled_python(module: str, *args: str) -> list[str]:
+    return [
+        sys.executable,
+        "-S",
+        "-c",
+        BOOTSTRAP,
+        str(TARGET_SITE),
+        module,
+        *args,
+    ]
+
+
+def process_tree_environment(
+    gpu_index: int,
+    model_home: Path,
+) -> dict[str, str]:
+    libraries = [str(path) for path in target_library_directories()]
+    inherited_ld = os.environ.get("LD_LIBRARY_PATH", "")
+    if inherited_ld:
+        libraries.append(inherited_ld)
+    environment = {**os.environ}
+    environment.pop("PYTHONPATH", None)
+    environment.update(
+        {
+            "CUDA_VISIBLE_DEVICES": str(gpu_index),
+            "HF_HOME": str(model_home),
+            "HF_HUB_OFFLINE": "1",
+            "TRANSFORMERS_OFFLINE": "1",
+            "PYTHONNOUSERSITE": "1",
+            "PYTHONPATH": str(TARGET_SITE),
+            "LIBRARY_PATH": REAL_DRIVER_DIRECTORY,
+            "LDFLAGS": (
+                "-L/usr/local/nvidia/lib64 "
+                "-Wl,-rpath,/usr/local/nvidia/lib64"
+            ),
+            "LD_LIBRARY_PATH": os.pathsep.join(
+                [*libraries, REAL_DRIVER_DIRECTORY]
+            ),
+        }
+    )
+    return environment
+
+def validate_target_runtime() -> dict[str, object]:
+    program = r"""
+import importlib.metadata
+import json
+import torch
+import triton
+import vllm
+from vllm.v1.attention.backends.registry import AttentionBackendEnum
+
+backend = AttentionBackendEnum.TRITON_ATTN
+print(json.dumps({
+    "torch": torch.__version__,
+    "cuda": torch.version.cuda,
+    "triton": importlib.metadata.version("triton"),
+    "vllm": importlib.metadata.version("vllm"),
+    "backend_path": backend.get_path(),
+    "backend_overridden": backend.is_overridden(),
+    "cuda_available": torch.cuda.is_available(),
+    "device_name": torch.cuda.get_device_name(0),
+    "compute_capability": list(torch.cuda.get_device_capability(0)),
+}, separators=(",", ":"), sort_keys=True))
+"""
+    # Execute a direct isolated program before any worker startup.
+    argv = [
+        sys.executable,
+        "-S",
+        "-c",
+        (
+            "import site,sys,types;"
+            f"target={str(TARGET_SITE)!r};"
+            "sys.modules['sitecustomize']=types.ModuleType('sitecustomize');"
+            "sys.modules['usercustomize']=types.ModuleType('usercustomize');"
+            "site.main();"
+            "sys.path[:]=[target]+[p for p in sys.path if "
+            "('site-packages' not in p and 'dist-packages' not in p) or p==target];"
+            + program
+        ),
+    ]
+    result = subprocess.run(
+        argv,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=120,
+        env=process_tree_environment(0, OUTPUT_ROOT / "model_home"),
+    )
+    if result.returncode != 0:
+        raise RuntimeError("target runtime identity validation failed")
+    payload = json.loads(result.stdout.strip().splitlines()[-1])
+    expected = {
+        "torch": EXPECTED_TORCH_VERSION,
+        "cuda": EXPECTED_TORCH_CUDA,
+        "triton": EXPECTED_TRITON_VERSION,
+        "vllm": EXPECTED_VLLM_VERSION,
+        "backend_path": EXPECTED_BACKEND_CLASS,
+        "backend_overridden": False,
+        "cuda_available": True,
+        "device_name": EXPECTED_GPU_NAME,
+        "compute_capability": [7, 5],
+    }
+    if payload != expected:
+        raise RuntimeError("target runtime identity drifted")
+    return payload
+
+
+def _path_within_target(value: str) -> bool:
+    path = Path(value).resolve()
+    target = TARGET_SITE.resolve()
+    return path == target or target in path.parents
+
+
+def validate_import_closure_payload(
+    payload: dict[str, object],
+) -> dict[str, object]:
+    parent_executable = payload.get("parent_python_executable")
+    parent_pythonpath = payload.get("parent_pythonpath")
+    child_returncode = payload.get("child_returncode")
+    child = payload.get("child")
+    if not isinstance(parent_executable, str):
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+            "import-closure parent executable is invalid",
+        )
+    if parent_pythonpath != str(TARGET_SITE):
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+            "import-closure parent PYTHONPATH drifted",
+        )
+    if child_returncode != 0 or not isinstance(child, dict):
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+            "nested import-closure child failed",
+        )
+    child_executable = child.get("python_executable")
+    child_pythonpath = child.get("pythonpath")
+    modules = child.get("modules")
+    if not isinstance(child_executable, str):
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+            "import-closure child executable is invalid",
+        )
+    if child_pythonpath != str(TARGET_SITE):
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+            "import-closure child PYTHONPATH drifted",
+        )
+    if not isinstance(modules, dict):
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+            "import-closure module inventory is invalid",
+        )
+    if set(modules) != set(IMPORT_CLOSURE_MODULES):
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+            "import-closure module inventory drifted",
+        )
+    origins: dict[str, str] = {}
+    for name in IMPORT_CLOSURE_MODULES:
+        item = modules.get(name)
+        if not isinstance(item, dict):
+            raise DiagnosticFailure(
+                "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+                f"import-closure module record is invalid: {name}",
+            )
+        origin = item.get("origin")
+        if not isinstance(origin, str) or not _path_within_target(origin):
+            raise DiagnosticFailure(
+                "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+                f"critical module resolved outside target site: {name}",
+            )
+        origins[name] = origin
+    return {
+        "parent_python_executable": parent_executable,
+        "parent_pythonpath": parent_pythonpath,
+        "child_python_executable": child_executable,
+        "child_pythonpath": child_pythonpath,
+        "critical_module_origins": origins,
+        "all_critical_origins_within_target_site": True,
+    }
+
+
+def validate_process_tree_import_closure(
+    counters: dict[str, int],
+) -> dict[str, object]:
+    if not EXPECTED_CHILD_PYTHON.is_file():
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+            "expected nested Python executable is unavailable",
+        )
+    child_program = r"""
+import importlib
+import json
+import os
+import sys
+
+module_names = (
+    "vllm",
+    "torch",
+    "triton",
+    "transformers",
+    "vllm.model_executor.models.registry",
+)
+modules = {}
+for name in module_names:
+    module = importlib.import_module(name)
+    origin = getattr(module, "__file__", None)
+    if not isinstance(origin, str):
+        raise RuntimeError(f"module origin is unavailable: {name}")
+    modules[name] = {"origin": origin}
+print(json.dumps({
+    "python_executable": sys.executable,
+    "pythonpath": os.environ.get("PYTHONPATH"),
+    "modules": modules,
+}, separators=(",", ":"), sort_keys=True))
+"""
+    parent_program = r"""
+import json
+import os
+import subprocess
+import sys
+
+child_program = sys.argv[1]
+child_executable = sys.argv[2]
+completed = subprocess.run(
+    [child_executable, "-c", child_program],
+    check=False,
+    capture_output=True,
+    text=True,
+    timeout=90,
+)
+child_payload = None
+if completed.stdout.strip():
+    child_payload = json.loads(completed.stdout.strip().splitlines()[-1])
+print(json.dumps({
+    "parent_python_executable": sys.executable,
+    "parent_pythonpath": os.environ.get("PYTHONPATH"),
+    "child_returncode": completed.returncode,
+    "child": child_payload,
+}, separators=(",", ":"), sort_keys=True))
+if completed.stderr:
+    print(completed.stderr[-16000:], file=sys.stderr)
+raise SystemExit(0 if completed.returncode == 0 else 3)
+"""
+    environment = process_tree_environment(
+        0,
+        SCRATCH_ROOT / "import_closure_model_home",
+    )
+    capture_root = SCRATCH_ROOT / "import_closure_logs"
+    consume_actions(counters, "runtime_import_closure_probes")
+    process = run_bounded_process(
+        "runtime_process_tree_import_closure",
+        [
+            str(EXPECTED_CHILD_PYTHON),
+            "-c",
+            parent_program,
+            child_program,
+            str(EXPECTED_CHILD_PYTHON),
+        ],
+        timeout_seconds=120.0,
+        environment=environment,
+        capture_root=capture_root,
+    )
+    stdout_path = (
+        capture_root / "runtime_process_tree_import_closure.stdout.log"
+    )
+    payload: dict[str, object] | None = None
+    if stdout_path.is_file():
+        lines = tuple(
+            line
+            for line in stdout_path.read_text(
+                encoding="utf-8",
+                errors="replace",
+            ).splitlines()
+            if line.strip()
+        )
+        if lines:
+            raw = json.loads(lines[-1])
+            if isinstance(raw, dict):
+                payload = raw
+    report = {
+        **process,
+        "report_id": (
+            "auragateway-p3-p6-runtime-import-closure-report-v3"
+        ),
+        "target_site": str(TARGET_SITE),
+        "pythonpath_exact_target_site": (
+            environment.get("PYTHONPATH") == str(TARGET_SITE)
+        ),
+        "inherited_pythonpath_replaced": True,
+        "nested_interpreter_depth": 2,
+        "critical_modules": list(IMPORT_CLOSURE_MODULES),
+        "model_loads_consumed": 0,
+        "worker_starts_consumed": 0,
+        "network_access_requested": False,
+        "hidden_retry_count": 0,
+    }
+    if process["status"] != "PASSED" or payload is None:
+        write_json(
+            OUTPUT_ROOT / "runtime_import_closure_report_v3.json",
+            report,
+        )
+        raise DiagnosticFailure(
+            "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED",
+            "nested target-runtime import-closure probe failed",
+        )
+    validated = validate_import_closure_payload(payload)
+    report.update(validated)
+    report["status"] = "PASSED"
+    report["decision"] = "PROCESS_TREE_IMPORT_CLOSURE_PASSED"
+    write_json(
+        OUTPUT_ROOT / "runtime_import_closure_report_v3.json",
+        report,
+    )
+    return report
+
+class Worker:
+    def __init__(
+        self,
+        worker_id: str,
+        gpu_index: int,
+        port: int,
+        model_home: Path,
+        snapshot: Path,
+    ) -> None:
+        self.worker_id = worker_id
+        self.gpu_index = gpu_index
+        self.port = port
+        self.model_home = model_home
+        self.snapshot = snapshot
+        self.process: subprocess.Popen[bytes] | None = None
+        self.backend_marker_poll_count = 0
+        self.stdout = BoundedCapture(LOG_ROOT / f"{worker_id}.stdout.log")
+        self.stderr = BoundedCapture(LOG_ROOT / f"{worker_id}.stderr.log")
+        self.argv = controlled_python(
+            "vllm.entrypoints.openai.api_server",
+            "--model",
+            MODEL_REPOSITORY,
+            "--revision",
+            MODEL_REVISION,
+            "--tokenizer",
+            MODEL_REPOSITORY,
+            "--tokenizer-revision",
+            MODEL_REVISION,
+            "--served-model-name",
+            SERVED_MODEL_NAME,
+            "--host",
+            "127.0.0.1",
+            "--port",
+            str(port),
+            "--dtype",
+            "auto",
+            "--max-model-len",
+            "4096",
+            "--gpu-memory-utilization",
+            "0.85",
+            "--max-num-seqs",
+            "8",
+            "--enable-prefix-caching",
+            "--attention-backend",
+            EXPECTED_BACKEND,
+            "--no-enable-log-requests",
+        )
+        self.env = process_tree_environment(gpu_index, model_home)
+
+    def start(self, counters: dict[str, int]) -> None:
+        if self.process is not None:
+            raise RuntimeError("worker has already been started")
+        if port_open(self.port):
+            raise RuntimeError(f"worker port already open: {self.port}")
+        consume_actions(counters, "worker_starts", "model_loads")
+        self.process = subprocess.Popen(
+            self.argv,
+            env=self.env,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=False,
+            bufsize=0,
+        )
+        self.stdout.start(self.process.stdout)
+        self.stderr.start(self.process.stderr)
+
+    def stop(self) -> None:
+        if self.process is None:
+            return
+        if self.process.poll() is None:
+            self.process.terminate()
+        try:
+            self.process.wait(timeout=20)
+        except subprocess.TimeoutExpired:
+            self.process.kill()
+            self.process.wait(timeout=10)
+        if self.stdout.thread is not None:
+            self.stdout.thread.join(timeout=5)
+        if self.stderr.thread is not None:
+            self.stderr.thread.join(timeout=5)
+
+    def wait_ready(self) -> None:
+        if self.process is None:
+            raise RuntimeError("worker was not started")
+        for index in range(MAX_HEALTH_POLLS):
+            returncode = self.process.poll()
+            if returncode is not None:
+                raise RuntimeError(
+                    f"{self.worker_id} exited before readiness: {returncode}"
+                )
+            try:
+                request = urllib.request.Request(
+                    f"http://127.0.0.1:{self.port}/health",
+                    method="GET",
+                )
+                with urllib.request.urlopen(request, timeout=2) as response:
+                    if response.status == 200:
+                        return
+            except (OSError, urllib.error.URLError):
+                pass
+            if index + 1 == MAX_HEALTH_POLLS:
+                raise RuntimeError(
+                    f"{self.worker_id} failed bounded readiness polling"
+                )
+            time.sleep(HEALTH_POLL_SECONDS)
+
+    def validate_model(self) -> None:
+        payload = get_json(f"http://127.0.0.1:{self.port}/v1/models")
+        data = payload.get("data")
+        if not isinstance(data, list) or len(data) != 1:
+            raise RuntimeError("served-model inventory is invalid")
+        item = data[0]
+        if not isinstance(item, dict) or item.get("id") != SERVED_MODEL_NAME:
+            raise RuntimeError("served-model identity drifted")
+
+    def backend_marker(self) -> bool:
+        text = (self.stdout.text() + "\n" + self.stderr.text()).lower()
+        return "triton_attn" in text and "attention backend" in text
+
+    def wait_backend_marker(self) -> None:
+        if self.process is None:
+            raise RuntimeError("worker was not started")
+        for index in range(20):
+            if self.backend_marker():
+                self.backend_marker_poll_count = index + 1
+                return
+            if self.process.poll() is not None:
+                raise RuntimeError(
+                    f"{self.worker_id} exited before backend realization"
+                )
+            time.sleep(0.25)
+        raise RuntimeError(
+            f"{self.worker_id} explicit backend marker was not observed"
+        )
+
+    def metrics(self) -> dict[str, float]:
+        return parse_metrics(
+            get_text(f"http://127.0.0.1:{self.port}/metrics")
+        )
+
+    def report(self) -> dict[str, object]:
+        if self.process is None:
+            raise RuntimeError("worker was not started")
+        return {
+            "worker_id": self.worker_id,
+            "gpu_index": self.gpu_index,
+            "port": self.port,
+            "pid": self.process.pid,
+            "argv_sha256": sha256_text(canonical_json(self.argv)),
+            "explicit_attention_backend": EXPECTED_BACKEND,
+            "backend_log_marker_observed": self.backend_marker(),
+            "backend_marker_poll_count": self.backend_marker_poll_count,
+            "stdout": self.stdout.snapshot(),
+            "stderr": self.stderr.snapshot(),
+        }
+
+    def failure_diagnostics(self) -> dict[str, object]:
+        return {
+            "worker_id": self.worker_id,
+            "gpu_index": self.gpu_index,
+            "port": self.port,
+            "returncode": (
+                None if self.process is None else self.process.poll()
+            ),
+            "argv_sha256": sha256_text(canonical_json(self.argv)),
+            "pythonpath": self.env.get("PYTHONPATH"),
+            "pythonpath_exact_target_site": (
+                self.env.get("PYTHONPATH") == str(TARGET_SITE)
+            ),
+            "stdout": self.stdout.snapshot(),
+            "stderr": self.stderr.snapshot(),
+            "stdout_tail": sanitize_excerpt(self.stdout.text()),
+            "stderr_tail": sanitize_excerpt(self.stderr.text()),
+        }
+
+
+def parse_metrics(payload: str) -> dict[str, float]:
+    samples: dict[str, float] = {}
+    for line in payload.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        fields = stripped.split()
+        if len(fields) < 2:
+            continue
+        name = fields[0].split("{", maxsplit=1)[0]
+        try:
+            value = float(fields[-1])
+        except ValueError:
+            continue
+        samples[name] = samples.get(name, 0.0) + value
+    return samples
+
+
+METRIC_NAMES = {
+    "cached_prefix_tokens": ("vllm:prompt_tokens_cached_total",),
+    "newly_computed_prefill_tokens": (
+        "vllm:request_prefill_kv_computed_tokens_sum",
+    ),
+    "prompt_tokens": ("vllm:request_prompt_tokens_sum",),
+    "request_latency_seconds": (
+        "vllm:e2e_request_latency_seconds_sum",
+    ),
+    "time_to_first_token_seconds": (
+        "vllm:time_to_first_token_seconds_sum",
+    ),
+}
+
+
+def metric_snapshot(samples: dict[str, float]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for semantic, candidates in METRIC_NAMES.items():
+        selected = next(
+            (name for name in candidates if name in samples),
+            None,
+        )
+        if selected is None:
+            raise RuntimeError(f"required metric unavailable: {semantic}")
+        result[semantic] = {
+            "raw_name": selected,
+            "value": samples[selected],
+        }
+    return result
+
+
+def metric_delta(
+    before: dict[str, object],
+    after: dict[str, object],
+) -> dict[str, float]:
+    result: dict[str, float] = {}
+    for semantic in METRIC_NAMES:
+        before_item = before[semantic]
+        after_item = after[semantic]
+        if not isinstance(before_item, dict) or not isinstance(after_item, dict):
+            raise RuntimeError("metric snapshot shape is invalid")
+        if before_item["raw_name"] != after_item["raw_name"]:
+            raise RuntimeError("metric identity drifted")
+        delta = float(after_item["value"]) - float(before_item["value"])
+        if delta < 0:
+            raise RuntimeError(f"metric counter regressed: {semantic}")
+        result[semantic] = delta
+    return result
+
+
+def request_payload(suffix: str) -> dict[str, object]:
+    return {
+        "model": SERVED_MODEL_NAME,
+        "messages": [
+            {"role": "system", "content": FIXED_PREFIX},
+            {"role": "user", "content": suffix},
+        ],
+        "max_tokens": 32,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "seed": 7,
+        "stream": False,
+    }
+
+
+def validate_structured_response(
+    content: str,
+    expected_json: str,
+) -> dict[str, object]:
+    try:
+        observed = json.loads(content)
+        expected = json.loads(expected_json)
+    except json.JSONDecodeError as error:
+        raise RuntimeError("model response is not valid JSON") from error
+    if not isinstance(observed, dict) or not isinstance(expected, dict):
+        raise RuntimeError("structured response root must be one object")
+    if observed != expected:
+        raise RuntimeError("structured response differs from the requested object")
+    return observed
+
+
+def run_request(
+    worker: Worker,
+    suffix: str,
+    counters: dict[str, int],
+) -> dict[str, object]:
+    before = metric_snapshot(worker.metrics())
+    consume_actions(counters, "model_requests")
+    response = post_json(
+        f"http://127.0.0.1:{worker.port}/v1/chat/completions",
+        request_payload(suffix),
+    )
+    after = metric_snapshot(worker.metrics())
+    usage = response.get("usage")
+    choices = response.get("choices")
+    if not isinstance(usage, dict):
+        raise RuntimeError("response usage is missing")
+    if not isinstance(choices, list) or len(choices) != 1:
+        raise RuntimeError("response choices are invalid")
+    choice = choices[0]
+    if not isinstance(choice, dict):
+        raise RuntimeError("response choice is invalid")
+    message = choice.get("message")
+    if not isinstance(message, dict):
+        raise RuntimeError("response message is invalid")
+    content = message.get("content")
+    if not isinstance(content, str) or not content:
+        raise RuntimeError("response content is empty")
+    output_tokens = usage.get("completion_tokens")
+    prompt_tokens = usage.get("prompt_tokens")
+    if not isinstance(output_tokens, int) or not 1 <= output_tokens <= 32:
+        raise RuntimeError("completion token budget drifted")
+    if not isinstance(prompt_tokens, int) or prompt_tokens <= 0:
+        raise RuntimeError("prompt token count is invalid")
+    structured = validate_structured_response(content, suffix)
+    return {
+        "response_content_sha256": sha256_text(content),
+        "structured_output_sha256": sha256_text(canonical_json(structured)),
+        "structured_output_valid": True,
+        "finish_reason": choice.get("finish_reason"),
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": output_tokens,
+        "metric_delta": metric_delta(before, after),
+    }
+
+
+def gpu_uuid_map() -> dict[int, str]:
+    result = subprocess.run(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,uuid,name,compute_cap",
+            "--format=csv,noheader,nounits",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if result.returncode != 0:
+        raise RuntimeError("GPU identity command failed")
+    mapping: dict[int, str] = {}
+    for line in result.stdout.splitlines():
+        parts = tuple(part.strip() for part in line.split(","))
+        if len(parts) != 4:
+            raise RuntimeError("GPU identity output is malformed")
+        index = int(parts[0])
+        name = "Tesla T4" if parts[2] == "NVIDIA T4" else parts[2]
+        if index not in {0, 1}:
+            raise RuntimeError("unexpected GPU index")
+        if name != EXPECTED_GPU_NAME or parts[3] != EXPECTED_COMPUTE_CAPABILITY:
+            raise RuntimeError("GPU identity drifted")
+        mapping[index] = parts[1]
+    if set(mapping) != {0, 1}:
+        raise RuntimeError("expected exactly two GPUs")
+    return mapping
+
+
+def process_parent_map() -> dict[int, int]:
+    result = subprocess.run(
+        ["ps", "-eo", "pid=,ppid="],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if result.returncode != 0:
+        raise RuntimeError("process topology command failed")
+    mapping: dict[int, int] = {}
+    for line in result.stdout.splitlines():
+        fields = line.split()
+        if len(fields) == 2:
+            mapping[int(fields[0])] = int(fields[1])
+    return mapping
+
+
+def descendants(root_pid: int, parents: dict[int, int]) -> set[int]:
+    result = {root_pid}
+    changed = True
+    while changed:
+        changed = False
+        for pid, parent in parents.items():
+            if parent in result and pid not in result:
+                result.add(pid)
+                changed = True
+    return result
+
+
+def compute_processes() -> dict[int, str]:
+    result = subprocess.run(
+        [
+            "nvidia-smi",
+            "--query-compute-apps=pid,gpu_uuid",
+            "--format=csv,noheader,nounits",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if result.returncode != 0:
+        raise RuntimeError("GPU process command failed")
+    mapping: dict[int, str] = {}
+    for line in result.stdout.splitlines():
+        parts = tuple(part.strip() for part in line.split(","))
+        if len(parts) == 2 and parts[0].isdigit():
+            mapping[int(parts[0])] = parts[1]
+    return mapping
+
+
+def validate_gpu_process_isolation(
+    worker_1: Worker,
+    worker_2: Worker,
+) -> dict[str, object]:
+    if worker_1.process is None or worker_2.process is None:
+        raise RuntimeError("workers are not running")
+    uuids = gpu_uuid_map()
+    parents = process_parent_map()
+    gpu_processes = compute_processes()
+    worker_1_pids = descendants(worker_1.process.pid, parents)
+    worker_2_pids = descendants(worker_2.process.pid, parents)
+    worker_1_gpu_pids = {
+        pid for pid in worker_1_pids if gpu_processes.get(pid) == uuids[0]
+    }
+    worker_2_gpu_pids = {
+        pid for pid in worker_2_pids if gpu_processes.get(pid) == uuids[1]
+    }
+    wrong_1 = {
+        pid for pid in worker_1_pids if gpu_processes.get(pid) == uuids[1]
+    }
+    wrong_2 = {
+        pid for pid in worker_2_pids if gpu_processes.get(pid) == uuids[0]
+    }
+    if not worker_1_gpu_pids or not worker_2_gpu_pids:
+        raise RuntimeError("GPU process attribution is incomplete")
+    if wrong_1 or wrong_2:
+        raise RuntimeError("worker GPU process isolation failed")
+    if worker_1_pids & worker_2_pids:
+        raise RuntimeError("worker process trees overlap")
+    return {
+        "worker_1_gpu_process_count": len(worker_1_gpu_pids),
+        "worker_2_gpu_process_count": len(worker_2_gpu_pids),
+        "worker_process_trees_disjoint": True,
+        "worker_1_bound_to_gpu_0": True,
+        "worker_2_bound_to_gpu_1": True,
+    }
+
+
+def route_isolation(
+    worker_1: Worker,
+    worker_2: Worker,
+    counters: dict[str, int],
+) -> dict[str, object]:
+    before_1 = metric_snapshot(worker_1.metrics())
+    before_2 = metric_snapshot(worker_2.metrics())
+    first = run_request(worker_1, '{"route":"worker_1"}', counters)
+    after_first_1 = metric_snapshot(worker_1.metrics())
+    after_first_2 = metric_snapshot(worker_2.metrics())
+    delta_first_1 = metric_delta(before_1, after_first_1)
+    delta_first_2 = metric_delta(before_2, after_first_2)
+    if delta_first_1["prompt_tokens"] <= 0:
+        raise RuntimeError("worker_1 route did not increment worker_1 metrics")
+    if delta_first_2["prompt_tokens"] != 0:
+        raise RuntimeError("worker_1 route changed worker_2 metrics")
+
+    second = run_request(worker_2, '{"route":"worker_2"}', counters)
+    after_second_1 = metric_snapshot(worker_1.metrics())
+    after_second_2 = metric_snapshot(worker_2.metrics())
+    delta_second_1 = metric_delta(after_first_1, after_second_1)
+    delta_second_2 = metric_delta(after_first_2, after_second_2)
+    if delta_second_2["prompt_tokens"] <= 0:
+        raise RuntimeError("worker_2 route did not increment worker_2 metrics")
+    if delta_second_1["prompt_tokens"] != 0:
+        raise RuntimeError("worker_2 route changed worker_1 metrics")
+    return {
+        "worker_1_request": first,
+        "worker_2_request": second,
+        "worker_1_route_isolated": True,
+        "worker_2_route_isolated": True,
+    }
+
+
+def bundle_outputs() -> dict[str, object]:
+    required_before_manifest = set(OUTPUT_NAMES) - {"bundle_manifest_v3.json"}
+    observed_before_manifest = {
+        path.name for path in OUTPUT_ROOT.iterdir() if path.is_file()
+    }
+    missing = required_before_manifest - observed_before_manifest
+    unexpected = observed_before_manifest - required_before_manifest
+    if missing or unexpected:
+        raise RuntimeError(
+            "runtime evidence output contract drifted: "
+            + canonical_json(
+                {
+                    "missing": sorted(missing),
+                    "unexpected": sorted(unexpected),
+                }
+            )
+        )
+    entries = []
+    for name in OUTPUT_NAMES:
+        path = OUTPUT_ROOT / name
+        if not path.is_file():
+            continue
+        entries.append(
+            {
+                "path": name,
+                "sha256": file_sha256(path),
+                "size_bytes": path.stat().st_size,
+            }
+        )
+    manifest_payload = {
+        "schema_version": "1.0.0",
+        "diagnostic_id": "auragateway-cu129-p3-p6-runtime-diagnostic-v3",
+        "source_main_commit": SOURCE_MAIN_COMMIT,
+        "members": [
+            item for item in entries if item["path"] != "bundle_manifest_v3.json"
+        ],
+        "scratch_directories_included": False,
+        "worker_log_directory_included": False,
+    }
+    write_json(OUTPUT_ROOT / "bundle_manifest_v3.json", manifest_payload)
+    with zipfile.ZipFile(
+        EVIDENCE_ZIP,
+        "w",
+        compression=zipfile.ZIP_DEFLATED,
+        compresslevel=9,
+    ) as archive:
+        for name in OUTPUT_NAMES:
+            path = OUTPUT_ROOT / name
+            if path.is_file():
+                archive.write(path, arcname=name)
+    if EVIDENCE_ZIP.stat().st_size > MAX_EVIDENCE_ZIP_BYTES:
+        raise RuntimeError("runtime evidence ZIP exceeds the byte budget")
+    return {
+        "evidence_zip": str(EVIDENCE_ZIP),
+        "evidence_zip_sha256": file_sha256(EVIDENCE_ZIP),
+        "evidence_zip_size_bytes": EVIDENCE_ZIP.stat().st_size,
+    }
+
+
+def write_probe_terminal_reports(
+    completed: list[str],
+    failed_probe: str | None,
+    failure_code: str | None,
+) -> None:
+    reports = (
+        ("P3", "p3_worker_startup_report_v3.json"),
+        ("P4", "p4_deterministic_request_report_v3.json"),
+        ("P5", "p5_prefix_cache_reset_report_v3.json"),
+        ("P6", "p6_dual_worker_isolation_report_v3.json"),
+    )
+    for probe_id, name in reports:
+        path = OUTPUT_ROOT / name
+        if path.is_file():
+            continue
+        is_failed_probe = failed_probe == probe_id
+        blocked_by = None
+        if not is_failed_probe:
+            blocked_by = failed_probe or failure_code or "UPSTREAM_PRECONDITION"
+        write_json(
+            path,
+            {
+                "schema_version": "1.0.0",
+                "probe_id": probe_id,
+                "status": "FAILED" if is_failed_probe else "NOT_RUN",
+                "decision": (
+                    f"{probe_id}_FAILED"
+                    if is_failed_probe
+                    else f"{probe_id}_NOT_RUN"
+                ),
+                "blocked_by": blocked_by,
+                "failure_code": failure_code,
+                "completed_probes_before_terminal_state": completed,
+                "model_requests_performed": False,
+                "raw_prompt_logged": False,
+                "raw_output_logged": False,
+            },
+        )
+
+
+def ensure_install_report(failure_code: str | None) -> None:
+    path = OUTPUT_ROOT / "runtime_install_report_v3.json"
+    if path.is_file():
+        return
+    write_json(
+        path,
+        {
+            "schema_version": "1.0.0",
+            "report_id": "auragateway-p3-p6-runtime-install-report-v3",
+            "command_role": "offline_target_runtime_install",
+            "status": "NOT_RUN",
+            "process_outcome": "NOT_RUN",
+            "reason": failure_code or "runtime installation was not reached",
+            "returncode": None,
+            "timed_out": False,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "failure_signals": [],
+            "network_access_requested": False,
+            "hidden_retry_count": 0,
+            "model_copy_completed_before_install": False,
+            "root_cause_review_required": False,
+        },
+    )
+
+
+def ensure_import_closure_report(failure_code: str | None) -> None:
+    path = OUTPUT_ROOT / "runtime_import_closure_report_v3.json"
+    if path.is_file():
+        return
+    write_json(
+        path,
+        {
+            "schema_version": "1.0.0",
+            "report_id": (
+                "auragateway-p3-p6-runtime-import-closure-report-v3"
+            ),
+            "status": "NOT_RUN",
+            "process_outcome": "NOT_RUN",
+            "reason": (
+                failure_code
+                or "runtime import-closure probe was not reached"
+            ),
+            "target_site": str(TARGET_SITE),
+            "pythonpath_exact_target_site": False,
+            "nested_interpreter_depth": 2,
+            "model_loads_consumed": 0,
+            "worker_starts_consumed": 0,
+            "network_access_requested": False,
+            "hidden_retry_count": 0,
+        },
+    )
+
+def cleanup_scratch() -> dict[str, object]:
+    before = directory_snapshot(SCRATCH_ROOT)
+    status = "PASSED"
+    error_type = None
+    safe_message = None
+    try:
+        if SCRATCH_ROOT.exists():
+            shutil.rmtree(SCRATCH_ROOT)
+    except OSError as error:
+        status = "FAILED"
+        error_type = type(error).__name__
+        safe_message = sanitize_excerpt(str(error))
+    report = {
+        "schema_version": "1.0.0",
+        "report_id": "auragateway-p3-p6-scratch-cleanup-v3",
+        "status": status,
+        "scratch_before": before,
+        "scratch_exists_after": SCRATCH_ROOT.exists(),
+        "error_type": error_type,
+        "safe_message": safe_message,
+    }
+    write_json(OUTPUT_ROOT / "scratch_cleanup_report_v3.json", report)
+    return report
+
+
+def main() -> int:
+    if OUTPUT_ROOT.exists() or SCRATCH_ROOT.exists() or EVIDENCE_ZIP.exists():
+        raise RuntimeError("P3-P6 V3 output or scratch path already exists")
+    OUTPUT_ROOT.mkdir(parents=True)
+    LOG_ROOT.mkdir()
+    SCRATCH_ROOT.mkdir()
+    counters = {
+        "kaggle_sessions": 1,
+        "runtime_install_attempts": 0,
+        "runtime_import_closure_probes": 0,
+        "model_loads": 0,
+        "worker_starts": 0,
+        "model_requests": 0,
+        "benchmark_trajectory_requests": 0,
+        "network_requests": 0,
+        "hidden_retries": 0,
+        "external_spend": 0,
+    }
+    completed: list[str] = []
+    worker_1: Worker | None = None
+    worker_2: Worker | None = None
+    failure: dict[str, object] | None = None
+    terminal = "P3_P6_RUNTIME_DIAGNOSTIC_V3_FAILED"
+    active_failure_code = "P3_P6_PLATFORM_IDENTITY_MISMATCH"
+    failed_probe: str | None = None
+    try:
+        active_failure_code = "P3_P6_PRIVACY_BOUNDARY_VIOLATION"
+        require_private_environment()
+
+        active_failure_code = "P3_P6_WHEELHOUSE_INVALID"
+        wheelhouse = discover_one_directory(RUNTIME_OUTPUT_DIRECTORY)
+        validate_wheelhouse(wheelhouse)
+
+        active_failure_code = "P3_P6_MODEL_IDENTITY_MISMATCH"
+        source_snapshot = discover_model_snapshot()
+
+        active_failure_code = "P3_P6_RUNTIME_INSTALL_FAILED"
+        install_runtime(wheelhouse, counters)
+
+        active_failure_code = "P3_P6_PLATFORM_IDENTITY_MISMATCH"
+        runtime_identity = validate_target_runtime()
+
+        active_failure_code = (
+            "P3_P6_RUNTIME_PROCESS_TREE_IMPORT_CLOSURE_FAILED"
+        )
+        import_closure = validate_process_tree_import_closure(counters)
+
+        active_failure_code = "P3_P6_MODEL_IDENTITY_MISMATCH"
+        model_home, snapshot = prepare_model_home(source_snapshot)
+
+        failed_probe = "P3"
+        active_failure_code = "P3_P6_WORKER_STARTUP_FAILED"
+        worker_1 = Worker(
+            "worker_1",
+            0,
+            8001,
+            model_home,
+            snapshot,
+        )
+        worker_1.start(counters)
+        worker_1.wait_ready()
+
+        active_failure_code = "P3_P6_MODEL_INVENTORY_MISMATCH"
+        worker_1.validate_model()
+
+        active_failure_code = "P3_P6_EXPLICIT_BACKEND_NOT_REALIZED"
+        worker_1.wait_backend_marker()
+        p3 = {
+            "schema_version": "1.0.0",
+            "probe_id": "P3",
+            "status": "PASSED",
+            "decision": "ONE_WORKER_TRITON_STARTUP_PASSED",
+            "runtime_identity": runtime_identity,
+            "runtime_import_closure": import_closure,
+            "worker": worker_1.report(),
+            "model_repository": MODEL_REPOSITORY,
+            "model_revision": MODEL_REVISION,
+            "tokenizer_revision": MODEL_REVISION,
+        }
+        write_json(OUTPUT_ROOT / "p3_worker_startup_report_v3.json", p3)
+        completed.append("P3")
+
+        failed_probe = "P4"
+        active_failure_code = "P3_P6_REQUEST_FAILED"
+        cold = run_request(
+            worker_1,
+            '{"probe":"cold","value":1}',
+            counters,
+        )
+        p4 = {
+            "schema_version": "1.0.0",
+            "probe_id": "P4",
+            "status": "PASSED",
+            "decision": "ONE_REQUEST_RUNTIME_COMPATIBILITY_PASSED",
+            "request": cold,
+            "raw_prompt_logged": False,
+            "raw_output_logged": False,
+        }
+        write_json(
+            OUTPUT_ROOT / "p4_deterministic_request_report_v3.json",
+            p4,
+        )
+        completed.append("P4")
+
+        failed_probe = "P5"
+        active_failure_code = "P3_P6_METRIC_SEMANTIC_UNAVAILABLE"
+        warm = run_request(
+            worker_1,
+            '{"probe":"warm","value":2}',
+            counters,
+        )
+        cold_delta = cold["metric_delta"]
+        warm_delta = warm["metric_delta"]
+        if not isinstance(cold_delta, dict) or not isinstance(warm_delta, dict):
+            raise RuntimeError("P5 metric delta shape is invalid")
+        active_failure_code = "P3_P6_CACHE_REUSE_NOT_OBSERVED"
+        if float(cold_delta["cached_prefix_tokens"]) != 0:
+            raise RuntimeError("cold request unexpectedly observed cached tokens")
+        if float(warm_delta["cached_prefix_tokens"]) <= 0:
+            raise RuntimeError("warm request did not observe cached prefix tokens")
+        if (
+            float(warm_delta["newly_computed_prefill_tokens"])
+            >= float(cold_delta["newly_computed_prefill_tokens"])
+        ):
+            raise RuntimeError("warm request did not reduce computed prefill tokens")
+
+        active_failure_code = "P3_P6_RESET_NOT_PROVEN"
+        old_pid = worker_1.process.pid if worker_1.process is not None else None
+        worker_1.stop()
+        if port_open(8001):
+            raise RuntimeError("worker_1 port remained open after reset stop")
+        worker_1 = Worker(
+            "worker_1",
+            0,
+            8001,
+            model_home,
+            snapshot,
+        )
+        worker_1.start(counters)
+        worker_1.wait_ready()
+        worker_1.validate_model()
+        worker_1.wait_backend_marker()
+        new_pid = worker_1.process.pid if worker_1.process is not None else None
+        if old_pid is None or new_pid is None or old_pid == new_pid:
+            raise RuntimeError("full restart did not create a new worker process")
+        post_reset = run_request(
+            worker_1,
+            '{"probe":"post-reset","value":3}',
+            counters,
+        )
+        post_delta = post_reset["metric_delta"]
+        if not isinstance(post_delta, dict):
+            raise RuntimeError("post-reset metric delta shape is invalid")
+        if float(post_delta["cached_prefix_tokens"]) != 0:
+            raise RuntimeError("post-reset request retained cached prefix tokens")
+        if float(post_delta["newly_computed_prefill_tokens"]) <= 0:
+            raise RuntimeError("post-reset request did not recompute prefill tokens")
+        p5 = {
+            "schema_version": "1.0.0",
+            "probe_id": "P5",
+            "status": "PASSED",
+            "decision": "CACHE_SMOKE_AND_RESET_PASSED",
+            "cold_request": cold,
+            "warm_request": warm,
+            "post_reset_request": post_reset,
+            "old_worker_pid": old_pid,
+            "new_worker_pid": new_pid,
+            "same_worker_prefix_reuse_proven": True,
+            "full_process_restart_reset_proven": True,
+            "namespace_only_reset_used": False,
+        }
+        write_json(
+            OUTPUT_ROOT / "p5_prefix_cache_reset_report_v3.json",
+            p5,
+        )
+        completed.append("P5")
+
+        failed_probe = "P6"
+        active_failure_code = "P3_P6_DUAL_WORKER_ISOLATION_FAILED"
+        worker_2 = Worker(
+            "worker_2",
+            1,
+            8002,
+            model_home,
+            snapshot,
+        )
+        worker_2.start(counters)
+        worker_2.wait_ready()
+        worker_2.validate_model()
+        worker_2.wait_backend_marker()
+        process_isolation = validate_gpu_process_isolation(worker_1, worker_2)
+        routing = route_isolation(worker_1, worker_2, counters)
+        p6 = {
+            "schema_version": "1.0.0",
+            "probe_id": "P6",
+            "status": "PASSED",
+            "decision": "DUAL_WORKER_DIAGNOSTIC_PASSED",
+            "worker_1": worker_1.report(),
+            "worker_2": worker_2.report(),
+            "process_and_gpu_isolation": process_isolation,
+            "route_and_metric_isolation": routing,
+            "ports_distinct": True,
+            "worker_ids_distinct": True,
+        }
+        write_json(
+            OUTPUT_ROOT / "p6_dual_worker_isolation_report_v3.json",
+            p6,
+        )
+        completed.append("P6")
+        failed_probe = None
+        terminal = "P3_P6_RUNTIME_DIAGNOSTIC_V3_PASSED"
+    except Exception as error:
+        if isinstance(error, DiagnosticFailure):
+            error_code = error.error_code
+            safe_message = error.safe_message
+        else:
+            error_code = active_failure_code
+            safe_message = sanitize_excerpt(str(error))[:512] or type(error).__name__
+        failure = {
+            "schema_version": "1.0.0",
+            "status": "FAILED",
+            "failed_after": completed,
+            "failed_probe": failed_probe,
+            "error_code": error_code,
+            "error_type": type(error).__name__,
+            "safe_message": safe_message,
+        }
+        if worker_1 is not None:
+            failure["worker_1_diagnostics"] = (
+                worker_1.failure_diagnostics()
+            )
+        if worker_2 is not None:
+            failure["worker_2_diagnostics"] = (
+                worker_2.failure_diagnostics()
+            )
+        write_json(OUTPUT_ROOT / "failure_report_v3.json", failure)
+    finally:
+        if worker_2 is not None:
+            worker_2.stop()
+        if worker_1 is not None:
+            worker_1.stop()
+
+    passed = completed == ["P3", "P4", "P5", "P6"] and failure is None
+    expected_counters = {
+        "runtime_install_attempts": 1,
+        "runtime_import_closure_probes": 1,
+        "model_loads": 3,
+        "worker_starts": 3,
+        "model_requests": 5,
+        "benchmark_trajectory_requests": 0,
+        "network_requests": 0,
+        "hidden_retries": 0,
+        "external_spend": 0,
+    }
+    if passed:
+        for name, expected in expected_counters.items():
+            if counters[name] != expected:
+                passed = False
+                terminal = "P3_P6_RUNTIME_DIAGNOSTIC_V3_FAILED"
+                failed_probe = None
+                failure = {
+                    "schema_version": "1.0.0",
+                    "status": "FAILED",
+                    "failed_after": completed,
+                    "failed_probe": None,
+                    "error_code": "P3_P6_ACTION_BUDGET_EXCEEDED",
+                    "error_type": "ActionBudgetDrift",
+                    "safe_message": (
+                        f"{name} expected {expected}, observed {counters[name]}"
+                    ),
+                }
+                break
+
+    failure_code = None if failure is None else str(failure["error_code"])
+    ensure_install_report(failure_code)
+    ensure_import_closure_report(failure_code)
+    write_probe_terminal_reports(completed, failed_probe, failure_code)
+
+    if passed and failure is None:
+        write_json(
+            OUTPUT_ROOT / "failure_report_v3.json",
+            {
+                "schema_version": "1.0.0",
+                "status": "NOT_APPLICABLE",
+                "error_code": None,
+                "error_type": None,
+                "safe_message": None,
+                "failed_after": completed,
+                "failed_probe": None,
+            },
+        )
+    elif failure is not None:
+        write_json(OUTPUT_ROOT / "failure_report_v3.json", failure)
+
+    cleanup = cleanup_scratch()
+    if cleanup["status"] != "PASSED":
+        if passed:
+            passed = False
+            terminal = "P3_P6_RUNTIME_DIAGNOSTIC_V3_FAILED"
+            failure = {
+                "schema_version": "1.0.0",
+                "status": "FAILED",
+                "failed_after": completed,
+                "failed_probe": None,
+                "error_code": "P3_P6_SCRATCH_CLEANUP_FAILED",
+                "error_type": cleanup["error_type"],
+                "safe_message": cleanup["safe_message"],
+            }
+            write_json(OUTPUT_ROOT / "failure_report_v3.json", failure)
+        failure_code = str(failure["error_code"]) if failure is not None else None
+
+    install_report = json.loads(
+        (OUTPUT_ROOT / "runtime_install_report_v3.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    import_closure_report = json.loads(
+        (
+            OUTPUT_ROOT / "runtime_import_closure_report_v3.json"
+        ).read_text(encoding="utf-8")
+    )
+    summary = {
+        "schema_version": "1.0.0",
+        "diagnostic_id": "auragateway-cu129-p3-p6-runtime-diagnostic-v3",
+        "source_main_commit": SOURCE_MAIN_COMMIT,
+        "failure_acceptance_record_sha256": FAILURE_ACCEPTANCE_RECORD_SHA256,
+        "failure_acceptance_review_sha256": FAILURE_ACCEPTANCE_REVIEW_SHA256,
+        "v2_implementation_record_sha256": V2_IMPLEMENTATION_RECORD_SHA256,
+        "status": "PASSED" if passed else "FAILED",
+        "terminal_decision": terminal,
+        "completed_probes": completed,
+        "failure_code": None if failure is None else failure["error_code"],
+        "failed_probe": None if failure is None else failure.get("failed_probe"),
+        "runtime_install_status": install_report["status"],
+        "runtime_install_process_outcome": install_report["process_outcome"],
+"runtime_install_failure_signals": install_report.get(
+    "failure_signals",
+    [],
+),
+"runtime_import_closure_status": import_closure_report["status"],
+"runtime_import_closure_process_outcome": (
+    import_closure_report["process_outcome"]
+),
+"stop_on_first_failure": True,
+        "counters": counters,
+        "scratch_cleanup_status": cleanup["status"],
+        "scratch_exists_after_cleanup": cleanup["scratch_exists_after"],
+        "credentials_used": False,
+        "customer_data_present": False,
+        "network_access_permitted": False,
+        "measured_abc_execution_performed": False,
+        "next_gate": (
+            "preserve_and_accept_p3_p6_runtime_diagnostic_v3"
+            if passed
+            else "preserve_and_classify_p3_p6_runtime_failure_v3"
+        ),
+    }
+    write_json(
+        OUTPUT_ROOT / "p3_p6_runtime_diagnostic_summary_v3.json",
+        summary,
+    )
+    human = (
+        "# AuraGateway P3-P6 Runtime Diagnostic V3\n\n"
+        f"- Status: {summary['status']}\n"
+        f"- Terminal decision: {terminal}\n"
+        f"- Runtime install: {summary['runtime_install_process_outcome']}\n"
+        f"- Import closure: {summary['runtime_import_closure_status']}\n"
+        f"- Completed probes: {', '.join(completed) or 'none'}\n"
+        f"- Scratch cleanup: {summary['scratch_cleanup_status']}\n"
+        "- Model requests are synthetic and bounded.\n"
+        "- No A/B/C benchmark trajectory was executed.\n"
+        "- Deployment and production readiness are not claimed.\n"
+    )
+    write_text(OUTPUT_ROOT / "human_report_v3.md", human)
+    bundle = bundle_outputs()
+    terminal_payload = {
+        **summary,
+        **bundle,
+    }
+    print(canonical_json(terminal_payload))
+    return 0 if passed else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
