@@ -1,0 +1,47 @@
+(APIServer pid=61) Traceback (most recent call last):
+(APIServer pid=61)   File "<string>", line 39, in <module>
+(APIServer pid=61)   File "<frozen runpy>", line 229, in run_module
+(APIServer pid=61)   File "<frozen runpy>", line 88, in _run_code
+(APIServer pid=61)   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/entrypoints/openai/api_server.py", line 712, in <module>
+(APIServer pid=61)     uvloop.run(run_server(args))
+(APIServer pid=61)   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/uvloop/__init__.py", line 96, in run
+(APIServer pid=61)     return __asyncio.run(
+(APIServer pid=61)            ^^^^^^^^^^^^^^
+(APIServer pid=61)   File "/usr/lib/python3.12/asyncio/runners.py", line 195, in run
+(APIServer pid=61)     return runner.run(main)
+(APIServer pid=61)            ^^^^^^^^^^^^^^^^
+(APIServer pid=61)   File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+(APIServer pid=61)     return self._loop.run_until_complete(task)
+(APIServer pid=61)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=61)   File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+(APIServer pid=61)   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/uvloop/__init__.py", line 48, in wrapper
+(APIServer pid=61)     return await main
+(APIServer pid=61)            ^^^^^^^^^^
+(APIServer pid=61)   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/entrypoints/openai/api_server.py", line 672, in run_server
+(APIServer pid=61)     await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)
+(APIServer pid=61)   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/entrypoints/openai/api_server.py", line 686, in run_server_worker
+(APIServer pid=61)     async with build_async_engine_client(
+(APIServer pid=61)                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=61)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=61)     return await anext(self.gen)
+(APIServer pid=61)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=61)   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/entrypoints/openai/api_server.py", line 100, in build_async_engine_client
+(APIServer pid=61)     async with build_async_engine_client_from_engine_args(
+(APIServer pid=61)                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=61)   File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+(APIServer pid=61)     return await anext(self.gen)
+(APIServer pid=61)            ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=61)   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/entrypoints/openai/api_server.py", line 124, in build_async_engine_client_from_engine_args
+(APIServer pid=61)     vllm_config = engine_args.create_engine_config(usage_context=usage_context)
+(APIServer pid=61)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=61)   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/engine/arg_utils.py", line 1549, in create_engine_config
+(APIServer pid=61)     model_config = self.create_model_config()
+(APIServer pid=61)                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=61)   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/engine/arg_utils.py", line 1398, in create_model_config
+(APIServer pid=61)     return ModelConfig(
+(APIServer pid=61)            ^^^^^^^^^^^^
+(APIServer pid=61)   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/pydantic/_internal/_dataclasses.py", line 121, in __init__
+(APIServer pid=61)     s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)
+(APIServer pid=61) pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelConfig
+(APIServer pid=61)   Value error, Model architectures ['Qwen2ForCausalLM'] failed to be inspected. Please check the logs for more details. [type=value_error, input_value=ArgsKwargs((), {'model': ...nderer_num_workers': 1}), input_type=ArgsKwargs]
+(APIServer pid=61)     For further information visit https://errors.pydantic.dev/2.13/v/value_error
