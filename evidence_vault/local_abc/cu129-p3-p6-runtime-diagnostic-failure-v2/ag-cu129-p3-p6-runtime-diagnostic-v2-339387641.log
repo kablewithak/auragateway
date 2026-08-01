@@ -1,0 +1,36 @@
+6.5s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.5s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.5s 3 0.00s - to python to disable frozen modules.
+6.5s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+7.0s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.0s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.0s 7 0.00s - to python to disable frozen modules.
+7.0s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+332.2s 9 {"completed_probes":[],"counters":{"benchmark_trajectory_requests":0,"external_spend":0,"hidden_retries":0,"kaggle_sessions":1,"model_loads":1,"model_requests":0,"network_requests":0,"runtime_install_attempts":1,"worker_starts":1},"credentials_used":false,"customer_data_present":false,"diagnostic_id":"auragateway-cu129-p3-p6-runtime-diagnostic-v2","evidence_zip":"/kaggle/working/ag-cu129-p3-p6-runtime-evidence-v2.zip","evidence_zip_sha256":"36e15ed1a1424f15e43dfb1dea46abf5601e3241e2a37d4258ac95041a14a3a2","evidence_zip_size_bytes":8676,"failed_probe":"P3","failure_acceptance_record_sha256":"927990205412968484b24902055e8dc775acb5eb1f3447b525b860b8f448e1fc","failure_acceptance_review_sha256":"f05a3bcfd0873b707f912ad679eefd4ceb8df34e56ce666eb81e36b5106ab631","failure_code":"P3_P6_WORKER_STARTUP_FAILED","measured_abc_execution_performed":false,"network_access_permitted":false,"next_gate":"preserve_and_classify_p3_p6_runtime_failure_v2","runtime_install_failure_signals":[],"runtime_install_process_outcome":"PASSED","runtime_install_status":"PASSED","schema_version":"1.0.0","scratch_cleanup_status":"PASSED","scratch_exists_after_cleanup":false,"source_main_commit":"1849c4b3f9cd36400b30d29ea3b3e67712251815","status":"FAILED","stop_on_first_failure":true,"terminal_decision":"P3_P6_RUNTIME_DIAGNOSTIC_V2_FAILED","v1_implementation_record_sha256":"98762563de31eef4272705af5d647de96a467c6525d3a20dda1543f356880916"}
+332.2s 10 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+332.2s 11 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+332.2s 12 
+332.2s 13 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+332.2s 14 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+332.5s 15 Traceback (most recent call last):
+332.5s 16 File "<string>", line 1, in <module>
+332.5s 17 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+332.5s 18 raise_for_execution_errors(nb, output_path)
+332.5s 19 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+332.5s 20 raise error
+332.5s 21 papermill.exceptions.PapermillExecutionError:
+332.5s 22 ---------------------------------------------------------------------------
+332.5s 23 Exception encountered at "In [1]":
+332.5s 24 An exception has occurred, use %tb to see the full traceback.
+332.5s 25 
+332.5s 26 SystemExit: 2
+332.5s 27 
+332.5s 28 
+334.9s 29 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+334.9s 30 cells[i][c] = re.sub('\\\\\|', '|', cell)
+335.1s 31 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+335.1s 32 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+335.9s 33 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+336.2s 34 [NbConvertApp] Writing 86568 bytes to __notebook__.ipynb
+338.6s 35 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+339.8s 36 [NbConvertApp] Writing 546999 bytes to __results__.html

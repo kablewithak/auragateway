@@ -1,0 +1,34 @@
+(APIServer pid=61) INFO 08-01 00:36:54 [utils.py:299] 
+(APIServer pid=61) INFO 08-01 00:36:54 [utils.py:299]        █     █     █▄   ▄█
+(APIServer pid=61) INFO 08-01 00:36:54 [utils.py:299]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.19.1
+(APIServer pid=61) INFO 08-01 00:36:54 [utils.py:299]   █▄█▀ █     █     █     █  model   Qwen/Qwen2.5-0.5B-Instruct
+(APIServer pid=61) INFO 08-01 00:36:54 [utils.py:299]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=61) INFO 08-01 00:36:54 [utils.py:299] 
+(APIServer pid=61) INFO 08-01 00:36:54 [utils.py:233] non-default args: {'host': '127.0.0.1', 'port': 8001, 'model': 'Qwen/Qwen2.5-0.5B-Instruct', 'tokenizer': 'Qwen/Qwen2.5-0.5B-Instruct', 'revision': '7ae557604adf67be50417f59c2c2f167def9a775', 'tokenizer_revision': '7ae557604adf67be50417f59c2c2f167def9a775', 'max_model_len': 4096, 'served_model_name': ['local-qwen2.5-0.5b-instruct'], 'attention_backend': 'TRITON_ATTN', 'gpu_memory_utilization': 0.85, 'enable_prefix_caching': True, 'max_num_seqs': 8}
+(APIServer pid=61) INFO 08-01 00:36:54 [arg_utils.py:665] HF_HUB_OFFLINE is True, replace model_id [Qwen/Qwen2.5-0.5B-Instruct] to model_path [/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/model_home/hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/7ae557604adf67be50417f59c2c2f167def9a775]
+(APIServer pid=61) INFO 08-01 00:36:54 [arg_utils.py:674] HF_HUB_OFFLINE is True, replace tokenizer_id [Qwen/Qwen2.5-0.5B-Instruct] to tokenizer_path [/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/model_home/hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/7ae557604adf67be50417f59c2c2f167def9a775]
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882] Error in inspecting model architecture 'Qwen2ForCausalLM'
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882] Traceback (most recent call last):
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/model_executor/models/registry.py", line 1306, in _run_in_subprocess
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]     returned.check_returncode()
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]   File "/usr/lib/python3.12/subprocess.py", line 502, in check_returncode
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]     raise CalledProcessError(self.returncode, self.args, self.stdout,
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882] subprocess.CalledProcessError: Command '['/usr/bin/python3', '-m', 'vllm.model_executor.models.registry']' returned non-zero exit status 1.
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882] 
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882] The above exception was the direct cause of the following exception:
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882] 
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882] Traceback (most recent call last):
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/model_executor/models/registry.py", line 880, in _try_inspect_model_cls
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]     return model.inspect_model_cls()
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]            ^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/logging_utils/log_time.py", line 21, in _wrapper
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]     result = func(*args, **kwargs)
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]              ^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/model_executor/models/registry.py", line 841, in inspect_model_cls
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]     mi = _run_in_subprocess(
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]          ^^^^^^^^^^^^^^^^^^^
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]   File "/kaggle/working/p3_p6_runtime_diagnostic_v2_scratch/target_runtime/site-packages/vllm/model_executor/models/registry.py", line 1309, in _run_in_subprocess
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882]     raise RuntimeError(
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882] RuntimeError: Error raised in subprocess:
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882] /usr/bin/python3: Error while finding module specification for 'vllm.model_executor.models.registry' (ModuleNotFoundError: No module named 'vllm')
+(APIServer pid=61) ERROR 08-01 00:36:55 [registry.py:882] 

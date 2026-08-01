@@ -1,0 +1,1 @@
+{"blocked_by":null,"completed_probes_before_terminal_state":[],"decision":"P3_FAILED","failure_code":"P3_P6_WORKER_STARTUP_FAILED","model_requests_performed":false,"probe_id":"P3","raw_output_logged":false,"raw_prompt_logged":false,"schema_version":"1.0.0","status":"FAILED"}
