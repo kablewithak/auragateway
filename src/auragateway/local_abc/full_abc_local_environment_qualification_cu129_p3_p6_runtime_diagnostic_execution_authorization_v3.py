@@ -346,7 +346,7 @@ class AuthorizationIssuanceConfirmation(LocalABCContract):
 
     schema_version: Literal["1.0.0"] = "1.0.0"
     confirmation_id: Literal[
-        "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-confirmation-v2"
+        "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-confirmation-v3"
     ]
     operator_confirmed: Literal[True]
     confirmed_at: datetime
@@ -421,7 +421,7 @@ class P3P6AuthorizationConsumption(LocalABCContract):
 
     schema_version: Literal["1.0.0"] = "1.0.0"
     consumption_id: Literal[
-        "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-consumption-v2"
+        "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-consumption-v3"
     ]
     authorization_id: Literal[
         "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-v3"
@@ -1262,7 +1262,7 @@ def consume_authorization(
     authorization_payload = authorization.canonical_json().encode("utf-8")
     receipt = P3P6AuthorizationConsumption(
         consumption_id=(
-            "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-consumption-v2"
+            "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-consumption-v3"
         ),
         authorization_id=AUTHORIZATION_ID,
         authorization_sha256=_sha256_bytes(authorization_payload),
@@ -1352,7 +1352,7 @@ def main(argv: list[str] | None = None) -> int:
             confirmation = AuthorizationIssuanceConfirmation(
                 confirmation_id=(
                     "auragateway-cu129-p3-p6-runtime-diagnostic-"
-                    "execution-authorization-confirmation-v2"
+                    "execution-authorization-confirmation-v3"
                 ),
                 operator_confirmed=True,
                 confirmed_at=datetime.now(UTC),
