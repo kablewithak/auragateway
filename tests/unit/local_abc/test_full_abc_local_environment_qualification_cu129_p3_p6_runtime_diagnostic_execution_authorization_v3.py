@@ -31,7 +31,7 @@ def _confirmation(
 ) -> Any:
     return module.AuthorizationIssuanceConfirmation(
         confirmation_id=(
-            "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-confirmation-v2"
+            "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-confirmation-v3"
         ),
         operator_confirmed=True,
         confirmed_at=confirmed_at,
@@ -338,6 +338,9 @@ def test_consume_creates_single_non_reusable_receipt(
         path.read_text(encoding="utf-8")
     )
     assert summary["status"] == ("P3_P6_RUNTIME_DIAGNOSTIC_EXECUTION_AUTHORIZATION_CONSUMED")
+    assert receipt.consumption_id == (
+        "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-consumption-v3"
+    )
     assert receipt.outcome == module.ExecutionOutcome.FAILED
     assert receipt.saved_version_id == 339300001
     assert receipt.authorization_reusable is False
@@ -472,3 +475,11 @@ def test_v3_terminal_gate_and_scope() -> None:
     assert authorization.scope == "P3_P6_RUNTIME_DIAGNOSTIC_V3"
     assert module.ISSUED_NEXT_GATE == ("execute_governed_p3_p6_runtime_diagnostic_v3")
     assert module.CONSUMED_NEXT_GATE == ("preserve_and_accept_p3_p6_runtime_diagnostic_evidence_v3")
+
+
+def test_v3_confirmation_identity_is_exact() -> None:
+    confirmation = _confirmation()
+
+    assert confirmation.confirmation_id == (
+        "auragateway-cu129-p3-p6-runtime-diagnostic-execution-authorization-confirmation-v3"
+    )
