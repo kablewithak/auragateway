@@ -1,0 +1,1 @@
+{"error_type":null,"report_id":"auragateway-p3-p6-scratch-cleanup-v3","safe_message":null,"schema_version":"1.0.0","scratch_before":{"exists":true,"file_count":60127,"size_bytes":12579432178},"scratch_exists_after":false,"status":"PASSED"}
