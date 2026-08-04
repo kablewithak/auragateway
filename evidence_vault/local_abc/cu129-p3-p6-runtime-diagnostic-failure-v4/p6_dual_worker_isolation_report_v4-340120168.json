@@ -1,0 +1,1 @@
+{"blocked_by":null,"completed_probes_before_terminal_state":["P3","P4","P5"],"decision":"P6_FAILED","failure_code":"P3_P6_DUAL_WORKER_ISOLATION_FAILED","model_requests_performed":false,"probe_id":"P6","raw_output_logged":false,"raw_prompt_logged":false,"schema_version":"1.0.0","status":"FAILED"}
