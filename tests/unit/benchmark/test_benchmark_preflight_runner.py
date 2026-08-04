@@ -43,13 +43,38 @@ def test_build_assets_binds_gate_7_and_gate_8_manifests() -> None:
     )
 
 
+def _is_copyable_repository_path(relative: Path) -> bool:
+    if any(part.startswith(".") or part == "__pycache__" for part in relative.parts):
+        return False
+    return relative.suffix not in {".pyc", ".pyo"}
+
+
+@pytest.mark.parametrize(
+    ("relative", "expected"),
+    (
+        (Path("src/auragateway/module.py"), True),
+        (
+            Path("src/auragateway/__pycache__/module.cpython-312.pyc"),
+            False,
+        ),
+        (Path(".mypy_cache/3.12/module.meta.json"), False),
+        (Path("src/auragateway/module.pyo"), False),
+    ),
+)
+def test_repository_fixture_copy_filter(
+    relative: Path,
+    expected: bool,
+) -> None:
+    assert _is_copyable_repository_path(relative) is expected
+
+
 def test_verify_detects_mutated_plan(tmp_path: Path) -> None:
     copied = tmp_path / "repo"
     copied.mkdir()
     for path in ROOT.rglob("*"):
-        relative_parts = path.relative_to(ROOT).parts
-        if path.is_file() and not any(part.startswith(".") for part in relative_parts):
-            target = copied / path.relative_to(ROOT)
+        relative = path.relative_to(ROOT)
+        if path.is_file() and _is_copyable_repository_path(relative):
+            target = copied / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(path.read_bytes())
 
