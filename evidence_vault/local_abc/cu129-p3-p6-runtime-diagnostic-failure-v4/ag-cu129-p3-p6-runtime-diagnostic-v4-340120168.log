@@ -1,0 +1,36 @@
+6.3s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.3s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.3s 3 0.00s - to python to disable frozen modules.
+6.3s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+6.8s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.8s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.8s 7 0.00s - to python to disable frozen modules.
+6.8s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+495.4s 9 {"completed_probes":["P3","P4","P5"],"counters":{"benchmark_trajectory_requests":0,"external_spend":0,"hidden_retries":0,"kaggle_sessions":1,"model_loads":3,"model_requests":4,"network_requests":0,"runtime_import_closure_probes":1,"runtime_install_attempts":1,"worker_starts":3},"credentials_used":false,"customer_data_present":false,"diagnostic_id":"auragateway-cu129-p3-p6-runtime-diagnostic-v4","evidence_zip":"/kaggle/working/ag-cu129-p3-p6-runtime-evidence-v4.zip","evidence_zip_sha256":"0eb35e66ac138543e4e1d4bf9ef742ecefc881e7990d0ecf32151aac7d0fc7f4","evidence_zip_size_bytes":20833,"executed_runtime_script_sha256":"72e1daad1883e4bd1456ada15e073dbb252753b166b4cc250f591f71171679a3","failed_probe":"P6","failure_acceptance_record_sha256":"5cc48501ed50b1835feafb539d84930efb98fa7a7d5448294bb6352deef269f7","failure_acceptance_review_sha256":"05eed006e63634563a4ca5b85b09293058d9973f60975e68e7186ee2a4650587","failure_code":"P3_P6_DUAL_WORKER_ISOLATION_FAILED","measured_abc_execution_performed":false,"network_access_permitted":false,"next_gate":"preserve_and_classify_p3_p6_runtime_failure_v4","runtime_import_closure_process_outcome":"PASSED","runtime_import_closure_status":"PASSED","runtime_install_failure_signals":[],"runtime_install_process_outcome":"PASSED","runtime_install_status":"PASSED","runtime_source_identity_status":"PASSED","schema_version":"1.0.0","scratch_cleanup_status":"PASSED","scratch_exists_after_cleanup":false,"source_main_commit":"0f7b2c125e407927c47143f04ed137c90d838f5b","status":"FAILED","stop_on_first_failure":true,"terminal_decision":"P3_P6_RUNTIME_DIAGNOSTIC_V4_FAILED","v3_implementation_record_sha256":"ffc69d0474f479a58abf962485ac235706817ee612c1848967c97c884198a8ae","worker_teardown_status":"PASSED"}
+495.4s 10 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+495.4s 11 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+495.4s 12 
+495.4s 13 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+495.4s 14 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+495.7s 15 Traceback (most recent call last):
+495.7s 16 File "<string>", line 1, in <module>
+495.7s 17 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+495.7s 18 raise_for_execution_errors(nb, output_path)
+495.7s 19 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+495.7s 20 raise error
+495.7s 21 papermill.exceptions.PapermillExecutionError:
+495.7s 22 ---------------------------------------------------------------------------
+495.7s 23 Exception encountered at "In [1]":
+495.7s 24 An exception has occurred, use %tb to see the full traceback.
+495.7s 25 
+495.7s 26 SystemExit: 2
+495.7s 27 
+495.7s 28 
+497.8s 29 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+497.8s 30 cells[i][c] = re.sub('\\\\\|', '|', cell)
+497.9s 31 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+497.9s 32 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+498.5s 33 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+498.8s 34 [NbConvertApp] Writing 154625 bytes to __notebook__.ipynb
+501.2s 35 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+502.2s 36 [NbConvertApp] Writing 464311 bytes to __results__.html
