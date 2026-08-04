@@ -1,0 +1,1 @@
+{"blocked_by":null,"completed_probes_before_terminal_state":["P3"],"decision":"P4_FAILED","failure_code":"P3_P6_REQUEST_FAILED","global_model_request_count":1,"model_requests_performed":true,"probe_id":"P4","raw_output_logged":false,"raw_prompt_logged":false,"schema_version":"1.0.0","status":"FAILED"}

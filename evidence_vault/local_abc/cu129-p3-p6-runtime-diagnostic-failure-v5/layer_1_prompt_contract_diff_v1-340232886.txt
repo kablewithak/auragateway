@@ -1,0 +1,13 @@
+V4 final instruction:
+Return only the exact JSON object supplied in the final user message, with no markdown or additional text.
+
+V5 final instruction:
+For structured probes, return only the exact JSON object supplied in the final user message.
+
+Observed semantic delta:
+- V5 adds the conditional phrase 'For structured probes'.
+- V5 removes the explicit prohibition on markdown.
+- V5 removes the explicit prohibition on additional text.
+
+v4_sha256=31388f19b371e1cfbbe1bd3109137f9df0a341cdccc613b643df8eadad137e27
+v5_sha256=8642e105cc8d435deef8041b010663d46510f28bc3ace1aeba067a11369fc0fe

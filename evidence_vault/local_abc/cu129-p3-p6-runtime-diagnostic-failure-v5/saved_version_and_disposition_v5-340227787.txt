@@ -1,0 +1,8 @@
+saved_version_id=340227787
+outcome=FAILED
+failed_probe=P4
+failure_code=P3_P6_REQUEST_FAILED
+first_valid_divergence=P4_MODEL_RESPONSE_NOT_VALID_JSON
+evidence_disposition=VALID_GOVERNED_DIAGNOSTIC_FAILURE_CANDIDATE
+unchanged_replay_authorized=false
+measured_abc_authorized=false

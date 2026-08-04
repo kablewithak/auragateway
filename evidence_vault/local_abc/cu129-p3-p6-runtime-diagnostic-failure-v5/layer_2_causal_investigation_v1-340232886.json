@@ -1,0 +1,214 @@
+{
+  "causal_ranking": [
+    {
+      "confidence": "HIGH",
+      "contradictions": [
+        "Only one V4 pass and one V5 failure are available.",
+        "The raw V5 response was intentionally not retained."
+      ],
+      "hypothesis": "V5_PROMPT_SEMANTIC_REGRESSION",
+      "probability_band": "55-75%",
+      "rank": 1,
+      "support": [
+        "V4 passed P4 with the same governed model and wheelhouse.",
+        "V5 removed explicit 'no markdown' and 'no additional text' clauses.",
+        "V5 added the conditional phrase 'For structured probes'.",
+        "The P4 request and validator otherwise remained materially equivalent."
+      ]
+    },
+    {
+      "confidence": "HIGH_AS_DESIGN_DEFECT",
+      "contradictions": [
+        "V4 demonstrated that prompt-only compliance can succeed once."
+      ],
+      "hypothesis": "PROMPT_ONLY_EXACT_JSON_CONTRACT",
+      "probability_band": "40-65% as contributing cause",
+      "rank": 2,
+      "support": [
+        "P4 required exact JSON equality.",
+        "The request supplied no response_format, JSON schema, grammar, or guided decoding.",
+        "Ordinary chat generation cannot guarantee a machine contract."
+      ]
+    },
+    {
+      "confidence": "MEDIUM_HIGH",
+      "contradictions": [
+        "The same inherited penalty existed in V4.",
+        "It cannot alone explain the V4/V5 difference without interaction with prompt wording or numerical variation."
+      ],
+      "hypothesis": "INHERITED_REPETITION_PENALTY_INTERACTION",
+      "probability_band": "25-50% as contributing cause",
+      "rank": 3,
+      "support": [
+        "The model generation config sets repetition_penalty=1.1.",
+        "The request did not override it.",
+        "vLLM applies repetition penalties before greedy selection.",
+        "The task requires copying JSON tokens already present in the prompt."
+      ]
+    },
+    {
+      "confidence": "MEDIUM",
+      "contradictions": [
+        "Failure evidence did not retain finish_reason, completion_tokens, response length, parser position, or character classes."
+      ],
+      "hypothesis": "NON_JSON_WRAPPING_OR_TRUNCATION",
+      "probability_band": "20-40%",
+      "rank": 4,
+      "support": [
+        "HTTP 200, usage, choices, message, non-empty content, and token-budget validation all passed before JSON parsing.",
+        "The failure is consistent with markdown fences, prefacing prose, Python-style dictionaries, or a length-truncated object."
+      ]
+    },
+    {
+      "confidence": "LOW_MEDIUM",
+      "contradictions": [
+        "Only one request was active.",
+        "The prompt changed, providing a much stronger direct explanation."
+      ],
+      "hypothesis": "ONLINE_VLLM_NUMERICAL_OR_SCHEDULING_VARIATION",
+      "probability_band": "5-20%",
+      "rank": 5,
+      "support": [
+        "vLLM does not guarantee online-serving reproducibility by default.",
+        "V4 and V5 used different physical T4 devices.",
+        "Small floating-point logit changes can alter greedy output near ties."
+      ]
+    },
+    {
+      "confidence": "REJECTED",
+      "contradictions": [
+        "V4 and V5 bind the same model snapshot authority.",
+        "V4 and V5 bind the same wheelhouse controls.",
+        "All eight wheelhouse controls passed exact hash validation.",
+        "All 15 critical wheel receipts matched the SHA-256 manifest.",
+        "The model weight SHA-256 matches the official Qwen artifact.",
+        "Runtime install, import closure, model load, backend realization, server readiness, and HTTP completion all passed."
+      ],
+      "hypothesis": "MODEL_SNAPSHOT_OR_WHEELHOUSE_CORRUPTION",
+      "probability_band": "<2%",
+      "rank": 6,
+      "support": []
+    },
+    {
+      "confidence": "REJECTED_AS_PRIMARY_CAUSE",
+      "contradictions": [
+        "With temperature=0, vLLM converts the request to greedy sampling and neutralizes top_k/top_p filtering."
+      ],
+      "hypothesis": "TOP_K_20_CAUSED_THE_FAILURE",
+      "probability_band": "<2%",
+      "rank": 7,
+      "support": []
+    }
+  ],
+  "controlled_artifacts": {
+    "chat_template_sha256": "cd8e9439f0570856fd70470bf8889ebd8b5d1107207f67a5efb46e342330527f",
+    "model_revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+    "model_snapshot_authority_sha256": "84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94",
+    "model_weight_sha256": "fdf756fa7fcbe7404d5c60e26bff1a0c8b8aa1f72ced49e7dd0210fe288fb7fe",
+    "v4_v5_model_snapshot_authority_equal": true,
+    "v4_v5_wheelhouse_authority_equal": true,
+    "wheel_count": 176,
+    "wheelhouse_control_hashes_valid": true
+  },
+  "effective_generation_analysis": {
+    "model_generation_defaults": {
+      "do_sample": true,
+      "repetition_penalty": 1.1,
+      "temperature": 0.7,
+      "top_k": 20,
+      "top_p": 0.8
+    },
+    "repetition_penalty_effective_status": "LIVE_CONFOUNDER",
+    "repetition_penalty_reason": "The request does not override repetition_penalty, model defaults supply 1.1, and vLLM applies repetition penalties before greedy selection. The task asks the model to copy tokens already present in the prompt, which the penalty can disfavor.",
+    "request_max_tokens": 32,
+    "request_seed": 7,
+    "request_temperature": 0.0,
+    "request_top_p": 1.0,
+    "structured_output_constraint_present": false,
+    "top_k_causal_status": "ELIMINATED_AS_PRIMARY_CAUSE",
+    "top_k_reason": "vLLM SamplingParams resets top_k and top_p to greedy-neutral values when temperature is zero."
+  },
+  "evidence_integrity": {
+    "authorization_consumed": true,
+    "failure_intake_zip_sha256": "8d4dc64cc29a3aa9f0e5a9f2d222b38009b290569f4fde6d98e602a9b15ca4de",
+    "layer_1_manifest_entry_count": 7,
+    "layer_1_manifest_valid": true,
+    "layer_1_zip_sha256": "2f302488aff12ec25cbc55384bf53e8d3d558681b4c79c76fd9dad6ff2d593fa",
+    "layer_1_zip_size_bytes": 9890,
+    "unchanged_replay_authorized": false,
+    "v5_evidence_zip_sha256": "e7b483196e0f017e0f0bb29562f8f1422951129fda785c89da055c374a31c328",
+    "v5_terminal_log_sha256": "ed3b5159666b1551ccde5213fa96f0892dca3879f6b215e6664993f049d7ed79"
+  },
+  "failed_v5_saved_version_id": 340227787,
+  "layer_1_saved_version_id": 340232886,
+  "next_gate": "PRESERVE_AND_ACCEPT_P3_P6_RUNTIME_DIAGNOSTIC_FAILURE_V5",
+  "non_claims": [
+    "The exact V5 model output is unknown.",
+    "Prompt regression is strongly supported but not experimentally isolated.",
+    "Structured-output compatibility with the pinned vLLM build is not yet proven.",
+    "No unchanged V5 replay is authorized.",
+    "Measured A/B/C remains unauthorized."
+  ],
+  "recommended_next_experiment": {
+    "evaluation": [
+      "valid_json_rate",
+      "exact_object_rate",
+      "response_hash_cardinality",
+      "finish_reason_distribution",
+      "completion_token_distribution"
+    ],
+    "fixed_controls": [
+      "exact model revision",
+      "exact wheelhouse",
+      "exact chat template",
+      "T4 GPU class",
+      "TRITON_ATTN",
+      "temperature=0",
+      "top_p=1",
+      "seed=7",
+      "one worker",
+      "no external network"
+    ],
+    "minimum_cases": [
+      "A: V4 prompt, repetition_penalty=1.1, unconstrained",
+      "B: V5 prompt, repetition_penalty=1.1, unconstrained",
+      "C: V4 prompt, repetition_penalty=1.0, unconstrained",
+      "D: V5 prompt, repetition_penalty=1.0, unconstrained",
+      "E: V4 prompt, repetition_penalty=1.0, JSON schema",
+      "F: V5 prompt, repetition_penalty=1.0, JSON schema"
+    ],
+    "name": "P4_OUTPUT_CONTRACT_DIAGNOSTIC_V1",
+    "purpose": "Separate prompt wording, repetition-penalty inheritance, and schema enforcement without rerunning the full P3-P6 lifecycle.",
+    "required_safe_trace_fields": [
+      "response SHA-256",
+      "response length",
+      "finish reason",
+      "completion tokens",
+      "JSON parser line/column/position",
+      "first and last non-whitespace character class",
+      "markdown fence detected",
+      "exact-object-valid boolean",
+      "raw output retained=false"
+    ]
+  },
+  "report_id": "auragateway-p4-layer-2-causal-investigation-340232886",
+  "root_cause_classification": {
+    "contributing": [
+      "MODEL_GENERATION_CONFIG_REPETITION_PENALTY_NOT_NEUTRALIZED",
+      "P4_FAILURE_METADATA_INSUFFICIENT",
+      "ONLINE_SERVING_REPRODUCIBILITY_NOT_ESTABLISHED"
+    ],
+    "not_root_causes": [
+      "WHEELHOUSE_CORRUPTION",
+      "MODEL_SNAPSHOT_CORRUPTION",
+      "TRITON_BACKEND_FAILURE",
+      "CUDA_ABI_FAILURE",
+      "HTTP_TRANSPORT_FAILURE",
+      "TOP_K_FILTERING_UNDER_TEMPERATURE_ZERO"
+    ],
+    "primary": "P4_OUTPUT_CONTRACT_HARNESS_WEAKNESS",
+    "specific": "V5_PROMPT_REGRESSION_WITH_UNCONSTRAINED_GENERATION"
+  },
+  "schema_version": "1.0.0",
+  "status": "COMPLETED"
+}
