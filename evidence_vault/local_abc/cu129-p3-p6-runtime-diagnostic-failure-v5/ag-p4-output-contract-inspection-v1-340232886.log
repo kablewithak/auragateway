@@ -1,0 +1,17 @@
+9.6s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+9.6s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+9.6s 3 0.00s - to python to disable frozen modules.
+9.6s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+10.5s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+10.5s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+10.5s 7 0.00s - to python to disable frozen modules.
+10.5s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+42.0s 9 {"chat_template_sha256":"cd8e9439f0570856fd70470bf8889ebd8b5d1107207f67a5efb46e342330527f","critical_wheel_count":15,"finished_at":"2026-08-04T22:10:04+00:00","generation_config":{"do_sample":true,"repetition_penalty":1.1,"temperature":0.7,"top_k":20,"top_p":0.8},"inspection_id":"auragateway-p4-output-contract-inspection-v1","model_file_count":10,"model_loads":0,"model_repository":"Qwen/Qwen2.5-0.5B-Instruct","model_requests":0,"model_revision":"7ae557604adf67be50417f59c2c2f167def9a775","model_snapshot_root":"<input>/datasets/kabomolefe/auragateway-qwen2-5-0-5b-offline-v1/auragateway-qwen2.5-0.5b-instruct-7ae557604adf67be50417f59c2c2f167def9a775/hf_home/hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/7ae557604adf67be50417f59c2c2f167def9a775","model_total_bytes":999604126,"network_requests":0,"next_gate":"upload_layer_1_output_for_second_investigation","output_zip":"/kaggle/working/ag-p4-output-contract-inspection-v1.zip","output_zip_sha256":"2f302488aff12ec25cbc55384bf53e8d3d558681b4c79c76fd9dad6ff2d593fa","output_zip_size_bytes":9890,"repetition_penalty_not_explicitly_neutralized":true,"response_format_absent":true,"schema_version":"1.0.0","started_at":"2026-08-04T22:09:34+00:00","status":"PASSED","top_k_not_explicitly_neutralized":true,"v4_v5_prompt_semantics_differ":true,"wheel_count":176,"wheelhouse_control_hashes_valid":true,"wheelhouse_root":"<input>/notebooks/kabomolefe/auragateway-cu129-wheelhouse-materializer-v1/auragateway_vllm_cu129_wheelhouse_v1","worker_starts":0}
+45.5s 10 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+45.5s 11 cells[i][c] = re.sub('\\\\\|', '|', cell)
+45.7s 12 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+45.7s 13 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+46.5s 14 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+46.9s 15 [NbConvertApp] Writing 37859 bytes to __notebook__.ipynb
+50.0s 16 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+51.3s 17 [NbConvertApp] Writing 390487 bytes to __results__.html
