@@ -31,3 +31,10 @@ schema-rejected requests are recorded as case evidence while the worker remains 
 
 No customer data, credentials, raw prompts, raw model output, or raw worker logs may enter the
 evidence bundle.
+
+
+## Output-contract verification
+
+Before authorization issuance, verify that the declared output contract exactly equals the runtime
+writer boundary. Both input-validation reports are required. `failure_report_v1.json` must exist
+for successful and failed executions; success uses `status=NOT_APPLICABLE`.
