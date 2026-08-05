@@ -1,0 +1,713 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import shutil
+import signal
+import subprocess
+import sys
+import threading
+import time
+import urllib.error
+import urllib.request
+import zipfile
+from pathlib import Path
+from typing import Any
+
+SOURCE_MAIN_COMMIT = "__SOURCE_MAIN_COMMIT__"
+NOTEBOOK_NAME = "__NOTEBOOK_NAME__"
+MODEL_SNAPSHOT_SHA256 = "__MODEL_SNAPSHOT_SHA256__"
+MODEL_REVISION = "__MODEL_REVISION__"
+EVIDENCE_ZIP_NAME = "__EVIDENCE_ZIP_NAME__"
+REQUEST_ORDER = __REQUEST_ORDER_JSON__
+
+MODEL_REPOSITORY = "Qwen/Qwen2.5-0.5B-Instruct"
+EXPECTED_BACKEND_MARKER = "Using AttentionBackendEnum.TRITON_ATTN backend."
+OUTPUT_ROOT = Path("/kaggle/working/p4_output_contract_diagnostic_v1")
+SCRATCH_ROOT = OUTPUT_ROOT / "scratch"
+TARGET_SITE = SCRATCH_ROOT / "target_site"
+PORT = 8001
+BASE_URL = f"http://127.0.0.1:{PORT}"
+
+V4_PROMPT = (
+    "Return only the exact JSON object supplied in the final user message, "
+    "with no markdown or additional text."
+)
+V5_PROMPT = (
+    "For structured probes, return only the exact JSON object supplied in "
+    "the final user message."
+)
+EXPECTED_OBJECT = {"probe": "cold", "value": 1}
+EXPECTED_OBJECT_CANONICAL = json.dumps(
+    EXPECTED_OBJECT,
+    ensure_ascii=True,
+    separators=(",", ":"),
+    sort_keys=True,
+)
+JSON_SCHEMA = {
+    "name": "p4_output_contract",
+    "strict": True,
+    "schema": {
+        "type": "object",
+        "properties": {
+            "probe": {"type": "string", "const": "cold"},
+            "value": {"type": "integer", "const": 1},
+        },
+        "required": ["probe", "value"],
+        "additionalProperties": False,
+    },
+}
+CASES = {
+    "A": {"prompt_variant": "V4", "repetition_penalty": 1.1, "schema": False},
+    "B": {"prompt_variant": "V5", "repetition_penalty": 1.1, "schema": False},
+    "C": {"prompt_variant": "V4", "repetition_penalty": 1.0, "schema": False},
+    "D": {"prompt_variant": "V5", "repetition_penalty": 1.0, "schema": False},
+    "E": {"prompt_variant": "V4", "repetition_penalty": 1.0, "schema": True},
+    "F": {"prompt_variant": "V5", "repetition_penalty": 1.0, "schema": True},
+}
+COUNTERS = {
+    "kaggle_sessions": 1,
+    "runtime_install_attempts": 0,
+    "runtime_import_closure_probes": 0,
+    "model_loads": 0,
+    "worker_starts": 0,
+    "model_requests": 0,
+    "benchmark_trajectory_requests": 0,
+    "network_requests": 0,
+    "hidden_retries": 0,
+    "external_spend": 0,
+}
+
+
+def canonical(payload: object) -> str:
+    return json.dumps(payload, ensure_ascii=True, separators=(",", ":"), sort_keys=True)
+
+
+def sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def write_json(name: str, payload: object) -> None:
+    path = OUTPUT_ROOT / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(canonical(payload), encoding="utf-8", newline="\n")
+    temporary.replace(path)
+
+
+def safe_failure(error_code: str, safe_message: str, stage: str) -> dict[str, object]:
+    return {
+        "schema_version": "1.0.0",
+        "status": "FAILED",
+        "error_code": error_code,
+        "safe_message": safe_message,
+        "stage": stage,
+        "raw_prompt_retained": False,
+        "raw_output_retained": False,
+        "counters": dict(COUNTERS),
+    }
+
+
+def discover_inputs() -> tuple[Path, Path]:
+    input_root = Path("/kaggle/input")
+    wheelhouses = [
+        path
+        for path in input_root.rglob("auragateway_vllm_cu129_wheelhouse_v1")
+        if path.is_dir()
+    ]
+    snapshots = [
+        path.parent
+        for path in input_root.rglob("config.json")
+        if path.parent.name == MODEL_REVISION
+    ]
+    if len(wheelhouses) != 1:
+        raise RuntimeError("expected exactly one governed wheelhouse")
+    if len(snapshots) != 1:
+        raise RuntimeError("expected exactly one governed model snapshot")
+    return wheelhouses[0], snapshots[0]
+
+
+def validate_model_snapshot(snapshot: Path) -> dict[str, object]:
+    config_path = snapshot / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    if config.get("model_type") != "qwen2":
+        raise RuntimeError("model snapshot identity mismatch")
+    files = sorted(item for item in snapshot.rglob("*") if item.is_file())
+    if len(files) != 10:
+        raise RuntimeError("model snapshot file count mismatch")
+    total_bytes = sum(path.stat().st_size for path in files)
+    if total_bytes != 999604126:
+        raise RuntimeError("model snapshot total size mismatch")
+    expected_critical = {
+        "model.safetensors": (
+            "fdf756fa7fcbe7404d5c60e26bff1a0c8b8aa1f72ced49e7dd0210fe288fb7fe"
+        ),
+        "generation_config.json": (
+            "e558847a8b4402616f1273797b015104dc266fe4b520056fca88823ba8f8ebe6"
+        ),
+        "tokenizer_config.json": (
+            "5b5d4f65d0acd3b2d56a35b56d374a36cbc1c8fa5cf3b3febbbfabf22f359583"
+        ),
+    }
+    critical_receipts = {}
+    for name, expected_sha256 in expected_critical.items():
+        path = snapshot / name
+        if not path.is_file() or sha256_file(path) != expected_sha256:
+            raise RuntimeError("model snapshot critical file mismatch")
+        critical_receipts[name] = expected_sha256
+    return {
+        "status": "PASSED",
+        "model_revision": MODEL_REVISION,
+        "governed_model_snapshot_sha256": MODEL_SNAPSHOT_SHA256,
+        "file_count": len(files),
+        "total_bytes": total_bytes,
+        "critical_file_sha256": critical_receipts,
+    }
+
+
+def validate_wheelhouse(wheelhouse: Path) -> dict[str, object]:
+    wheel_files = sorted(wheelhouse.rglob("*.whl"))
+    if len(wheel_files) != 176:
+        raise RuntimeError("wheelhouse wheel count mismatch")
+    required = {
+        "vllm": False,
+        "torch": False,
+        "triton": False,
+        "transformers": False,
+        "tokenizers": False,
+    }
+    for path in wheel_files:
+        lower = path.name.lower().replace("-", "_")
+        for package in required:
+            if lower.startswith(package + "_"):
+                required[package] = True
+    if not all(required.values()):
+        raise RuntimeError("wheelhouse critical package boundary mismatch")
+    expected_control_hashes = {
+        "68bba3ca131e9a6f36392330562985d2a644be57cf5437fd282b883741c86821",
+        "d061bd9a7ff0a686bb462a2bd016a1f3e1aea833fbdbff353dddf96fdd623e1d",
+        "52aa42b940dd606ab5685686ab893eb085efed2a7466989f654e870f4b360589",
+        "a120c72a5643bb65afbfe0bd3dd072f1ea89a19f57a534dd814c9bafdd41880f",
+        "47cb357a53ca74ca597b286768e1d0e9cb831f7431c08fad378fc42ea59b3a27",
+        "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c",
+        "b424d2b952d726b2f7451ebd8f48d604985f650dbe2f6d146969625618b7fc51",
+        "789fb23ab7d9c4f28dd909e808a53a65d692c0d7b43bc44da9e974817d771b8d",
+    }
+    observed_hashes = {
+        sha256_file(path)
+        for path in wheelhouse.rglob("*")
+        if path.is_file()
+    }
+    if not expected_control_hashes.issubset(observed_hashes):
+        raise RuntimeError("wheelhouse control identity mismatch")
+    return {
+        "status": "PASSED",
+        "wheel_count": len(wheel_files),
+        "critical_packages_present": required,
+        "governed_control_hash_count": len(expected_control_hashes),
+    }
+
+
+def install_runtime(wheelhouse: Path) -> dict[str, object]:
+    COUNTERS["runtime_install_attempts"] += 1
+    wheels_dir = wheelhouse / "wheels"
+    if not wheels_dir.is_dir():
+        wheels_dir = wheelhouse
+    command = [
+        sys.executable,
+        "-m",
+        "pip",
+        "install",
+        "--disable-pip-version-check",
+        "--no-input",
+        "--no-index",
+        "--find-links",
+        str(wheels_dir),
+        "--target",
+        str(TARGET_SITE),
+        "vllm==0.19.1",
+        "torch==2.10.0+cu129",
+        "triton==3.6.0",
+        "transformers==5.5.3",
+        "tokenizers==0.22.2",
+    ]
+    started = time.monotonic()
+    result = subprocess.run(command, check=False, capture_output=True, text=True, timeout=900)
+    report = {
+        "status": "PASSED" if result.returncode == 0 else "FAILED",
+        "return_code": result.returncode,
+        "duration_ms": round((time.monotonic() - started) * 1000),
+        "network_access_permitted": False,
+        "stdout_sha256": sha256_bytes(result.stdout.encode("utf-8")),
+        "stderr_sha256": sha256_bytes(result.stderr.encode("utf-8")),
+    }
+    if result.returncode != 0:
+        raise RuntimeError("offline runtime installation failed")
+    return report
+
+
+def import_closure() -> dict[str, object]:
+    COUNTERS["runtime_import_closure_probes"] += 1
+    code = (
+        "import json,torch,triton,transformers,tokenizers,vllm;"
+        "print(json.dumps({'torch':torch.__version__,'triton':triton.__version__,"
+        "'transformers':transformers.__version__,'tokenizers':tokenizers.__version__,"
+        "'vllm':vllm.__version__},sort_keys=True))"
+    )
+    environment = dict(os.environ)
+    environment["PYTHONPATH"] = str(TARGET_SITE)
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+        timeout=120,
+    )
+    if result.returncode != 0:
+        raise RuntimeError("runtime import closure failed")
+    versions = json.loads(result.stdout.strip().splitlines()[-1])
+    expected = {
+        "vllm": "0.19.1",
+        "torch": "2.10.0+cu129",
+        "triton": "3.6.0",
+        "transformers": "5.5.3",
+        "tokenizers": "0.22.2",
+    }
+    if versions != expected:
+        raise RuntimeError("runtime import closure version mismatch")
+    return {"status": "PASSED", "versions": versions, "pythonpath_exact_target_site": True}
+
+
+class Capture:
+    def __init__(self) -> None:
+        self.lines: list[str] = []
+        self.lock = threading.Lock()
+
+    def consume(self, stream: Any) -> None:
+        for line in iter(stream.readline, ""):
+            with self.lock:
+                self.lines.append(line.rstrip("\n"))
+        stream.close()
+
+    def snapshot(self) -> list[str]:
+        with self.lock:
+            return list(self.lines)
+
+
+def wait_ready(timeout_seconds: int = 240) -> None:
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        try:
+            with urllib.request.urlopen(BASE_URL + "/v1/models", timeout=3) as response:
+                if response.status == 200:
+                    return
+        except (urllib.error.URLError, TimeoutError):
+            time.sleep(2)
+    raise RuntimeError("worker readiness timeout")
+
+
+def start_worker(snapshot: Path) -> tuple[subprocess.Popen[str], Capture, Capture, list[threading.Thread]]:
+    COUNTERS["model_loads"] += 1
+    COUNTERS["worker_starts"] += 1
+    environment = dict(os.environ)
+    environment["PYTHONPATH"] = str(TARGET_SITE)
+    environment["CUDA_VISIBLE_DEVICES"] = "0"
+    environment["VLLM_ATTENTION_BACKEND"] = "TRITON_ATTN"
+    command = [
+        sys.executable,
+        "-m",
+        "vllm.entrypoints.openai.api_server",
+        "--model",
+        str(snapshot),
+        "--served-model-name",
+        MODEL_REPOSITORY,
+        "--revision",
+        MODEL_REVISION,
+        "--host",
+        "127.0.0.1",
+        "--port",
+        str(PORT),
+        "--dtype",
+        "half",
+        "--max-model-len",
+        "2048",
+        "--gpu-memory-utilization",
+        "0.90",
+        "--enable-prefix-caching",
+    ]
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        env=environment,
+        start_new_session=True,
+    )
+    if process.stdout is None or process.stderr is None:
+        raise RuntimeError("worker capture streams unavailable")
+    stdout_capture = Capture()
+    stderr_capture = Capture()
+    threads = [
+        threading.Thread(target=stdout_capture.consume, args=(process.stdout,), daemon=True),
+        threading.Thread(target=stderr_capture.consume, args=(process.stderr,), daemon=True),
+    ]
+    for thread in threads:
+        thread.start()
+    wait_ready()
+    all_lines = stdout_capture.snapshot() + stderr_capture.snapshot()
+    marker_lines = [line for line in all_lines if line.strip().endswith(EXPECTED_BACKEND_MARKER)]
+    if len(marker_lines) != 1:
+        raise RuntimeError("explicit TRITON backend marker not realized exactly once")
+    return process, stdout_capture, stderr_capture, threads
+
+
+def edge_class(character: str | None) -> str:
+    if character is None:
+        return "NONE"
+    if character in "{[":
+        return "JSON_OPEN"
+    if character in "}]":
+        return "JSON_CLOSE"
+    if character == "`":
+        return "BACKTICK"
+    if character.isspace():
+        return "WHITESPACE"
+    if character.isalpha():
+        return "ALPHA"
+    if character.isdigit():
+        return "DIGIT"
+    return "OTHER"
+
+
+def request_payload(case_id: str) -> dict[str, object]:
+    case = CASES[case_id]
+    prompt = V4_PROMPT if case["prompt_variant"] == "V4" else V5_PROMPT
+    payload: dict[str, object] = {
+        "model": MODEL_REPOSITORY,
+        "messages": [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": EXPECTED_OBJECT_CANONICAL},
+        ],
+        "temperature": 0,
+        "top_p": 1,
+        "repetition_penalty": case["repetition_penalty"],
+        "seed": 7,
+        "max_tokens": 32,
+        "stream": False,
+    }
+    if case["schema"]:
+        payload["response_format"] = {"type": "json_schema", "json_schema": JSON_SCHEMA}
+    return payload
+
+
+def perform_request(case_id: str, sequence_index: int) -> dict[str, object]:
+    COUNTERS["model_requests"] += 1
+    encoded = canonical(request_payload(case_id)).encode("utf-8")
+    request = urllib.request.Request(
+        BASE_URL + "/v1/chat/completions",
+        data=encoded,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response:
+            response_payload = response.read()
+            status_code = response.status
+    except urllib.error.HTTPError as error:
+        error_payload = error.read()
+        return {
+            "case_id": case_id,
+            "sequence_index": sequence_index,
+            "status": "REQUEST_REJECTED",
+            "http_status": error.code,
+            "error_body_sha256": sha256_bytes(error_payload),
+            "error_body_length": len(error_payload),
+            "raw_prompt_retained": False,
+            "raw_output_retained": False,
+        }
+    except (urllib.error.URLError, TimeoutError) as error:
+        raise RuntimeError("model request transport failed") from error
+    envelope = json.loads(response_payload)
+    choices = envelope.get("choices")
+    usage = envelope.get("usage")
+    if not isinstance(choices, list) or len(choices) != 1 or not isinstance(usage, dict):
+        raise RuntimeError("response envelope invalid")
+    choice = choices[0]
+    if not isinstance(choice, dict):
+        raise RuntimeError("response choice invalid")
+    message = choice.get("message")
+    if not isinstance(message, dict):
+        raise RuntimeError("response message invalid")
+    content = message.get("content")
+    if not isinstance(content, str):
+        raise RuntimeError("response content invalid")
+    stripped = content.strip()
+    first = stripped[0] if stripped else None
+    last = stripped[-1] if stripped else None
+    valid_json = False
+    exact_object = False
+    json_error_line = None
+    json_error_column = None
+    json_error_position = None
+    try:
+        parsed = json.loads(content)
+        valid_json = True
+        exact_object = parsed == EXPECTED_OBJECT
+    except json.JSONDecodeError as error:
+        json_error_line = error.lineno
+        json_error_column = error.colno
+        json_error_position = error.pos
+    return {
+        "case_id": case_id,
+        "sequence_index": sequence_index,
+        "status": "COMPLETED",
+        "http_status": status_code,
+        "response_sha256": sha256_bytes(content.encode("utf-8")),
+        "response_length": len(content),
+        "finish_reason": choice.get("finish_reason"),
+        "prompt_tokens": usage.get("prompt_tokens"),
+        "completion_tokens": usage.get("completion_tokens"),
+        "valid_json": valid_json,
+        "exact_object": exact_object,
+        "json_error_line": json_error_line,
+        "json_error_column": json_error_column,
+        "json_error_position": json_error_position,
+        "first_non_whitespace_class": edge_class(first),
+        "last_non_whitespace_class": edge_class(last),
+        "markdown_fence_detected": "```" in content,
+        "raw_prompt_retained": False,
+        "raw_output_retained": False,
+    }
+
+
+def case_metrics(results: list[dict[str, object]]) -> list[dict[str, object]]:
+    metrics = []
+    for case_id in sorted(CASES):
+        rows = [row for row in results if row["case_id"] == case_id]
+        completed = [row for row in rows if row["status"] == "COMPLETED"]
+        exact_count = sum(row.get("exact_object") is True for row in completed)
+        valid_count = sum(row.get("valid_json") is True for row in completed)
+        hashes = {
+            row["response_sha256"]
+            for row in completed
+            if isinstance(row.get("response_sha256"), str)
+        }
+        metrics.append(
+            {
+                "case_id": case_id,
+                "attempt_count": len(rows),
+                "completed_count": len(completed),
+                "request_error_count": len(rows) - len(completed),
+                "valid_json_count": valid_count,
+                "valid_json_rate": valid_count / 3,
+                "exact_object_count": exact_count,
+                "exact_object_rate": exact_count / 3,
+                "response_hash_cardinality": len(hashes),
+                "finish_reason_distribution": frequency(completed, "finish_reason"),
+                "completion_token_distribution": frequency(completed, "completion_tokens"),
+            }
+        )
+    return metrics
+
+
+def frequency(rows: list[dict[str, object]], key: str) -> dict[str, int]:
+    observed: dict[str, int] = {}
+    for row in rows:
+        value = str(row.get(key))
+        observed[value] = observed.get(value, 0) + 1
+    return observed
+
+
+def select_case(metrics: list[dict[str, object]]) -> dict[str, object]:
+    eligible = [
+        row
+        for row in metrics
+        if row["completed_count"] == 3
+        and row["request_error_count"] == 0
+        and row["exact_object_count"] == 3
+        and row["response_hash_cardinality"] == 1
+    ]
+    rank = {"A": 0, "C": 1, "B": 2, "D": 3, "E": 4, "F": 5}
+    eligible.sort(key=lambda row: rank[str(row["case_id"])])
+    selected = eligible[0]["case_id"] if eligible else None
+    return {
+        "status": "SELECTED" if selected is not None else "NO_CASE_SELECTED",
+        "selected_case_id": selected,
+        "eligible_case_ids": [row["case_id"] for row in eligible],
+        "selection_rule": (
+            "3/3 exact-object responses, one response hash, and zero request errors; "
+            "prefer the least constraining configuration."
+        ),
+    }
+
+
+def teardown(process: subprocess.Popen[str] | None, threads: list[threading.Thread]) -> dict[str, object]:
+    if process is None:
+        return {"status": "NOT_REQUIRED", "process_absent": True}
+    if process.poll() is None:
+        os.killpg(process.pid, signal.SIGTERM)
+        try:
+            process.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=15)
+    for thread in threads:
+        thread.join(timeout=10)
+    return {
+        "status": "PASSED",
+        "return_code": process.returncode,
+        "capture_threads_finalized": all(not thread.is_alive() for thread in threads),
+        "process_absent": process.poll() is not None,
+    }
+
+
+def build_bundle() -> str:
+    excluded = {"bundle_manifest_v1.json", EVIDENCE_ZIP_NAME}
+    members = []
+    for path in sorted(item for item in OUTPUT_ROOT.iterdir() if item.is_file()):
+        if path.name in excluded:
+            continue
+        members.append(
+            {"path": path.name, "size_bytes": path.stat().st_size, "sha256": sha256_file(path)}
+        )
+    write_json(
+        "bundle_manifest_v1.json",
+        {"schema_version": "1.0.0", "members": members, "raw_output_included": False},
+    )
+    archive_path = OUTPUT_ROOT / EVIDENCE_ZIP_NAME
+    with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(item for item in OUTPUT_ROOT.iterdir() if item.is_file()):
+            if path.name == EVIDENCE_ZIP_NAME:
+                continue
+            archive.write(path, arcname=path.name)
+    return sha256_file(archive_path)
+
+
+def main() -> int:
+    OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+    SCRATCH_ROOT.mkdir(parents=True, exist_ok=True)
+    process: subprocess.Popen[str] | None = None
+    threads: list[threading.Thread] = []
+    terminal_error: dict[str, object] | None = None
+    results: list[dict[str, object]] = []
+    try:
+        wheelhouse, snapshot = discover_inputs()
+        source_report = {
+            "status": "PASSED",
+            "source_main_commit": SOURCE_MAIN_COMMIT,
+            "executed_runtime_script_sha256": globals().get("EXECUTED_RUNTIME_SCRIPT_SHA256"),
+            "notebook_name": NOTEBOOK_NAME,
+        }
+        write_json("runtime_source_identity_report_v1.json", source_report)
+        write_json("model_snapshot_report_v1.json", validate_model_snapshot(snapshot))
+        write_json("wheelhouse_report_v1.json", validate_wheelhouse(wheelhouse))
+        install_report = install_runtime(wheelhouse)
+        write_json("runtime_install_report_v1.json", install_report)
+        import_report = import_closure()
+        write_json("runtime_import_closure_report_v1.json", import_report)
+        process, stdout_capture, stderr_capture, threads = start_worker(snapshot)
+        write_json(
+            "worker_startup_report_v1.json",
+            {
+                "status": "PASSED",
+                "pid": process.pid,
+                "gpu_index": 0,
+                "port": PORT,
+                "backend_marker": EXPECTED_BACKEND_MARKER,
+                "stdout_sha256": sha256_bytes("\n".join(stdout_capture.snapshot()).encode("utf-8")),
+                "stderr_sha256": sha256_bytes("\n".join(stderr_capture.snapshot()).encode("utf-8")),
+                "raw_worker_logs_retained": False,
+            },
+        )
+        for index, case_id in enumerate(REQUEST_ORDER, start=1):
+            results.append(perform_request(case_id, index))
+        write_json("request_results_v1.json", {"schema_version": "1.0.0", "results": results})
+        metrics = case_metrics(results)
+        write_json("case_metrics_v1.json", {"schema_version": "1.0.0", "cases": metrics})
+        selection = select_case(metrics)
+        write_json("selection_report_v1.json", selection)
+    except Exception as error:
+        terminal_error = safe_failure(
+            "P4_OUTPUT_CONTRACT_RUNTIME_FAILED",
+            type(error).__name__,
+            "runtime",
+        )
+        write_json("failure_report_v1.json", terminal_error)
+    finally:
+        teardown_report = teardown(process, threads)
+        write_json("worker_teardown_report_v1.json", teardown_report)
+        cleanup_status = "PASSED"
+        try:
+            shutil.rmtree(SCRATCH_ROOT, ignore_errors=False)
+        except FileNotFoundError:
+            pass
+        except OSError:
+            cleanup_status = "FAILED"
+        write_json(
+            "scratch_cleanup_report_v1.json",
+            {
+                "status": cleanup_status,
+                "scratch_exists_after_cleanup": SCRATCH_ROOT.exists(),
+            },
+        )
+        status = "FAILED" if terminal_error is not None else "PASSED"
+        summary = {
+            "schema_version": "1.0.0",
+            "status": status,
+            "terminal_decision": (
+                "P4_OUTPUT_CONTRACT_DIAGNOSTIC_V1_FAILED"
+                if terminal_error is not None
+                else "P4_OUTPUT_CONTRACT_DIAGNOSTIC_V1_PASSED"
+            ),
+            "request_count": len(results),
+            "counters": dict(COUNTERS),
+            "raw_prompt_retained": False,
+            "raw_output_retained": False,
+            "credentials_used": False,
+            "customer_data_present": False,
+            "measured_abc_execution_performed": False,
+            "next_gate": "preserve_and_classify_p4_output_contract_diagnostic_v1",
+        }
+        write_json("p4_output_contract_diagnostic_summary_v1.json", summary)
+        human = (
+            "# P4 Output-Contract Diagnostic V1\n\n"
+            f"Status: {status}\n\n"
+            f"Requests completed: {len(results)} of 18\n\n"
+            "Raw prompts and outputs retained: no\n"
+        )
+        (OUTPUT_ROOT / "human_report_v1.md").write_text(
+            human,
+            encoding="utf-8",
+            newline="\n",
+        )
+        evidence_sha256 = build_bundle()
+        print(
+            canonical(
+                {
+                    "status": status,
+                    "terminal_decision": summary["terminal_decision"],
+                    "evidence_zip": EVIDENCE_ZIP_NAME,
+                    "evidence_zip_sha256": evidence_sha256,
+                    "model_requests": COUNTERS["model_requests"],
+                    "raw_prompt_retained": False,
+                    "raw_output_retained": False,
+                }
+            )
+        )
+    return 0 if terminal_error is None else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
