@@ -21,6 +21,7 @@ MODEL_SNAPSHOT_SHA256 = "__MODEL_SNAPSHOT_SHA256__"
 MODEL_REVISION = "__MODEL_REVISION__"
 EVIDENCE_ZIP_NAME = "__EVIDENCE_ZIP_NAME__"
 REQUEST_ORDER = __REQUEST_ORDER_JSON__
+EXPECTED_RUNTIME_OUTPUTS = tuple(__EXPECTED_RUNTIME_OUTPUTS_JSON__)
 
 MODEL_REPOSITORY = "Qwen/Qwen2.5-0.5B-Instruct"
 EXPECTED_BACKEND_MARKER = "Using AttentionBackendEnum.TRITON_ATTN backend."
@@ -241,19 +242,27 @@ def install_runtime(wheelhouse: Path) -> dict[str, object]:
         "tokenizers==0.22.2",
     ]
     started = time.monotonic()
-    result = subprocess.run(command, check=False, capture_output=True, text=True, timeout=900)
+    result = subprocess.run(
+        command,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=900,
+    )
     report = {
+        "schema_version": "1.0.0",
         "status": "PASSED" if result.returncode == 0 else "FAILED",
         "return_code": result.returncode,
         "duration_ms": round((time.monotonic() - started) * 1000),
         "network_access_permitted": False,
         "stdout_sha256": sha256_bytes(result.stdout.encode("utf-8")),
         "stderr_sha256": sha256_bytes(result.stderr.encode("utf-8")),
+        "raw_install_output_retained": False,
     }
+    write_json("runtime_install_report_v1.json", report)
     if result.returncode != 0:
         raise RuntimeError("offline runtime installation failed")
     return report
-
 
 def import_closure() -> dict[str, object]:
     COUNTERS["runtime_import_closure_probes"] += 1
@@ -273,9 +282,25 @@ def import_closure() -> dict[str, object]:
         env=environment,
         timeout=120,
     )
+    report: dict[str, object] = {
+        "schema_version": "1.0.0",
+        "status": "FAILED",
+        "return_code": result.returncode,
+        "stdout_sha256": sha256_bytes(result.stdout.encode("utf-8")),
+        "stderr_sha256": sha256_bytes(result.stderr.encode("utf-8")),
+        "pythonpath_exact_target_site": True,
+        "raw_import_output_retained": False,
+        "versions": None,
+    }
     if result.returncode != 0:
+        write_json("runtime_import_closure_report_v1.json", report)
         raise RuntimeError("runtime import closure failed")
-    versions = json.loads(result.stdout.strip().splitlines()[-1])
+    try:
+        versions = json.loads(result.stdout.strip().splitlines()[-1])
+    except (IndexError, json.JSONDecodeError) as error:
+        report["failure_reason"] = "VERSION_PAYLOAD_INVALID"
+        write_json("runtime_import_closure_report_v1.json", report)
+        raise RuntimeError("runtime import closure payload invalid") from error
     expected = {
         "vllm": "0.19.1",
         "torch": "2.10.0+cu129",
@@ -283,9 +308,14 @@ def import_closure() -> dict[str, object]:
         "transformers": "5.5.3",
         "tokenizers": "0.22.2",
     }
+    report["versions"] = versions
     if versions != expected:
+        report["failure_reason"] = "VERSION_MISMATCH"
+        write_json("runtime_import_closure_report_v1.json", report)
         raise RuntimeError("runtime import closure version mismatch")
-    return {"status": "PASSED", "versions": versions, "pythonpath_exact_target_site": True}
+    report["status"] = "PASSED"
+    write_json("runtime_import_closure_report_v1.json", report)
+    return report
 
 
 class Capture:
@@ -316,7 +346,9 @@ def wait_ready(timeout_seconds: int = 240) -> None:
     raise RuntimeError("worker readiness timeout")
 
 
-def start_worker(snapshot: Path) -> tuple[subprocess.Popen[str], Capture, Capture, list[threading.Thread]]:
+def start_worker(
+    snapshot: Path,
+) -> tuple[subprocess.Popen[str], Capture, Capture, list[threading.Thread]]:
     COUNTERS["model_loads"] += 1
     COUNTERS["worker_starts"] += 1
     environment = dict(os.environ)
@@ -345,33 +377,92 @@ def start_worker(snapshot: Path) -> tuple[subprocess.Popen[str], Capture, Captur
         "0.90",
         "--enable-prefix-caching",
     ]
-    process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        env=environment,
-        start_new_session=True,
-    )
-    if process.stdout is None or process.stderr is None:
-        raise RuntimeError("worker capture streams unavailable")
+    process: subprocess.Popen[str] | None = None
     stdout_capture = Capture()
     stderr_capture = Capture()
-    threads = [
-        threading.Thread(target=stdout_capture.consume, args=(process.stdout,), daemon=True),
-        threading.Thread(target=stderr_capture.consume, args=(process.stderr,), daemon=True),
-    ]
-    for thread in threads:
-        thread.start()
-    wait_ready()
-    all_lines = stdout_capture.snapshot() + stderr_capture.snapshot()
-    marker_lines = [line for line in all_lines if line.strip().endswith(EXPECTED_BACKEND_MARKER)]
-    if len(marker_lines) != 1:
-        raise RuntimeError("explicit TRITON backend marker not realized exactly once")
-    return process, stdout_capture, stderr_capture, threads
-
+    threads: list[threading.Thread] = []
+    try:
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=environment,
+            start_new_session=True,
+        )
+        if process.stdout is None or process.stderr is None:
+            raise RuntimeError("worker capture streams unavailable")
+        threads = [
+            threading.Thread(
+                target=stdout_capture.consume,
+                args=(process.stdout,),
+                daemon=True,
+            ),
+            threading.Thread(
+                target=stderr_capture.consume,
+                args=(process.stderr,),
+                daemon=True,
+            ),
+        ]
+        for thread in threads:
+            thread.start()
+        wait_ready()
+        stdout_lines = stdout_capture.snapshot()
+        stderr_lines = stderr_capture.snapshot()
+        marker_matches = [
+            ("stdout", index, line)
+            for index, line in enumerate(stdout_lines, start=1)
+            if line.strip().endswith(EXPECTED_BACKEND_MARKER)
+        ] + [
+            ("stderr", index, line)
+            for index, line in enumerate(stderr_lines, start=1)
+            if line.strip().endswith(EXPECTED_BACKEND_MARKER)
+        ]
+        if len(marker_matches) != 1:
+            raise RuntimeError("explicit TRITON backend marker not realized exactly once")
+        marker_stream, marker_line_number, marker_line = marker_matches[0]
+        write_json(
+            "worker_startup_report_v1.json",
+            {
+                "schema_version": "1.0.0",
+                "status": "PASSED",
+                "pid": process.pid,
+                "gpu_index": 0,
+                "port": PORT,
+                "backend_marker": EXPECTED_BACKEND_MARKER,
+                "backend_marker_stream": marker_stream,
+                "backend_marker_line_number": marker_line_number,
+                "backend_marker_line_sha256": sha256_bytes(
+                    marker_line.encode("utf-8")
+                ),
+                "stdout_sha256": sha256_bytes("\n".join(stdout_lines).encode("utf-8")),
+                "stderr_sha256": sha256_bytes("\n".join(stderr_lines).encode("utf-8")),
+                "raw_worker_logs_retained": False,
+            },
+        )
+        return process, stdout_capture, stderr_capture, threads
+    except Exception as error:
+        teardown_report = teardown(process, threads)
+        write_json(
+            "worker_startup_report_v1.json",
+            {
+                "schema_version": "1.0.0",
+                "status": "FAILED",
+                "error_type": type(error).__name__,
+                "pid": process.pid if process is not None else None,
+                "stdout_sha256": sha256_bytes(
+                    "\n".join(stdout_capture.snapshot()).encode("utf-8")
+                ),
+                "stderr_sha256": sha256_bytes(
+                    "\n".join(stderr_capture.snapshot()).encode("utf-8")
+                ),
+                "startup_teardown": teardown_report,
+                "raw_worker_logs_retained": False,
+            },
+        )
+        raise
 
 def edge_class(character: str | None) -> str:
     if character is None:
@@ -553,129 +644,329 @@ def select_case(metrics: list[dict[str, object]]) -> dict[str, object]:
     }
 
 
-def teardown(process: subprocess.Popen[str] | None, threads: list[threading.Thread]) -> dict[str, object]:
-    if process is None:
-        return {"status": "NOT_REQUIRED", "process_absent": True}
-    if process.poll() is None:
-        os.killpg(process.pid, signal.SIGTERM)
+def teardown(
+    process: subprocess.Popen[str] | None,
+    threads: list[threading.Thread],
+) -> dict[str, object]:
+    error_types: list[str] = []
+    if process is not None:
         try:
-            process.wait(timeout=30)
-        except subprocess.TimeoutExpired:
-            os.killpg(process.pid, signal.SIGKILL)
-            process.wait(timeout=15)
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGTERM)
+                try:
+                    process.wait(timeout=30)
+                except subprocess.TimeoutExpired:
+                    os.killpg(process.pid, signal.SIGKILL)
+                    process.wait(timeout=15)
+        except (OSError, subprocess.SubprocessError) as error:
+            error_types.append(type(error).__name__)
     for thread in threads:
-        thread.join(timeout=10)
+        try:
+            thread.join(timeout=10)
+        except RuntimeError as error:
+            error_types.append(type(error).__name__)
+    capture_threads_finalized = all(not thread.is_alive() for thread in threads)
+    process_absent = process is None or process.poll() is not None
+    if process is None and capture_threads_finalized and not error_types:
+        status = "NOT_REQUIRED"
+    elif process_absent and capture_threads_finalized and not error_types:
+        status = "PASSED"
+    else:
+        status = "FAILED"
     return {
-        "status": "PASSED",
-        "return_code": process.returncode,
-        "capture_threads_finalized": all(not thread.is_alive() for thread in threads),
-        "process_absent": process.poll() is not None,
+        "schema_version": "1.0.0",
+        "status": status,
+        "return_code": process.returncode if process is not None else None,
+        "capture_threads_finalized": capture_threads_finalized,
+        "process_absent": process_absent,
+        "error_types": sorted(set(error_types)),
     }
 
 
-def build_bundle() -> str:
-    excluded = {"bundle_manifest_v1.json", EVIDENCE_ZIP_NAME}
+def initialize_not_run_reports() -> None:
+    reports = {
+        "model_snapshot_report_v1.json": {
+            "schema_version": "1.0.0",
+            "status": "NOT_RUN",
+            "stage": "model_snapshot_validation",
+        },
+        "wheelhouse_report_v1.json": {
+            "schema_version": "1.0.0",
+            "status": "NOT_RUN",
+            "stage": "wheelhouse_validation",
+        },
+        "runtime_install_report_v1.json": {
+            "schema_version": "1.0.0",
+            "status": "NOT_RUN",
+            "stage": "runtime_installation",
+        },
+        "runtime_import_closure_report_v1.json": {
+            "schema_version": "1.0.0",
+            "status": "NOT_RUN",
+            "stage": "runtime_import_closure",
+        },
+        "worker_startup_report_v1.json": {
+            "schema_version": "1.0.0",
+            "status": "NOT_RUN",
+            "stage": "worker_startup",
+        },
+        "request_results_v1.json": {
+            "schema_version": "1.0.0",
+            "status": "NOT_RUN",
+            "results": [],
+        },
+        "case_metrics_v1.json": {
+            "schema_version": "1.0.0",
+            "status": "NOT_RUN",
+            "cases": [],
+        },
+        "selection_report_v1.json": {
+            "schema_version": "1.0.0",
+            "status": "NOT_RUN",
+            "selected_case_id": None,
+            "eligible_case_ids": [],
+        },
+    }
+    for name, payload in reports.items():
+        write_json(name, payload)
+
+
+def write_stage_failure(
+    report_names: tuple[str, ...],
+    error: Exception,
+    stage: str,
+) -> None:
+    for name in report_names:
+        write_json(
+            name,
+            {
+                "schema_version": "1.0.0",
+                "status": "FAILED",
+                "stage": stage,
+                "error_type": type(error).__name__,
+                "raw_prompt_retained": False,
+                "raw_output_retained": False,
+            },
+        )
+
+
+def write_request_evidence(results: list[dict[str, object]]) -> None:
+    if len(results) == len(REQUEST_ORDER):
+        status = "COMPLETE"
+    elif results:
+        status = "PARTIAL"
+    else:
+        status = "NOT_RUN"
+    write_json(
+        "request_results_v1.json",
+        {
+            "schema_version": "1.0.0",
+            "status": status,
+            "scheduled_request_count": len(REQUEST_ORDER),
+            "observed_request_count": len(results),
+            "results": results,
+        },
+    )
+    metrics = case_metrics(results)
+    write_json(
+        "case_metrics_v1.json",
+        {
+            "schema_version": "1.0.0",
+            "status": status,
+            "cases": metrics,
+        },
+    )
+    selection = select_case(metrics)
+    selection["schema_version"] = "1.0.0"
+    if len(results) != len(REQUEST_ORDER):
+        selection["status"] = "INELIGIBLE_PARTIAL_EVIDENCE"
+        selection["selected_case_id"] = None
+        selection["eligible_case_ids"] = []
+    write_json("selection_report_v1.json", selection)
+
+
+def build_bundle() -> dict[str, object]:
+    archive_path = OUTPUT_ROOT / EVIDENCE_ZIP_NAME
+    expected_pre_manifest = set(EXPECTED_RUNTIME_OUTPUTS) - {
+        "bundle_manifest_v1.json",
+        EVIDENCE_ZIP_NAME,
+    }
+    observed_pre_manifest = {
+        path.name
+        for path in OUTPUT_ROOT.iterdir()
+        if path.is_file() and path.name not in {"bundle_manifest_v1.json", EVIDENCE_ZIP_NAME}
+    }
+    if observed_pre_manifest != expected_pre_manifest:
+        raise RuntimeError("runtime output set is incomplete before manifest creation")
     members = []
-    for path in sorted(item for item in OUTPUT_ROOT.iterdir() if item.is_file()):
-        if path.name in excluded:
-            continue
+    for path in sorted(
+        item
+        for item in OUTPUT_ROOT.iterdir()
+        if item.is_file() and item.name in expected_pre_manifest
+    ):
         members.append(
-            {"path": path.name, "size_bytes": path.stat().st_size, "sha256": sha256_file(path)}
+            {
+                "path": path.name,
+                "size_bytes": path.stat().st_size,
+                "sha256": sha256_file(path),
+            }
         )
     write_json(
         "bundle_manifest_v1.json",
-        {"schema_version": "1.0.0", "members": members, "raw_output_included": False},
+        {
+            "schema_version": "1.0.0",
+            "members": members,
+            "member_count": len(members),
+            "raw_output_included": False,
+        },
     )
-    archive_path = OUTPUT_ROOT / EVIDENCE_ZIP_NAME
+    expected_before_zip = set(EXPECTED_RUNTIME_OUTPUTS) - {EVIDENCE_ZIP_NAME}
+    observed_before_zip = {
+        path.name for path in OUTPUT_ROOT.iterdir() if path.is_file()
+    }
+    if observed_before_zip != expected_before_zip:
+        raise RuntimeError("runtime output set is incomplete before archive creation")
     with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for path in sorted(item for item in OUTPUT_ROOT.iterdir() if item.is_file()):
+        for path in sorted(
+            item for item in OUTPUT_ROOT.iterdir() if item.is_file()
+        ):
             if path.name == EVIDENCE_ZIP_NAME:
                 continue
             archive.write(path, arcname=path.name)
-    return sha256_file(archive_path)
-
+    return {
+        "sha256": sha256_file(archive_path),
+        "size_bytes": archive_path.stat().st_size,
+    }
 
 def main() -> int:
+    if OUTPUT_ROOT.exists() and any(OUTPUT_ROOT.iterdir()):
+        print(
+            canonical(
+                safe_failure(
+                    "P4_OUTPUT_CONTRACT_OUTPUT_ROOT_NOT_EMPTY",
+                    "existing output root blocks a governed attempt",
+                    "preflight",
+                )
+            ),
+            file=sys.stderr,
+        )
+        return 2
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
     SCRATCH_ROOT.mkdir(parents=True, exist_ok=True)
+    initialize_not_run_reports()
     process: subprocess.Popen[str] | None = None
     threads: list[threading.Thread] = []
     terminal_error: dict[str, object] | None = None
     results: list[dict[str, object]] = []
+    current_stage = "runtime_source_identity"
     try:
-        wheelhouse, snapshot = discover_inputs()
-        source_report = {
-            "status": "PASSED",
-            "source_main_commit": SOURCE_MAIN_COMMIT,
-            "executed_runtime_script_sha256": globals().get("EXECUTED_RUNTIME_SCRIPT_SHA256"),
-            "notebook_name": NOTEBOOK_NAME,
-        }
-        write_json("runtime_source_identity_report_v1.json", source_report)
-        write_json("model_snapshot_report_v1.json", validate_model_snapshot(snapshot))
-        write_json("wheelhouse_report_v1.json", validate_wheelhouse(wheelhouse))
-        install_report = install_runtime(wheelhouse)
-        write_json("runtime_install_report_v1.json", install_report)
-        import_report = import_closure()
-        write_json("runtime_import_closure_report_v1.json", import_report)
-        process, stdout_capture, stderr_capture, threads = start_worker(snapshot)
         write_json(
-            "worker_startup_report_v1.json",
+            "runtime_source_identity_report_v1.json",
             {
+                "schema_version": "1.0.0",
                 "status": "PASSED",
-                "pid": process.pid,
-                "gpu_index": 0,
-                "port": PORT,
-                "backend_marker": EXPECTED_BACKEND_MARKER,
-                "stdout_sha256": sha256_bytes("\n".join(stdout_capture.snapshot()).encode("utf-8")),
-                "stderr_sha256": sha256_bytes("\n".join(stderr_capture.snapshot()).encode("utf-8")),
-                "raw_worker_logs_retained": False,
+                "source_main_commit": SOURCE_MAIN_COMMIT,
+                "executed_runtime_script_sha256": globals().get(
+                    "EXECUTED_RUNTIME_SCRIPT_SHA256"
+                ),
+                "notebook_name": NOTEBOOK_NAME,
             },
         )
+        current_stage = "input_discovery"
+        wheelhouse, snapshot = discover_inputs()
+        current_stage = "model_snapshot_validation"
+        try:
+            model_report = validate_model_snapshot(snapshot)
+        except Exception as error:
+            write_stage_failure(
+                ("model_snapshot_report_v1.json",),
+                error,
+                current_stage,
+            )
+            raise
+        write_json("model_snapshot_report_v1.json", model_report)
+        current_stage = "wheelhouse_validation"
+        try:
+            wheelhouse_report = validate_wheelhouse(wheelhouse)
+        except Exception as error:
+            write_stage_failure(
+                ("wheelhouse_report_v1.json",),
+                error,
+                current_stage,
+            )
+            raise
+        write_json("wheelhouse_report_v1.json", wheelhouse_report)
+        current_stage = "runtime_installation"
+        install_runtime(wheelhouse)
+        current_stage = "runtime_import_closure"
+        import_closure()
+        current_stage = "worker_startup"
+        process, _, _, threads = start_worker(snapshot)
+        current_stage = "request_execution"
         for index, case_id in enumerate(REQUEST_ORDER, start=1):
             results.append(perform_request(case_id, index))
-        write_json("request_results_v1.json", {"schema_version": "1.0.0", "results": results})
-        metrics = case_metrics(results)
-        write_json("case_metrics_v1.json", {"schema_version": "1.0.0", "cases": metrics})
-        selection = select_case(metrics)
-        write_json("selection_report_v1.json", selection)
     except Exception as error:
+        if current_stage == "input_discovery":
+            write_stage_failure(
+                (
+                    "model_snapshot_report_v1.json",
+                    "wheelhouse_report_v1.json",
+                ),
+                error,
+                current_stage,
+            )
         terminal_error = safe_failure(
             "P4_OUTPUT_CONTRACT_RUNTIME_FAILED",
             type(error).__name__,
-            "runtime",
+            current_stage,
         )
-        write_json("failure_report_v1.json", terminal_error)
     finally:
-        if terminal_error is None:
-            write_json(
-                "failure_report_v1.json",
-                {
-                    "schema_version": "1.0.0",
-                    "status": "NOT_APPLICABLE",
-                    "error_code": None,
-                    "safe_message": None,
-                    "stage": None,
-                    "raw_prompt_retained": False,
-                    "raw_output_retained": False,
-                    "counters": dict(COUNTERS),
-                },
-            )
+        write_request_evidence(results)
         teardown_report = teardown(process, threads)
         write_json("worker_teardown_report_v1.json", teardown_report)
+        if teardown_report["status"] == "FAILED" and terminal_error is None:
+            terminal_error = safe_failure(
+                "P4_OUTPUT_CONTRACT_TEARDOWN_FAILED",
+                "worker teardown did not close cleanly",
+                "worker_teardown",
+            )
         cleanup_status = "PASSED"
+        cleanup_error_type = None
         try:
             shutil.rmtree(SCRATCH_ROOT, ignore_errors=False)
         except FileNotFoundError:
             pass
-        except OSError:
+        except OSError as error:
             cleanup_status = "FAILED"
-        write_json(
-            "scratch_cleanup_report_v1.json",
-            {
-                "status": cleanup_status,
-                "scratch_exists_after_cleanup": SCRATCH_ROOT.exists(),
-            },
-        )
+            cleanup_error_type = type(error).__name__
+        cleanup_report = {
+            "schema_version": "1.0.0",
+            "status": cleanup_status,
+            "scratch_exists_after_cleanup": SCRATCH_ROOT.exists(),
+            "error_type": cleanup_error_type,
+        }
+        write_json("scratch_cleanup_report_v1.json", cleanup_report)
+        if cleanup_status == "FAILED" and terminal_error is None:
+            terminal_error = safe_failure(
+                "P4_OUTPUT_CONTRACT_SCRATCH_CLEANUP_FAILED",
+                "scratch cleanup did not close cleanly",
+                "scratch_cleanup",
+            )
+        if terminal_error is None:
+            failure_report = {
+                "schema_version": "1.0.0",
+                "status": "NOT_APPLICABLE",
+                "error_code": None,
+                "safe_message": None,
+                "stage": None,
+                "raw_prompt_retained": False,
+                "raw_output_retained": False,
+                "counters": dict(COUNTERS),
+            }
+        else:
+            failure_report = dict(terminal_error)
+            failure_report["counters"] = dict(COUNTERS)
+        write_json("failure_report_v1.json", failure_report)
         status = "FAILED" if terminal_error is not None else "PASSED"
         summary = {
             "schema_version": "1.0.0",
@@ -686,7 +977,11 @@ def main() -> int:
                 else "P4_OUTPUT_CONTRACT_DIAGNOSTIC_V1_PASSED"
             ),
             "request_count": len(results),
+            "scheduled_request_count": len(REQUEST_ORDER),
             "counters": dict(COUNTERS),
+            "worker_teardown_status": teardown_report["status"],
+            "scratch_cleanup_status": cleanup_status,
+            "expected_runtime_output_count": len(EXPECTED_RUNTIME_OUTPUTS),
             "raw_prompt_retained": False,
             "raw_output_retained": False,
             "credentials_used": False,
@@ -698,7 +993,9 @@ def main() -> int:
         human = (
             "# P4 Output-Contract Diagnostic V1\n\n"
             f"Status: {status}\n\n"
-            f"Requests completed: {len(results)} of 18\n\n"
+            f"Requests completed: {len(results)} of {len(REQUEST_ORDER)}\n\n"
+            f"Worker teardown: {teardown_report['status']}\n\n"
+            f"Scratch cleanup: {cleanup_status}\n\n"
             "Raw prompts and outputs retained: no\n"
         )
         (OUTPUT_ROOT / "human_report_v1.md").write_text(
@@ -706,14 +1003,29 @@ def main() -> int:
             encoding="utf-8",
             newline="\n",
         )
-        evidence_sha256 = build_bundle()
+        try:
+            evidence = build_bundle()
+        except Exception as error:
+            print(
+                canonical(
+                    safe_failure(
+                        "P4_OUTPUT_CONTRACT_BUNDLE_FINALIZATION_FAILED",
+                        type(error).__name__,
+                        "bundle_finalization",
+                    )
+                ),
+                file=sys.stderr,
+            )
+            return 2
         print(
             canonical(
                 {
                     "status": status,
                     "terminal_decision": summary["terminal_decision"],
                     "evidence_zip": EVIDENCE_ZIP_NAME,
-                    "evidence_zip_sha256": evidence_sha256,
+                    "evidence_zip_sha256": evidence["sha256"],
+                    "evidence_zip_size_bytes": evidence["size_bytes"],
+                    "runtime_output_count": len(EXPECTED_RUNTIME_OUTPUTS),
                     "model_requests": COUNTERS["model_requests"],
                     "raw_prompt_retained": False,
                     "raw_output_retained": False,
@@ -721,7 +1033,6 @@ def main() -> int:
             )
         )
     return 0 if terminal_error is None else 2
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

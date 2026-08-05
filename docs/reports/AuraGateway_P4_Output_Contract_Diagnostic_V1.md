@@ -34,3 +34,11 @@ The declared runtime outputs now include `model_snapshot_report_v1.json` and
 `wheelhouse_report_v1.json`. A deterministic `failure_report_v1.json` is emitted on every terminal
 path, using `NOT_APPLICABLE` for successful runs. This closes the pre-authorization discrepancy
 between the runtime writer and implementation record.
+
+## Terminal-path closure
+
+The harness now materializes all sixteen declared outputs on ordinary success and failure paths.
+Early setup failure produces deterministic `NOT_RUN` stage reports and a complete failure bundle;
+transport failure preserves partial request, case-metric, and selection evidence. Teardown and
+scratch cleanup are terminal gates rather than advisory fields. This closes the gap between
+write-set parity and terminal-path evidence completeness.

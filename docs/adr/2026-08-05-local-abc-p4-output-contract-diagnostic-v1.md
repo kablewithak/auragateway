@@ -47,3 +47,12 @@ wheelhouse validation reports written before runtime installation. `failure_repo
 unconditional: it records `FAILED` on terminal failure and `NOT_APPLICABLE` on successful
 completion. Static regression coverage must prove parity between literal runtime writes and the
 declared output contract before authorization may be implemented.
+
+## Terminal-path evidence closure amendment
+
+The sixteen-artifact contract applies to ordinary successful and failed terminal paths, not merely
+to the union of literal writer calls. Stage reports are initialized as `NOT_RUN`, overwritten with
+`PASSED` or `FAILED` when attempted, and request, metric, and selection evidence is serialized even
+for partial execution. Worker startup failure performs bounded teardown. Surviving capture threads,
+residual worker processes, and scratch-cleanup failure terminalize the run. Bundle construction
+rejects an incomplete pre-manifest or pre-archive artifact set.

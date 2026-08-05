@@ -38,3 +38,11 @@ evidence bundle.
 Before authorization issuance, verify that the declared output contract exactly equals the runtime
 writer boundary. Both input-validation reports are required. `failure_report_v1.json` must exist
 for successful and failed executions; success uses `status=NOT_APPLICABLE`.
+
+## Terminal-path completeness gate
+
+Before authorization design, execute the synthetic early-failure regression and prove that the
+output directory contains exactly the sixteen declared artifacts. Verify that partial request
+evidence is selection-ineligible, startup failure performs teardown, surviving capture threads or
+worker processes fail the run, scratch-cleanup failure fails the run, and bundle creation rejects
+an incomplete pre-manifest or pre-archive artifact set.

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import json
-import re
 import shutil
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -260,24 +260,15 @@ def test_repetition_penalty_rejects_unsupported_value() -> None:
         )
 
 
-def test_runtime_output_contract_matches_template_writes() -> None:
+def test_runtime_output_contract_is_canonical() -> None:
+    assert (diagnostic._review().output_contract) == diagnostic.EXPECTED_RUNTIME_OUTPUTS
+    assert len(diagnostic.EXPECTED_RUNTIME_OUTPUTS) == 16
+
     text = (ROOT / diagnostic.TEMPLATE_PATH).read_text(
         encoding="utf-8",
     )
 
-    literal_json_outputs = set(
-        re.findall(
-            r'write_json\(\s*"([^"]+)"',
-            text,
-        )
-    )
-
-    runtime_outputs = literal_json_outputs | {
-        "human_report_v1.md",
-        diagnostic.EVIDENCE_ZIP_NAME,
-    }
-
-    assert runtime_outputs == set(diagnostic._review().output_contract)
+    assert "__EXPECTED_RUNTIME_OUTPUTS_JSON__" in text
 
 
 def test_failure_report_is_emitted_for_success_and_failure() -> None:
@@ -285,8 +276,102 @@ def test_failure_report_is_emitted_for_success_and_failure() -> None:
         encoding="utf-8",
     )
 
-    assert text.count('"failure_report_v1.json"') == 2
-
-    assert "if terminal_error is None:" in text
     assert '"status": "NOT_APPLICABLE"' in text
     assert '"status": "FAILED"' in text
+    assert "failure_report = dict(terminal_error)" in text
+    assert 'write_json("failure_report_v1.json", failure_report)' in text
+
+
+def _runtime_namespace(tmp_path: Path) -> dict[str, Any]:
+    source = diagnostic._template_bytes(ROOT).decode("utf-8")
+    namespace: dict[str, Any] = {"__name__": "p4_runtime_test"}
+    exec(
+        compile(source, "<p4-runtime-test>", "exec"),
+        namespace,
+        namespace,
+    )
+    output_root = tmp_path / "output"
+    scratch_root = output_root / "scratch"
+    namespace["OUTPUT_ROOT"] = output_root
+    namespace["SCRATCH_ROOT"] = scratch_root
+    namespace["TARGET_SITE"] = scratch_root / "target_site"
+    return namespace
+
+
+def test_runtime_failure_path_emits_complete_output_contract(
+    tmp_path: Path,
+) -> None:
+    namespace = _runtime_namespace(tmp_path)
+
+    def fail_discovery() -> tuple[Path, Path]:
+        raise RuntimeError("synthetic input discovery failure")
+
+    namespace["discover_inputs"] = fail_discovery
+    exit_code = namespace["main"]()
+
+    assert exit_code == 2
+    output_root = namespace["OUTPUT_ROOT"]
+    observed = {path.name for path in output_root.iterdir() if path.is_file()}
+    assert observed == set(diagnostic.EXPECTED_RUNTIME_OUTPUTS)
+
+    failure_report = json.loads(
+        (output_root / "failure_report_v1.json").read_text(
+            encoding="utf-8",
+        )
+    )
+    assert failure_report["status"] == "FAILED"
+    assert failure_report["stage"] == "input_discovery"
+
+    manifest = json.loads(
+        (output_root / "bundle_manifest_v1.json").read_text(
+            encoding="utf-8",
+        )
+    )
+    assert manifest["member_count"] == 14
+    assert {item["path"] for item in manifest["members"]} == (
+        set(diagnostic.EXPECTED_RUNTIME_OUTPUTS)
+        - {
+            "bundle_manifest_v1.json",
+            diagnostic.EVIDENCE_ZIP_NAME,
+        }
+    )
+
+
+def test_runtime_teardown_reports_surviving_capture_thread_as_failure(
+    tmp_path: Path,
+) -> None:
+    namespace = _runtime_namespace(tmp_path)
+
+    class SurvivingThread:
+        def join(self, timeout: int) -> None:
+            assert timeout == 10
+
+        def is_alive(self) -> bool:
+            return True
+
+    report = namespace["teardown"](
+        None,
+        [SurvivingThread()],
+    )
+
+    assert report["status"] == "FAILED"
+    assert report["capture_threads_finalized"] is False
+    assert report["process_absent"] is True
+
+
+def test_runtime_bundle_rejects_incomplete_output_set(
+    tmp_path: Path,
+) -> None:
+    namespace = _runtime_namespace(tmp_path)
+    output_root = namespace["OUTPUT_ROOT"]
+    output_root.mkdir(parents=True)
+    (output_root / "failure_report_v1.json").write_text(
+        "{}",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="incomplete before manifest",
+    ):
+        namespace["build_bundle"]()
