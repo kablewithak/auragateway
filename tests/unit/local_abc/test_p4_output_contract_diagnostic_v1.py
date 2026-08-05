@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -257,3 +258,35 @@ def test_repetition_penalty_rejects_unsupported_value() -> None:
             repetition_penalty=1.05,
             output_mode="UNCONSTRAINED",
         )
+
+
+def test_runtime_output_contract_matches_template_writes() -> None:
+    text = (ROOT / diagnostic.TEMPLATE_PATH).read_text(
+        encoding="utf-8",
+    )
+
+    literal_json_outputs = set(
+        re.findall(
+            r'write_json\(\s*"([^"]+)"',
+            text,
+        )
+    )
+
+    runtime_outputs = literal_json_outputs | {
+        "human_report_v1.md",
+        diagnostic.EVIDENCE_ZIP_NAME,
+    }
+
+    assert runtime_outputs == set(diagnostic._review().output_contract)
+
+
+def test_failure_report_is_emitted_for_success_and_failure() -> None:
+    text = (ROOT / diagnostic.TEMPLATE_PATH).read_text(
+        encoding="utf-8",
+    )
+
+    assert text.count('"failure_report_v1.json"') == 2
+
+    assert "if terminal_error is None:" in text
+    assert '"status": "NOT_APPLICABLE"' in text
+    assert '"status": "FAILED"' in text

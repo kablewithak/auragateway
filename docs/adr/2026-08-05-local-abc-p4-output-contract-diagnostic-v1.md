@@ -38,3 +38,12 @@ Setup, model, worker, and transport failures remain fatal.
 - retaining raw failed output;
 - treating one valid response as qualification;
 - issuing execution authority in this implementation tranche.
+
+
+## Evidence-contract completeness amendment
+
+The runtime output contract is exact rather than illustrative. It includes the model-snapshot and
+wheelhouse validation reports written before runtime installation. `failure_report_v1.json` is
+unconditional: it records `FAILED` on terminal failure and `NOT_APPLICABLE` on successful
+completion. Static regression coverage must prove parity between literal runtime writes and the
+declared output contract before authorization may be implemented.

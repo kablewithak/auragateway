@@ -26,3 +26,11 @@ parsing metadata, token counts, finish reasons, aggregate metrics, teardown, and
 
 Production-shaped, repository implementation only. Runtime execution, measured A/B/C,
 deployment, and production readiness are not authorized or claimed.
+
+
+## Evidence-contract remediation
+
+The declared runtime outputs now include `model_snapshot_report_v1.json` and
+`wheelhouse_report_v1.json`. A deterministic `failure_report_v1.json` is emitted on every terminal
+path, using `NOT_APPLICABLE` for successful runs. This closes the pre-authorization discrepancy
+between the runtime writer and implementation record.

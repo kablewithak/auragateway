@@ -16,7 +16,7 @@ from typing import Final, Literal, Never, Self, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-SOURCE_MAIN_COMMIT: Final = "0c7198d43f7354536b44dc2379a675cb7ad5441d"
+SOURCE_MAIN_COMMIT: Final = "3ab50e7a1e2661c5967ba91501c51afe96b58864"
 
 FAILURE_ACCEPTANCE_RECORD_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_cu129_p3_p6_runtime_diagnostic_failure_acceptance_v5.json"
@@ -104,7 +104,7 @@ class AcceptedAuthority(ArtifactReceipt):
         "v5_failure_acceptance_review",
         "v5_implementation_record",
     ]
-    source_commit: Literal["0c7198d43f7354536b44dc2379a675cb7ad5441d"]
+    source_commit: Literal["3ab50e7a1e2661c5967ba91501c51afe96b58864"]
     status: str
     next_gate: str
 
@@ -159,7 +159,7 @@ class EvidenceContract(_StrictModel):
 class P4OutputContractRequest(_StrictModel):
     schema_version: Literal["1.0.0"] = "1.0.0"
     request_id: Literal["auragateway-p4-output-contract-diagnostic-v1-request"]
-    source_main_commit: Literal["0c7198d43f7354536b44dc2379a675cb7ad5441d"]
+    source_main_commit: Literal["3ab50e7a1e2661c5967ba91501c51afe96b58864"]
     accepted_authorities: tuple[AcceptedAuthority, AcceptedAuthority, AcceptedAuthority]
     strategy: Literal["SIX_CASE_BALANCED_OUTPUT_CONTRACT_DIAGNOSTIC"]
     model_repository: Literal["Qwen/Qwen2.5-0.5B-Instruct"]
@@ -195,7 +195,7 @@ class ArchitectureReview(_StrictModel):
     schema_version: Literal["1.0.0"] = "1.0.0"
     review_id: Literal["auragateway-p4-output-contract-diagnostic-v1-review"]
     decision: Literal["APPROVED_FOR_REPOSITORY_IMPLEMENTATION"]
-    source_main_commit: Literal["0c7198d43f7354536b44dc2379a675cb7ad5441d"]
+    source_main_commit: Literal["3ab50e7a1e2661c5967ba91501c51afe96b58864"]
     accepted_first_divergence: Literal["P4_MODEL_RESPONSE_NOT_VALID_JSON"]
     primary_classification: Literal["P4_OUTPUT_CONTRACT_HARNESS_WEAKNESS"]
     selected_intervention: Literal["BALANCED_PROMPT_PENALTY_SCHEMA_MATRIX"]
@@ -238,7 +238,7 @@ class ImplementationRecord(_StrictModel):
     schema_version: Literal["1.0.0"] = "1.0.0"
     record_id: Literal["auragateway-p4-output-contract-diagnostic-v1-implementation"]
     status: Literal["IMPLEMENTED_NOT_EXECUTED"]
-    source_main_commit: Literal["0c7198d43f7354536b44dc2379a675cb7ad5441d"]
+    source_main_commit: Literal["3ab50e7a1e2661c5967ba91501c51afe96b58864"]
     accepted_authorities: tuple[AcceptedAuthority, AcceptedAuthority, AcceptedAuthority]
     request: ArtifactReceipt
     review: ArtifactReceipt
@@ -573,6 +573,8 @@ def _review() -> ArchitectureReview:
         ),
         output_contract=(
             "runtime_source_identity_report_v1.json",
+            "model_snapshot_report_v1.json",
+            "wheelhouse_report_v1.json",
             "runtime_install_report_v1.json",
             "runtime_import_closure_report_v1.json",
             "worker_startup_report_v1.json",

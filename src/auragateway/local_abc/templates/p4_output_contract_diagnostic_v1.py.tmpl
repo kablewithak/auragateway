@@ -646,6 +646,20 @@ def main() -> int:
         )
         write_json("failure_report_v1.json", terminal_error)
     finally:
+        if terminal_error is None:
+            write_json(
+                "failure_report_v1.json",
+                {
+                    "schema_version": "1.0.0",
+                    "status": "NOT_APPLICABLE",
+                    "error_code": None,
+                    "safe_message": None,
+                    "stage": None,
+                    "raw_prompt_retained": False,
+                    "raw_output_retained": False,
+                    "counters": dict(COUNTERS),
+                },
+            )
         teardown_report = teardown(process, threads)
         write_json("worker_teardown_report_v1.json", teardown_report)
         cleanup_status = "PASSED"
