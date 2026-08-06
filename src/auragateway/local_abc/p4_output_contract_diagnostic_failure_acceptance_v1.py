@@ -594,12 +594,12 @@ def _validate_intake_manifest(root: Path, policy: FailureAcceptancePolicy) -> No
                 "intake manifest header drifted",
                 path,
             )
-            for row in reader:
+            for raw_row in reader:
                 rows.append(
                     IntakeManifestRow(
-                        filename=row["filename"],
-                        sha256=row["sha256"],
-                        size_bytes=int(row["size_bytes"]),
+                        filename=raw_row["filename"],
+                        sha256=raw_row["sha256"],
+                        size_bytes=int(raw_row["size_bytes"]),
                     )
                 )
     except (OSError, ValueError, ValidationError) as exc:
@@ -614,16 +614,17 @@ def _validate_intake_manifest(root: Path, policy: FailureAcceptancePolicy) -> No
         if Path(receipt.path).name != path.name
     }
     _require(
-        {row.filename for row in rows} == expected_filenames,
+        {manifest_row.filename for manifest_row in rows} == expected_filenames,
         "P4_FAILURE_ACCEPTANCE_INTAKE_MANIFEST_COUNT_DRIFT",
         "intake manifest boundary drifted",
         path,
     )
-    for row in rows:
-        target = _evidence_path(policy, row.filename)
+    for manifest_row in rows:
+        target = _evidence_path(policy, manifest_row.filename)
         observed = _artifact_receipt(root, target)
         _require(
-            observed.sha256 == row.sha256 and observed.size_bytes == row.size_bytes,
+            observed.sha256 == manifest_row.sha256
+            and observed.size_bytes == manifest_row.size_bytes,
             "P4_FAILURE_ACCEPTANCE_INTAKE_MANIFEST_RECEIPT_DRIFT",
             "intake manifest receipt drifted",
             target,
