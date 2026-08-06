@@ -1,0 +1,1 @@
+{"critical_packages_present":{"tokenizers":true,"torch":true,"transformers":true,"triton":true,"vllm":true},"governed_control_hash_count":8,"status":"PASSED","wheel_count":176}

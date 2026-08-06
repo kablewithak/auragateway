@@ -1,0 +1,1 @@
+{"eligible_case_ids":[],"schema_version":"1.0.0","selected_case_id":null,"selection_rule":"3/3 exact-object responses, one response hash, and zero request errors; prefer the least constraining configuration.","status":"INELIGIBLE_PARTIAL_EVIDENCE"}
