@@ -1,0 +1,36 @@
+11.6s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+11.6s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+11.6s 3 0.00s - to python to disable frozen modules.
+11.6s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+12.4s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+12.4s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+12.4s 7 0.00s - to python to disable frozen modules.
+12.4s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+299.9s 9 {"evidence_zip":"ag-p4-output-contract-evidence-v1.zip","evidence_zip_sha256":"5e5fb76f053e371cc5f9dfb857846b41c198a772fe4869405beed0de27311d78","evidence_zip_size_bytes":5653,"model_requests":0,"raw_output_retained":false,"raw_prompt_retained":false,"runtime_output_count":16,"status":"FAILED","terminal_decision":"P4_OUTPUT_CONTRACT_DIAGNOSTIC_V1_FAILED"}
+299.9s 10 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+299.9s 11 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+299.9s 12 
+299.9s 13 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+299.9s 14 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+300.2s 15 Traceback (most recent call last):
+300.2s 16 File "<string>", line 1, in <module>
+300.2s 17 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+300.2s 18 raise_for_execution_errors(nb, output_path)
+300.2s 19 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+300.2s 20 raise error
+300.2s 21 papermill.exceptions.PapermillExecutionError:
+300.2s 22 ---------------------------------------------------------------------------
+300.2s 23 Exception encountered at "In [1]":
+300.2s 24 An exception has occurred, use %tb to see the full traceback.
+300.2s 25 
+300.2s 26 SystemExit: 2
+300.2s 27 
+300.2s 28 
+303.3s 29 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+303.3s 30 cells[i][c] = re.sub('\\\\\|', '|', cell)
+303.5s 31 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+303.5s 32 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+304.5s 33 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+304.8s 34 [NbConvertApp] Writing 66320 bytes to __notebook__.ipynb
+307.2s 35 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+308.2s 36 [NbConvertApp] Writing 354531 bytes to __results__.html

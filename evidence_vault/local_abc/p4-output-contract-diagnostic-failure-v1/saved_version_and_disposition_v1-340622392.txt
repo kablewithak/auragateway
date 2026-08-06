@@ -1,0 +1,6 @@
+saved_version_id=340622392
+lifecycle_outcome=FAILED
+evidence_disposition=PENDING_ACCEPTANCE
+first_divergence=RUNTIME_IMPORT_CLOSURE_FAILED
+authorization_reusable=false
+unchanged_replay_authorized=false
