@@ -1,0 +1,1195 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+import shutil
+import signal
+import socket
+import subprocess
+import sys
+import threading
+import time
+import urllib.error
+import urllib.request
+import zipfile
+from collections import deque
+from pathlib import Path
+
+SOURCE_MAIN_COMMIT = "__SOURCE_MAIN_COMMIT__"
+NOTEBOOK_NAME = "__NOTEBOOK_NAME__"
+MODEL_SNAPSHOT_SHA256 = "__MODEL_SNAPSHOT_SHA256__"
+MODEL_REVISION = "__MODEL_REVISION__"
+EVIDENCE_ZIP_NAME = "__EVIDENCE_ZIP_NAME__"
+REQUEST_ORDER = __REQUEST_ORDER_JSON__
+EXPECTED_RUNTIME_OUTPUTS = tuple(__EXPECTED_RUNTIME_OUTPUTS_JSON__)
+INSPECTION_SAVED_VERSION = __INSPECTION_SAVED_VERSION__
+INSPECTION_EVIDENCE_SHA256 = "__INSPECTION_EVIDENCE_SHA256__"
+
+MODEL_REPOSITORY = "Qwen/Qwen2.5-0.5B-Instruct"
+SERVED_MODEL_NAME = "local-qwen2.5-0.5b-instruct"
+EXPECTED_BACKEND_MARKER = "Using AttentionBackendEnum.TRITON_ATTN backend."
+EXPECTED_BACKEND = "TRITON_ATTN"
+OUTPUT_ROOT = Path("/kaggle/working/p4_output_contract_diagnostic_v2")
+SCRATCH_ROOT = Path("/kaggle/working/p4_output_contract_diagnostic_v2_scratch")
+TARGET_SITE = SCRATCH_ROOT / "target_runtime" / "site-packages"
+LOG_ROOT = SCRATCH_ROOT / "worker_logs"
+REAL_DRIVER_DIRECTORY = Path("/usr/local/nvidia/lib64")
+PORT = 8001
+BASE_URL = f"http://127.0.0.1:{PORT}"
+MAX_STREAM_BYTES = 128 * 1024
+MAX_INSTALL_EXCERPT_CHARACTERS = 16000
+MAX_HEALTH_POLLS = 120
+HEALTH_POLL_SECONDS = 2.0
+MAX_PROCESS_TREE_SIZE = 64
+
+TARGET_LIBRARY_RELATIVE_DIRECTORIES = (
+    "nvidia/nvjitlink/lib",
+    "nvidia/cublas/lib",
+    "nvidia/cuda_cupti/lib",
+    "nvidia/cuda_nvrtc/lib",
+    "nvidia/cuda_runtime/lib",
+    "nvidia/cudnn/lib",
+    "nvidia/cufft/lib",
+    "nvidia/cufile/lib",
+    "nvidia/curand/lib",
+    "nvidia/cusolver/lib",
+    "nvidia/cusparse/lib",
+    "nvidia/nccl/lib",
+    "nvidia/nvshmem/lib",
+)
+PROHIBITED_LIBRARY_PATH_MARKERS = (
+    "/usr/local/cuda/lib64/stubs",
+    "/usr/local/cuda-12/lib64/stubs",
+    "/stubs",
+)
+NATIVE_LIBRARY_TOKENS = (
+    "libcuda",
+    "libcudart",
+    "libcublas",
+    "libcusparse",
+    "libnvJitLink",
+    "libnccl",
+    "libtorch",
+)
+TARGET_REQUIRED_NATIVE_TOKENS = ("libcusparse", "libnvJitLink")
+
+V4_PROMPT = (
+    "Return only the exact JSON object supplied in the final user message, "
+    "with no markdown or additional text."
+)
+V5_PROMPT = (
+    "For structured probes, return only the exact JSON object supplied in "
+    "the final user message."
+)
+EXPECTED_OBJECT = {"probe": "cold", "value": 1}
+EXPECTED_OBJECT_CANONICAL = json.dumps(
+    EXPECTED_OBJECT,
+    ensure_ascii=True,
+    separators=(",", ":"),
+    sort_keys=True,
+)
+JSON_SCHEMA = {
+    "name": "p4_output_contract",
+    "strict": True,
+    "schema": {
+        "type": "object",
+        "properties": {
+            "probe": {"type": "string", "const": "cold"},
+            "value": {"type": "integer", "const": 1},
+        },
+        "required": ["probe", "value"],
+        "additionalProperties": False,
+    },
+}
+CASES = {
+    "A": {"prompt_variant": "V4", "repetition_penalty": 1.1, "schema": False},
+    "B": {"prompt_variant": "V5", "repetition_penalty": 1.1, "schema": False},
+    "C": {"prompt_variant": "V4", "repetition_penalty": 1.0, "schema": False},
+    "D": {"prompt_variant": "V5", "repetition_penalty": 1.0, "schema": False},
+    "E": {"prompt_variant": "V4", "repetition_penalty": 1.0, "schema": True},
+    "F": {"prompt_variant": "V5", "repetition_penalty": 1.0, "schema": True},
+}
+COUNTERS = {
+    "kaggle_sessions": 1,
+    "runtime_install_attempts": 0,
+    "runtime_import_closure_probes": 0,
+    "model_loads": 0,
+    "worker_starts": 0,
+    "model_requests": 0,
+    "benchmark_trajectory_requests": 0,
+    "network_requests": 0,
+    "hidden_retries": 0,
+    "external_spend": 0,
+}
+
+EXPECTED_CONTROL_HASHES = {
+    "requirements.in": "a120c72a5643bb65afbfe0bd3dd072f1ea89a19f57a534dd814c9bafdd41880f",
+    "resolution_lock.json": "1575538b0a412c9b030fc95ccada0f0527553b76f06ef6b2b72904e61c84870c",
+    "materialization.lock.txt": "d061bd9a7ff0a686bb462a2bd016a1f3e1aea833fbdbff353dddf96fdd623e1d",
+    "requirements.lock.txt": "47cb357a53ca74ca597b286768e1d0e9cb831f7431c08fad378fc42ea59b3a27",
+    "install_runtime.py": "68bba3ca131e9a6f36392330562985d2a644be57cf5437fd282b883741c86821",
+    "runtime_manifest.json": "b424d2b952d726b2f7451ebd8f48d604985f650dbe2f6d146969625618b7fc51",
+    "sha256_manifest.json": "789fb23ab7d9c4f28dd909e808a53a65d692c0d7b43bc44da9e974817d771b8d",
+    "materialization_receipt.json": "52aa42b940dd606ab5685686ab893eb085efed2a7466989f654e870f4b360589",
+}
+
+CREDENTIAL_ENV_NAMES = (
+    "ANTHROPIC_API_KEY",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AZURE_OPENAI_API_KEY",
+    "GOOGLE_API_KEY",
+    "HF_TOKEN",
+    "HUGGING_FACE_HUB_TOKEN",
+    "OPENAI_API_KEY",
+    "OPENROUTER_API_KEY",
+)
+
+
+class DiagnosticFailure(RuntimeError):
+    def __init__(self, error_code: str, safe_message: str) -> None:
+        super().__init__(safe_message)
+        self.error_code = error_code
+        self.safe_message = safe_message
+
+
+def canonical(payload: object) -> str:
+    return json.dumps(payload, ensure_ascii=True, separators=(",", ":"), sort_keys=True)
+
+
+def sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def sanitize_text(value: str, maximum: int = MAX_INSTALL_EXCERPT_CHARACTERS) -> str:
+    bounded = value[-maximum:]
+    replacements = {
+        "/kaggle/input": "<input>",
+        "/kaggle/working": "<working>",
+        os.environ.get("HOME", ""): "<home>",
+    }
+    for source, replacement in replacements.items():
+        if source:
+            bounded = bounded.replace(source, replacement)
+    return re.sub(
+        r"(?i)\b(token|secret|password|api[_-]?key)\s*=\s*\S+",
+        r"\1=<redacted>",
+        bounded,
+    )
+
+
+def write_json(name: str, payload: object) -> None:
+    path = OUTPUT_ROOT / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(canonical(payload), encoding="utf-8", newline="\n")
+    temporary.replace(path)
+
+
+def write_text(name: str, payload: str) -> None:
+    path = OUTPUT_ROOT / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(payload.replace("\r\n", "\n"), encoding="utf-8", newline="\n")
+    temporary.replace(path)
+
+
+def safe_failure(error_code: str, safe_message: str, stage: str) -> dict[str, object]:
+    return {
+        "schema_version": "1.0.0",
+        "status": "FAILED",
+        "error_code": error_code,
+        "safe_message": safe_message,
+        "stage": stage,
+        "inspection_saved_version": INSPECTION_SAVED_VERSION,
+        "inspection_evidence_sha256": INSPECTION_EVIDENCE_SHA256,
+        "raw_prompt_retained": False,
+        "raw_output_retained": False,
+        "counters": dict(COUNTERS),
+    }
+
+
+def require_private_environment() -> None:
+    present = tuple(name for name in CREDENTIAL_ENV_NAMES if os.environ.get(name))
+    if present:
+        raise DiagnosticFailure(
+            "P4_V2_PRIVACY_BOUNDARY_VIOLATION",
+            "credential-bearing environment variables are prohibited",
+        )
+    if os.environ.get("AURAGATEWAY_CUSTOMER_DATA_PRESENT") == "1":
+        raise DiagnosticFailure(
+            "P4_V2_PRIVACY_BOUNDARY_VIOLATION",
+            "customer data is prohibited",
+        )
+
+
+def discover_inputs() -> tuple[Path, Path]:
+    input_root = Path("/kaggle/input")
+    wheelhouses = sorted({
+        path.resolve()
+        for path in input_root.rglob("auragateway_vllm_cu129_wheelhouse_v1")
+        if path.is_dir() and not path.is_symlink()
+    })
+    snapshots = sorted({
+        path.parent.resolve()
+        for path in input_root.rglob("config.json")
+        if path.is_file() and path.parent.name == MODEL_REVISION
+    })
+    if len(wheelhouses) != 1:
+        raise DiagnosticFailure("P4_V2_WHEELHOUSE_DISCOVERY_FAILED", "expected one wheelhouse")
+    if len(snapshots) != 1:
+        raise DiagnosticFailure("P4_V2_MODEL_DISCOVERY_FAILED", "expected one model snapshot")
+    return wheelhouses[0], snapshots[0]
+
+
+def validate_model_snapshot(snapshot: Path) -> dict[str, object]:
+    config_path = snapshot / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    if config.get("model_type") != "qwen2":
+        raise DiagnosticFailure("P4_V2_MODEL_IDENTITY_MISMATCH", "model type mismatch")
+    files = sorted(item for item in snapshot.rglob("*") if item.is_file())
+    if len(files) != 10:
+        raise DiagnosticFailure("P4_V2_MODEL_IDENTITY_MISMATCH", "model file count mismatch")
+    total_bytes = sum(path.stat().st_size for path in files)
+    if total_bytes != 999604126:
+        raise DiagnosticFailure("P4_V2_MODEL_IDENTITY_MISMATCH", "model size mismatch")
+    expected_critical = {
+        "model.safetensors": "fdf756fa7fcbe7404d5c60e26bff1a0c8b8aa1f72ced49e7dd0210fe288fb7fe",
+        "generation_config.json": "e558847a8b4402616f1273797b015104dc266fe4b520056fca88823ba8f8ebe6",
+        "tokenizer_config.json": "5b5d4f65d0acd3b2d56a35b56d374a36cbc1c8fa5cf3b3febbbfabf22f359583",
+    }
+    for name, expected in expected_critical.items():
+        path = snapshot / name
+        if not path.is_file() or sha256_file(path) != expected:
+            raise DiagnosticFailure("P4_V2_MODEL_IDENTITY_MISMATCH", f"model member mismatch: {name}")
+    return {
+        "schema_version": "1.0.0",
+        "status": "PASSED",
+        "model_revision": MODEL_REVISION,
+        "governed_model_snapshot_sha256": MODEL_SNAPSHOT_SHA256,
+        "file_count": len(files),
+        "total_bytes": total_bytes,
+    }
+
+
+def validate_wheelhouse(root: Path) -> dict[str, object]:
+    for name, expected in EXPECTED_CONTROL_HASHES.items():
+        path = root / name
+        if not path.is_file() or path.is_symlink() or sha256_file(path) != expected:
+            raise DiagnosticFailure("P4_V2_WHEELHOUSE_INVALID", f"control mismatch: {name}")
+    manifest = json.loads((root / "sha256_manifest.json").read_text(encoding="utf-8"))
+    entries = manifest.get("entries")
+    if not isinstance(entries, list) or len(entries) != 182:
+        raise DiagnosticFailure("P4_V2_WHEELHOUSE_INVALID", "manifest count mismatch")
+    wheel_count = 0
+    for raw in entries:
+        if not isinstance(raw, dict):
+            raise DiagnosticFailure("P4_V2_WHEELHOUSE_INVALID", "manifest member invalid")
+        relative = raw.get("path")
+        digest = raw.get("sha256")
+        size = raw.get("size_bytes")
+        if not isinstance(relative, str) or not isinstance(digest, str) or not isinstance(size, int):
+            raise DiagnosticFailure("P4_V2_WHEELHOUSE_INVALID", "manifest identity invalid")
+        path = root / relative
+        if (
+            not path.is_file()
+            or path.is_symlink()
+            or path.stat().st_size != size
+            or sha256_file(path) != digest
+        ):
+            raise DiagnosticFailure("P4_V2_WHEELHOUSE_INVALID", f"member mismatch: {relative}")
+        wheel_count += int(relative.endswith(".whl"))
+    if wheel_count != 176:
+        raise DiagnosticFailure("P4_V2_WHEELHOUSE_INVALID", "wheel count mismatch")
+    return {
+        "schema_version": "1.0.0",
+        "status": "PASSED",
+        "manifest_entry_count": len(entries),
+        "wheel_count": wheel_count,
+        "exact_manifest_closure_verified": True,
+    }
+
+
+def run_process(
+    argv: list[str],
+    *,
+    environment: dict[str, str],
+    timeout_seconds: float,
+) -> dict[str, object]:
+    started = time.monotonic()
+    try:
+        result = subprocess.run(
+            argv,
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=environment,
+            timeout=timeout_seconds,
+        )
+        return {
+            "status": "PASSED" if result.returncode == 0 else "FAILED",
+            "return_code": result.returncode,
+            "timed_out": False,
+            "duration_ms": round((time.monotonic() - started) * 1000),
+            "stdout_sha256": sha256_bytes(result.stdout.encode("utf-8")),
+            "stderr_sha256": sha256_bytes(result.stderr.encode("utf-8")),
+            "stdout_excerpt": sanitize_text(result.stdout),
+            "stderr_excerpt": sanitize_text(result.stderr),
+        }
+    except subprocess.TimeoutExpired as error:
+        stdout = error.stdout or ""
+        stderr = error.stderr or ""
+        if isinstance(stdout, bytes):
+            stdout = stdout.decode("utf-8", errors="replace")
+        if isinstance(stderr, bytes):
+            stderr = stderr.decode("utf-8", errors="replace")
+        return {
+            "status": "FAILED",
+            "return_code": None,
+            "timed_out": True,
+            "duration_ms": round((time.monotonic() - started) * 1000),
+            "stdout_sha256": sha256_bytes(stdout.encode("utf-8")),
+            "stderr_sha256": sha256_bytes(stderr.encode("utf-8")),
+            "stdout_excerpt": sanitize_text(stdout),
+            "stderr_excerpt": sanitize_text(stderr),
+        }
+
+
+def install_runtime(wheelhouse: Path) -> dict[str, object]:
+    COUNTERS["runtime_install_attempts"] += 1
+    wheels = wheelhouse / "wheels"
+    TARGET_SITE.mkdir(parents=True, exist_ok=False)
+    command = [
+        sys.executable,
+        "-m",
+        "pip",
+        "--isolated",
+        "--disable-pip-version-check",
+        "install",
+        "--no-index",
+        "--require-hashes",
+        "--only-binary=:all:",
+        "--target",
+        str(TARGET_SITE),
+        "--find-links",
+        str(wheels),
+        "-r",
+        str(wheelhouse / "requirements.lock.txt"),
+    ]
+    environment = dict(os.environ)
+    environment.pop("PIP_INDEX_URL", None)
+    environment.pop("PIP_EXTRA_INDEX_URL", None)
+    environment.update({
+        "PIP_NO_INDEX": "1",
+        "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+        "PIP_NO_CACHE_DIR": "1",
+    })
+    process = run_process(command, environment=environment, timeout_seconds=900)
+    report = {
+        "schema_version": "1.0.0",
+        **process,
+        "installer_contract": "HASH_LOCKED_OFFLINE_TARGET_INSTALL",
+        "requirements_lock_sha256": sha256_file(wheelhouse / "requirements.lock.txt"),
+        "network_access_requested": False,
+        "raw_install_output_retained": False,
+    }
+    write_json("runtime_install_report_v2.json", report)
+    if process["status"] != "PASSED":
+        raise DiagnosticFailure("P4_V2_RUNTIME_INSTALL_FAILED", "offline installation failed")
+    return report
+
+
+def target_library_directories() -> tuple[Path, ...]:
+    result = tuple(
+        path
+        for relative in TARGET_LIBRARY_RELATIVE_DIRECTORIES
+        if (path := TARGET_SITE / relative).is_dir()
+    )
+    if not result:
+        raise DiagnosticFailure(
+            "P4_V2_NATIVE_LIBRARY_DIRECTORY_MISSING",
+            "target NVIDIA library directories are unavailable",
+        )
+    return result
+
+
+def _is_prohibited_library_path(value: str) -> bool:
+    normalized = value.replace("\\\\", "/").rstrip("/")
+    return any(marker in normalized for marker in PROHIBITED_LIBRARY_PATH_MARKERS)
+
+
+def build_runtime_environment(gpu_index: int | None = None) -> dict[str, str]:
+    environment = dict(os.environ)
+    inherited = [
+        item
+        for item in environment.get("LD_LIBRARY_PATH", "").split(os.pathsep)
+        if item and not _is_prohibited_library_path(item)
+    ]
+    target_libraries = [str(path) for path in target_library_directories()]
+    ordered = []
+    for item in [*target_libraries, *inherited, str(REAL_DRIVER_DIRECTORY)]:
+        if item not in ordered:
+            ordered.append(item)
+    environment.update({
+        "PYTHONPATH": str(TARGET_SITE),
+        "PYTHONNOUSERSITE": "1",
+        "HF_HUB_OFFLINE": "1",
+        "TRANSFORMERS_OFFLINE": "1",
+        "PIP_NO_INDEX": "1",
+        "LD_LIBRARY_PATH": os.pathsep.join(ordered),
+        "LIBRARY_PATH": str(REAL_DRIVER_DIRECTORY),
+        "LDFLAGS": (
+            f"-L{REAL_DRIVER_DIRECTORY} "
+            f"-Wl,-rpath,{REAL_DRIVER_DIRECTORY}"
+        ),
+    })
+    environment.pop("LD_PRELOAD", None)
+    if gpu_index is not None:
+        environment["CUDA_VISIBLE_DEVICES"] = str(gpu_index)
+        environment["VLLM_ATTENTION_BACKEND"] = EXPECTED_BACKEND
+    if any(_is_prohibited_library_path(item) for item in ordered):
+        raise DiagnosticFailure(
+            "P4_V2_PROHIBITED_CUDA_STUB_PATH",
+            "prohibited CUDA stub path survived environment construction",
+        )
+    return environment
+
+
+def runtime_environment_report(environment: dict[str, str]) -> dict[str, object]:
+    paths = environment["LD_LIBRARY_PATH"].split(os.pathsep)
+    return {
+        "schema_version": "1.0.0",
+        "status": "PASSED",
+        "pythonpath_exact_target_site": environment.get("PYTHONPATH") == str(TARGET_SITE),
+        "target_library_prefix_count": len(target_library_directories()),
+        "target_nvjitlink_precedes_inherited": (
+            str(TARGET_SITE / "nvidia/nvjitlink/lib") in paths
+            and paths.index(str(TARGET_SITE / "nvidia/nvjitlink/lib")) == 0
+        ),
+        "prohibited_stub_path_present": any(_is_prohibited_library_path(item) for item in paths),
+        "real_driver_directory_present": str(REAL_DRIVER_DIRECTORY) in paths,
+        "library_path": environment.get("LIBRARY_PATH"),
+        "ldflags_sha256": sha256_bytes(environment.get("LDFLAGS", "").encode("utf-8")),
+        "raw_environment_retained": False,
+    }
+
+
+def import_closure() -> dict[str, object]:
+    COUNTERS["runtime_import_closure_probes"] += 1
+    code = (
+        "import json,torch,triton,transformers,tokenizers,vllm;"
+        "print(json.dumps({'torch':torch.__version__,'cuda':torch.version.cuda,"
+        "'triton':triton.__version__,'transformers':transformers.__version__,"
+        "'tokenizers':tokenizers.__version__,'vllm':vllm.__version__},sort_keys=True))"
+    )
+    environment = build_runtime_environment(gpu_index=0)
+    process = run_process(
+        [sys.executable, "-c", code],
+        environment=environment,
+        timeout_seconds=120,
+    )
+    report: dict[str, object] = {
+        "schema_version": "1.0.0",
+        **process,
+        "environment": runtime_environment_report(environment),
+        "versions": None,
+        "model_loads_consumed": 0,
+        "worker_starts_consumed": 0,
+        "network_access_requested": False,
+        "raw_import_output_retained": False,
+    }
+    if process["status"] != "PASSED":
+        write_json("runtime_import_closure_report_v2.json", report)
+        raise DiagnosticFailure("P4_V2_RUNTIME_IMPORT_CLOSURE_FAILED", "runtime import closure failed")
+    stdout_excerpt = str(process["stdout_excerpt"])
+    try:
+        versions = json.loads(stdout_excerpt.strip().splitlines()[-1])
+    except (IndexError, json.JSONDecodeError) as error:
+        write_json("runtime_import_closure_report_v2.json", report)
+        raise DiagnosticFailure("P4_V2_IMPORT_VERSION_PAYLOAD_INVALID", "version payload invalid") from error
+    expected = {
+        "vllm": "0.19.1",
+        "torch": "2.10.0+cu129",
+        "cuda": "12.9",
+        "triton": "3.6.0",
+        "transformers": "5.5.3",
+        "tokenizers": "0.22.2",
+    }
+    report["versions"] = versions
+    if versions != expected:
+        write_json("runtime_import_closure_report_v2.json", report)
+        raise DiagnosticFailure("P4_V2_RUNTIME_VERSION_MISMATCH", "runtime versions drifted")
+    report["status"] = "PASSED"
+    report["decision"] = "NATIVE_HARDENED_IMPORT_CLOSURE_PASSED"
+    write_json("runtime_import_closure_report_v2.json", report)
+    return report
+
+
+class Capture:
+    def __init__(self) -> None:
+        self.lines: deque[tuple[str, int]] = deque()
+        self.retained_bytes = 0
+        self.observed_bytes = 0
+        self.truncated = False
+        self.lock = threading.Lock()
+
+    def consume(self, stream: Any) -> None:
+        for line in iter(stream.readline, ""):
+            encoded_size = len(line.encode("utf-8", errors="replace"))
+            normalized = line.rstrip("\n")
+            with self.lock:
+                self.observed_bytes += encoded_size
+                self.lines.append((normalized, encoded_size))
+                self.retained_bytes += encoded_size
+                while self.retained_bytes > MAX_STREAM_BYTES and self.lines:
+                    _, removed = self.lines.popleft()
+                    self.retained_bytes -= removed
+                    self.truncated = True
+        stream.close()
+
+    def snapshot(self) -> list[str]:
+        with self.lock:
+            return [line for line, _ in self.lines]
+
+    def receipt(self) -> dict[str, object]:
+        payload = "\n".join(self.snapshot()).encode("utf-8")
+        return {
+            "observed_bytes": self.observed_bytes,
+            "retained_bytes": len(payload),
+            "tail_sha256": sha256_bytes(payload),
+            "truncated": self.truncated,
+        }
+
+
+def port_open(port: int) -> bool:
+    try:
+        with socket.create_connection(("127.0.0.1", port), timeout=1.0):
+            return True
+    except OSError:
+        return False
+
+
+def wait_ready(process: subprocess.Popen[str], timeout_seconds: int = 240) -> None:
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        return_code = process.poll()
+        if return_code is not None:
+            raise DiagnosticFailure(
+                "P4_V2_WORKER_EXITED_BEFORE_READINESS",
+                f"worker exited before readiness with return code {return_code}",
+            )
+        try:
+            with urllib.request.urlopen(BASE_URL + "/v1/models", timeout=3) as response:
+                if response.status == 200:
+                    return
+        except (urllib.error.URLError, TimeoutError):
+            time.sleep(HEALTH_POLL_SECONDS)
+    raise DiagnosticFailure("P4_V2_WORKER_READINESS_TIMEOUT", "worker readiness timed out")
+
+
+def process_tree(root_pid: int) -> tuple[int, ...]:
+    pending = [root_pid]
+    observed: list[int] = []
+    while pending:
+        pid = pending.pop()
+        if pid in observed:
+            continue
+        observed.append(pid)
+        if len(observed) > MAX_PROCESS_TREE_SIZE:
+            raise DiagnosticFailure("P4_V2_PROCESS_TREE_TOO_LARGE", "process tree exceeded bound")
+        children_path = Path(f"/proc/{pid}/task/{pid}/children")
+        if not children_path.is_file():
+            continue
+        raw = children_path.read_text(encoding="utf-8", errors="replace").strip()
+        if raw:
+            pending.extend(int(item) for item in raw.split() if item.isdigit())
+    return tuple(sorted(observed))
+
+
+def classify_native_origin(path: Path) -> str:
+    normalized = path.as_posix()
+    if _is_prohibited_library_path(normalized):
+        return "PROHIBITED_CUDA_STUB"
+    target = TARGET_SITE.resolve()
+    resolved = path.resolve()
+    if resolved == target or target in resolved.parents:
+        return "TARGET_WHEELHOUSE_LIBRARY"
+    driver = REAL_DRIVER_DIRECTORY.resolve()
+    if resolved == driver or driver in resolved.parents:
+        return "HOST_DRIVER_LIBRARY"
+    return "HOST_OR_AMBIENT_LIBRARY"
+
+
+def inspect_native_origins(root_pid: int) -> dict[str, object]:
+    observations: list[dict[str, object]] = []
+    for pid in process_tree(root_pid):
+        maps_path = Path(f"/proc/{pid}/maps")
+        if not maps_path.is_file():
+            continue
+        for line in maps_path.read_text(encoding="utf-8", errors="replace").splitlines():
+            parts = line.split(maxsplit=5)
+            if len(parts) < 6 or not parts[5].startswith("/"):
+                continue
+            raw_path = parts[5].removesuffix(" (deleted)")
+            name = Path(raw_path).name
+            if not any(token in name for token in NATIVE_LIBRARY_TOKENS):
+                continue
+            path = Path(raw_path)
+            observations.append({
+                "pid": pid,
+                "library_name": name,
+                "origin": sanitize_text(path.as_posix(), maximum=1000),
+                "classification": classify_native_origin(path),
+            })
+    unique = {
+        (row["pid"], row["library_name"], row["origin"]): row
+        for row in observations
+    }
+    observations = [unique[key] for key in sorted(unique)]
+    prohibited = [row for row in observations if row["classification"] == "PROHIBITED_CUDA_STUB"]
+    required_status = {}
+    for token in TARGET_REQUIRED_NATIVE_TOKENS:
+        matching = [row for row in observations if token in str(row["library_name"])]
+        required_status[token] = {
+            "observed": bool(matching),
+            "all_from_target": bool(matching) and all(
+                row["classification"] == "TARGET_WHEELHOUSE_LIBRARY" for row in matching
+            ),
+        }
+    status = "PASSED"
+    if prohibited or any(not item["all_from_target"] for item in required_status.values()):
+        status = "FAILED"
+    report = {
+        "schema_version": "1.0.0",
+        "status": status,
+        "root_pid": root_pid,
+        "process_tree": list(process_tree(root_pid)),
+        "observations": observations,
+        "prohibited_origin_count": len(prohibited),
+        "required_target_origins": required_status,
+    }
+    write_json("runtime_native_origin_report_v2.json", report)
+    if status != "PASSED":
+        raise DiagnosticFailure("P4_V2_NATIVE_ORIGIN_CLOSURE_FAILED", "native origin closure failed")
+    return report
+
+
+def start_worker(snapshot: Path) -> tuple[subprocess.Popen[str], Capture, Capture, list[threading.Thread]]:
+    COUNTERS["model_loads"] += 1
+    COUNTERS["worker_starts"] += 1
+    environment = build_runtime_environment(gpu_index=0)
+    command = [
+        sys.executable,
+        "-m",
+        "vllm.entrypoints.openai.api_server",
+        "--model",
+        str(snapshot),
+        "--tokenizer",
+        str(snapshot),
+        "--served-model-name",
+        SERVED_MODEL_NAME,
+        "--host",
+        "127.0.0.1",
+        "--port",
+        str(PORT),
+        "--dtype",
+        "half",
+        "--max-model-len",
+        "2048",
+        "--gpu-memory-utilization",
+        "0.90",
+        "--enable-prefix-caching",
+        "--attention-backend",
+        EXPECTED_BACKEND,
+        "--no-enable-log-requests",
+    ]
+    process: subprocess.Popen[str] | None = None
+    stdout_capture = Capture()
+    stderr_capture = Capture()
+    threads: list[threading.Thread] = []
+    try:
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=environment,
+            start_new_session=True,
+        )
+        if process.stdout is None or process.stderr is None:
+            raise DiagnosticFailure("P4_V2_WORKER_CAPTURE_UNAVAILABLE", "worker streams unavailable")
+        threads = [
+            threading.Thread(target=stdout_capture.consume, args=(process.stdout,), daemon=True),
+            threading.Thread(target=stderr_capture.consume, args=(process.stderr,), daemon=True),
+        ]
+        for thread in threads:
+            thread.start()
+        wait_ready(process)
+        inspect_native_origins(process.pid)
+        stdout_lines = stdout_capture.snapshot()
+        stderr_lines = stderr_capture.snapshot()
+        marker_matches = [
+            ("stdout", index, line)
+            for index, line in enumerate(stdout_lines, start=1)
+            if line.strip().endswith(EXPECTED_BACKEND_MARKER)
+        ] + [
+            ("stderr", index, line)
+            for index, line in enumerate(stderr_lines, start=1)
+            if line.strip().endswith(EXPECTED_BACKEND_MARKER)
+        ]
+        if len(marker_matches) != 1:
+            raise DiagnosticFailure("P4_V2_BACKEND_NOT_REALIZED", "TRITON backend marker was not unique")
+        marker_stream, marker_line_number, marker_line = marker_matches[0]
+        write_json("worker_startup_report_v2.json", {
+            "schema_version": "1.0.0",
+            "status": "PASSED",
+            "pid": process.pid,
+            "gpu_index": 0,
+            "port": PORT,
+            "backend_marker": EXPECTED_BACKEND_MARKER,
+            "backend_marker_stream": marker_stream,
+            "backend_marker_line_number": marker_line_number,
+            "backend_marker_line_sha256": sha256_bytes(marker_line.encode("utf-8")),
+            "environment": runtime_environment_report(environment),
+            "stdout": stdout_capture.receipt(),
+            "stderr": stderr_capture.receipt(),
+            "request_logging_disabled": True,
+            "raw_worker_logs_retained": False,
+        })
+        return process, stdout_capture, stderr_capture, threads
+    except Exception as error:
+        teardown_report = teardown(process, threads)
+        write_json("worker_startup_report_v2.json", {
+            "schema_version": "1.0.0",
+            "status": "FAILED",
+            "error_type": type(error).__name__,
+            "safe_message": getattr(error, "safe_message", type(error).__name__),
+            "pid": process.pid if process is not None else None,
+            "stdout": stdout_capture.receipt(),
+            "stderr": stderr_capture.receipt(),
+            "startup_teardown": teardown_report,
+            "raw_worker_logs_retained": False,
+        })
+        raise
+
+
+def edge_class(character: str | None) -> str:
+    if character is None:
+        return "NONE"
+    if character in "{[":
+        return "JSON_OPEN"
+    if character in "]}":
+        return "JSON_CLOSE"
+    if character == "`":
+        return "BACKTICK"
+    if character.isspace():
+        return "WHITESPACE"
+    if character.isalpha():
+        return "ALPHA"
+    if character.isdigit():
+        return "DIGIT"
+    return "OTHER"
+
+
+def request_payload(case_id: str) -> dict[str, object]:
+    case = CASES[case_id]
+    prompt = V4_PROMPT if case["prompt_variant"] == "V4" else V5_PROMPT
+    payload: dict[str, object] = {
+        "model": SERVED_MODEL_NAME,
+        "messages": [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": EXPECTED_OBJECT_CANONICAL},
+        ],
+        "temperature": 0,
+        "top_p": 1,
+        "repetition_penalty": case["repetition_penalty"],
+        "seed": 7,
+        "max_tokens": 32,
+        "stream": False,
+    }
+    if case["schema"]:
+        payload["response_format"] = {"type": "json_schema", "json_schema": JSON_SCHEMA}
+    return payload
+
+
+def perform_request(case_id: str, sequence_index: int) -> dict[str, object]:
+    COUNTERS["model_requests"] += 1
+    encoded = canonical(request_payload(case_id)).encode("utf-8")
+    request = urllib.request.Request(
+        BASE_URL + "/v1/chat/completions",
+        data=encoded,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response:
+            response_payload = response.read()
+            status_code = response.status
+    except urllib.error.HTTPError as error:
+        error_payload = error.read()
+        return {
+            "case_id": case_id,
+            "sequence_index": sequence_index,
+            "status": "REQUEST_REJECTED",
+            "http_status": error.code,
+            "error_body_sha256": sha256_bytes(error_payload),
+            "error_body_length": len(error_payload),
+            "failure_category": "HTTP_REQUEST_SCHEMA_REJECTED" if case_id in {"E", "F"} else "HTTP_REQUEST_REJECTED",
+            "raw_prompt_retained": False,
+            "raw_output_retained": False,
+        }
+    except (urllib.error.URLError, TimeoutError) as error:
+        raise DiagnosticFailure("P4_V2_REQUEST_TRANSPORT_FAILED", "model request transport failed") from error
+    envelope = json.loads(response_payload)
+    choices = envelope.get("choices")
+    usage = envelope.get("usage")
+    if not isinstance(choices, list) or len(choices) != 1 or not isinstance(usage, dict):
+        raise DiagnosticFailure("P4_V2_RESPONSE_ENVELOPE_INVALID", "response envelope invalid")
+    choice = choices[0]
+    if not isinstance(choice, dict) or not isinstance(choice.get("message"), dict):
+        raise DiagnosticFailure("P4_V2_RESPONSE_ENVELOPE_INVALID", "response choice invalid")
+    content = choice["message"].get("content")
+    if not isinstance(content, str):
+        raise DiagnosticFailure("P4_V2_RESPONSE_ENVELOPE_INVALID", "response content invalid")
+    stripped = content.strip()
+    first = stripped[0] if stripped else None
+    last = stripped[-1] if stripped else None
+    valid_json = False
+    exact_object = False
+    json_error_line = None
+    json_error_column = None
+    json_error_position = None
+    try:
+        parsed = json.loads(content)
+        valid_json = True
+        exact_object = parsed == EXPECTED_OBJECT
+    except json.JSONDecodeError as error:
+        json_error_line = error.lineno
+        json_error_column = error.colno
+        json_error_position = error.pos
+    if not valid_json:
+        failure_category = "REQUEST_COMPLETED_OUTPUT_INVALID_JSON"
+    elif not exact_object:
+        failure_category = "REQUEST_COMPLETED_OBJECT_MISMATCH"
+    else:
+        failure_category = None
+    return {
+        "case_id": case_id,
+        "sequence_index": sequence_index,
+        "status": "COMPLETED",
+        "http_status": status_code,
+        "response_sha256": sha256_bytes(content.encode("utf-8")),
+        "response_length": len(content),
+        "finish_reason": choice.get("finish_reason"),
+        "prompt_tokens": usage.get("prompt_tokens"),
+        "completion_tokens": usage.get("completion_tokens"),
+        "valid_json": valid_json,
+        "exact_object": exact_object,
+        "failure_category": failure_category,
+        "json_error_line": json_error_line,
+        "json_error_column": json_error_column,
+        "json_error_position": json_error_position,
+        "first_non_whitespace_class": edge_class(first),
+        "last_non_whitespace_class": edge_class(last),
+        "markdown_fence_detected": "```" in content,
+        "raw_prompt_retained": False,
+        "raw_output_retained": False,
+    }
+
+
+def frequency(rows: list[dict[str, object]], key: str) -> dict[str, int]:
+    observed: dict[str, int] = {}
+    for row in rows:
+        value = str(row.get(key))
+        observed[value] = observed.get(value, 0) + 1
+    return observed
+
+
+def case_metrics(results: list[dict[str, object]]) -> list[dict[str, object]]:
+    metrics = []
+    for case_id in sorted(CASES):
+        rows = [row for row in results if row["case_id"] == case_id]
+        completed = [row for row in rows if row["status"] == "COMPLETED"]
+        exact_count = sum(row.get("exact_object") is True for row in completed)
+        valid_count = sum(row.get("valid_json") is True for row in completed)
+        hashes = {row["response_sha256"] for row in completed if isinstance(row.get("response_sha256"), str)}
+        metrics.append({
+            "case_id": case_id,
+            "attempt_count": len(rows),
+            "completed_count": len(completed),
+            "request_error_count": len(rows) - len(completed),
+            "valid_json_count": valid_count,
+            "valid_json_rate": valid_count / 3,
+            "exact_object_count": exact_count,
+            "exact_object_rate": exact_count / 3,
+            "response_hash_cardinality": len(hashes),
+            "failure_category_distribution": frequency(rows, "failure_category"),
+            "finish_reason_distribution": frequency(completed, "finish_reason"),
+            "completion_token_distribution": frequency(completed, "completion_tokens"),
+        })
+    return metrics
+
+
+def select_case(metrics: list[dict[str, object]]) -> dict[str, object]:
+    eligible = [
+        row
+        for row in metrics
+        if row["completed_count"] == 3
+        and row["request_error_count"] == 0
+        and row["exact_object_count"] == 3
+        and row["response_hash_cardinality"] == 1
+    ]
+    rank = {"A": 0, "C": 1, "B": 2, "D": 3, "E": 4, "F": 5}
+    eligible.sort(key=lambda row: rank[str(row["case_id"])])
+    selected = eligible[0]["case_id"] if eligible else None
+    return {
+        "status": "SELECTED" if selected is not None else "NO_CASE_SELECTED",
+        "selected_case_id": selected,
+        "eligible_case_ids": [row["case_id"] for row in eligible],
+        "selection_rule": (
+            "3/3 exact-object responses, one response hash, and zero request errors; "
+            "prefer the least constraining configuration."
+        ),
+    }
+
+
+def teardown(process: subprocess.Popen[str] | None, threads: list[threading.Thread]) -> dict[str, object]:
+    error_types: list[str] = []
+    try:
+        observed_tree = (
+            process_tree(process.pid)
+            if process is not None and process.poll() is None
+            else tuple()
+        )
+    except (OSError, DiagnosticFailure, ValueError) as error:
+        observed_tree = tuple()
+        error_types.append(type(error).__name__)
+    if process is not None:
+        try:
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGTERM)
+                try:
+                    process.wait(timeout=30)
+                except subprocess.TimeoutExpired:
+                    os.killpg(process.pid, signal.SIGKILL)
+                    process.wait(timeout=15)
+        except (OSError, subprocess.SubprocessError) as error:
+            error_types.append(type(error).__name__)
+    for thread in threads:
+        try:
+            thread.join(timeout=10)
+        except RuntimeError as error:
+            error_types.append(type(error).__name__)
+    capture_threads_finalized = all(not thread.is_alive() for thread in threads)
+    process_absent = process is None or process.poll() is not None
+    surviving_pids = [pid for pid in observed_tree if Path(f"/proc/{pid}").exists()]
+    port_closed = not port_open(PORT)
+    if process is None and capture_threads_finalized and not error_types and port_closed:
+        status = "NOT_REQUIRED"
+    elif process_absent and not surviving_pids and capture_threads_finalized and not error_types and port_closed:
+        status = "PASSED"
+    else:
+        status = "FAILED"
+    return {
+        "schema_version": "1.0.0",
+        "status": status,
+        "return_code": process.returncode if process is not None else None,
+        "capture_threads_finalized": capture_threads_finalized,
+        "process_absent": process_absent,
+        "surviving_descendant_pids": surviving_pids,
+        "port_closed": port_closed,
+        "error_types": sorted(set(error_types)),
+    }
+
+
+def initialize_not_run_reports() -> None:
+    reports = {
+        "runtime_source_identity_report_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN"},
+        "model_snapshot_report_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN"},
+        "wheelhouse_report_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN"},
+        "runtime_install_report_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN"},
+        "runtime_import_closure_report_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN"},
+        "runtime_native_origin_report_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN"},
+        "worker_startup_report_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN"},
+        "request_results_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN", "results": []},
+        "case_metrics_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN", "cases": []},
+        "selection_report_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN"},
+        "worker_teardown_report_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN"},
+        "scratch_cleanup_report_v2.json": {"schema_version": "1.0.0", "status": "NOT_RUN"},
+    }
+    for name, payload in reports.items():
+        write_json(name, payload)
+
+
+def write_request_evidence(results: list[dict[str, object]]) -> None:
+    status = "COMPLETE" if len(results) == len(REQUEST_ORDER) else ("PARTIAL" if results else "NOT_RUN")
+    write_json("request_results_v2.json", {
+        "schema_version": "1.0.0",
+        "status": status,
+        "scheduled_request_count": len(REQUEST_ORDER),
+        "observed_request_count": len(results),
+        "results": results,
+    })
+    metrics = case_metrics(results)
+    write_json("case_metrics_v2.json", {"schema_version": "1.0.0", "status": status, "cases": metrics})
+    selection = select_case(metrics)
+    selection["schema_version"] = "1.0.0"
+    if status != "COMPLETE":
+        selection.update({"status": "INELIGIBLE_PARTIAL_EVIDENCE", "selected_case_id": None, "eligible_case_ids": []})
+    write_json("selection_report_v2.json", selection)
+
+
+def build_bundle() -> dict[str, object]:
+    archive_path = OUTPUT_ROOT / EVIDENCE_ZIP_NAME
+    expected_pre_manifest = set(EXPECTED_RUNTIME_OUTPUTS) - {"bundle_manifest_v2.json", EVIDENCE_ZIP_NAME}
+    observed_pre_manifest = {
+        path.name for path in OUTPUT_ROOT.iterdir()
+        if path.is_file() and path.name not in {"bundle_manifest_v2.json", EVIDENCE_ZIP_NAME}
+    }
+    if observed_pre_manifest != expected_pre_manifest:
+        raise DiagnosticFailure("P4_V2_OUTPUT_SET_INCOMPLETE", "runtime output set incomplete")
+    members = [
+        {"path": path.name, "size_bytes": path.stat().st_size, "sha256": sha256_file(path)}
+        for path in sorted(OUTPUT_ROOT.iterdir())
+        if path.is_file() and path.name in expected_pre_manifest
+    ]
+    write_json("bundle_manifest_v2.json", {
+        "schema_version": "1.0.0",
+        "members": members,
+        "member_count": len(members),
+        "raw_output_included": False,
+    })
+    with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(OUTPUT_ROOT.iterdir()):
+            if path.is_file() and path.name != EVIDENCE_ZIP_NAME:
+                archive.write(path, arcname=path.name)
+    return {"sha256": sha256_file(archive_path), "size_bytes": archive_path.stat().st_size}
+
+
+def main() -> int:
+    if OUTPUT_ROOT.exists() and any(OUTPUT_ROOT.iterdir()):
+        print(canonical(safe_failure("P4_V2_OUTPUT_ROOT_NOT_EMPTY", "existing output root blocks attempt", "preflight")), file=sys.stderr)
+        return 2
+    if SCRATCH_ROOT.exists():
+        shutil.rmtree(SCRATCH_ROOT)
+    OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+    SCRATCH_ROOT.mkdir(parents=True, exist_ok=True)
+    initialize_not_run_reports()
+    process: subprocess.Popen[str] | None = None
+    threads: list[threading.Thread] = []
+    results: list[dict[str, object]] = []
+    current_stage = "preflight"
+    terminal_error: dict[str, object] | None = None
+    try:
+        require_private_environment()
+        write_json("runtime_source_identity_report_v2.json", {
+            "schema_version": "1.0.0",
+            "status": "PASSED",
+            "source_main_commit": SOURCE_MAIN_COMMIT,
+            "executed_runtime_script_sha256": globals().get("EXECUTED_RUNTIME_SCRIPT_SHA256"),
+            "notebook_name": NOTEBOOK_NAME,
+            "inspection_saved_version": INSPECTION_SAVED_VERSION,
+            "inspection_evidence_sha256": INSPECTION_EVIDENCE_SHA256,
+        })
+        current_stage = "input_discovery"
+        wheelhouse, snapshot = discover_inputs()
+        current_stage = "model_snapshot_validation"
+        write_json("model_snapshot_report_v2.json", validate_model_snapshot(snapshot))
+        current_stage = "wheelhouse_validation"
+        write_json("wheelhouse_report_v2.json", validate_wheelhouse(wheelhouse))
+        current_stage = "runtime_installation"
+        install_runtime(wheelhouse)
+        current_stage = "runtime_import_closure"
+        import_closure()
+        current_stage = "worker_startup"
+        process, _, _, threads = start_worker(snapshot)
+        current_stage = "request_matrix"
+        for index, case_id in enumerate(REQUEST_ORDER, start=1):
+            results.append(perform_request(case_id, index))
+            write_request_evidence(results)
+        current_stage = "complete"
+    except Exception as error:
+        error_code = getattr(error, "error_code", "P4_V2_RUNTIME_FAILED")
+        safe_message = getattr(error, "safe_message", type(error).__name__)
+        terminal_error = safe_failure(error_code, safe_message, current_stage)
+        write_request_evidence(results)
+        write_json("failure_report_v2.json", terminal_error)
+    finally:
+        teardown_report = teardown(process, threads)
+        write_json("worker_teardown_report_v2.json", teardown_report)
+        cleanup_status = "PASSED"
+        cleanup_error = None
+        try:
+            if SCRATCH_ROOT.exists():
+                shutil.rmtree(SCRATCH_ROOT)
+        except OSError as error:
+            cleanup_status = "FAILED"
+            cleanup_error = type(error).__name__
+        write_json("scratch_cleanup_report_v2.json", {
+            "schema_version": "1.0.0",
+            "status": cleanup_status,
+            "scratch_absent": not SCRATCH_ROOT.exists(),
+            "error_type": cleanup_error,
+        })
+    if terminal_error is None:
+        write_json("failure_report_v2.json", {
+            "schema_version": "1.0.0",
+            "status": "NOT_APPLICABLE",
+            "error_code": None,
+        })
+    selection = json.loads((OUTPUT_ROOT / "selection_report_v2.json").read_text(encoding="utf-8"))
+    summary_status = "PASSED" if terminal_error is None else "FAILED"
+    write_json("p4_output_contract_diagnostic_summary_v2.json", {
+        "schema_version": "1.0.0",
+        "status": summary_status,
+        "first_divergence": None if terminal_error is None else terminal_error["stage"],
+        "reported_failure_code": None if terminal_error is None else terminal_error["error_code"],
+        "selected_case_id": selection.get("selected_case_id"),
+        "request_count": len(results),
+        "counters": dict(COUNTERS),
+        "inspection_saved_version": INSPECTION_SAVED_VERSION,
+        "inspection_evidence_sha256": INSPECTION_EVIDENCE_SHA256,
+    })
+    write_text("human_report_v2.md", "\n".join([
+        "# AuraGateway P4 Output-Contract Diagnostic V2",
+        "",
+        f"- Status: `{summary_status}`",
+        f"- First divergence: `{None if terminal_error is None else terminal_error['stage']}`",
+        f"- Failure code: `{None if terminal_error is None else terminal_error['error_code']}`",
+        f"- Selected case: `{selection.get('selected_case_id')}`",
+        f"- Model requests: `{COUNTERS['model_requests']}`",
+        "- Raw prompts retained: `false`",
+        "- Raw outputs retained: `false`",
+        "- Measured A/B/C executed: `false`",
+    ]))
+    bundle = build_bundle()
+    print("")
+    print("=== P4_OUTPUT_CONTRACT_DIAGNOSTIC_V2_BEGIN ===")
+    print(f"status={summary_status}")
+    print(f"first_divergence={None if terminal_error is None else terminal_error['stage']}")
+    print(f"reported_failure_code={None if terminal_error is None else terminal_error['error_code']}")
+    print(f"selected_case_id={selection.get('selected_case_id')}")
+    print(f"model_requests={COUNTERS['model_requests']}")
+    print(f"evidence_zip={OUTPUT_ROOT / EVIDENCE_ZIP_NAME}")
+    print(f"evidence_zip_sha256={bundle['sha256']}")
+    print("measured_abc_execution=false")
+    print("=== P4_OUTPUT_CONTRACT_DIAGNOSTIC_V2_END ===")
+    return 0 if terminal_error is None else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,55 @@
+6.1s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.1s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.1s 3 0.00s - to python to disable frozen modules.
+6.1s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+6.6s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.6s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.6s 7 0.00s - to python to disable frozen modules.
+6.6s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+261.3s 9 [p4_ambient] individual:torch: FAILED
+261.9s 10 [p4_ambient] individual:triton: PASSED
+271.4s 11 [p4_ambient] individual:transformers: PASSED
+271.4s 12 [p4_ambient] individual:tokenizers: PASSED
+271.7s 13 [p4_ambient] individual:vllm: FAILED
+271.7s 14 [p4_ambient] individual:vllm.model_executor.models.registry: FAILED
+272.0s 15 [p4_ambient] cumulative:p4_order: FAILED
+272.0s 16 [p4_ambient] cumulative:v5_order: FAILED
+272.3s 17 [path_isolated] cumulative:p4_order: FAILED
+272.3s 18 [path_isolated] cumulative:v5_order: FAILED
+272.5s 19 [path_isolated] individual:torch: FAILED
+272.5s 20 [path_isolated] individual:vllm: FAILED
+272.8s 21 [path_isolated] individual:vllm.model_executor.models.registry: FAILED
+280.6s 22 [native_hardened] cumulative:p4_order: PASSED
+294.1s 23 [native_hardened] cumulative:v5_order: PASSED
+296.2s 24 [native_hardened] individual:torch: PASSED
+299.5s 25 [native_hardened] individual:vllm: PASSED
+311.6s 26 [native_hardened] individual:vllm.model_executor.models.registry: PASSED
+315.8s 27 [v5_full] cumulative:p4_order: PASSED
+321.8s 28 [v5_full] cumulative:v5_order: PASSED
+323.9s 29 [v5_full] individual:torch: PASSED
+327.0s 30 [v5_full] individual:vllm: PASSED
+333.0s 31 [v5_full] individual:vllm.model_executor.models.registry: PASSED
+335.4s 32 
+335.4s 33 === P4_IMPORT_DIFFERENTIAL_INSPECTION_BEGIN ===
+335.4s 34 primary_classification=NATIVE_LIBRARY_SEARCH_PATH_SUPPORTED
+335.4s 35 supported_classifications=NATIVE_LIBRARY_SEARCH_PATH_SUPPORTED
+335.4s 36 failed_exact_p4_probes=cumulative:p4_order,cumulative:v5_order,individual:torch,individual:vllm,individual:vllm.model_executor.models.registry
+335.4s 37 p4_target_exactly_matches_lock=true
+335.4s 38 wheelhouse_exact_manifest_verified=true
+335.4s 39 evidence_zip=/kaggle/working/ag-p4-import-differential-inspection-v1.zip
+335.4s 40 evidence_zip_sha256=ea54b6ec59bd3a73be20fec04aa56ca9f3f4af58f8499ec2962a66f152180849
+335.4s 41 model_loads=0
+335.4s 42 worker_starts=0
+335.4s 43 model_requests=0
+335.4s 44 network_requests=0
+335.4s 45 solution_authorized=false
+335.4s 46 === P4_IMPORT_DIFFERENTIAL_INSPECTION_END ===
+335.4s 47 P4_IMPORT_DIFFERENTIAL_INSPECTION_PASSED=true
+337.7s 48 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+337.7s 49 cells[i][c] = re.sub('\\\\\|', '|', cell)
+337.9s 50 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+337.9s 51 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+338.5s 52 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+338.8s 53 [NbConvertApp] Writing 54694 bytes to __notebook__.ipynb
+341.1s 54 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+342.0s 55 [NbConvertApp] Writing 327631 bytes to __results__.html
