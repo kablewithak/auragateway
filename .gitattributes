@@ -24,3 +24,4 @@ evidence_vault/local_abc/cu129-explicit-triton-attention-backend-execution-accep
 evidence_vault/local_abc/cu129-explicit-triton-attention-backend-execution-acceptance-v1/inspection_manifest_v1-339181603.json -text
 evidence_vault/local_abc/cu129-p3-p6-runtime-diagnostic-failure-v5/intake_manifest_v5-340227787.csv text eol=crlf
 evidence_vault/local_abc/cu129-p3-p6-runtime-diagnostic-failure-v5/saved_version_and_disposition_v5-340227787.txt text eol=crlf
+evidence_vault/local_abc/p4-import-differential-inspection-v1/ag-p4-import-differential-inspection-v1-340657269.log whitespace=-blank-at-eol
