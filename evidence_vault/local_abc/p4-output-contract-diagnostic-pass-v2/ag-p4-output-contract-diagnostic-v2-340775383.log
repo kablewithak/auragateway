@@ -1,0 +1,32 @@
+7.9s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.9s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.9s 3 0.00s - to python to disable frozen modules.
+7.9s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+8.5s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.5s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.5s 7 0.00s - to python to disable frozen modules.
+8.5s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+592.6s 9 
+592.6s 10 === P4_OUTPUT_CONTRACT_DIAGNOSTIC_V2_BEGIN ===
+592.6s 11 status=PASSED
+592.6s 12 first_divergence=None
+592.6s 13 reported_failure_code=None
+592.6s 14 selected_case_id=A
+592.6s 15 model_requests=18
+592.6s 16 evidence_zip=/kaggle/working/p4_output_contract_diagnostic_v2/ag-p4-output-contract-evidence-v2.zip
+592.6s 17 evidence_zip_sha256=d8c23c086c8b3b21fd9ebb11946f97280aab471193ef6940583382b20af25f8d
+592.6s 18 measured_abc_execution=false
+592.6s 19 === P4_OUTPUT_CONTRACT_DIAGNOSTIC_V2_END ===
+592.6s 20 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+592.6s 21 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+592.6s 22 
+592.6s 23 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+592.6s 24 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+595.5s 25 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+595.5s 26 cells[i][c] = re.sub('\\\\\|', '|', cell)
+595.7s 27 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+595.7s 28 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+596.3s 29 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+596.7s 30 [NbConvertApp] Writing 79603 bytes to __notebook__.ipynb
+599.2s 31 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+600.4s 32 [NbConvertApp] Writing 369442 bytes to __results__.html
