@@ -1,0 +1,12 @@
+AuraGateway P4 Output-Contract Diagnostic V2
+saved_version_id=340775383
+execution_outcome=PASSED
+evidence_disposition=ACCEPTED_GOVERNED_EXECUTION_PASS
+selected_case_id=A
+eligible_case_ids=A,C,E,F
+ineligible_case_ids=B,D
+first_divergence=None
+model_requests=18
+authorization_reusable=false
+measured_abc_execution=false
+runtime_execution_authorized=false
