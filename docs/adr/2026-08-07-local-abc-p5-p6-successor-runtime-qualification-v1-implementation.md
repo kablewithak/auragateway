@@ -1,7 +1,7 @@
 # ADR: Compose P4 V2 and V5 into P5/P6 Successor Runtime Qualification V1
 
-**Date:** 2026-08-07  
-**Status:** Implemented candidate; repository validation required before merge  
+**Date:** 2026-08-07
+**Status:** Implemented candidate; repository validation required before merge
 **Decision:** Implement the successor qualification before any measured A/B/C authorization.
 
 ## Context
