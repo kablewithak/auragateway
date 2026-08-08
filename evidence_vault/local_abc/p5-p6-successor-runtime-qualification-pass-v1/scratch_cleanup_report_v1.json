@@ -1,0 +1,1 @@
+{"error_type":null,"report_id":"auragateway-p5-p6-successor-scratch-cleanup-v1","safe_message":null,"schema_version":"1.0.0","scratch_before":{"exists":true,"file_count":60127,"size_bytes":12579432269},"scratch_exists_after":false,"status":"PASSED"}
