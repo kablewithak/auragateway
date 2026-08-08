@@ -32,3 +32,27 @@ The lock itself does not authorize GPU execution or the variance pilot.
 ## Next gate
 
 `implement_preflight_v3_exact_runtime_wheelhouse_materializer_v1`
+
+
+## Transport redirect clarification for materializer v1
+
+The five-host exact lock is the **artifact-authority** boundary. It is not a claim that every HTTPS
+transport hop terminates on the same authority hostname.
+
+The locked vLLM wheel uses a stable `github.com` release URL. GitHub release delivery redirects that
+request to `release-assets.githubusercontent.com`.
+
+For materializer v1, the only approved cross-host transport transition is:
+
+```text
+github.com -> release-assets.githubusercontent.com
+```
+
+This transport exception does not add a sixth artifact authority and does not authorize any artifact
+that is absent from the frozen 196-record lock. The redirect is limited to one hop, must use HTTPS,
+must carry no URL credentials, and the downloaded bytes must still match the frozen wheel SHA-256.
+
+All other cross-host redirects remain prohibited.
+
+This clarification supersedes the earlier blanket instruction to reject every redirect outside the
+five artifact-authority hosts.
