@@ -1,0 +1,9 @@
+saved_version_id=340976295
+execution_outcome=PASSED
+evidence_disposition=ACCEPTED_GOVERNED_EXECUTION_PASS
+current_line_p5_pass_accepted=true
+current_line_p6_pass_accepted=true
+measured_abc_eligible=true
+runtime_execution_authorized=false
+measured_abc_execution_authorized=false
+next_gate=design_and_merge_measured_abc_execution_authorization_v1
