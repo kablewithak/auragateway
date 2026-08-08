@@ -1,0 +1,17 @@
+6.3s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.3s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.3s 3 0.00s - to python to disable frozen modules.
+6.3s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+6.8s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.8s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.8s 7 0.00s - to python to disable frozen modules.
+6.8s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+288.2s 9 {"benchmark_trajectories_performed":0,"credentials_used":false,"customer_data_used":false,"dependency_resolution_performed":false,"evidence_zip":"auragateway_preflight_v3_exact_runtime_offline_compatibility_evidence_v1.zip","evidence_zip_sha256":"9f24b6ec955aa3c3eb21a3010d775237eeb3abc98dddad39483fcff3fb668872","exact_runtime_offline_verified":false,"expected_materializer_script_version_id":341083505,"external_spend":0,"failed_required_roles":["vllm_module","vllm_native_extension"],"final_measured_abc_execution_authorized":false,"internet_required":false,"locked_package_count":196,"model_loads_performed":0,"model_requests_performed":0,"notebook_name":"auragateway-preflight-v3-exact-runtime-offline-compatibility-v1","offline_compatibility_status":"FAILED_PENDING_REVIEW","p5_p6_exact_runtime_requalified":false,"package_installation_performed":true,"package_installation_started":true,"pilot_execution_authorized":false,"preserve_saved_version":true,"qualification_claimed":false,"requested_kaggle_title":"ag-preflight-v3-runtime-offline-verifier-v1","required_role_statuses":{"base_distribution_snapshot_after":"PASSED","base_distribution_snapshot_before":"PASSED","base_pip_import":"PASSED","base_pip_python_target_support":"PASSED","base_python_runtime":"PASSED","gpu_topology":"PASSED","input_validation":"PASSED","offline_hash_locked_install_via_base_pip":"PASSED","python_runtime":"PASSED","target_dependency_check_via_base_pip":"PASSED","target_distribution_inventory":"PASSED","target_environment_creation":"PASSED","target_runtime_identity_before_install":"PASSED","torch_family_runtime":"PASSED","transformers_runtime":"PASSED","triton_distribution":"PASSED","vllm_distribution":"PASSED","vllm_module":"FAILED","vllm_native_extension":"BLOCKED_BY_UPSTREAM_FAILURE"},"runtime_execution_authorized":false,"schema_version":"1.0.0","total_wheel_bytes":6164913809,"upload_only_this_file":true,"validated_manifest_entry_count":200,"worker_startups_performed":0}
+290.6s 10 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+290.6s 11 cells[i][c] = re.sub('\\\\\|', '|', cell)
+290.7s 12 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+290.7s 13 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+291.3s 14 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+291.6s 15 [NbConvertApp] Writing 65744 bytes to __notebook__.ipynb
+293.9s 16 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+294.8s 17 [NbConvertApp] Writing 454089 bytes to __results__.html
