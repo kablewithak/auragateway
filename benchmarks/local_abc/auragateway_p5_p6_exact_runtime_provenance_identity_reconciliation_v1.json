@@ -1,0 +1,92 @@
+{
+  "authorization_must_bind_reconciliation_record": true,
+  "corrections": [
+    {
+      "committed_bytes_are_authoritative": true,
+      "committed_sha256": "020e77ba1550ea66342cd41b7c99ab6783d596f7bf9dc926681e959e0eda27a7",
+      "committed_size_bytes": 4181,
+      "historical_generated_artifacts_retained": true,
+      "path": "docs/adr/2026-08-10-local-abc-exact-runtime-p5-p6-requalification-v1-implementation.md",
+      "role": "implementation_adr",
+      "stale_recorded_sha256": "c49adb733f26c5db89d070d3cf503286a01dfdc6f8395cced305e12a094f8897",
+      "stale_recorded_size_bytes": 4185
+    },
+    {
+      "committed_bytes_are_authoritative": true,
+      "committed_sha256": "af6e0173aad2b1e9b0faa5facefb9e2271372399fa6b932b3780c5490c7d1fdb",
+      "committed_size_bytes": 3541,
+      "historical_generated_artifacts_retained": true,
+      "path": "docs/reports/AuraGateway_Exact_Runtime_P5_P6_Requalification_V1_Implementation.md",
+      "role": "implementation_report",
+      "stale_recorded_sha256": "1661984986f75c4b5adaee34fc7eb56e640af9020f7bf64a9ec146fd7700cb43",
+      "stale_recorded_size_bytes": 3545
+    }
+  ],
+  "executable_runtime_identity_changed": false,
+  "historical_generated_artifacts": {
+    "implementation_record": {
+      "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_requalification_v1_implementation_record.json",
+      "sha256": "6529b9fc47fffab4bee26b27e6573fbf5fd67eeb5a7845cbf214534f658cdf6d",
+      "size_bytes": 5269
+    },
+    "implementation_review": {
+      "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_requalification_v1_implementation_review.json",
+      "sha256": "151e28300b440854fa31b769b3439944bb2013672200b97cf4bdd8f5354f557d",
+      "size_bytes": 8030
+    },
+    "notebook": {
+      "path": "notebooks/auragateway_p5_p6_exact_runtime_requalification_v1.ipynb",
+      "sha256": "cdbda76b28f118d2c4db3f70b8206b3e9be28a2689d2a93a3946f7739365b5f7",
+      "size_bytes": 250380
+    },
+    "retained_without_regeneration": true,
+    "runtime_script_sha256": "d6efb65aef419e6044ad9d8be26f4ec8dd441ee61b43da6c704930fd3e496e67",
+    "wrapper_code_sha256": "55c1afa66f2684b002c6cb0b5bf121861d9811f756046d39d3a3c0b3ffa85a1c"
+  },
+  "implementation_merge_commit": "9cc06c02c372fa2e7637c432759e7a1d4db56e9e",
+  "next_gate": "REVALIDATE_EXACT_RUNTIME_P5_P6_EXECUTION_PRECONDITIONS_V1",
+  "original_review_claims_superseded_only_for_corrected_paths": true,
+  "reconciliation_base_main_commit": "49d853a25a783767c3fc9062145f2b751053a78f",
+  "record_id": "auragateway-exact-runtime-p5-p6-provenance-identity-reconciliation-v1",
+  "root_cause": "PRE_COMMIT_PROVENANCE_IDENTITY_DEFECT",
+  "safety": {
+    "final_measured_abc_execution_authorized": false,
+    "live_authorization_issued": false,
+    "p5_p6_exact_runtime_requalified": false,
+    "pilot_execution_authorized": false,
+    "runtime_execution_authorized": false,
+    "runtime_execution_performed": false
+  },
+  "schema_version": "1.0.0",
+  "semantic_boundary_revalidation": {
+    "authorization_precedes_runtime_installation": true,
+    "lossy_transformations_before_semantic_decision": 0,
+    "public_evidence_used_as_semantic_input": false,
+    "semantic_channel_violation_count": 0,
+    "semantic_function_count": 4,
+    "truncation_before_semantic_decision": 0
+  },
+  "status": "RECONCILED_BEFORE_EXECUTION",
+  "unaffected_static_artifacts": [
+    {
+      "path": "src/auragateway/local_abc/p5_p6_exact_runtime_requalification_v1.py",
+      "sha256": "e41c0c327eab743c01dad961d07204a041e64e0579936145b79a1c23a675d126",
+      "size_bytes": 41675
+    },
+    {
+      "path": "src/auragateway/local_abc/templates/p5_p6_exact_runtime_requalification_v1.py.tmpl",
+      "sha256": "bc512e45e7ac646045dda3f598ca2aa961a0c69c86b73117d66bb457710d0dfa",
+      "size_bytes": 150715
+    },
+    {
+      "path": "tests/unit/local_abc/test_p5_p6_exact_runtime_requalification_v1.py",
+      "sha256": "9d6151e387cd7b972696ffe982016831271288209a8a18cd6db1335343c137eb",
+      "size_bytes": 16205
+    },
+    {
+      "path": "docs/runbooks/local_abc_exact_runtime_p5_p6_requalification_v1.md",
+      "sha256": "b2965fc2d782dc2a1e765ae8240d6ec28eadb7dc875b0a6b30eb43c3d4c2ec62",
+      "size_bytes": 3395
+    }
+  ]
+}

@@ -40,6 +40,9 @@ def _confirmation(module: Any, *, now: datetime) -> Any:
         confirmed_p5_p6_design_record_sha256=module.P5_P6_DESIGN_RECORD_SHA256,
         confirmed_implementation_record_sha256=module.P5_P6_IMPLEMENTATION_RECORD_SHA256,
         confirmed_implementation_review_sha256=module.P5_P6_IMPLEMENTATION_REVIEW_SHA256,
+        confirmed_provenance_reconciliation_record_sha256=(
+            module.P5_P6_PROVENANCE_RECONCILIATION_RECORD_SHA256
+        ),
         confirmed_notebook_sha256=module.P5_P6_NOTEBOOK_SHA256,
         confirmed_runtime_script_sha256=module.P5_P6_RUNTIME_SCRIPT_SHA256,
         confirmed_wrapper_code_sha256=module.P5_P6_WRAPPER_CODE_SHA256,
@@ -74,6 +77,9 @@ def test_design_and_implementation_bindings_are_exact() -> None:
         "18eef4f455e67ef850cb2a4ff6502360b8885d2fff7e36ddcca7dcb6f15af230"
     )
     assert module.P5_P6_IMPLEMENTATION_MERGE_COMMIT == ("9cc06c02c372fa2e7637c432759e7a1d4db56e9e")
+    assert module.P5_P6_PROVENANCE_RECONCILIATION_RECORD_SHA256 == (
+        "1a274c75bda75fa52be3095b32ade7fe00b47de69e66adaed1016cbd4ffda089"
+    )
 
 
 def test_execution_budget_matches_frozen_design() -> None:
@@ -133,6 +139,9 @@ def test_authorization_payload_matches_runtime_consumer_contract() -> None:
     assert payload["decision"] == "AUTHORIZED"
     assert payload["lifecycle"] == "ISSUED"
     assert payload["runtime_execution_authorized"] is True
+    assert payload["provenance_reconciliation_record_sha256"] == (
+        module.P5_P6_PROVENANCE_RECONCILIATION_RECORD_SHA256
+    )
     assert authorization.execution_limits.maximum_model_requests == 6
 
 

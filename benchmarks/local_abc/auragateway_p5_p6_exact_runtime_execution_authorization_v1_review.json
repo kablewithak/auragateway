@@ -3,6 +3,7 @@
   "base_main_commit": "2877f66a112a89c313c322bd38c3f71f9caff218",
   "controls": [
     "exact merged design and implementation identity",
+    "exact provenance reconciliation authority before issuance",
     "fresh platform observation at issuance",
     "fresh exact operator confirmation at issuance",
     "synchronized clean main at issuance",
