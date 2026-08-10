@@ -1,0 +1,55 @@
+{
+  "authorization_design_record_sha256": "18eef4f455e67ef850cb2a4ff6502360b8885d2fff7e36ddcca7dcb6f15af230",
+  "base_main_commit": "2877f66a112a89c313c322bd38c3f71f9caff218",
+  "controls": [
+    "exact merged design and implementation identity",
+    "fresh platform observation at issuance",
+    "fresh exact operator confirmation at issuance",
+    "synchronized clean main at issuance",
+    "exact issuer merge commit bound at issuance",
+    "6 request / 3 worker-start / 3 model-load ceiling",
+    "zero hidden retries, replacement workers, network requests, and spend",
+    "one non-overwriting live authorization",
+    "one non-overwriting terminal receipt",
+    "terminal authority permanently non-reusable",
+    "pilot and final measured A/B/C authority remain false"
+  ],
+  "execution_outcomes": [
+    "PASSED",
+    "FAILED",
+    "AMBIGUOUS",
+    "INTERRUPTED",
+    "DIAGNOSTIC_INVALID"
+  ],
+  "final_measured_abc_execution_authorized": false,
+  "lifecycle_operations": [
+    "validate-static-issuer",
+    "validate-external-confirmation",
+    "issue-single-use-authority",
+    "validate-live-authority",
+    "terminalize-authority"
+  ],
+  "live_authorization_issued": false,
+  "non_claims": [
+    "Static issuer implementation does not issue live authority.",
+    "Static issuer implementation does not execute model or worker code.",
+    "Issuer merge does not qualify current exact-runtime P5 behavior.",
+    "Issuer merge does not qualify current exact-runtime P6 behavior.",
+    "Issuer merge does not authorize a variance pilot.",
+    "Issuer merge does not authorize final measured A/B/C execution."
+  ],
+  "p5_p6_exact_runtime_requalified": false,
+  "p5_p6_implementation_merge_commit": "9cc06c02c372fa2e7637c432759e7a1d4db56e9e",
+  "pilot_execution_authorized": false,
+  "review_id": "auragateway-exact-runtime-p5-p6-execution-authorization-v1-review",
+  "runtime_execution_authorized": false,
+  "schema_version": "1.0.0",
+  "status": "APPROVED_FOR_MERGE_NOT_ISSUANCE",
+  "terminal_dispositions": [
+    "CONSUMED",
+    "EXPIRED_UNUSED",
+    "CANCELLED_UNUSED",
+    "ABANDONED_BEFORE_EXECUTION",
+    "OUTCOME_UNKNOWN"
+  ]
+}
