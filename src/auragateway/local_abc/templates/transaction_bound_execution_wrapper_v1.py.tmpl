@@ -1,0 +1,152 @@
+"""Transaction-bound executable wrapper V1. Generated; do not hand edit."""
+from __future__ import annotations
+
+import base64
+import hashlib
+import json
+import subprocess
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+_AUTHORIZATION_B64 = "__AUTHORIZATION_B64__"
+_RUNTIME_PAYLOAD_B64 = "__RUNTIME_PAYLOAD_B64__"
+_TRANSACTION_ID = "__TRANSACTION_ID__"
+_RUNTIME_PAYLOAD_SHA256 = "__RUNTIME_PAYLOAD_SHA256__"
+_GENERATOR_CONTRACT_SHA256 = "__GENERATOR_CONTRACT_SHA256__"
+
+
+def _canonical_json_bytes(value: object) -> bytes:
+    return json.dumps(value, ensure_ascii=True, separators=(",", ":"), sort_keys=True).encode("utf-8")
+
+
+def _sha256(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _parse_time(value: str) -> datetime:
+    observed = datetime.fromisoformat(value)
+    if observed.tzinfo is None or observed.utcoffset() is None:
+        raise RuntimeError("authorization timestamp must be timezone-aware")
+    return observed.astimezone(UTC)
+
+
+def _observed_gpu_count() -> int:
+    completed = subprocess.run(
+        ["nvidia-smi", "-L"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError("unable to observe GPU topology")
+    return sum(1 for line in completed.stdout.splitlines() if line.strip().startswith("GPU "))
+
+
+def _decode_authorization() -> tuple[dict[str, object], bytes]:
+    payload = base64.b64decode(_AUTHORIZATION_B64.encode("ascii"), validate=True)
+    parsed = json.loads(payload)
+    if not isinstance(parsed, dict):
+        raise RuntimeError("embedded authorization must be one JSON object")
+    if payload != _canonical_json_bytes(parsed):
+        raise RuntimeError("embedded authorization is not canonical")
+    return parsed, payload
+
+
+def admit(now: datetime | None = None) -> dict[str, object]:
+    envelope, _authorization_envelope_bytes = _decode_authorization()
+    transaction_id = envelope.get("transaction_id")
+    authorization = envelope.get("authorization")
+    if transaction_id != _TRANSACTION_ID or not isinstance(authorization, dict):
+        raise RuntimeError("embedded authorization envelope drifted")
+    canonical_authorization_bytes = _canonical_json_bytes(authorization)
+    runtime_payload = base64.b64decode(_RUNTIME_PAYLOAD_B64.encode("ascii"), validate=True)
+
+    required = {
+        "schema_version": "1.0.0",
+        "decision": "AUTHORIZED",
+        "lifecycle": "ISSUED",
+        "scope": "EXACT_RUNTIME_P5_P6_TRANSACTION_BOUND_V1",
+        "runtime_payload_sha256": _RUNTIME_PAYLOAD_SHA256,
+        "generator_contract_sha256": _GENERATOR_CONTRACT_SHA256,
+        "runtime_execution_authorized": True,
+        "single_use": True,
+        "unchanged_replay_authorized": False,
+        "authorization_reusable": False,
+        "maximum_model_requests": 6,
+        "maximum_worker_starts": 3,
+        "maximum_model_loads": 3,
+        "maximum_hidden_retries": 0,
+        "maximum_replacement_workers": 0,
+        "maximum_external_network_requests": 0,
+        "maximum_benchmark_trajectory_requests": 0,
+        "maximum_external_spend": 0,
+    }
+    drift = tuple(key for key, expected in required.items() if authorization.get(key) != expected)
+    if drift:
+        raise RuntimeError("embedded authorization contract drift: " + ",".join(drift))
+    if _sha256(canonical_authorization_bytes) != _TRANSACTION_ID:
+        raise RuntimeError("transaction identity mismatch")
+    if _sha256(runtime_payload) != _RUNTIME_PAYLOAD_SHA256:
+        raise RuntimeError("runtime payload identity mismatch")
+
+    observed = (now or datetime.now(UTC)).astimezone(UTC)
+    issued_at = _parse_time(str(authorization["issued_at"]))
+    expires_at = _parse_time(str(authorization["expires_at"]))
+    if observed < issued_at or observed >= expires_at:
+        raise RuntimeError("authorization is outside its live admission window")
+
+    required_platform = authorization.get("required_platform")
+    if required_platform != {
+        "accelerator": "T4_X2",
+        "allocated_gpu_count": 2,
+        "internet_enabled": False,
+    }:
+        raise RuntimeError("required platform policy drifted")
+    if _observed_gpu_count() != 2:
+        raise RuntimeError("machine-observable GPU topology does not match authorization")
+
+    return {
+        "status": "TRANSACTION_BOUND_RUNTIME_ADMISSION_VALID",
+        "transaction_id": _TRANSACTION_ID,
+        "runtime_payload_sha256": _RUNTIME_PAYLOAD_SHA256,
+        "authorization_live_at_admission": True,
+        "observed_gpu_count": 2,
+        "network_probe_performed": False,
+    }
+
+
+def _write_json(path: Path, value: object) -> None:
+    path.write_bytes(_canonical_json_bytes(value) + b"\n")
+
+
+def execute_bound_payload() -> None:
+    admission = admit()
+    _write_json(Path("transaction_bound_admission_report_v1.json"), admission)
+    runtime_payload = base64.b64decode(_RUNTIME_PAYLOAD_B64.encode("ascii"), validate=True)
+    namespace = {
+        "__name__": "__main__",
+        "__file__": "<transaction-bound-runtime-payload>",
+        "AURAGATEWAY_TRANSACTION_ID": _TRANSACTION_ID,
+    }
+    try:
+        exec(compile(runtime_payload, "<transaction-bound-runtime-payload>", "exec"), namespace, namespace)
+    except BaseException as primary:
+        primary_record = {
+            "status": "PRIMARY_FAILURE_CAPTURED",
+            "transaction_id": _TRANSACTION_ID,
+            "exception_type": type(primary).__name__,
+            "safe_message": str(primary)[:1000],
+        }
+        try:
+            _write_json(Path("transaction_bound_primary_failure_v1.json"), primary_record)
+        except BaseException as reporting_error:
+            print(
+                "SECONDARY_FAILURE_REPORTING_ERROR=" + type(reporting_error).__name__,
+                file=sys.stderr,
+            )
+        raise
+
+
+if __name__ == "__main__":
+    execute_bound_payload()
