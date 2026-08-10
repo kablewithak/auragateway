@@ -84,6 +84,26 @@ P5_P6_RUNTIME_SCRIPT_SHA256: Final = (
 P5_P6_WRAPPER_CODE_SHA256: Final = (
     "55c1afa66f2684b002c6cb0b5bf121861d9811f756046d39d3a3c0b3ffa85a1c"
 )
+P5_P6_PROVENANCE_RECONCILIATION_SOURCE_PATH: Final = Path(
+    "src/auragateway/local_abc/p5_p6_exact_runtime_provenance_identity_reconciliation_v1.py"
+)
+P5_P6_PROVENANCE_RECONCILIATION_SOURCE_SHA256: Final = (
+    "d0e1d6b22b891bdba975107b0c56a8dd93bc295d7ea2e576d93f33d6436e5836"
+)
+P5_P6_PROVENANCE_RECONCILIATION_TEST_PATH: Final = Path(
+    "tests/unit/local_abc/test_p5_p6_exact_runtime_provenance_identity_reconciliation_v1.py"
+)
+P5_P6_PROVENANCE_RECONCILIATION_TEST_SHA256: Final = (
+    "3f03f9c5fc17db986115e8b61403b22392a6cfefbd3bbcb6d3add76e1e67500c"
+)
+P5_P6_PROVENANCE_RECONCILIATION_RECORD_PATH: Final = Path(
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_exact_runtime_provenance_identity_reconciliation_v1.json"
+)
+P5_P6_PROVENANCE_RECONCILIATION_RECORD_SHA256: Final = (
+    "1a274c75bda75fa52be3095b32ade7fe00b47de69e66adaed1016cbd4ffda089"
+)
+P5_P6_PROVENANCE_RECONCILIATION_RECORD_SIZE: Final = 4225
 V5_ACCEPTANCE_RECORD_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_preflight_v5_evidence_acceptance_v1_record.json"
 )
@@ -293,6 +313,9 @@ class IssuanceConfirmation(FrozenModel):
     confirmed_implementation_review_sha256: Literal[
         "151e28300b440854fa31b769b3439944bb2013672200b97cf4bdd8f5354f557d"
     ]
+    confirmed_provenance_reconciliation_record_sha256: Literal[
+        "1a274c75bda75fa52be3095b32ade7fe00b47de69e66adaed1016cbd4ffda089"
+    ]
     confirmed_notebook_sha256: Literal[
         "cdbda76b28f118d2c4db3f70b8206b3e9be28a2689d2a93a3946f7739365b5f7"
     ]
@@ -343,6 +366,9 @@ class ExecutionAuthorization(FrozenModel):
     ]
     implementation_review_sha256: Literal[
         "151e28300b440854fa31b769b3439944bb2013672200b97cf4bdd8f5354f557d"
+    ]
+    provenance_reconciliation_record_sha256: Literal[
+        "1a274c75bda75fa52be3095b32ade7fe00b47de69e66adaed1016cbd4ffda089"
     ]
     design_record_sha256: Literal[
         "4781d9d3dda0c69cdc629a78dbaa94c39e73374914e40d1b48486b7d0e0033a2"
@@ -555,6 +581,21 @@ BOUND_ARTIFACTS: Final = (
         "p5_p6_notebook",
         P5_P6_NOTEBOOK_PATH,
         P5_P6_NOTEBOOK_SHA256,
+    ),
+    (
+        "p5_p6_provenance_reconciliation_source",
+        P5_P6_PROVENANCE_RECONCILIATION_SOURCE_PATH,
+        P5_P6_PROVENANCE_RECONCILIATION_SOURCE_SHA256,
+    ),
+    (
+        "p5_p6_provenance_reconciliation_tests",
+        P5_P6_PROVENANCE_RECONCILIATION_TEST_PATH,
+        P5_P6_PROVENANCE_RECONCILIATION_TEST_SHA256,
+    ),
+    (
+        "p5_p6_provenance_reconciliation_record",
+        P5_P6_PROVENANCE_RECONCILIATION_RECORD_PATH,
+        P5_P6_PROVENANCE_RECONCILIATION_RECORD_SHA256,
     ),
     (
         "v5_acceptance_record",
@@ -806,6 +847,50 @@ def _validate_p5_p6_semantics(repo_root: Path) -> None:
         )
 
 
+def _validate_provenance_reconciliation_semantics(repo_root: Path) -> None:
+    record = _read_json_object(
+        repo_root,
+        P5_P6_PROVENANCE_RECONCILIATION_RECORD_PATH,
+    )
+    required: dict[str, object] = {
+        "status": "RECONCILED_BEFORE_EXECUTION",
+        "root_cause": "PRE_COMMIT_PROVENANCE_IDENTITY_DEFECT",
+        "implementation_merge_commit": P5_P6_IMPLEMENTATION_MERGE_COMMIT,
+        "authorization_must_bind_reconciliation_record": True,
+        "original_review_claims_superseded_only_for_corrected_paths": True,
+        "executable_runtime_identity_changed": False,
+    }
+    drift = tuple(key for key, expected in required.items() if record.get(key) != expected)
+    if drift:
+        _raise(
+            "P5_P6_AUTHORIZATION_PROVENANCE_RECONCILIATION_DRIFT",
+            "P5/P6 provenance reconciliation semantics drifted",
+            P5_P6_PROVENANCE_RECONCILIATION_RECORD_PATH,
+            drift,
+        )
+    safety = record.get("safety")
+    if not isinstance(safety, dict):
+        _raise(
+            "P5_P6_AUTHORIZATION_PROVENANCE_RECONCILIATION_DRIFT",
+            "P5/P6 provenance reconciliation safety state is missing",
+            P5_P6_PROVENANCE_RECONCILIATION_RECORD_PATH,
+        )
+    for key in (
+        "live_authorization_issued",
+        "runtime_execution_authorized",
+        "p5_p6_exact_runtime_requalified",
+        "pilot_execution_authorized",
+        "final_measured_abc_execution_authorized",
+        "runtime_execution_performed",
+    ):
+        if safety.get(key) is not False:
+            _raise(
+                "P5_P6_AUTHORIZATION_PROVENANCE_RECONCILIATION_DRIFT",
+                f"P5/P6 provenance reconciliation safety field drifted: {key}",
+                P5_P6_PROVENANCE_RECONCILIATION_RECORD_PATH,
+            )
+
+
 def _validate_runtime_consumer_source(repo_root: Path) -> None:
     source = (repo_root / P5_P6_IMPLEMENTATION_TEMPLATE_PATH).read_text(encoding="utf-8")
     required_fragments = (
@@ -845,6 +930,7 @@ def _build_review() -> IssuerArchitectureReview:
         execution_outcomes=tuple(ExecutionOutcome),
         controls=(
             "exact merged design and implementation identity",
+            "exact provenance reconciliation authority before issuance",
             "fresh platform observation at issuance",
             "fresh exact operator confirmation at issuance",
             "synchronized clean main at issuance",
@@ -874,6 +960,7 @@ def _build_record(
     design_identity = _validate_authorization_design(repo_root)
     _bound_artifacts(repo_root)
     _validate_p5_p6_semantics(repo_root)
+    _validate_provenance_reconciliation_semantics(repo_root)
     _validate_runtime_consumer_source(repo_root)
     implementation_artifacts = _implementation_artifacts(repo_root)
     return IssuerImplementationRecord(
@@ -1121,7 +1208,7 @@ def _run_p5_validation(repo_root: Path) -> dict[str, object]:
     completed = subprocess.run(
         [
             sys.executable,
-            str(repo_root / P5_P6_IMPLEMENTATION_SOURCE_PATH),
+            str(repo_root / P5_P6_PROVENANCE_RECONCILIATION_SOURCE_PATH),
             "validate",
             "--repo-root",
             str(repo_root),
@@ -1158,15 +1245,15 @@ def _run_p5_validation(repo_root: Path) -> dict[str, object]:
 def _require_p5_preexecution_contract(repo_root: Path) -> None:
     payload = _run_p5_validation(repo_root)
     required: dict[str, object] = {
-        "status": "EXACT_RUNTIME_P5_P6_REQUALIFICATION_V1_IMPLEMENTATION_VALID",
-        "implementation_status": "IMPLEMENTED_NOT_EXECUTED",
+        "status": "EXACT_RUNTIME_P5_P6_PROVENANCE_IDENTITY_RECONCILIATION_V1_VALID",
+        "implementation_provenance_consistent": True,
+        "historical_generated_artifacts_retained": True,
+        "executable_runtime_identity_changed": False,
         "p5_p6_exact_runtime_requalified": False,
         "runtime_execution_authorized": False,
         "pilot_execution_authorized": False,
         "final_measured_abc_execution_authorized": False,
-        "next_gate": (
-            "DESIGN_AND_MERGE_EXACT_RUNTIME_P5_P6_REQUALIFICATION_V1_EXECUTION_AUTHORIZATION_ISSUER"
-        ),
+        "next_gate": "REVALIDATE_EXACT_RUNTIME_P5_P6_EXECUTION_PRECONDITIONS_V1",
     }
     drift = tuple(key for key, expected in required.items() if payload.get(key) != expected)
     if drift:
@@ -1288,6 +1375,7 @@ def _build_authorization(
         implementation_merge_commit=P5_P6_IMPLEMENTATION_MERGE_COMMIT,
         implementation_record_sha256=P5_P6_IMPLEMENTATION_RECORD_SHA256,
         implementation_review_sha256=P5_P6_IMPLEMENTATION_REVIEW_SHA256,
+        provenance_reconciliation_record_sha256=(P5_P6_PROVENANCE_RECONCILIATION_RECORD_SHA256),
         design_record_sha256=P5_P6_DESIGN_RECORD_SHA256,
         notebook_sha256=P5_P6_NOTEBOOK_SHA256,
         runtime_script_sha256=P5_P6_RUNTIME_SCRIPT_SHA256,

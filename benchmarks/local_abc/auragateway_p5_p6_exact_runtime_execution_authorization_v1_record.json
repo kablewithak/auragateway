@@ -52,6 +52,24 @@
       "size_bytes": 250380
     },
     {
+      "path": "src/auragateway/local_abc/p5_p6_exact_runtime_provenance_identity_reconciliation_v1.py",
+      "role": "p5_p6_provenance_reconciliation_source",
+      "sha256": "d0e1d6b22b891bdba975107b0c56a8dd93bc295d7ea2e576d93f33d6436e5836",
+      "size_bytes": 29276
+    },
+    {
+      "path": "tests/unit/local_abc/test_p5_p6_exact_runtime_provenance_identity_reconciliation_v1.py",
+      "role": "p5_p6_provenance_reconciliation_tests",
+      "sha256": "3f03f9c5fc17db986115e8b61403b22392a6cfefbd3bbcb6d3add76e1e67500c",
+      "size_bytes": 5529
+    },
+    {
+      "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_provenance_identity_reconciliation_v1.json",
+      "role": "p5_p6_provenance_reconciliation_record",
+      "sha256": "1a274c75bda75fa52be3095b32ade7fe00b47de69e66adaed1016cbd4ffda089",
+      "size_bytes": 4225
+    },
+    {
       "path": "benchmarks/local_abc/auragateway_preflight_v5_evidence_acceptance_v1_record.json",
       "role": "v5_acceptance_record",
       "sha256": "b86314bd8c9a71766884ac7143b7fff3198e986dd99c6065814b45c8d1095eb1",
@@ -90,14 +108,14 @@
     {
       "path": "src/auragateway/local_abc/p5_p6_exact_runtime_execution_authorization_v1.py",
       "role": "issuer_p5_p6_exact_runtime_execution_authorization_v1",
-      "sha256": "9212d0db4c01cea88f7a3e0ed9f44a9f7950d1b0a7752e99304bf84090830cc7",
-      "size_bytes": 62171
+      "sha256": "b239ca84d11283aa23cbcf23ec78f5f3f84f9208186e4d4a8708083ef7aa60fb",
+      "size_bytes": 65978
     },
     {
       "path": "tests/unit/local_abc/test_p5_p6_exact_runtime_execution_authorization_v1.py",
       "role": "issuer_test_p5_p6_exact_runtime_execution_authorization_v1",
-      "sha256": "8e1bf22c56d4ca13a94526cdcb0180761d43afa6b7ac6525bb3e59dcf4a1ee00",
-      "size_bytes": 13722
+      "sha256": "9c882e9b064d975b24b00a91f27081de035f37901408186f2c50a6b124731201",
+      "size_bytes": 14142
     },
     {
       "path": "docs/adr/2026-08-10-local-abc-exact-runtime-p5-p6-execution-authorization-v1.md",
@@ -130,8 +148,8 @@
   "review": {
     "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_execution_authorization_v1_review.json",
     "role": "issuer_architecture_review",
-    "sha256": "9993e8cd6d798d892aeafa4be4474c26f5a90451cc09edb06de54f0dc7aea270",
-    "size_bytes": 2140
+    "sha256": "9225909dfaf84617c72ecbc25c78015a80010cf73fd7c88b0c09cc7bed3a8f42",
+    "size_bytes": 2205
   },
   "runtime_execution_authorized": false,
   "schema_version": "1.0.0",
