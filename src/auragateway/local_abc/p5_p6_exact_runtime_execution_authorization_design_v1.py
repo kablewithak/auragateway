@@ -497,23 +497,34 @@ def _validate_implementation_semantics(repo_root: Path) -> None:
 def _require_base_commit(repo_root: Path) -> None:
     if not (repo_root / ".git").exists():
         return
+
     completed = subprocess.run(
-        ["git", "rev-parse", "HEAD"],
+        [
+            "git",
+            "merge-base",
+            "--is-ancestor",
+            BASE_MAIN_COMMIT,
+            "HEAD",
+        ],
         cwd=repo_root,
         check=False,
         capture_output=True,
         text=True,
     )
-    if completed.returncode != 0:
-        raise AuthorizationDesignError(
-            "P5_P6_AUTHORIZATION_DESIGN_GIT_INSPECTION_FAILED",
-            "unable to inspect repository HEAD",
-        )
-    if completed.stdout.strip() != BASE_MAIN_COMMIT:
+
+    if completed.returncode == 0:
+        return
+
+    if completed.returncode == 1:
         raise AuthorizationDesignError(
             "P5_P6_AUTHORIZATION_DESIGN_BASE_DRIFT",
-            "authorization design is not being validated against its base main",
+            "authorization-design base main is not an ancestor of HEAD",
         )
+
+    raise AuthorizationDesignError(
+        "P5_P6_AUTHORIZATION_DESIGN_GIT_INSPECTION_FAILED",
+        "unable to inspect authorization-design base-main ancestry",
+    )
 
 
 def build_record(repo_root: Path) -> AuthorizationDesignRecord:
