@@ -1,0 +1,19 @@
+{
+  "authorization_id": "auragateway-exact-runtime-p5-p6-requalification-v2-execution-authorization",
+  "authorization_reusable": false,
+  "authorization_sha256": "f2ba0df653f09651bbb61904e63d2b54e6a45e74fd3910e88a82fd93b7cbb720",
+  "disposition": "OUTCOME_UNKNOWN",
+  "evidence_zip_sha256": null,
+  "execution_attempted": true,
+  "execution_outcome": null,
+  "final_measured_abc_execution_authorized": false,
+  "issuer_merge_commit": "0ee9e5b8fe8fb8fbf5268f2c270748e1a4c9b8e2",
+  "next_gate": "PRESERVE_AND_ACCEPT_OR_CLASSIFY_EXACT_RUNTIME_P5_P6_REQUALIFICATION_V2_EVIDENCE",
+  "pilot_execution_authorized": false,
+  "receipt_id": "auragateway-exact-runtime-p5-p6-requalification-v2-authorization-terminal-v1",
+  "runtime_execution_authorized": false,
+  "saved_version_id": 341548056,
+  "schema_version": "1.0.0",
+  "terminal_log_sha256": "fba590846fa1a82a448f6dee96ea2bfd7a7e0b22bafcccdfb5e499fb8d6c4d0a",
+  "terminalized_at": "2026-08-10T21:53:31Z"
+}

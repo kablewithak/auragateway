@@ -1,0 +1,32 @@
+{
+  "expected_governed_evidence_zip_produced": false,
+  "exploded_partial_result_members_preserved": false,
+  "manifest_id": "auragateway-p5-p6-exact-runtime-v2-outcome-unknown-evidence-v1",
+  "member_count": 4,
+  "members": [
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-v2-outcome-unknown-v1/kaggle/ag-exact-runtime-p5-p6-requal-v2-341548056.log",
+      "sha256": "fba590846fa1a82a448f6dee96ea2bfd7a7e0b22bafcccdfb5e499fb8d6c4d0a",
+      "size_bytes": 2791
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-v2-outcome-unknown-v1/kaggle/results-341548056.zip",
+      "sha256": "804174adc457d5cfbcd4b2df19a9fb83c5306dd014640f83bedf6313cab3c790",
+      "size_bytes": 15370
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-v2-outcome-unknown-v1/lifecycle/authorization_terminal_receipt_v2-341548056.json",
+      "sha256": "b2b644971de644d335f8955188f30896a0cd4354d21e92c5295dbedc13adb9ba",
+      "size_bytes": 954
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-v2-outcome-unknown-v1/lifecycle/execution_authorization_v2-341548056.json",
+      "sha256": "f2ba0df653f09651bbb61904e63d2b54e6a45e74fd3910e88a82fd93b7cbb720",
+      "size_bytes": 2116
+    }
+  ],
+  "partial_kaggle_results_preserved": true,
+  "partial_results_member_inventory_validated_from_archive": true,
+  "saved_version_id": 341548056,
+  "schema_version": "1.0.0"
+}

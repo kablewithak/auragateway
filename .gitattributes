@@ -38,3 +38,6 @@ evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/ag-
 evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/ag-p5-p6-authorization-input-inspection-v1-341466979.log -text -whitespace
 evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/lifecycle/execution_authorization_v1-341454766.json -text -whitespace
 evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/lifecycle/authorization_consumption_v1-341454766.json -text -whitespace
+
+# Preserve Exact-Runtime P5/P6 V2 outcome-unknown evidence byte-for-byte.
+evidence_vault/local_abc/p5-p6-exact-runtime-v2-outcome-unknown-v1/** -text -whitespace
