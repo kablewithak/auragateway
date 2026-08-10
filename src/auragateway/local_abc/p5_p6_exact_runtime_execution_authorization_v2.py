@@ -1085,14 +1085,14 @@ def _require_v2_preexecution_contract(repo_root: Path) -> None:
             "V2 pre-execution implementation contract drifted",
             details=drift,
         )
-    generated = payload.get("generated")
-    if not isinstance(generated, dict):
+    notebook = payload.get("notebook")
+    if not isinstance(notebook, dict):
         _raise(
             "P5_P6_V2_AUTHORIZATION_PREEXECUTION_CONTRACT_DRIFT",
-            "V2 generated validation evidence is missing",
+            "V2 notebook validation evidence is missing",
         )
-    semantic = generated.get("semantic_boundary")
-    transport = generated.get("authorization_transport")
+    semantic = notebook.get("semantic_boundary")
+    transport = notebook.get("authorization_transport")
     if not isinstance(semantic, dict) or not isinstance(transport, dict):
         _raise(
             "P5_P6_V2_AUTHORIZATION_PREEXECUTION_CONTRACT_DRIFT",
@@ -1115,9 +1115,9 @@ def _require_v2_preexecution_contract(repo_root: Path) -> None:
         )
     transport_required: dict[str, object] = {
         "governed_root_resolved_before_filename": True,
-        "global_authorization_filename_uniqueness_required": False,
+        "global_filename_uniqueness_required": False,
         "unscoped_recursive_authorization_search_permitted": False,
-        "authorization_precedes_runtime_installation": True,
+        "authorization_before_runtime_installation": True,
     }
     transport_drift = tuple(
         k for k, expected in transport_required.items() if transport.get(k) != expected

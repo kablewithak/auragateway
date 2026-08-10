@@ -103,14 +103,14 @@
     {
       "path": "src/auragateway/local_abc/p5_p6_exact_runtime_execution_authorization_v2.py",
       "role": "issuer_p5_p6_exact_runtime_execution_authorization_v2",
-      "sha256": "837337914046310f8fb6f2086384a57eb1e70b921b1bf131fcc9a23b48d865cd",
-      "size_bytes": 60563
+      "sha256": "9b580b6fa95c6cdedde3b08436c64b2c4c234afdbe0e6ec0bd97c592fb3fa7e2",
+      "size_bytes": 60541
     },
     {
       "path": "tests/unit/local_abc/test_p5_p6_exact_runtime_execution_authorization_v2.py",
       "role": "issuer_test_p5_p6_exact_runtime_execution_authorization_v2",
-      "sha256": "e93159fc14f287436cdb9e640137ed972bc3650e734cf8c8160fd290173de02c",
-      "size_bytes": 6201
+      "sha256": "4c7974b1bae4af1ac74cbfe3d0556867be11a80e60288409059c4b11d10c423f",
+      "size_bytes": 6388
     },
     {
       "path": "docs/adr/2026-08-10-local-abc-exact-runtime-p5-p6-execution-authorization-v2.md",

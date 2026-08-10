@@ -140,3 +140,8 @@ def test_replay_contract_is_false() -> None:
     assert auth.unchanged_replay_authorized is False
     assert auth.pilot_execution_authorized is False
     assert auth.final_measured_abc_execution_authorized is False
+
+
+def test_current_v2_validator_satisfies_preexecution_contract() -> None:
+    source_root = Path(__file__).resolve().parents[3]
+    issuer._require_v2_preexecution_contract(source_root)
