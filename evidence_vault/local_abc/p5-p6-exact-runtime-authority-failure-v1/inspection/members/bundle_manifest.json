@@ -1,0 +1,26 @@
+{
+  "inspection_id": "auragateway-p5-p6-authorization-input-inspection-v1",
+  "members": [
+    {
+      "name": "inspection_report.json",
+      "sha256": "452e1c88b7c0fb94a1f791ff371e11e490bb6ff8eca1e4abd0082fbf29728200",
+      "size_bytes": 2363
+    },
+    {
+      "name": "candidate_inventory.json",
+      "sha256": "456cc734ea1bed1fd052d07357ed5c0ef479687497f0f48390eb957ec4c46bf7",
+      "size_bytes": 3651
+    },
+    {
+      "name": "topology_inventory.json",
+      "sha256": "85c2d2747e2d054dd43e29b1c4b3adb4439ce4d07004bb655ea7f1128cb0c477",
+      "size_bytes": 4742
+    },
+    {
+      "name": "human_report.md",
+      "sha256": "d8838323badf7882ecca30821ca2a84c6b8c0cb77344dfec211908e391852536",
+      "size_bytes": 751
+    }
+  ],
+  "schema_version": "1.0.0"
+}
