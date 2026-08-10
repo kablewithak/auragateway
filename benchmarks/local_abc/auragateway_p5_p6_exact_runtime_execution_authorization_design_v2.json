@@ -1,0 +1,131 @@
+{
+  "authorization_payload": {
+    "authorization_id": "auragateway-exact-runtime-p5-p6-requalification-v2-execution-authorization",
+    "decision": "AUTHORIZED",
+    "every_terminal_attempt_consumes_authorization": true,
+    "implementation_review_sha256_binding_required": true,
+    "issuer_merge_commit_binding_required": true,
+    "lifecycle": "ISSUED",
+    "live_time_window_required": true,
+    "runtime_script_sha256_binding_required": true,
+    "scope": "EXACT_RUNTIME_P5_P6_REQUALIFICATION_V2",
+    "single_use_required": true,
+    "transfer_filename": "execution_authorization_v1.json",
+    "transport_contract": "GOVERNED_ROOT_EXACT_FLAT_V1",
+    "transport_design_sha256_binding_required": true,
+    "unchanged_replay_authorized": false,
+    "v5_acceptance_sha256_binding_required": true
+  },
+  "base_main_commit": "f81fa4209efbd4ea7fbffc130705c6b1189c61d5",
+  "budget": {
+    "maximum_benchmark_trajectory_requests": 0,
+    "maximum_external_network_requests": 0,
+    "maximum_external_spend": 0,
+    "maximum_hidden_retries": 0,
+    "maximum_kaggle_sessions": 1,
+    "maximum_model_loads": 3,
+    "maximum_model_requests": 6,
+    "maximum_replacement_workers": 0,
+    "maximum_saved_versions": 1,
+    "maximum_worker_starts": 3
+  },
+  "current_v2_authorities": {
+    "implementation_merge_commit": "f81fa4209efbd4ea7fbffc130705c6b1189c61d5",
+    "implementation_record_sha256": "f814ad36d81eef259abd9374be4bf9100cac4579bfd3004d906ce69fc86cc635",
+    "implementation_review_sha256": "550dc3dbf78e12e951cb68774321731702f1e22734588508b246a7c18c5d39b2",
+    "notebook_sha256": "ecf8adf4c5b2bcf557c2e10caa319f0d4b707fd7a24bd36c31525ee60b9d548a",
+    "runtime_script_sha256": "599b0395952abb0666e48890d4f25ad9050260837134a4c53716943a3d391df0",
+    "transport_remediation_design_sha256": "679c11a020e7381417f9f2fe0087f72ee10e9a454703609a1ab48c70da57d3bb",
+    "v5_acceptance_sha256": "b86314bd8c9a71766884ac7143b7fff3198e986dd99c6065814b45c8d1095eb1",
+    "wrapper_code_sha256": "feba17d2caaba8169495943d58cbd68036515747507db239e0911aa2cca90721"
+  },
+  "design_status": "DESIGN_FROZEN_NOT_IMPLEMENTED",
+  "freshness": {
+    "default_authorization_window_minutes": 180,
+    "maximum_authorization_window_minutes": 240,
+    "maximum_operator_confirmation_age_minutes": 15,
+    "maximum_platform_observation_age_minutes": 15,
+    "timezone_aware_timestamps_required": true
+  },
+  "historical_precedent": {
+    "reuse_execution_budgets": true,
+    "reuse_freshness_limits": true,
+    "reuse_single_use_lifecycle_semantics": true,
+    "reuse_terminal_dispositions": true,
+    "v1_authorization_design_is_precedent_only": true,
+    "v1_consumed_authorization_reusable": false
+  },
+  "issuance_preconditions": {
+    "clean_repository_required": true,
+    "fresh_operator_confirmation_required": true,
+    "fresh_platform_observation_required": true,
+    "merged_issuer_required": true,
+    "no_existing_live_authorization_required": true,
+    "no_existing_terminal_receipt_required": true,
+    "synchronized_main_required": true,
+    "transport_round_trip_required": true,
+    "v2_implementation_validation_required": true
+  },
+  "next_gate": "IMPLEMENT_AND_MERGE_EXACT_RUNTIME_P5_P6_REQUALIFICATION_V2_EXECUTION_AUTHORIZATION_ISSUER",
+  "non_claims": [
+    "No live V2 authorization is issued by this design.",
+    "No Kaggle, runtime, model, or worker execution is performed by this design.",
+    "No P5 or P6 behavior is requalified by this design.",
+    "No pilot or final measured A/B/C execution is authorized by this design.",
+    "The V1 consumed authorization remains permanently non-reusable."
+  ],
+  "platform": {
+    "accelerator": "T4_X2",
+    "allocated_gpu_count": 2,
+    "credentials_permitted": false,
+    "customer_data_permitted": false,
+    "external_network_access_permitted": false,
+    "internet_enabled": false,
+    "platform_observation_required": true
+  },
+  "record_id": "auragateway-exact-runtime-p5-p6-execution-authorization-design-v2",
+  "safety": {
+    "external_spend": 0,
+    "final_measured_abc_execution_authorized": false,
+    "live_authorization_issued": false,
+    "model_loads_performed": 0,
+    "model_requests_performed": 0,
+    "p5_p6_exact_runtime_requalified": false,
+    "pilot_execution_authorized": false,
+    "runtime_execution_authorized": false,
+    "runtime_execution_performed": false,
+    "worker_starts_performed": 0
+  },
+  "schema_version": "1.0.0",
+  "terminalization": {
+    "known_execution_outcomes": [
+      "PASSED",
+      "FAILED",
+      "AMBIGUOUS",
+      "INTERRUPTED",
+      "DIAGNOSTIC_INVALID"
+    ],
+    "one_terminal_receipt_per_authorization": true,
+    "terminal_authority_reusable": false,
+    "terminal_dispositions": [
+      "CONSUMED",
+      "EXPIRED_UNUSED",
+      "CANCELLED_UNUSED",
+      "ABANDONED_BEFORE_EXECUTION",
+      "OUTCOME_UNKNOWN"
+    ],
+    "terminal_receipt_non_overwriting": true
+  },
+  "transport_preflight": {
+    "authorization_hash_and_size_bound": true,
+    "canonical_compact_json_required": true,
+    "current_producer_consumer_round_trip_required": true,
+    "exact_flat_file_count": 3,
+    "global_filename_uniqueness_required": false,
+    "manifest_receipt_cross_binding_required": true,
+    "producer_notebook_name": "ag-p5-p6-auth-control-v1",
+    "producer_output_directory": "ag_p5_p6_auth_control_v1",
+    "required_before_live_write": true,
+    "unscoped_recursive_authorization_search_permitted": false
+  }
+}

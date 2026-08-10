@@ -1,0 +1,163 @@
+{
+  "authorization_design_record": {
+    "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_execution_authorization_design_v2.json",
+    "role": "authorization_design_record",
+    "sha256": "1b1ef41610e298aac33b57e7deb2b96f8d69c73cd0cccbc9dc4c7e11be4b0fc2",
+    "size_bytes": 5420
+  },
+  "authorization_path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_requalification_v2_execution_authorization.json",
+  "base_main_commit": "f81fa4209efbd4ea7fbffc130705c6b1189c61d5",
+  "bound_artifacts": [
+    {
+      "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_requalification_v2_implementation_review.json",
+      "role": "v2_implementation_review",
+      "sha256": "550dc3dbf78e12e951cb68774321731702f1e22734588508b246a7c18c5d39b2",
+      "size_bytes": 8995
+    },
+    {
+      "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_requalification_v2_implementation_record.json",
+      "role": "v2_implementation_record",
+      "sha256": "f814ad36d81eef259abd9374be4bf9100cac4579bfd3004d906ce69fc86cc635",
+      "size_bytes": 6113
+    },
+    {
+      "path": "src/auragateway/local_abc/p5_p6_exact_runtime_requalification_v2.py",
+      "role": "v2_implementation_source",
+      "sha256": "5a91268ff616bf925bba5e0eafc80be4353f40e97ed5d5b01ea5c0a8feed50d6",
+      "size_bytes": 61365
+    },
+    {
+      "path": "src/auragateway/local_abc/templates/p5_p6_exact_runtime_requalification_v2.py.tmpl",
+      "role": "v2_implementation_template",
+      "sha256": "5af0c62de986c332a95ed5a97be14e35418448d9ad1427bc6321749765a2d48c",
+      "size_bytes": 156494
+    },
+    {
+      "path": "tests/unit/local_abc/test_p5_p6_exact_runtime_requalification_v2.py",
+      "role": "v2_implementation_tests",
+      "sha256": "71091e28c2a3130f06e561625cb422e239f91fb0d4213c26908d3b4e1f9be827",
+      "size_bytes": 9611
+    },
+    {
+      "path": "notebooks/auragateway_p5_p6_exact_runtime_requalification_v2.ipynb",
+      "role": "v2_notebook",
+      "sha256": "ecf8adf4c5b2bcf557c2e10caa319f0d4b707fd7a24bd36c31525ee60b9d548a",
+      "size_bytes": 259920
+    },
+    {
+      "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_authorization_transport_remediation_design_v1.json",
+      "role": "transport_design",
+      "sha256": "679c11a020e7381417f9f2fe0087f72ee10e9a454703609a1ab48c70da57d3bb",
+      "size_bytes": 5396
+    },
+    {
+      "path": "src/auragateway/local_abc/p5_p6_exact_runtime_authorization_transport_v1.py",
+      "role": "transport_source",
+      "sha256": "7399da65bddc6ed84b7f8bcf49aa41c9bf8a3d5f8a857405d16061b0d25e7d7d",
+      "size_bytes": 26595
+    },
+    {
+      "path": "tests/unit/local_abc/test_p5_p6_exact_runtime_authorization_transport_v1.py",
+      "role": "transport_tests",
+      "sha256": "0144e5392224a828d8f02d9ab11e5316325a15e7f2b6a955c1b90cab670d558a",
+      "size_bytes": 6558
+    },
+    {
+      "path": "benchmarks/local_abc/auragateway_preflight_v5_evidence_acceptance_v1_record.json",
+      "role": "v5_acceptance",
+      "sha256": "b86314bd8c9a71766884ac7143b7fff3198e986dd99c6065814b45c8d1095eb1",
+      "size_bytes": 2819
+    }
+  ],
+  "control_output_directory": "ag_p5_p6_auth_control_v1",
+  "control_producer_notebook": "ag-p5-p6-auth-control-v1",
+  "execution_limits": {
+    "maximum_benchmark_trajectory_requests": 0,
+    "maximum_external_network_requests": 0,
+    "maximum_external_spend": 0,
+    "maximum_hidden_retries": 0,
+    "maximum_kaggle_sessions": 1,
+    "maximum_model_loads": 3,
+    "maximum_model_requests": 6,
+    "maximum_replacement_workers": 0,
+    "maximum_saved_versions": 1,
+    "maximum_worker_starts": 3
+  },
+  "execution_outcomes": [
+    "PASSED",
+    "FAILED",
+    "AMBIGUOUS",
+    "INTERRUPTED",
+    "DIAGNOSTIC_INVALID"
+  ],
+  "final_measured_abc_execution_authorized": false,
+  "fresh_operator_confirmation_required_at_issue": true,
+  "fresh_platform_observation_required_at_issue": true,
+  "freshness": {
+    "default_authorization_window_minutes": 180,
+    "maximum_authorization_window_minutes": 240,
+    "maximum_operator_confirmation_age_minutes": 15,
+    "maximum_platform_observation_age_minutes": 15
+  },
+  "implementation_artifacts": [
+    {
+      "path": "src/auragateway/local_abc/p5_p6_exact_runtime_execution_authorization_v2.py",
+      "role": "issuer_p5_p6_exact_runtime_execution_authorization_v2",
+      "sha256": "837337914046310f8fb6f2086384a57eb1e70b921b1bf131fcc9a23b48d865cd",
+      "size_bytes": 60563
+    },
+    {
+      "path": "tests/unit/local_abc/test_p5_p6_exact_runtime_execution_authorization_v2.py",
+      "role": "issuer_test_p5_p6_exact_runtime_execution_authorization_v2",
+      "sha256": "e93159fc14f287436cdb9e640137ed972bc3650e734cf8c8160fd290173de02c",
+      "size_bytes": 6201
+    },
+    {
+      "path": "docs/adr/2026-08-10-local-abc-exact-runtime-p5-p6-execution-authorization-v2.md",
+      "role": "issuer_2026-08-10-local-abc-exact-runtime-p5-p6-execution-authorization-v2",
+      "sha256": "ff5c615049f6b658ce1dd5528396d41bc7549d9708256b7118e3949366664b12",
+      "size_bytes": 1683
+    },
+    {
+      "path": "docs/reports/AuraGateway_Exact_Runtime_P5_P6_Execution_Authorization_V2.md",
+      "role": "issuer_AuraGateway_Exact_Runtime_P5_P6_Execution_Authorization_V2",
+      "sha256": "5ea636f7cdb657f9124c442425351ff8e58576589497424c67d943b7197f1ec0",
+      "size_bytes": 1203
+    },
+    {
+      "path": "docs/runbooks/local_abc_exact_runtime_p5_p6_execution_authorization_v2.md",
+      "role": "issuer_local_abc_exact_runtime_p5_p6_execution_authorization_v2",
+      "sha256": "3a1bf8416ce36a3ae00fe773395bd4ce5f52230304c1bcc7ce33f2326c32ad34",
+      "size_bytes": 2744
+    }
+  ],
+  "implementation_revalidation_required_at_issue": true,
+  "issuer_merge_commit_bound_at_issue": true,
+  "live_authorization_issued": false,
+  "next_gate": "MERGE_EXACT_RUNTIME_P5_P6_REQUALIFICATION_V2_EXECUTION_AUTHORIZATION_ISSUER_WITHOUT_ISSUING",
+  "non_overwriting_lifecycle_required": true,
+  "p5_p6_exact_runtime_requalified": false,
+  "p5_p6_implementation_merge_commit": "f81fa4209efbd4ea7fbffc130705c6b1189c61d5",
+  "pilot_execution_authorized": false,
+  "record_id": "auragateway-exact-runtime-p5-p6-execution-authorization-v2-implementation",
+  "review": {
+    "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_execution_authorization_v2_review.json",
+    "role": "issuer_architecture_review",
+    "sha256": "8b85acd9b6d749a698ba3b6d2e3a1a4326f612f17e4d82775cb60e2fab3aa067",
+    "size_bytes": 2148
+  },
+  "runtime_execution_authorized": false,
+  "schema_version": "1.0.0",
+  "status": "IMPLEMENTED_NOT_ISSUED",
+  "terminal_dispositions": [
+    "CONSUMED",
+    "EXPIRED_UNUSED",
+    "CANCELLED_UNUSED",
+    "ABANDONED_BEFORE_EXECUTION",
+    "OUTCOME_UNKNOWN"
+  ],
+  "terminal_receipt_path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_requalification_v2_authorization_consumption.json",
+  "transfer_filename": "execution_authorization_v1.json",
+  "transport_contract": "GOVERNED_ROOT_EXACT_FLAT_V1",
+  "transport_round_trip_required_at_issue": true
+}

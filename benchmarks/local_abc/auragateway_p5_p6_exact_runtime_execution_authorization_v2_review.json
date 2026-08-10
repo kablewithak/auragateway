@@ -1,0 +1,54 @@
+{
+  "authorization_design_record_sha256": "1b1ef41610e298aac33b57e7deb2b96f8d69c73cd0cccbc9dc4c7e11be4b0fc2",
+  "base_main_commit": "f81fa4209efbd4ea7fbffc130705c6b1189c61d5",
+  "controls": [
+    "exact merged V2 implementation and transport identities",
+    "fresh platform observation and exact operator confirmation",
+    "synchronized clean main and exact issuer merge binding",
+    "current authorization producer/consumer round trip before live write",
+    "governed-root exact-flat transport contract",
+    "6 request / 3 worker-start / 3 model-load ceiling",
+    "zero hidden retries, replacement workers, network requests, and spend",
+    "one non-overwriting authorization and one terminal receipt",
+    "terminal authority permanently non-reusable",
+    "pilot and final measured A/B/C authority remain false"
+  ],
+  "execution_outcomes": [
+    "PASSED",
+    "FAILED",
+    "AMBIGUOUS",
+    "INTERRUPTED",
+    "DIAGNOSTIC_INVALID"
+  ],
+  "final_measured_abc_execution_authorized": false,
+  "lifecycle_operations": [
+    "validate-static-issuer",
+    "validate-external-confirmation",
+    "preflight-current-transport-round-trip",
+    "issue-single-use-authority",
+    "validate-live-authority",
+    "terminalize-authority"
+  ],
+  "live_authorization_issued": false,
+  "non_claims": [
+    "Static issuer implementation does not issue live authority.",
+    "Static issuer implementation does not execute Kaggle or model code.",
+    "Issuer merge does not requalify P5 or P6 behavior.",
+    "Issuer merge does not authorize pilot or final measured A/B/C execution."
+  ],
+  "p5_p6_exact_runtime_requalified": false,
+  "p5_p6_implementation_merge_commit": "f81fa4209efbd4ea7fbffc130705c6b1189c61d5",
+  "pilot_execution_authorized": false,
+  "review_id": "auragateway-exact-runtime-p5-p6-execution-authorization-v2-review",
+  "runtime_execution_authorized": false,
+  "schema_version": "1.0.0",
+  "status": "APPROVED_FOR_MERGE_NOT_ISSUANCE",
+  "terminal_dispositions": [
+    "CONSUMED",
+    "EXPIRED_UNUSED",
+    "CANCELLED_UNUSED",
+    "ABANDONED_BEFORE_EXECUTION",
+    "OUTCOME_UNKNOWN"
+  ],
+  "transport_round_trip_required_at_issue": true
+}
