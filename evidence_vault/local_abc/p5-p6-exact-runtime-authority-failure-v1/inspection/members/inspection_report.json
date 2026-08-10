@@ -1,0 +1,67 @@
+{
+  "authority_effect": {
+    "final_measured_abc_execution_authorized": false,
+    "live_authorization_issued": false,
+    "old_authorization_reusable": false,
+    "p5_p6_exact_runtime_requalified": false,
+    "pilot_execution_authorized": false,
+    "rerun_authorized_by_inspection": false,
+    "runtime_execution_authorized": false
+  },
+  "candidate_metadata_parity_count": 1,
+  "captured_at": "2026-08-10T12:53:54+00:00",
+  "current_consumer_discovery": {
+    "candidate_count": 0,
+    "candidate_paths": [],
+    "pattern": "*/execution_authorization_v1.json"
+  },
+  "finding_code": "OBSERVED_SHALLOW_DISCOVERY_FALSE_NEGATIVE",
+  "incident": {
+    "failed_evidence_zip_sha256": "ca1cfada6a4c0ab7d8ed8fe446d3d6c281f246c4731ce20441884a998f82e6b6",
+    "failure_class": "AUTHORITY_FAILURE",
+    "saved_version_id": 341454766
+  },
+  "inspection_id": "auragateway-p5-p6-authorization-input-inspection-v1",
+  "next_gate": "UPLOAD_INSPECTION_EVIDENCE_FOR_SEMI_FORMAL_REASONING_CERTIFICATE",
+  "question": "Why did the failed P5/P6 runtime observe no unique live execution_authorization_v1.json candidate?",
+  "recursive_diagnostic_discovery": {
+    "candidate_count": 1,
+    "candidate_paths": [
+      "datasets/kabomolefe/ag-p5-p6-execution-authorization-v1/execution_authorization_v1.json"
+    ],
+    "filename": "execution_authorization_v1.json"
+  },
+  "runtime_module_observation": {
+    "runtime_modules_imported_by_inspection": false,
+    "torch_present_before_inspection": false,
+    "transformers_present_before_inspection": false,
+    "vllm_present_before_inspection": false
+  },
+  "safety": {
+    "authorization_generation_performed": false,
+    "authorization_payload_emitted": false,
+    "benchmark_trajectory_requests_performed": 0,
+    "credentials_accessed": false,
+    "customer_data_accessed": false,
+    "external_spend": 0,
+    "gpu_execution_performed": false,
+    "model_loaded": false,
+    "model_requests_performed": 0,
+    "network_requests_performed": 0,
+    "runtime_execution_performed": false,
+    "runtime_installation_performed": false,
+    "worker_started": false
+  },
+  "schema_version": "1.0.0",
+  "status": "INSPECTION_COMPLETE",
+  "top_level_input_namespaces": [
+    "datasets",
+    "notebooks"
+  ],
+  "topology_inventory": {
+    "entry_count": 23,
+    "maximum_depth": 4,
+    "maximum_entries": 2000,
+    "truncated": false
+  }
+}

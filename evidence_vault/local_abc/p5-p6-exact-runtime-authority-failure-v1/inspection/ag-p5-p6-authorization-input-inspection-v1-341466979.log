@@ -1,0 +1,35 @@
+10.5s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+10.5s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+10.5s 3 0.00s - to python to disable frozen modules.
+10.5s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+11.5s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+11.5s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+11.5s 7 0.00s - to python to disable frozen modules.
+11.5s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+13.3s 9 inspection_status=INSPECTION_COMPLETE
+13.3s 10 incident_saved_version_id=341454766
+13.3s 11 current_consumer_pattern=*/execution_authorization_v1.json
+13.3s 12 current_consumer_candidate_count=0
+13.3s 13 recursive_diagnostic_candidate_count=1
+13.3s 14 candidate_metadata_parity_count=1
+13.3s 15 finding_code=OBSERVED_SHALLOW_DISCOVERY_FALSE_NEGATIVE
+13.3s 16 topology_truncated=false
+13.3s 17 runtime_installation_performed=false
+13.3s 18 gpu_execution_performed=false
+13.3s 19 model_loaded=false
+13.3s 20 worker_started=false
+13.3s 21 model_requests_performed=0
+13.3s 22 network_requests_performed=0
+13.3s 23 rerun_authorized_by_inspection=false
+13.3s 24 artifact=/kaggle/working/ag-p5-p6-authorization-input-inspection-v1.zip
+13.3s 25 size_bytes=4379
+13.3s 26 sha256=387935b89f327945811900365eba69c4278919e49750337aef8d6daf93e7a5dc
+13.3s 27 upload_only_this_file=true
+16.8s 28 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+16.8s 29 cells[i][c] = re.sub('\\\\\|', '|', cell)
+17.1s 30 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+17.1s 31 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+17.9s 32 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+18.3s 33 [NbConvertApp] Writing 28244 bytes to __notebook__.ipynb
+21.8s 34 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+23.0s 35 [NbConvertApp] Writing 349130 bytes to __results__.html

@@ -30,3 +30,11 @@ evidence_vault/local_abc/p5-p6-successor-runtime-qualification-pass-v1/ag-p5-p6-
 
 # Preserve final offline verifier V5 acceptance evidence byte-for-byte.
 evidence_vault/local_abc/preflight-v5-exact-runtime-offline-pass-v1/* -text -whitespace
+
+# Preserve Exact-Runtime P5/P6 authority-failure source evidence byte-for-byte.
+evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/ag-exact-runtime-p5-p6-requal-evidence-v1-341454766.zip -text -whitespace
+evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/ag-exact-runtime-p5-p6-requal-v1-341454766.log -text -whitespace
+evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/ag-p5-p6-authorization-input-inspection-v1-341466979.zip -text -whitespace
+evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/ag-p5-p6-authorization-input-inspection-v1-341466979.log -text -whitespace
+evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/lifecycle/execution_authorization_v1-341454766.json -text -whitespace
+evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/lifecycle/authorization_consumption_v1-341454766.json -text -whitespace

@@ -1,0 +1,1 @@
+{"detail_code":"AUTHORITY_FAILURE","error_type":"DiagnosticFailure","failed_after":[],"failed_capability":null,"failure_class":"AUTHORITY_FAILURE","safe_message":"exactly one live P5/P6 execution authorization is required","schema_version":"1.0.0","status":"FAILED","teardown_status":"NOT_RUN"}

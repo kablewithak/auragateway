@@ -1,0 +1,147 @@
+{
+  "manifest_id": "auragateway-p5-p6-authority-failure-static-evidence-v1",
+  "member_count": 28,
+  "members": [
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/ag-exact-runtime-p5-p6-requal-evidence-v1-341454766.zip",
+      "sha256": "ca1cfada6a4c0ab7d8ed8fe446d3d6c281f246c4731ce20441884a998f82e6b6",
+      "size_bytes": 8372
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/ag-exact-runtime-p5-p6-requal-v1-341454766.log",
+      "sha256": "3e0eeb9cb02faf7bc45ee72587fdf7d982e6030019b58f0e307ec123fa40c847",
+      "size_bytes": 4236
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/bundle_manifest_v1.json",
+      "sha256": "a17d42e9d4fb1b77bed0d42bd1395117d35f1a3b578bfdb0cf900bbbbba41e50",
+      "size_bytes": 2763
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/c1_model_construction_report_v1.json",
+      "sha256": "1d85c35f8bbb68a919663c810915f9096f4a676dc924f74467a410f0f09aff91",
+      "size_bytes": 337
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/c2_worker_startup_report_v1.json",
+      "sha256": "78f287655dd0e1b9de30aa1eae66fbfa50eff643a6a803bed677fe456ebe2fc0",
+      "size_bytes": 337
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/c3_single_request_report_v1.json",
+      "sha256": "84e570289272b379b1e6c374d2efcc947307e180f0d75db86c5944a12e35d46f",
+      "size_bytes": 337
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/c4_output_contract_report_v1.json",
+      "sha256": "08abc7b751dcb81b57a25f7aefd56ec0f98b18d01c5a4c30f27702bdf3204ac4",
+      "size_bytes": 337
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/failure_report_v1.json",
+      "sha256": "c7c13e89f5113a17af44d00e33f3ec27dffa1a12326d2e8ebf759b0446a89f7d",
+      "size_bytes": 294
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/human_report_v1.md",
+      "sha256": "6496f1fce1c304a5cc926b50c5543107f0af99a5ca89b75f92945a5363fa0821",
+      "size_bytes": 416
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/p5_cache_behavior_report_v1.json",
+      "sha256": "9713db7dd571fabc3c026dae27b1e2b0cb73d56d0dac0f225f1048f4c11957af",
+      "size_bytes": 337
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/p5_p6_exact_runtime_requalification_summary_v1.json",
+      "sha256": "6b35e9bfcb06ff0143c89343df3d928015098b7a30864e91439357a532b75227",
+      "size_bytes": 1602
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/p5_post_restart_native_origin_report_v1.json",
+      "sha256": "d95fd9bb5739fa500dcab0bcadc68a1f615f97e3515a97bcaf83a99d4e68a01c",
+      "size_bytes": 122
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/p6_native_origin_report_v1.json",
+      "sha256": "d95fd9bb5739fa500dcab0bcadc68a1f615f97e3515a97bcaf83a99d4e68a01c",
+      "size_bytes": 122
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/p6_stage_checkpoint_report_v1.json",
+      "sha256": "9f2950959d5179126a1c51f2b5396909ca2c02c22d19cbec18e0e960c3cb6752",
+      "size_bytes": 327
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/p6_worker_state_isolation_report_v1.json",
+      "sha256": "9508e4ca7e5828d6dd36e6df6ce37ac9d289960b73b3a518f88f33b0290029ff",
+      "size_bytes": 337
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/runtime_environment_report_v1.json",
+      "sha256": "f561484e6af3ec7f381297a2247d73179f18c964212b565745683f550007cd84",
+      "size_bytes": 111
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/runtime_import_closure_report_v1.json",
+      "sha256": "374d74030e461805eecfa0e49007fc589dee7e218f7eed4e8f064044cc580f2a",
+      "size_bytes": 487
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/runtime_install_report_v1.json",
+      "sha256": "b6a85eabd8e9702112e4ce6869559cd2af732a294378d5af822ffe5cf7fb7a6f",
+      "size_bytes": 457
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/runtime_source_identity_report_v1.json",
+      "sha256": "72c2af89b596a877e08d81307abb2390986ef3d7d6d1ad4786ab9f674606e279",
+      "size_bytes": 443
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/scratch_cleanup_report_v1.json",
+      "sha256": "92fde5144fa91c54316fc0923482f70e77107f419fb50761fc3acd29c32a6247",
+      "size_bytes": 255
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/failed_run/members/worker_teardown_report_v1.json",
+      "sha256": "b43cc1b5449fc5bc4b856dcb47f8ac51ccc349d3d1eb349c9e214ab1b6d9a0a7",
+      "size_bytes": 225
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/ag-p5-p6-authorization-input-inspection-v1-341466979.log",
+      "sha256": "fb1a93f75638256d5ced97709893b0560aa8dd1ebbed482810e79438acf77903",
+      "size_bytes": 2199
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/ag-p5-p6-authorization-input-inspection-v1-341466979.zip",
+      "sha256": "387935b89f327945811900365eba69c4278919e49750337aef8d6daf93e7a5dc",
+      "size_bytes": 4379
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/members/bundle_manifest.json",
+      "sha256": "aa99e034bab1ba83fca1c7b7527e2dbc810361075b187d20a25d69a0f7381d5a",
+      "size_bytes": 768
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/members/candidate_inventory.json",
+      "sha256": "456cc734ea1bed1fd052d07357ed5c0ef479687497f0f48390eb957ec4c46bf7",
+      "size_bytes": 3651
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/members/human_report.md",
+      "sha256": "d8838323badf7882ecca30821ca2a84c6b8c0cb77344dfec211908e391852536",
+      "size_bytes": 751
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/members/inspection_report.json",
+      "sha256": "452e1c88b7c0fb94a1f791ff371e11e490bb6ff8eca1e4abd0082fbf29728200",
+      "size_bytes": 2363
+    },
+    {
+      "path": "evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/inspection/members/topology_inventory.json",
+      "sha256": "85c2d2747e2d054dd43e29b1c4b3adb4439ce4d07004bb655ea7f1128cb0c477",
+      "size_bytes": 4742
+    }
+  ],
+  "schema_version": "1.0.0"
+}

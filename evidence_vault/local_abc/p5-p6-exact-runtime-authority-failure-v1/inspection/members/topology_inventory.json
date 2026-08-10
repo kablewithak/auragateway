@@ -1,0 +1,162 @@
+{
+  "entries": [
+    {
+      "depth": 1,
+      "kind": "directory",
+      "path": "datasets",
+      "symlink": false
+    },
+    {
+      "depth": 1,
+      "kind": "directory",
+      "path": "notebooks",
+      "symlink": false
+    },
+    {
+      "depth": 2,
+      "kind": "directory",
+      "path": "datasets/kabomolefe",
+      "symlink": false
+    },
+    {
+      "depth": 3,
+      "kind": "directory",
+      "path": "datasets/kabomolefe/ag-p5-p6-execution-authorization-v1",
+      "symlink": false
+    },
+    {
+      "depth": 3,
+      "kind": "directory",
+      "path": "datasets/kabomolefe/auragateway-qwen2-5-0-5b-offline-v1",
+      "symlink": false
+    },
+    {
+      "depth": 4,
+      "kind": "file",
+      "path": "datasets/kabomolefe/ag-p5-p6-execution-authorization-v1/execution_authorization_v1.json",
+      "size_bytes": 3414,
+      "symlink": false
+    },
+    {
+      "depth": 4,
+      "kind": "directory",
+      "path": "datasets/kabomolefe/auragateway-qwen2-5-0-5b-offline-v1/auragateway-qwen2.5-0.5b-instruct-7ae557604adf67be50417f59c2c2f167def9a775",
+      "symlink": false
+    },
+    {
+      "depth": 4,
+      "kind": "file",
+      "path": "datasets/kabomolefe/auragateway-qwen2-5-0-5b-offline-v1/model_snapshot_manifest_v2.json",
+      "size_bytes": 1210,
+      "symlink": false
+    },
+    {
+      "depth": 4,
+      "kind": "file",
+      "path": "datasets/kabomolefe/auragateway-qwen2-5-0-5b-offline-v1/qwen_model_materialization_report_v5.json",
+      "size_bytes": 3656,
+      "symlink": false
+    },
+    {
+      "depth": 2,
+      "kind": "directory",
+      "path": "notebooks/kabomolefe",
+      "symlink": false
+    },
+    {
+      "depth": 3,
+      "kind": "directory",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1",
+      "symlink": false
+    },
+    {
+      "depth": 4,
+      "kind": "directory",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/auragateway_preflight_v3_exact_runtime_wheelhouse_v1",
+      "symlink": false
+    },
+    {
+      "depth": 4,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/__notebook__.ipynb",
+      "size_bytes": 77195,
+      "symlink": false
+    },
+    {
+      "depth": 4,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/__output__.json",
+      "size_bytes": 6456,
+      "symlink": false
+    },
+    {
+      "depth": 4,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/__results__.html",
+      "size_bytes": 408745,
+      "symlink": false
+    },
+    {
+      "depth": 4,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/custom.css",
+      "size_bytes": 0,
+      "symlink": false
+    },
+    {
+      "depth": 4,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/materialization_evidence.zip",
+      "size_bytes": 65002,
+      "symlink": false
+    },
+    {
+      "depth": 5,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/auragateway_preflight_v3_exact_runtime_wheelhouse_v1/materialization.lock.txt",
+      "size_bytes": 25171,
+      "symlink": false
+    },
+    {
+      "depth": 5,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/auragateway_preflight_v3_exact_runtime_wheelhouse_v1/materialization_receipt.json",
+      "size_bytes": 931,
+      "symlink": false
+    },
+    {
+      "depth": 5,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/auragateway_preflight_v3_exact_runtime_wheelhouse_v1/requirements.lock.txt",
+      "size_bytes": 19652,
+      "symlink": false
+    },
+    {
+      "depth": 5,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/auragateway_preflight_v3_exact_runtime_wheelhouse_v1/resolution_lock.json",
+      "size_bytes": 107086,
+      "symlink": false
+    },
+    {
+      "depth": 5,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/auragateway_preflight_v3_exact_runtime_wheelhouse_v1/runtime_manifest.json",
+      "size_bytes": 940,
+      "symlink": false
+    },
+    {
+      "depth": 5,
+      "kind": "file",
+      "path": "notebooks/kabomolefe/ag-preflight-v3-runtime-materializer-v1/auragateway_preflight_v3_exact_runtime_wheelhouse_v1/sha256_manifest.json",
+      "size_bytes": 33938,
+      "symlink": false
+    }
+  ],
+  "entry_count": 23,
+  "inspection_id": "auragateway-p5-p6-authorization-input-inspection-v1",
+  "maximum_depth": 4,
+  "maximum_entries": 2000,
+  "schema_version": "1.0.0",
+  "truncated": false
+}

@@ -1,0 +1,245 @@
+{
+  "alternative_hypotheses": [
+    {
+      "evidence": "Inspection observed exactly one authorization candidate under /kaggle/input.",
+      "hypothesis": "The authorization was not mounted in Kaggle.",
+      "id": "H1",
+      "verdict": "REFUTED"
+    },
+    {
+      "evidence": "Recursive diagnostic candidate_count was exactly 1.",
+      "hypothesis": "Multiple authorization files caused cardinality ambiguity.",
+      "id": "H2",
+      "verdict": "REFUTED_FOR_REPRODUCED_INPUT_SET"
+    },
+    {
+      "evidence": "The discovered file was canonical JSON and all checked expected metadata fields matched.",
+      "hypothesis": "The authorization bytes/schema/bindings were invalid.",
+      "id": "H3",
+      "verdict": "REFUTED_AT_DISCOVERY_BOUNDARY"
+    },
+    {
+      "evidence": "All those stages remained NOT_RUN with zero corresponding counters.",
+      "hypothesis": "Runtime installation, CUDA, vLLM, model, worker, P5, or P6 caused the failure.",
+      "id": "H4",
+      "verdict": "REFUTED_AS_FIRST_DIVERGENCE"
+    },
+    {
+      "evidence": "shallow candidate_count=0; recursive candidate_count=1 at observed path depth 4.",
+      "hypothesis": "The current one-level authorization discovery assumption is incompatible with the observed Kaggle dataset namespace.",
+      "id": "H5",
+      "verdict": "SUPPORTED"
+    }
+  ],
+  "certificate_id": "auragateway-exact-runtime-p5-p6-authority-failure-sfr-v1",
+  "certificate_type": "execution_grounded_semi_formal_reasoning_certificate",
+  "claims": [
+    {
+      "confidence": "high",
+      "id": "C1",
+      "premises": [
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "statement": "Saved version 341454766 is an early control-plane diagnostic failure, not an exact-runtime/P5/P6 capability failure."
+    },
+    {
+      "confidence": "high",
+      "id": "C2",
+      "premises": [
+        "P6",
+        "P7",
+        "P8"
+      ],
+      "statement": "The authorization discovery contract produced a false negative for the reproduced Kaggle input realization."
+    },
+    {
+      "confidence": "high",
+      "id": "C3",
+      "premises": [
+        "P9"
+      ],
+      "statement": "The consumed authorization cannot be reused."
+    },
+    {
+      "confidence": "high",
+      "id": "C4",
+      "premises": [
+        "P3"
+      ],
+      "statement": "The failure establishes no new claim about runtime installation, model construction, worker startup, P5 cache behavior, or P6 isolation."
+    }
+  ],
+  "controls_that_worked": [
+    "runtime source identity verification",
+    "authorization-before-runtime-install ordering",
+    "fail-closed authorization boundary",
+    "zero hidden retries",
+    "zero model/runtime activity after authority failure",
+    "scratch cleanup",
+    "single-use terminal consumption"
+  ],
+  "decision_boundary": {
+    "admissible_directions": [
+      "restore deterministic authorization control-materializer saved-notebook output with governed-root discovery",
+      "introduce an explicitly bound producer/root resolver followed by exact bounded-file validation"
+    ],
+    "certificate_does_not_choose_implementation": true,
+    "rejected_shortcuts": [
+      "reuse the consumed authorization",
+      "rerun saved version 341454766",
+      "unscoped global rglob as the only remediation",
+      "weaken exact-one authorization semantics",
+      "treat the failure as runtime incompatibility"
+    ],
+    "required_decision": "Design a bounded authorization transport/discovery remediation that restores consumer-visible parity without global filename-uniqueness assumptions."
+  },
+  "definitions": [
+    {
+      "id": "D1",
+      "text": "The current authorization consumer requires exactly one execution_authorization_v1.json candidate from the one-level pattern */execution_authorization_v1.json."
+    },
+    {
+      "id": "D2",
+      "text": "A runtime capability is observed only after its boundary executes. Blocked downstream capabilities are NOT_RUN, not failed capability tests."
+    },
+    {
+      "id": "D3",
+      "text": "A diagnostic false negative is established when the producer-visible artifact is valid but the consumer's discovery contract prevents it from reaching semantic authorization validation."
+    }
+  ],
+  "direct_cause": "The authorization consumer encoded a one-level filesystem-depth assumption that did not match Kaggle's realized dataset path.",
+  "evidence_bindings": {
+    "authorization_sha256": "e9c1b58aedfccee3f36349bf063d5f1267721b8f395699a6c325304d32c20a2c",
+    "authorization_size_bytes": 3414,
+    "credentials_used": false,
+    "customer_data_used": false,
+    "design_record_sha256": "4781d9d3dda0c69cdc629a78dbaa94c39e73374914e40d1b48486b7d0e0033a2",
+    "external_spend": 0,
+    "failed_evidence_zip_sha256": "ca1cfada6a4c0ab7d8ed8fe446d3d6c281f246c4731ce20441884a998f82e6b6",
+    "failed_saved_version_id": 341454766,
+    "failed_terminal_log_sha256": "3e0eeb9cb02faf7bc45ee72587fdf7d982e6030019b58f0e307ec123fa40c847",
+    "implementation_review_sha256": "151e28300b440854fa31b769b3439944bb2013672200b97cf4bdd8f5354f557d",
+    "inspection_evidence_zip_sha256": "387935b89f327945811900365eba69c4278919e49750337aef8d6daf93e7a5dc",
+    "inspection_saved_version_id": 341466979,
+    "inspection_terminal_log_sha256": "fb1a93f75638256d5ced97709893b0560aa8dd1ebbed482810e79438acf77903",
+    "issuer_merge_commit": "1909c2aabc1a26f2f316815f03e25199556becdf",
+    "runtime_script_sha256": "d6efb65aef419e6044ad9d8be26f4ec8dd441ee61b43da6c704930fd3e496e67",
+    "terminal_receipt_sha256": "e3a3c0519fff010576f1674adf09c5dafa13b013b04e670b2510204c81f7e4b5",
+    "terminal_receipt_size_bytes": 951,
+    "v5_acceptance_sha256": "b86314bd8c9a71766884ac7143b7fff3198e986dd99c6065814b45c8d1095eb1"
+  },
+  "failed_or_missing_control": "No consumer-parity gate proved the authorization transport/discovery contract against Kaggle's realized input namespace before the single-use execution was consumed.",
+  "first_divergence": {
+    "boundary": "Kaggle input realization -> authorization discovery consumer",
+    "classification": "AUTHORIZATION_DISCOVERY_CONTRACT_FALSE_NEGATIVE",
+    "expected": "exactly one discoverable execution_authorization_v1.json",
+    "observed_current_consumer_candidate_count": 0,
+    "observed_recursive_candidate_count": 1,
+    "observed_recursive_candidate_path": "datasets/kabomolefe/ag-p5-p6-execution-authorization-v1/execution_authorization_v1.json"
+  },
+  "formal_conclusion": {
+    "answer": "The governed attempt failed because the authorization consumer could not discover the valid mounted authorization under its shallow path contract. The failure occurred before runtime/P5/P6 execution and does not establish runtime incompatibility.",
+    "derivation": [
+      "By P2-P4, the terminal failure was AUTHORITY_FAILURE before runtime installation.",
+      "By P6, the current consumer pattern saw zero candidates.",
+      "By P6-P8, the same input set contained exactly one valid authorization at a deeper path.",
+      "Therefore the first divergence is a consumer discovery false negative.",
+      "By P3, downstream runtime and P5/P6 capabilities were not observed.",
+      "By P9, the authorization is consumed and non-reusable."
+    ],
+    "verdict": "CERTIFIED_FAILED_DIAGNOSTIC"
+  },
+  "intended_behavior": "Exactly one live authorization should be discoverable and validated before runtime installation, after which the bounded exact-runtime P5/P6 capability sequence may begin.",
+  "invalidated_claims": [
+    "P5/P6 authorization input readiness had been fully proved before saved version 341454766.",
+    "The current authorization discovery contract is compatible with the observed Kaggle dataset namespace."
+  ],
+  "method_basis": {
+    "adaptation": "premise -> intended/observed behavior -> first divergence -> alternative hypotheses -> direct/systemic cause -> non-claims -> decision boundary",
+    "formal_proof_claimed": false,
+    "name": "semi-formal reasoning"
+  },
+  "next_safe_action": "DESIGN_AND_MERGE_AUTHORIZATION_TRANSPORT_DISCOVERY_REMEDIATION_V1",
+  "non_claims": [
+    "Runtime installation compatibility was tested by saved version 341454766.",
+    "Model construction was tested by saved version 341454766.",
+    "Worker startup was tested by saved version 341454766.",
+    "P5 cache behavior passed or failed.",
+    "P6 worker/state isolation passed or failed.",
+    "A global recursive filename search is the correct remediation.",
+    "The consumed authorization may be reused.",
+    "Pilot execution is authorized.",
+    "Final measured A/B/C execution is authorized."
+  ],
+  "not_invalidated": [
+    "accepted exact-runtime offline verification",
+    "accepted exact-runtime wheelhouse/materialization identity",
+    "accepted model snapshot identity",
+    "historical P5/P6 implementation identity",
+    "authorization issuer semantics apart from transport/discovery readiness"
+  ],
+  "observed_behavior": "Runtime source identity passed. Authorization discovery returned zero candidates under the consumer's one-level glob. The run failed closed before runtime installation.",
+  "premises": [
+    {
+      "classification": "OBSERVED",
+      "evidence": "failed_run/members/runtime_source_identity_report_v1.json",
+      "id": "P1",
+      "statement": "Saved version 341454766 executed the expected runtime source identity and the runtime-source identity report passed."
+    },
+    {
+      "classification": "OBSERVED",
+      "evidence": "failed_run/members/p5_p6_exact_runtime_requalification_summary_v1.json",
+      "id": "P2",
+      "statement": "The run terminated FAILED_PENDING_REPOSITORY_DISPOSITION with failure_class AUTHORITY_FAILURE and authorization null."
+    },
+    {
+      "classification": "OBSERVED",
+      "evidence": "failed_run/members/p5_p6_exact_runtime_requalification_summary_v1.json",
+      "id": "P3",
+      "statement": "No runtime installation, import-closure probe, model load, worker start, model request, network request, or benchmark trajectory occurred."
+    },
+    {
+      "classification": "OBSERVED",
+      "evidence": "failed_run/members/failure_report_v1.json",
+      "id": "P4",
+      "statement": "The failure report safe message was: exactly one live P5/P6 execution authorization is required."
+    },
+    {
+      "classification": "OBSERVED",
+      "evidence": "inspection/members/inspection_report.json",
+      "id": "P5",
+      "statement": "Inspection saved version 341466979 reproduced the same three intended Kaggle inputs without GPU/runtime execution."
+    },
+    {
+      "classification": "OBSERVED",
+      "evidence": "inspection/members/inspection_report.json",
+      "id": "P6",
+      "statement": "The current one-level consumer pattern found zero authorization candidates while recursive diagnostic discovery found exactly one."
+    },
+    {
+      "classification": "OBSERVED",
+      "evidence": "inspection/members/candidate_inventory.json",
+      "id": "P7",
+      "statement": "The recursively discovered authorization was a regular canonical JSON file, matched every checked governed authorization metadata field, and had SHA-256 e9c1b58aedfccee3f36349bf063d5f1267721b8f395699a6c325304d32c20a2c."
+    },
+    {
+      "classification": "OBSERVED",
+      "evidence": "inspection/members/topology_inventory.json",
+      "id": "P8",
+      "statement": "The authorization was realized at datasets/kabomolefe/ag-p5-p6-execution-authorization-v1/execution_authorization_v1.json, which is deeper than the current one-level glob contract."
+    },
+    {
+      "classification": "OBSERVED",
+      "evidence": "local terminal receipt identity e3a3c0519fff010576f1674adf09c5dafa13b013b04e670b2510204c81f7e4b5; exact bytes preserved by governance materialization",
+      "id": "P9",
+      "statement": "The single-use authorization was terminalized as CONSUMED with outcome FAILED for saved version 341454766 and is non-reusable."
+    }
+  ],
+  "question": "Why did governed Kaggle saved version 341454766 terminate at the authorization boundary before exact-runtime P5/P6 execution?",
+  "schema_version": "1.0.0",
+  "status": "CERTIFIED_FAILED_DIAGNOSTIC",
+  "systemic_cause": "The workflow introduced direct authorization dataset transport while bypassing the project's previously proven saved-notebook control-materialization/root-scoped input pattern.",
+  "title": "AuraGateway Exact-Runtime P5/P6 Authorization Discovery Failure"
+}
