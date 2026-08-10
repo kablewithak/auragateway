@@ -1,0 +1,186 @@
+{
+  "authorities": [
+    {
+      "current_authority": true,
+      "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_requalification_design_v1.json",
+      "role": "frozen_p5_p6_design",
+      "sha256": "4781d9d3dda0c69cdc629a78dbaa94c39e73374914e40d1b48486b7d0e0033a2",
+      "size_bytes": 13153
+    },
+    {
+      "current_authority": true,
+      "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_requalification_v1_implementation_record.json",
+      "role": "merged_implementation_record",
+      "sha256": "6529b9fc47fffab4bee26b27e6573fbf5fd67eeb5a7845cbf214534f658cdf6d",
+      "size_bytes": 5269
+    },
+    {
+      "current_authority": true,
+      "path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_requalification_v1_implementation_review.json",
+      "role": "merged_implementation_review",
+      "sha256": "151e28300b440854fa31b769b3439944bb2013672200b97cf4bdd8f5354f557d",
+      "size_bytes": 8030
+    },
+    {
+      "current_authority": true,
+      "path": "src/auragateway/local_abc/p5_p6_exact_runtime_requalification_v1.py",
+      "role": "merged_implementation_source",
+      "sha256": "e41c0c327eab743c01dad961d07204a041e64e0579936145b79a1c23a675d126",
+      "size_bytes": 41675
+    },
+    {
+      "current_authority": true,
+      "path": "src/auragateway/local_abc/templates/p5_p6_exact_runtime_requalification_v1.py.tmpl",
+      "role": "merged_implementation_template",
+      "sha256": "bc512e45e7ac646045dda3f598ca2aa961a0c69c86b73117d66bb457710d0dfa",
+      "size_bytes": 150715
+    },
+    {
+      "current_authority": true,
+      "path": "tests/unit/local_abc/test_p5_p6_exact_runtime_requalification_v1.py",
+      "role": "merged_implementation_tests",
+      "sha256": "9d6151e387cd7b972696ffe982016831271288209a8a18cd6db1335343c137eb",
+      "size_bytes": 16205
+    },
+    {
+      "current_authority": true,
+      "path": "notebooks/auragateway_p5_p6_exact_runtime_requalification_v1.ipynb",
+      "role": "merged_implementation_notebook",
+      "sha256": "cdbda76b28f118d2c4db3f70b8206b3e9be28a2689d2a93a3946f7739365b5f7",
+      "size_bytes": 250380
+    },
+    {
+      "current_authority": true,
+      "path": "benchmarks/local_abc/auragateway_preflight_v5_evidence_acceptance_v1_record.json",
+      "role": "accepted_v5_capability_record",
+      "sha256": "b86314bd8c9a71766884ac7143b7fff3198e986dd99c6065814b45c8d1095eb1",
+      "size_bytes": 2819
+    }
+  ],
+  "authorization_payload": {
+    "authorization_filename": "execution_authorization_v1.json",
+    "authorization_reusable": false,
+    "decision": "AUTHORIZED",
+    "design_record_sha256_binding_required": true,
+    "every_execution_attempt_terminalizes_authority": true,
+    "exact_confirmation_phrase": "I_CONFIRM_FRESH_KAGGLE_T4_X2_INTERNET_OFF_AND_AUTHORIZE_ONE_EXACT_RUNTIME_P5_P6_REQUALIFICATION_V1_EXECUTION",
+    "implementation_merge_commit_binding_required": true,
+    "implementation_record_sha256_binding_required": true,
+    "implementation_review_sha256_binding_required": true,
+    "issuer_merge_commit_binding_required": true,
+    "lifecycle": "ISSUED",
+    "live_time_window_required": true,
+    "notebook_sha256_binding_required": true,
+    "runtime_script_sha256_binding_required": true,
+    "scope": "EXACT_RUNTIME_P5_P6_REQUALIFICATION_V1",
+    "single_use_required": true,
+    "unchanged_replay_authorized": false,
+    "v5_acceptance_sha256_binding_required": true,
+    "wrapper_code_sha256_binding_required": true
+  },
+  "base_main_commit": "9cc06c02c372fa2e7637c432759e7a1d4db56e9e",
+  "budget": {
+    "maximum_benchmark_trajectory_requests": 0,
+    "maximum_external_network_requests": 0,
+    "maximum_external_spend": 0,
+    "maximum_hidden_retries": 0,
+    "maximum_kaggle_sessions": 1,
+    "maximum_model_loads": 3,
+    "maximum_model_requests": 6,
+    "maximum_replacement_workers": 0,
+    "maximum_saved_versions": 1,
+    "maximum_worker_starts": 3
+  },
+  "design_status": "DESIGN_FROZEN_NOT_IMPLEMENTED",
+  "freshness": {
+    "default_authorization_window_minutes": 180,
+    "maximum_authorization_window_minutes": 240,
+    "maximum_operator_confirmation_age_minutes": 15,
+    "maximum_platform_observation_age_minutes": 15,
+    "timezone_aware_timestamps_required": true
+  },
+  "implementation": {
+    "design_record_sha256": "4781d9d3dda0c69cdc629a78dbaa94c39e73374914e40d1b48486b7d0e0033a2",
+    "implementation_merge_commit": "9cc06c02c372fa2e7637c432759e7a1d4db56e9e",
+    "implementation_record_sha256": "6529b9fc47fffab4bee26b27e6573fbf5fd67eeb5a7845cbf214534f658cdf6d",
+    "implementation_review_sha256": "151e28300b440854fa31b769b3439944bb2013672200b97cf4bdd8f5354f557d",
+    "implementation_source_sha256": "e41c0c327eab743c01dad961d07204a041e64e0579936145b79a1c23a675d126",
+    "implementation_template_sha256": "bc512e45e7ac646045dda3f598ca2aa961a0c69c86b73117d66bb457710d0dfa",
+    "implementation_test_sha256": "9d6151e387cd7b972696ffe982016831271288209a8a18cd6db1335343c137eb",
+    "notebook_sha256": "cdbda76b28f118d2c4db3f70b8206b3e9be28a2689d2a93a3946f7739365b5f7",
+    "runtime_script_sha256": "d6efb65aef419e6044ad9d8be26f4ec8dd441ee61b43da6c704930fd3e496e67",
+    "v5_acceptance_record_sha256": "b86314bd8c9a71766884ac7143b7fff3198e986dd99c6065814b45c8d1095eb1",
+    "wrapper_code_sha256": "55c1afa66f2684b002c6cb0b5bf121861d9811f756046d39d3a3c0b3ffa85a1c"
+  },
+  "issuance_preconditions": {
+    "clean_repository_required": true,
+    "exact_issuer_merge_commit_confirmation_required": true,
+    "fresh_operator_confirmation_required": true,
+    "fresh_platform_observation_required": true,
+    "implementation_identity_revalidation_required": true,
+    "implementation_validation_required": true,
+    "merged_issuer_required": true,
+    "no_conflicting_terminal_receipt_required": true,
+    "no_existing_live_authorization_required": true,
+    "semantic_boundary_revalidation_required": true,
+    "synchronized_main_required": true
+  },
+  "next_gate": "implement_exact_runtime_p5_p6_execution_authorization_v1_issuer",
+  "non_claims": [
+    "No live P5/P6 execution authorization is issued by this design.",
+    "No model or worker execution is performed by this design.",
+    "No current exact-runtime P5 behavior is qualified by this design.",
+    "No current exact-runtime P6 behavior is qualified by this design.",
+    "No variance-pilot execution is authorized by this design.",
+    "No final measured A/B/C execution is authorized by this design.",
+    "Historical consumed authorizations remain non-reusable.",
+    "The future issuer must be separately implemented, validated, and merged."
+  ],
+  "platform": {
+    "accelerator": "T4_X2",
+    "allocated_gpu_count": 2,
+    "credentials_permitted": false,
+    "customer_data_permitted": false,
+    "external_network_access_permitted": false,
+    "internet_enabled": false,
+    "platform_observation_required": true
+  },
+  "record_id": "auragateway-exact-runtime-p5-p6-execution-authorization-design-v1",
+  "safety": {
+    "external_spend": 0,
+    "final_measured_abc_execution_authorized": false,
+    "live_authorization_issued": false,
+    "model_loads_performed": 0,
+    "model_requests_performed": 0,
+    "p5_p6_exact_runtime_requalified": false,
+    "pilot_execution_authorized": false,
+    "runtime_execution_authorized": false,
+    "runtime_execution_performed": false,
+    "worker_starts_performed": 0
+  },
+  "schema_version": "1.0.0",
+  "terminalization": {
+    "abandoned_before_execution_requires_no_execution_attempt": true,
+    "cancelled_unused_requires_no_execution_attempt": true,
+    "consumed_requires_execution_attempt": true,
+    "expired_unused_requires_no_execution_attempt": true,
+    "known_execution_outcomes": [
+      "PASSED",
+      "FAILED",
+      "AMBIGUOUS",
+      "INTERRUPTED",
+      "DIAGNOSTIC_INVALID"
+    ],
+    "one_terminal_receipt_per_authorization": true,
+    "outcome_unknown_reserved_for_uncertain_attempt_outcome": true,
+    "terminal_authority_reusable": false,
+    "terminal_dispositions": [
+      "CONSUMED",
+      "EXPIRED_UNUSED",
+      "CANCELLED_UNUSED",
+      "ABANDONED_BEFORE_EXECUTION",
+      "OUTCOME_UNKNOWN"
+    ],
+    "terminal_receipt_non_overwriting": true
+  }
+}
