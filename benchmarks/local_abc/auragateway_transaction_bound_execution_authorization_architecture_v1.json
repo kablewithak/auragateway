@@ -1,0 +1,92 @@
+{
+  "architecture_id": "auragateway-transaction-bound-execution-authorization-v1",
+  "base_main_commit": "a9c6632b29e9b470de0497ca6d72a2e2c2c91f62",
+  "current_v2_source_markers": {
+    "issuer_path": "src/auragateway/local_abc/p5_p6_exact_runtime_execution_authorization_v2.py",
+    "issuer_post_issue_transport_marker": "MATERIALIZE_AND_ATTACH_GOVERNED_V2_AUTHORIZATION_CONTROL_OUTPUT",
+    "issuer_transport_round_trip_marker": "def _require_transport_round_trip(",
+    "runtime_authorization_consumer_marker": "class AuthorizationConsumerContract(",
+    "runtime_control_producer_marker": "ag-p5-p6-auth-control-v1",
+    "runtime_path": "src/auragateway/local_abc/p5_p6_exact_runtime_requalification_v2.py"
+  },
+  "decision": "TRANSACTION_BOUND_EXECUTION_ARTIFACT",
+  "failure_handling": {
+    "primary_failure_preserved_separately": true,
+    "secondary_failure_may_mask_primary": false,
+    "terminalizable_without_governed_evidence_zip": true
+  },
+  "implementation_strategy": {
+    "cpu_or_manual_topology_rehearsal_before_gpu": true,
+    "gpu_execution_authorized_by_this_architecture": false,
+    "immutable_v2_artifacts_rewritten": false,
+    "versioned_successor_required": true
+  },
+  "next_gate": "IMPLEMENT_TRANSACTION_BOUND_EXECUTION_AUTHORIZATION_V1",
+  "operator_burden_budget": {
+    "maximum_authorization_producer_notebooks": 0,
+    "maximum_authorization_specific_kaggle_inputs": 0,
+    "maximum_kaggle_save_and_run_all_actions": 1,
+    "maximum_local_control_commands_after_merge": 2,
+    "maximum_manual_confirmation_json_files": 0,
+    "permitted_kaggle_input_roles": [
+      "durable_runtime",
+      "model_snapshot"
+    ]
+  },
+  "platform_observation": {
+    "acceptance_binds_observation_to_transaction_and_saved_version": true,
+    "fresh_observation_after_artifact_generation_required": true,
+    "observation_mounted_as_runtime_input": false,
+    "observation_precedes_save_and_run_all": true,
+    "preissuance_observation_required": false,
+    "required_platform_policy_bound_by_authority": true
+  },
+  "problem": {
+    "authorization_required": true,
+    "current_authorization_control_producer": true,
+    "current_authorization_specific_kaggle_input": true,
+    "current_manual_confirmation_json_required": true,
+    "current_transport_schema_surface": true
+  },
+  "rejected_successor_topology": {
+    "authorization_control_producer_notebook_permitted": false,
+    "authorization_specific_kaggle_input_permitted": false,
+    "manual_confirmation_json_construction_permitted": false,
+    "runtime_authorization_filename_discovery_permitted": false
+  },
+  "replay": {
+    "malicious_operator_resistance_established": false,
+    "multiple_observed_executions_invalidate_acceptance": true,
+    "runtime_anti_replay_established": false,
+    "single_use_is_governance_invariant": true
+  },
+  "required_invariants": {
+    "authorization_expiry_bound": true,
+    "fresh_human_authority": true,
+    "hard_execution_budget_bound": true,
+    "immutable_evidence_traceability_required": true,
+    "runtime_model_contract_bound": true,
+    "single_use_governance_required": true,
+    "static_implementation_identity_bound": true,
+    "terminal_disposition_required_for_attempt": true
+  },
+  "runtime_admission": {
+    "authorization_admission_precedes_runtime_installation": true,
+    "authorization_must_be_live_at_admission": true,
+    "completion_after_expiry_if_admitted_in_window_permitted": true,
+    "machine_observable_topology_check_required": true,
+    "static_repository_artifact_governed_execution_permitted": false,
+    "transaction_bound_artifact_required": true
+  },
+  "schema_version": "1.0.0",
+  "status": "PROPOSED_FOR_ARCHITECTURE_ACCEPTANCE",
+  "transaction_identity": {
+    "canonical_authorization_bytes_bound": true,
+    "deterministic_generation_required": true,
+    "generator_contract_sha256_bound": true,
+    "nonidentical_regeneration_requires_fresh_authority": true,
+    "runtime_payload_sha256_bound": true,
+    "transaction_id_derivation": "SHA256_CANONICAL_AUTHORIZATION_BYTES",
+    "whole_notebook_sha256_is_semantic_payload_identity": false
+  }
+}
