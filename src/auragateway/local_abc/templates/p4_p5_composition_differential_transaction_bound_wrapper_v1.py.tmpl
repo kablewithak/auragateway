@@ -1,0 +1,425 @@
+"""Generated P4/P5 transaction-bound executable wrapper V1."""
+
+from __future__ import annotations
+
+import base64
+import hashlib
+import json
+import subprocess
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+
+_AUTHORIZATION_B64 = "__AUTHORIZATION_B64__"
+_RUNTIME_PAYLOAD_B64 = "__RUNTIME_PAYLOAD_B64__"
+_TRANSACTION_ID = "__TRANSACTION_ID__"
+_ISSUER_MERGE_COMMIT = "__ISSUER_MERGE_COMMIT__"
+_ISSUER_SOURCE_SHA256 = "__ISSUER_SOURCE_SHA256__"
+_RUNTIME_PAYLOAD_SHA256 = "__RUNTIME_PAYLOAD_SHA256__"
+_GENERATOR_CONTRACT_SHA256 = "__GENERATOR_CONTRACT_SHA256__"
+
+_DESIGN_RECORD_SHA256 = (
+    "f15a2926001dc4c625a6b60111269a1f3e2b6095d825455a0e8e6e0e77ee6ad2"
+)
+_IMPLEMENTATION_MERGE_COMMIT = (
+    "96dea44afa28e1b61c68eb0eccfc91d312bb89e0"
+)
+_IMPLEMENTATION_REVIEW_SHA256 = (
+    "523f42b32d76ae357313f009b548703ea2da8fd9f6496cf6adb7cc50ad4ec655"
+)
+_IMPLEMENTATION_RECORD_SHA256 = (
+    "8b2b11f367b60272323cb9e6269cbb09e597063d03467207798c96b25e79b1b1"
+)
+
+
+def _canonical_json_bytes(value: object) -> bytes:
+    return json.dumps(
+        value,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+
+
+def _sha256(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _parse_time(value: str) -> datetime:
+    observed = datetime.fromisoformat(value)
+
+    if (
+        observed.tzinfo is None
+        or observed.utcoffset() is None
+    ):
+        raise RuntimeError(
+            "authorization timestamp must be timezone-aware"
+        )
+
+    return observed.astimezone(UTC)
+
+
+def _observed_gpu_count() -> int:
+    completed = subprocess.run(
+        ["nvidia-smi", "-L"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "unable to observe GPU topology"
+        )
+
+    return sum(
+        1
+        for line in completed.stdout.splitlines()
+        if line.strip().startswith("GPU ")
+    )
+
+
+def _decode_authorization() -> tuple[
+    dict[str, object],
+    bytes,
+]:
+    payload = base64.b64decode(
+        _AUTHORIZATION_B64.encode("ascii"),
+        validate=True,
+    )
+    parsed = json.loads(payload)
+
+    if not isinstance(parsed, dict):
+        raise RuntimeError(
+            "embedded authorization must be one JSON object"
+        )
+
+    if payload != _canonical_json_bytes(parsed):
+        raise RuntimeError(
+            "embedded authorization is not canonical"
+        )
+
+    return parsed, payload
+
+
+def admit(
+    now: datetime | None = None,
+) -> dict[str, object]:
+    envelope, _ = _decode_authorization()
+
+    transaction_id = envelope.get("transaction_id")
+    authorization = envelope.get("authorization")
+
+    if (
+        transaction_id != _TRANSACTION_ID
+        or not isinstance(authorization, dict)
+    ):
+        raise RuntimeError(
+            "embedded authorization envelope drifted"
+        )
+
+    canonical_authorization = _canonical_json_bytes(
+        authorization
+    )
+    runtime_payload = base64.b64decode(
+        _RUNTIME_PAYLOAD_B64.encode("ascii"),
+        validate=True,
+    )
+
+    required = {
+        "schema_version": "1.0.0",
+        "decision": "AUTHORIZED",
+        "lifecycle": "ISSUED",
+        "scope": "P4_P5_COMPOSITION_DIFFERENTIAL_V1",
+        "issuer_merge_commit": _ISSUER_MERGE_COMMIT,
+        "authorization_design_record_sha256": (
+            _DESIGN_RECORD_SHA256
+        ),
+        "implementation_merge_commit": (
+            _IMPLEMENTATION_MERGE_COMMIT
+        ),
+        "implementation_review_sha256": (
+            _IMPLEMENTATION_REVIEW_SHA256
+        ),
+        "implementation_record_sha256": (
+            _IMPLEMENTATION_RECORD_SHA256
+        ),
+        "issuer_source_sha256": (
+            _ISSUER_SOURCE_SHA256
+        ),
+        "runtime_payload_sha256": (
+            _RUNTIME_PAYLOAD_SHA256
+        ),
+        "generator_contract_sha256": (
+            _GENERATOR_CONTRACT_SHA256
+        ),
+        "runtime_execution_authorized": True,
+        "single_use": True,
+        "every_terminal_attempt_consumes_authorization": True,
+        "unchanged_replay_authorized": False,
+        "authorization_reusable": False,
+        "runtime_anti_replay_established": False,
+        "case_c_authorized": False,
+        "runtime_remediation_authorized": False,
+    }
+
+    drift = tuple(
+        key
+        for key, expected in required.items()
+        if authorization.get(key) != expected
+    )
+
+    if drift:
+        raise RuntimeError(
+            "embedded authorization contract drift: "
+            + ",".join(drift)
+        )
+
+    if (
+        _sha256(canonical_authorization)
+        != _TRANSACTION_ID
+    ):
+        raise RuntimeError(
+            "transaction identity mismatch"
+        )
+
+    if (
+        _sha256(runtime_payload)
+        != _RUNTIME_PAYLOAD_SHA256
+    ):
+        raise RuntimeError(
+            "runtime payload identity mismatch"
+        )
+
+    runtime = authorization.get("runtime")
+
+    expected_runtime = {
+        "attention_backend": "TRITON_ATTN",
+        "cuda_variant": "cu129",
+        "gpu_topology": "T4_x2",
+        "model_directory_sha256": (
+            "84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94"
+        ),
+        "model_repository": "Qwen/Qwen2.5-0.5B-Instruct",
+        "model_revision": (
+            "7ae557604adf67be50417f59c2c2f167def9a775"
+        ),
+        "python": "3.12",
+        "required_native_module": "vllm._C_stable_libtorch",
+        "tokenizer_revision": (
+            "7ae557604adf67be50417f59c2c2f167def9a775"
+        ),
+        "torch": "2.11.0+cu129",
+        "torch_cuda_version": "12.9",
+        "transformers": "5.14.1",
+        "triton": "3.6.0",
+        "vllm_distribution": "0.25.1+cu129",
+        "vllm_public_semantic_version": "0.25.1",
+    }
+
+    if runtime != expected_runtime:
+        raise RuntimeError(
+            "runtime/model contract drifted"
+        )
+
+    budget = authorization.get("budget")
+
+    expected_budget = {
+        "maximum_benchmark_trajectory_requests": 0,
+        "maximum_external_network_requests": 0,
+        "maximum_external_spend": 0,
+        "maximum_hidden_retries": 0,
+        "maximum_kaggle_sessions": 1,
+        "maximum_model_loads": 1,
+        "maximum_model_requests": 6,
+        "maximum_replacement_workers": 0,
+        "maximum_runtime_import_closure_probes": 1,
+        "maximum_runtime_install_attempts": 1,
+        "maximum_save_and_run_all_actions": 1,
+        "maximum_worker_starts": 1,
+    }
+
+    if budget != expected_budget:
+        raise RuntimeError(
+            "execution budget drifted"
+        )
+
+    experiment = authorization.get("experiment")
+
+    expected_experiment = {
+        "a_3_of_3_b_0_of_3": (
+            "COMPOSITION_REGRESSION_SUPPORTED"
+        ),
+        "a_3_of_3_b_3_of_3": (
+            "COMPOSITION_HYPOTHESIS_NOT_REPRODUCED"
+        ),
+        "a_not_3_of_3": (
+            "SIMPLE_CONTROL_NOT_RELIABLE"
+        ),
+        "canonical_final_object": (
+            '{"probe":"exact-runtime-p5-p6","value":1}'
+        ),
+        "case_a_roles": ["system", "user"],
+        "case_b_roles": [
+            "system",
+            "user",
+            "assistant",
+            "user",
+        ],
+        "case_c_authorized_by_this_design": False,
+        "mixed_result_requires_separate_case_c_design": True,
+        "otherwise": "NON_DETERMINISTIC_OR_AMBIGUOUS",
+        "runtime_remediation_authorized": False,
+        "repetitions_per_case": 3,
+        "request_order": [
+            "A",
+            "B",
+            "B",
+            "A",
+            "A",
+            "B",
+        ],
+        "variable_under_test": "MESSAGE_COMPOSITION_ONLY",
+    }
+
+    if experiment != expected_experiment:
+        raise RuntimeError(
+            "differential experiment contract drifted"
+        )
+
+    required_platform = authorization.get(
+        "required_platform"
+    )
+
+    if required_platform != {
+        "accelerator": "T4_X2",
+        "allocated_gpu_count": 2,
+        "credentials_permitted": False,
+        "customer_data_permitted": False,
+        "external_network_access_permitted": False,
+        "internet_enabled": False,
+    }:
+        raise RuntimeError(
+            "required platform policy drifted"
+        )
+
+    observed = (
+        now or datetime.now(UTC)
+    ).astimezone(UTC)
+
+    issued_at = _parse_time(
+        str(authorization["issued_at"])
+    )
+    expires_at = _parse_time(
+        str(authorization["expires_at"])
+    )
+
+    if (
+        observed < issued_at
+        or observed >= expires_at
+    ):
+        raise RuntimeError(
+            "authorization is outside live admission window"
+        )
+
+    if _observed_gpu_count() != 2:
+        raise RuntimeError(
+            "machine-observable GPU topology "
+            "does not match authorization"
+        )
+
+    return {
+        "status": (
+            "P4_P5_DIFF_TRANSACTION_BOUND_RUNTIME_ADMISSION_VALID"
+        ),
+        "transaction_id": _TRANSACTION_ID,
+        "issuer_merge_commit": _ISSUER_MERGE_COMMIT,
+        "runtime_payload_sha256": (
+            _RUNTIME_PAYLOAD_SHA256
+        ),
+        "authorization_live_at_admission": True,
+        "observed_gpu_count": 2,
+        "internet_policy_bound": True,
+        "network_probe_performed": False,
+    }
+
+
+def _write_json(
+    path: Path,
+    value: object,
+) -> None:
+    path.write_bytes(
+        _canonical_json_bytes(value) + b"\n"
+    )
+
+
+def execute_bound_payload() -> None:
+    admission = admit()
+
+    _write_json(
+        Path(
+            "p4_p5_composition_differential_"
+            "transaction_bound_admission_v1.json"
+        ),
+        admission,
+    )
+
+    runtime_payload = base64.b64decode(
+        _RUNTIME_PAYLOAD_B64.encode("ascii"),
+        validate=True,
+    )
+
+    namespace = {
+        "__name__": "__main__",
+        "__file__": (
+            "<p4-p5-composition-differential-runtime>"
+        ),
+        "AURAGATEWAY_TRANSACTION_ID": (
+            _TRANSACTION_ID
+        ),
+        "EXECUTED_RUNTIME_SCRIPT_SHA256": (
+            _RUNTIME_PAYLOAD_SHA256
+        ),
+    }
+
+    try:
+        exec(
+            compile(
+                runtime_payload,
+                "<p4-p5-composition-differential-runtime>",
+                "exec",
+            ),
+            namespace,
+            namespace,
+        )
+
+    except BaseException as primary:
+        record = {
+            "status": "PRIMARY_FAILURE_CAPTURED",
+            "transaction_id": _TRANSACTION_ID,
+            "exception_type": type(primary).__name__,
+            "safe_message": str(primary)[:1000],
+        }
+
+        try:
+            _write_json(
+                Path(
+                    "p4_p5_composition_differential_"
+                    "primary_failure_v1.json"
+                ),
+                record,
+            )
+
+        except BaseException as reporting_error:
+            print(
+                "SECONDARY_FAILURE_REPORTING_ERROR="
+                + type(reporting_error).__name__,
+                file=sys.stderr,
+            )
+
+        raise
+
+
+if __name__ == "__main__":
+    execute_bound_payload()
