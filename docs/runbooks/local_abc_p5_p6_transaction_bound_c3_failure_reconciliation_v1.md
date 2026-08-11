@@ -14,19 +14,19 @@ requests, P5/P6 qualification, or measured A/B/C.
 
 Primary saved version:
 
-`341728154
+`341728154`
 
 Custody manifest SHA-256:
 
-`3ca422790bdb6ff2a57c922e33f3fd7df01226d71e122f77234400a088c82103
+`3ca422790bdb6ff2a57c922e33f3fd7df01226d71e122f77234400a088c82103`
 
 Reconciliation record SHA-256:
 
-`21c92d4b8adaa7157a9a4f24ff2cb9fa08c5c154224889e36d88e5e41444dbbc
+`21c92d4b8adaa7157a9a4f24ff2cb9fa08c5c154224889e36d88e5e41444dbbc`
 
 Reconciliation review SHA-256:
 
-`56b39c0085dde75640cd186d90a66168e429778681da84d7c618f6ed2fb46c56
+`56b39c0085dde75640cd186d90a66168e429778681da84d7c618f6ed2fb46c56`
 
 ## Required decision
 
@@ -38,7 +38,7 @@ The repository must preserve both truths:
 
 The first technical divergence remains C3:
 
-`model response is not valid JSON
+`model response is not valid JSON`
 
 P5 and P6 were not reached.
 
@@ -46,15 +46,20 @@ P5 and P6 were not reached.
 
 Run:
 
-1. Ruff format check on the reconciliation source and tests;
-2. repository Ruff lint;
+1. Ruff format check on the candidate-owned reconciliation source and tests;
+2. Ruff lint on the candidate-owned reconciliation source and tests;
 3. focused mypy on the reconciliation source and tests;
 4. deterministic reconciliation validation;
 5. focused reconciliation pytest;
 6. complete repository pytest;
 7. deterministic reconciliation validation again;
 8. authored-text whitespace validation;
-9. exact candidate-path validation.
+9. exact candidate-path validation;
+10. staged evidence byte-identity validation before commit.
+
+Do not use repository-wide Ruff as a release gate unless the repository-wide
+lint baseline has first been established clean or the tranche explicitly owns
+repository lint remediation.
 
 No generated reconciliation artifact may be manually edited.
 
@@ -89,7 +94,7 @@ Do not change the runtime merely to make the current reconciliation green.
 
 ## Next gate after merge
 
-`DESIGN_AND_MERGE_P4_P5_COMPOSITION_DIFFERENTIAL_V1
+`DESIGN_AND_MERGE_P4_P5_COMPOSITION_DIFFERENTIAL_V1`
 
 That future tranche must remain separate from this evidence-reconciliation
 transaction.

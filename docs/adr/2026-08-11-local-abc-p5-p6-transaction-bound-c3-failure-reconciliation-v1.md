@@ -5,10 +5,10 @@
 **Decision:** Accept the preserved technical failure evidence while rejecting the
 transaction as a valid single-use P5/P6 qualification.
 
-## Contex
+## Context
 
 Transaction
-`8ad4e628eaffbfc52d46bd958588529e940881937e09ade1c5c6064a755fc9aa
+`8ad4e628eaffbfc52d46bd958588529e940881937e09ade1c5c6064a755fc9aa`
 produced primary Kaggle saved version `341728154`.
 
 The primary execution established:
@@ -37,11 +37,11 @@ The transaction was therefore terminalized as:
 
 The preserved custody manifest SHA-256 is:
 
-`3ca422790bdb6ff2a57c922e33f3fd7df01226d71e122f77234400a088c82103
+`3ca422790bdb6ff2a57c922e33f3fd7df01226d71e122f77234400a088c82103`
 
 ## Historical evidence
 
-The accepted P3-P6 V5 failure previously reached the same output-contrac
+The accepted P3-P6 V5 failure previously reached the same output-contract
 failure family and classified the boundary as
 `P4_OUTPUT_CONTRACT_HARNESS_WEAKNESS`, specifically
 `V5_PROMPT_REGRESSION_WITH_UNCONSTRAINED_GENERATION`.
@@ -66,11 +66,11 @@ Its primary execution remains valid technical diagnostic evidence.
 
 The current reconciliation classification is:
 
-`P4_P5_COMPOSITION_OUTPUT_CONTRACT_REGRESSION
+`P4_P5_COMPOSITION_OUTPUT_CONTRACT_REGRESSION`
 
 with specific classification:
 
-`QUALIFIED_CASE_A_REUSED_AFTER_MATERIAL_MESSAGE_CONTEXT_CHANGE
+`QUALIFIED_CASE_A_REUSED_AFTER_MATERIAL_MESSAGE_CONTEXT_CHANGE`
 
 This is a high-confidence architectural inference. It is not counterfactual
 experimental proof because the exact failed model output was not retained.
@@ -88,7 +88,7 @@ No unchanged replay is authorized.
 
 The next gate is:
 
-`DESIGN_AND_MERGE_P4_P5_COMPOSITION_DIFFERENTIAL_V1
+`DESIGN_AND_MERGE_P4_P5_COMPOSITION_DIFFERENTIAL_V1`
 
 That diagnostic should compare the previously qualified Case-A message shape
 against the current P5 cold-baseline composition while holding the model,
