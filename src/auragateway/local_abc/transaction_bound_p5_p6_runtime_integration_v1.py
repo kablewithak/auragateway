@@ -22,13 +22,13 @@ AUTHORIZATION_RECORD_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_v1_record.json"
 )
 AUTHORIZATION_RECORD_SHA256: Final = (
-    "11ce277167d89c13352c130a0584b544dbb8c0e2ef46692f91a9465bc95b6300"
+    "0d1ab1c39914e57546e4a42e312a1ee8b26c69366bb2ac0d44392df67e47b037"
 )
 AUTHORIZATION_REVIEW_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_v1_review.json"
 )
 AUTHORIZATION_REVIEW_SHA256: Final = (
-    "8455a2710892783a46996aeacd90fb39f55086b97791d7601c7f1b38185b01db"
+    "ce14481086f3ee820deebc38dcc0aaaf4879e3690b38436e2e5b1d44eabc8766"
 )
 V2_TEMPLATE_PATH: Final = Path(
     "src/auragateway/local_abc/templates/p5_p6_exact_runtime_requalification_v2.py.tmpl"
@@ -121,10 +121,10 @@ class IntegrationReview(FrozenModel):
     status: Literal["APPROVED_FOR_TRANSACTION_BOUND_RUNTIME_INTEGRATION"]
     base_main_commit: Literal["4afdcf9d840bc90ceb34af8dae098998f78de572"]
     authorization_record_sha256: Literal[
-        "11ce277167d89c13352c130a0584b544dbb8c0e2ef46692f91a9465bc95b6300"
+        "0d1ab1c39914e57546e4a42e312a1ee8b26c69366bb2ac0d44392df67e47b037"
     ]
     authorization_review_sha256: Literal[
-        "8455a2710892783a46996aeacd90fb39f55086b97791d7601c7f1b38185b01db"
+        "ce14481086f3ee820deebc38dcc0aaaf4879e3690b38436e2e5b1d44eabc8766"
     ]
     predecessor_v2_template_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     predecessor_outcome_unknown_sha256: Literal[

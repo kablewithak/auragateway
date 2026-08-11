@@ -175,3 +175,23 @@ def test_terminal_receipt_requires_saved_version_for_attempted_disposition() -> 
             execution_attempted=True,
             terminalized_at=datetime.now(UTC),
         )
+
+
+def test_verified_runtime_payload_sha_is_propagated_into_runtime_namespace(
+    tmp_path: Path,
+) -> None:
+    observed_path = tmp_path / "runtime-source-sha.txt"
+    runtime_payload = (
+        "from pathlib import Path\n"
+        f"Path({str(observed_path)!r}).write_text("
+        "EXECUTED_RUNTIME_SCRIPT_SHA256, encoding='utf-8')\n"
+    ).encode()
+
+    namespace = _wrapper_namespace(runtime_payload)
+    namespace["admit"] = lambda: {"status": "TRANSACTION_BOUND_RUNTIME_ADMISSION_VALID"}
+    namespace["_write_json"] = lambda *_args: None
+
+    execute = cast(Callable[[], None], namespace["execute_bound_payload"])
+    execute()
+
+    assert observed_path.read_text(encoding="utf-8") == subject._sha256(runtime_payload)
