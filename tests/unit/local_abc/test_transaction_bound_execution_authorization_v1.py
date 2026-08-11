@@ -57,7 +57,18 @@ def test_static_implementation_validates() -> None:
     assert result["gpu_execution_authorized"] is False
 
 
-def test_live_authorization_fails_closed_without_runtime_integration_record() -> None:
+def test_live_authorization_fails_closed_without_runtime_integration_record(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    missing_record = Path(
+        "benchmarks/local_abc/transaction_bound_runtime_integration_missing_for_test.json"
+    )
+    monkeypatch.setattr(
+        subject,
+        "RUNTIME_INTEGRATION_RECORD_PATH",
+        missing_record,
+    )
+
     with pytest.raises(
         subject.TransactionBoundError,
         match="required artifact is missing or unsafe",
