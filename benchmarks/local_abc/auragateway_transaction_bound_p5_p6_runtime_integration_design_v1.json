@@ -1,0 +1,56 @@
+{
+  "authorization_implementation": {
+    "record_path": "benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_v1_record.json",
+    "record_sha256": "11ce277167d89c13352c130a0584b544dbb8c0e2ef46692f91a9465bc95b6300",
+    "review_path": "benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_v1_review.json",
+    "review_sha256": "8455a2710892783a46996aeacd90fb39f55086b97791d7601c7f1b38185b01db",
+    "runtime_integration_record_path": "benchmarks/local_abc/auragateway_transaction_bound_p5_p6_runtime_integration_v1.json"
+  },
+  "base_main_commit": "4afdcf9d840bc90ceb34af8dae098998f78de572",
+  "design_id": "auragateway-transaction-bound-p5-p6-runtime-integration-v1",
+  "next_gate": "CPU_OR_MANUAL_KAGGLE_TOPOLOGY_REHEARSAL_V1",
+  "non_claims": {
+    "current_runtime_p5_p6_requalified": false,
+    "gpu_execution_authorized": false,
+    "live_authorization_issued": false,
+    "runtime_anti_replay_established": false,
+    "v2_earliest_precleanup_exception_identified": false
+  },
+  "predecessor": {
+    "diagnostic_masking_established": true,
+    "earliest_precleanup_exception_recovered": false,
+    "governed_execution_outcome": "OUTCOME_UNKNOWN",
+    "outcome_unknown_acceptance_path": "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_v2_outcome_unknown_acceptance_v1.json",
+    "outcome_unknown_acceptance_sha256": "66603d034a229b8ee623a6f5c93e3a7f5045da474443c9693c2f7629acf2fc07",
+    "runtime_template_path": "src/auragateway/local_abc/templates/p5_p6_exact_runtime_requalification_v2.py.tmpl",
+    "saved_version_id": 341548056,
+    "symbolic_link_regression_case_required": true
+  },
+  "required_remediations": {
+    "authorization_producer_notebooks": 0,
+    "authorization_specific_kaggle_inputs": 0,
+    "cleanup_snapshot_failure_is_secondary": true,
+    "durable_input_symlink_policy_unchanged": "REJECT",
+    "evidence_packaging_failure_is_secondary": true,
+    "manual_confirmation_json_files": 0,
+    "primary_failure_preserved_separately": true,
+    "successful_bounded_process_outcome": "ZERO_EXIT",
+    "venv_symlinks_in_scratch_snapshot": "COUNT_NOT_REJECT",
+    "worker_teardown_failure_is_secondary": true
+  },
+  "runtime_payload": {
+    "authorization_admission_owned_by_outer_wrapper": true,
+    "authorization_transport_removed": true,
+    "derivation": "DETERMINISTIC_BOUNDED_SUCCESSOR_FROM_IMMUTABLE_V2_TEMPLATE",
+    "path": "src/auragateway/local_abc/p5_p6_transaction_bound_runtime_v1.py",
+    "request_roles": [
+      "BASE_COLD",
+      "BASE_WARM",
+      "NEGATIVE_PREFIX",
+      "POST_RESET_COLD",
+      "CROSS_WORKER_COLD",
+      "WORKER1_RETENTION"
+    ]
+  },
+  "schema_version": "1.0.0"
+}
