@@ -1,0 +1,14 @@
+﻿{
+    "schema_version":  "1.0.0",
+    "observation":  "DUPLICATE_KAGGLE_SAVE_VERSION_ATTEMPT",
+    "transaction_id":  "8ad4e628eaffbfc52d46bd958588529e940881937e09ade1c5c6064a755fc9aa",
+    "primary_saved_version_id":  341728154,
+    "primary_saved_version_status":  "FAILED",
+    "duplicate_ui_version_number":  2,
+    "duplicate_saved_version_status":  "CANCELLED",
+    "duplicate_saved_version_script_version_id":  null,
+    "duplicate_saved_version_script_version_id_exposed":  false,
+    "single_use_acceptance_valid":  false,
+    "source":  "OPERATOR_OBSERVATION_AND_KAGGLE_UI",
+    "recorded_at":  "2026-08-11T16:26:35.3033032Z"
+}
