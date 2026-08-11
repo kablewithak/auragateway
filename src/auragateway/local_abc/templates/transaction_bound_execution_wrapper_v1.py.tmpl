@@ -128,6 +128,7 @@ def execute_bound_payload() -> None:
         "__name__": "__main__",
         "__file__": "<transaction-bound-runtime-payload>",
         "AURAGATEWAY_TRANSACTION_ID": _TRANSACTION_ID,
+        "EXECUTED_RUNTIME_SCRIPT_SHA256": _RUNTIME_PAYLOAD_SHA256,
     }
     try:
         exec(compile(runtime_payload, "<transaction-bound-runtime-payload>", "exec"), namespace, namespace)

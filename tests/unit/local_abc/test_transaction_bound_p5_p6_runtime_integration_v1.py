@@ -211,3 +211,19 @@ def test_authorization_boundary_accepts_exact_generated_runtime_payload() -> Non
         RUNTIME_PATH,
     )
     assert payload == RUNTIME_PATH.read_bytes()
+
+
+def test_runtime_source_identity_accepts_wrapper_verified_payload_sha() -> None:
+    namespace = _runtime_namespace()
+    expected_sha = "b" * 64
+    namespace["EXECUTED_RUNTIME_SCRIPT_SHA256"] = expected_sha
+
+    runtime_source_identity = namespace["runtime_source_identity"]
+    assert callable(runtime_source_identity)
+
+    report = runtime_source_identity()
+
+    assert report["status"] == "PASSED"
+    assert report["decision"] == "EXECUTED_RUNTIME_SCRIPT_IDENTITY_VERIFIED"
+    assert report["executed_runtime_script_sha256"] == expected_sha
+    assert report["wrapper_hash_verification_passed"] is True
