@@ -195,3 +195,28 @@ def test_verified_runtime_payload_sha_is_propagated_into_runtime_namespace(
     execute()
 
     assert observed_path.read_text(encoding="utf-8") == subject._sha256(runtime_payload)
+
+
+def test_transaction_bound_identity_sensitive_text_files_are_lf() -> None:
+    identity_sensitive_paths = (
+        "benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_architecture_v1.json",
+        "benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_implementation_design_v1.json",
+        "src/auragateway/local_abc/transaction_bound_execution_authorization_v1.py",
+        "src/auragateway/local_abc/templates/transaction_bound_execution_wrapper_v1.py.tmpl",
+        "benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_v1_review.json",
+        "benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_v1_record.json",
+        "benchmarks/local_abc/auragateway_transaction_bound_p5_p6_runtime_integration_design_v1.json",
+        "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_v2_outcome_unknown_acceptance_v1.json",
+        "src/auragateway/local_abc/templates/p5_p6_exact_runtime_requalification_v2.py.tmpl",
+        "src/auragateway/local_abc/transaction_bound_p5_p6_runtime_integration_v1.py",
+        "src/auragateway/local_abc/p5_p6_transaction_bound_runtime_v1.py",
+        "benchmarks/local_abc/auragateway_transaction_bound_p5_p6_runtime_integration_v1_review.json",
+        "benchmarks/local_abc/auragateway_transaction_bound_p5_p6_runtime_integration_v1.json",
+    )
+
+    attributes = set((ROOT / ".gitattributes").read_text(encoding="utf-8").splitlines())
+
+    for relative in identity_sensitive_paths:
+        payload = (ROOT / relative).read_bytes()
+        assert b"\r\n" not in payload, relative
+        assert f"{relative} text eol=lf" in attributes
