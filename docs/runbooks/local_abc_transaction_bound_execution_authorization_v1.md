@@ -16,6 +16,25 @@ Kaggle receives only the generated notebook plus durable runtime/model inputs. A
 
 The second local control command is `terminalize`. Every attempted execution consumes the authority. `OUTCOME_UNKNOWN` remains available when terminal evidence packaging is incomplete. Unused authority must be terminalized as expired, cancelled, or abandoned as applicable.
 
+## Post-terminal lifecycle closure
+
+After terminalization, preserve the live authorization, executable manifest,
+and terminal receipt into the governed evidence boundary before removing any
+operational lifecycle file.
+
+Once the preserved copies have been verified byte-for-byte against the
+operational originals, remove only the operational lifecycle files under
+`benchmarks/local_abc`.
+
+The preserved evidence remains immutable.
+
+This restores the static repository invariant required by
+`validate_static()` and prevents a consumed transaction from contaminating
+later repository-wide validation.
+
+Never clear an operational lifecycle artifact before its preserved copy has
+been identity-verified.
+
 ## Non-claims
 
 Single-use is a governance invariant. Runtime anti-replay and malicious-operator resistance are not established. More than one observed execution for a transaction requires reconciliation.

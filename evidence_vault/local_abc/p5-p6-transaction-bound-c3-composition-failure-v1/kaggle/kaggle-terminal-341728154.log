@@ -1,0 +1,36 @@
+5.6s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+5.6s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+5.6s 3 0.00s - to python to disable frozen modules.
+5.6s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+6.2s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.2s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.2s 7 0.00s - to python to disable frozen modules.
+6.2s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+422.1s 9 {"authorization":{"authorization_producer_notebooks":0,"authorization_specific_kaggle_inputs":0,"authorization_transport":"EMBEDDED_WRAPPER_ADMISSION","runtime_execution_authorized":true,"transaction_id":"8ad4e628eaffbfc52d46bd958588529e940881937e09ade1c5c6064a755fc9aa"},"benchmark_trajectory_requests":0,"completed_capabilities":["C1","C2"],"counters":{"benchmark_trajectory_requests":0,"external_spend":0,"hidden_retries":0,"kaggle_sessions":1,"model_loads":1,"model_requests":1,"network_requests":0,"runtime_import_closure_probes":1,"runtime_install_attempts":1,"worker_starts":1},"credentials_used":false,"customer_data_present":false,"design_record_sha256":"a42682c1faa05b2e1d220a0c239c21718341270f717420aaf11be2e2441e9728","diagnostic_id":"auragateway-exact-runtime-p5-p6-requalification-v2","evidence_zip":"/kaggle/working/ag-p5-p6-transaction-bound-evidence-v1.zip","evidence_zip_sha256":"1afbd4feeb307282bf6543bc31134d4838f4a03864d54dce2fad29ad4b3728b5","evidence_zip_size_bytes":17143,"executed_runtime_script_sha256":"361244e8030eb50a50456f305f3eee8d74e406e11ec906f7a3494f8e66481cd3","failed_capability":"C3","failure_class":"REQUEST_EXECUTION_FAILURE","implementation_review_sha256":"4de52a4b852d76da5c8713f590f5599a3f0adb185a981635b2f4c1dd91f347e5","measured_abc_execution_performed":false,"network_access_permitted":false,"next_gate":"PRESERVE_AND_DISPOSITION_EXACT_RUNTIME_P5_P6_REQUALIFICATION_V2","p5_decision":null,"p6_decision":null,"pilot_execution_performed":false,"public_evidence_used_as_semantic_input":false,"runtime_import_closure_process_outcome":"ZERO_EXIT","runtime_import_closure_status":"PASSED","runtime_install_process_outcome":"ZERO_EXIT","runtime_install_status":"PASSED","schema_version":"1.0.0","scratch_cleanup_status":"PASSED","scratch_exists_after_cleanup":false,"source_main_commit":"4afdcf9d840bc90ceb34af8dae098998f78de572","status":"FAILED","terminal_state":"FAILED_PENDING_REPOSITORY_DISPOSITION","v5_acceptance_sha256":"b86314bd8c9a71766884ac7143b7fff3198e986dd99c6065814b45c8d1095eb1","worker_teardown_status":"PASSED"}
+422.1s 10 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+422.1s 11 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+422.1s 12 
+422.1s 13 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+422.1s 14 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+422.4s 15 Traceback (most recent call last):
+422.4s 16 File "<string>", line 1, in <module>
+422.4s 17 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+422.4s 18 raise_for_execution_errors(nb, output_path)
+422.4s 19 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+422.4s 20 raise error
+422.4s 21 papermill.exceptions.PapermillExecutionError:
+422.4s 22 ---------------------------------------------------------------------------
+422.4s 23 Exception encountered at "In [1]":
+422.4s 24 An exception has occurred, use %tb to see the full traceback.
+422.4s 25 
+422.4s 26 SystemExit: 2
+422.4s 27 
+422.4s 28 
+424.5s 29 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+424.5s 30 cells[i][c] = re.sub('\\\\\|', '|', cell)
+424.6s 31 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+424.6s 32 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+425.2s 33 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+425.5s 34 [NbConvertApp] Writing 212084 bytes to __notebook__.ipynb
+427.8s 35 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+428.6s 36 [NbConvertApp] Writing 501780 bytes to __results__.html
