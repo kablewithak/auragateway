@@ -41,3 +41,18 @@ evidence_vault/local_abc/p5-p6-exact-runtime-authority-failure-v1/lifecycle/auth
 
 # Preserve Exact-Runtime P5/P6 V2 outcome-unknown evidence byte-for-byte.
 evidence_vault/local_abc/p5-p6-exact-runtime-v2-outcome-unknown-v1/** -text -whitespace
+
+# Preserve transaction-bound deterministic identity text as LF.
+benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_architecture_v1.json text eol=lf
+benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_implementation_design_v1.json text eol=lf
+src/auragateway/local_abc/transaction_bound_execution_authorization_v1.py text eol=lf
+src/auragateway/local_abc/templates/transaction_bound_execution_wrapper_v1.py.tmpl text eol=lf
+benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_v1_review.json text eol=lf
+benchmarks/local_abc/auragateway_transaction_bound_execution_authorization_v1_record.json text eol=lf
+benchmarks/local_abc/auragateway_transaction_bound_p5_p6_runtime_integration_design_v1.json text eol=lf
+benchmarks/local_abc/auragateway_p5_p6_exact_runtime_v2_outcome_unknown_acceptance_v1.json text eol=lf
+src/auragateway/local_abc/templates/p5_p6_exact_runtime_requalification_v2.py.tmpl text eol=lf
+src/auragateway/local_abc/transaction_bound_p5_p6_runtime_integration_v1.py text eol=lf
+src/auragateway/local_abc/p5_p6_transaction_bound_runtime_v1.py text eol=lf
+benchmarks/local_abc/auragateway_transaction_bound_p5_p6_runtime_integration_v1_review.json text eol=lf
+benchmarks/local_abc/auragateway_transaction_bound_p5_p6_runtime_integration_v1.json text eol=lf
