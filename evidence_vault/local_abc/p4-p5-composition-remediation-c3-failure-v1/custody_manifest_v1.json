@@ -1,0 +1,71 @@
+{
+    "schema_version":  "1.0.0",
+    "manifest_id":  "auragateway-p4-p5-composition-remediation-c3-failure-evidence-custody-v1",
+    "transaction_id":  "c984a77f3de24f986a9d9f255c25d83e375f552951b256c6e8f44c79c96e3542",
+    "saved_version_id":  341956898,
+    "execution_status":  "FAILED",
+    "completed_capabilities":  [
+                                   "C1",
+                                   "C2"
+                               ],
+    "technical_first_divergence":  "C3",
+    "failure_class":  "REQUEST_EXECUTION_FAILURE",
+    "safe_failure_message":  "model response is not valid JSON",
+    "model_requests_performed":  1,
+    "model_loads_performed":  1,
+    "worker_starts_performed":  1,
+    "hidden_retries_performed":  0,
+    "external_network_requests_performed":  0,
+    "p5_reached":  false,
+    "p6_reached":  false,
+    "terminal_disposition":  "CONSUMED",
+    "terminal_execution_outcome":  "FAILED",
+    "authorization_reusable":  false,
+    "matching_terminal_log_copy_count":  2,
+    "duplicate_terminal_logs_byte_identical":  true,
+    "member_count":  7,
+    "members":  [
+                    {
+                        "role":  "governed_evidence_zip",
+                        "path":  "evidence_vault/local_abc/p4-p5-composition-remediation-c3-failure-v1/kaggle/ag-p5-p6-transaction-bound-evidence-v1-341956898.zip",
+                        "sha256":  "784b7c4a7f0ac03afec018b24f40cb19d3db0e8ecb0ada2f930b0fd1c66e5397",
+                        "size_bytes":  17962
+                    },
+                    {
+                        "role":  "terminal_log",
+                        "path":  "evidence_vault/local_abc/p4-p5-composition-remediation-c3-failure-v1/kaggle/kaggle-terminal-341956898.log",
+                        "sha256":  "39cd32a1914262530823f73ba5197ed425befe85606a42344d8c70f6c1edef80",
+                        "size_bytes":  4550
+                    },
+                    {
+                        "role":  "saved_notebook",
+                        "path":  "evidence_vault/local_abc/p4-p5-composition-remediation-c3-failure-v1/kaggle/ag-p4-p5-remediation-p5-p6-confirmation-v1-341956898.ipynb",
+                        "sha256":  "1ae90a9ae7708346a15ad001af61f6a8b3a2cdb0ddb25d90c33deefca29a472a",
+                        "size_bytes":  217478
+                    },
+                    {
+                        "role":  "execution_authorization",
+                        "path":  "evidence_vault/local_abc/p4-p5-composition-remediation-c3-failure-v1/lifecycle/execution_authorization_v1.json",
+                        "sha256":  "8f5c9e2dc02f86b723bd66cf3c84c7b38837bbeb7fc1bb956482b71568d55385",
+                        "size_bytes":  3836
+                    },
+                    {
+                        "role":  "execution_artifact_manifest",
+                        "path":  "evidence_vault/local_abc/p4-p5-composition-remediation-c3-failure-v1/lifecycle/execution_artifact_manifest_v1.json",
+                        "sha256":  "9f9f4981034ecbb7ea387cb7fd26f26ee2740500db9f127ce6c25eaca9698625",
+                        "size_bytes":  1329
+                    },
+                    {
+                        "role":  "platform_observation_receipt",
+                        "path":  "evidence_vault/local_abc/p4-p5-composition-remediation-c3-failure-v1/lifecycle/platform_observation_receipt_v1.json",
+                        "sha256":  "c8a90bc4f2c3a940c108ad5672fa840b443287d03b306e5f2896031d2c1fb7b2",
+                        "size_bytes":  598
+                    },
+                    {
+                        "role":  "authorization_terminal_receipt",
+                        "path":  "evidence_vault/local_abc/p4-p5-composition-remediation-c3-failure-v1/lifecycle/authorization_terminal_receipt_v1.json",
+                        "sha256":  "850dc4dc9ddd603486b8a98f4896cea1b0f8d6cbc10a2ce97bcae552f3057940",
+                        "size_bytes":  835
+                    }
+                ]
+}
