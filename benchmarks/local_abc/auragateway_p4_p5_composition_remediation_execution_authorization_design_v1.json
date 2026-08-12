@@ -1,0 +1,209 @@
+{
+  "authorities": [
+    {
+      "current_authority": true,
+      "path": "src/auragateway/local_abc/p4_p5_composition_remediated_runtime_v1.py",
+      "role": "merged_remediated_runtime",
+      "sha256": "aa0631ef5bc7b13c6d0f4a00078b6b35bc274147fc0847965dc000f732adc7ff",
+      "size_bytes": 150828
+    },
+    {
+      "current_authority": true,
+      "path": "benchmarks/local_abc/auragateway_p4_p5_composition_remediation_implementation_v1_review.json",
+      "role": "implementation_review",
+      "sha256": "feecd56b5688bffb2a79369bd28f351756c8ae78f3f1c4c38dfd9365831eb76c",
+      "size_bytes": 2066
+    },
+    {
+      "current_authority": true,
+      "path": "benchmarks/local_abc/auragateway_p4_p5_composition_remediation_implementation_v1.json",
+      "role": "implementation_record",
+      "sha256": "681b0463488f50d48c43b2256a0a50f0f276f10cc46c479db65c0c6e385970f8",
+      "size_bytes": 1819
+    }
+  ],
+  "authorization_architecture": "TRANSACTION_BOUND_EXECUTION_ARTIFACT",
+  "authorization_payload_binding": {
+    "authorization_design_record_sha256_bound": true,
+    "authorization_scope_bound": true,
+    "authorization_window_bound": true,
+    "execution_budget_bound": true,
+    "implementation_authority_hashes_bound": true,
+    "implementation_merge_commit_bound": true,
+    "issuer_merge_commit_bound": true,
+    "qualification_contract_bound": true,
+    "required_platform_policy_bound": true,
+    "runtime_model_contract_bound": true
+  },
+  "authorization_scope": "P4_P5_COMPOSITION_REMEDIATION_CONFIRMATION_V1",
+  "base_main_commit": "f5701274037162ab9ff8f0627a544ac76d9c1b7b",
+  "case_c_authorized": false,
+  "design_id": "auragateway-p4-p5-composition-remediation-execution-authorization-design-v1",
+  "evidence": {
+    "credentials_permitted": false,
+    "customer_data_permitted": false,
+    "evidence_identity_bound_to_terminal_receipt": true,
+    "expected_evidence_zip": "ag-p5-p6-transaction-bound-evidence-v1.zip",
+    "platform_observation_bound_to_transaction": true,
+    "pre_request_token_identity_journal": "pre_request_token_identity_journal_v1.json",
+    "raw_output_retained": false,
+    "raw_prompt_retained": false,
+    "saved_version_bound_to_transaction": true,
+    "terminalizable_without_expected_evidence_zip": true
+  },
+  "execution_budget": {
+    "maximum_benchmark_trajectory_requests": 0,
+    "maximum_external_network_requests": 0,
+    "maximum_external_spend": 0,
+    "maximum_hidden_retries": 0,
+    "maximum_kaggle_sessions": 1,
+    "maximum_model_loads": 3,
+    "maximum_model_requests": 6,
+    "maximum_replacement_workers": 0,
+    "maximum_runtime_import_closure_probes": 1,
+    "maximum_runtime_install_attempts": 1,
+    "maximum_save_and_run_all_actions": 1,
+    "maximum_worker_starts": 3
+  },
+  "governed_executable_generated": false,
+  "human_authorization": {
+    "challenge_must_be_dynamic": true,
+    "challenge_synthesis_by_runtime_prohibited": true,
+    "confirmation_binds_exact_authorization_intent": true,
+    "confirmation_method": "RETYPE_DYNAMIC_SHA256_CHALLENGE",
+    "default_authorization_window_minutes": 180,
+    "exact_challenge_retype_required": true,
+    "fresh_human_authority_required": true,
+    "maximum_authorization_window_minutes": 240,
+    "maximum_confirmation_age_minutes": 15
+  },
+  "implementation_merge_commit": "f5701274037162ab9ff8f0627a544ac76d9c1b7b",
+  "kaggle_execution_performed": false,
+  "live_authorization_issued": false,
+  "model_loads_performed": 0,
+  "model_requests_performed": 0,
+  "next_gate": "IMPLEMENT_AND_MERGE_P4_P5_COMPOSITION_REMEDIATION_EXECUTION_AUTHORIZATION_ISSUER_V1",
+  "platform": {
+    "accelerator": "T4_X2",
+    "allocated_gpu_count": 2,
+    "credentials_permitted": false,
+    "customer_data_permitted": false,
+    "external_network_access_permitted": false,
+    "fresh_post_artifact_observation_required": true,
+    "internet_enabled": false,
+    "machine_observable_runtime_topology_check_required": true,
+    "observation_mounted_as_runtime_input": false,
+    "observation_precedes_save_and_run_all": true,
+    "preissuance_platform_observation_required": false
+  },
+  "platform_observation_persisted": false,
+  "platform_observation_receipt": {
+    "console_only_observation_sufficient": false,
+    "control_id": "PERSIST_DURABLE_OBSERVATION_BEFORE_SAVE_AND_RUN_ALL",
+    "durable_receipt_required": true,
+    "failure_to_persist_blocks_execution": true,
+    "receipt_bound_to_transaction_id": true,
+    "receipt_created_after_transaction_artifact": true,
+    "receipt_must_exist_before_save_and_run_all": true,
+    "receipt_runtime_input": false,
+    "required_fields": [
+      "transaction_id",
+      "platform_observed_at",
+      "accelerator",
+      "allocated_gpu_count",
+      "internet_enabled",
+      "capability_source"
+    ]
+  },
+  "qualification": {
+    "all_structured_requests_exact_object_required": true,
+    "base_warm_attributable_cache_reuse_required": true,
+    "cache_specific_proof_required": true,
+    "case_c_authorized": false,
+    "cross_worker_no_cache_inheritance_required": true,
+    "exact_action_budget_required": true,
+    "negative_prefix_token_identity_divergence_required": true,
+    "p5_state_required": "PASS",
+    "p6_isolation_proof_required": true,
+    "p6_state_required": "PASS",
+    "post_reset_cold_state_required": true,
+    "pre_request_token_identity_journal_required": true,
+    "prefix_a_token_identity_stability_required": true,
+    "scratch_cleanup_state_required": "PASSED",
+    "standalone_a_r_differential_required": false,
+    "structured_request_count": 6,
+    "structured_request_roles": [
+      "BASE_COLD",
+      "BASE_WARM",
+      "NEGATIVE_PREFIX",
+      "POST_RESET_COLD",
+      "CROSS_WORKER_COLD",
+      "WORKER1_RETENTION"
+    ],
+    "teardown_state_required": "PASSED",
+    "worker1_retention_required": true
+  },
+  "runtime_admission": {
+    "admitted_execution_may_finish_after_expiry": true,
+    "authorization_admission_precedes_runtime_installation": true,
+    "authorization_must_be_live_at_admission": true,
+    "static_repository_runtime_execution_permitted": false,
+    "transaction_bound_executable_required": true,
+    "unchanged_replay_authorized": false
+  },
+  "runtime_execution_authorized": false,
+  "runtime_model": {
+    "attention_backend": "TRITON_ATTN",
+    "cuda_variant": "cu129",
+    "gpu_topology": "T4_x2",
+    "model_directory_sha256": "84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94",
+    "model_repository": "Qwen/Qwen2.5-0.5B-Instruct",
+    "model_revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+    "python": "3.12",
+    "required_native_module": "vllm._C_stable_libtorch",
+    "tokenizer_revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+    "torch": "2.11.0+cu129",
+    "torch_cuda_version": "12.9",
+    "transformers": "5.14.1",
+    "triton": "3.6.0",
+    "vllm_distribution": "0.25.1+cu129",
+    "vllm_public_semantic_version": "0.25.1"
+  },
+  "schema_version": "1.0.0",
+  "status": "DESIGN_FROZEN_NOT_EXECUTED",
+  "terminalization": {
+    "attempted_execution_terminalizes_authority": true,
+    "malicious_operator_resistance_established": false,
+    "multiple_observed_executions_invalidate_acceptance": true,
+    "runtime_anti_replay_established": false,
+    "secondary_failure_may_mask_primary_failure": false,
+    "terminal_authorization_reusable": false,
+    "terminal_dispositions": [
+      "CONSUMED",
+      "OUTCOME_UNKNOWN",
+      "EXPIRED_UNUSED",
+      "CANCELLED_UNUSED",
+      "ABANDONED_BEFORE_EXECUTION"
+    ]
+  },
+  "transaction_identity": {
+    "canonical_authorization_bytes_bound": true,
+    "deterministic_artifact_generation_required": true,
+    "generator_contract_sha256_bound": true,
+    "nonidentical_regeneration_requires_fresh_authority": true,
+    "runtime_payload_sha256_bound": true,
+    "transaction_id_derivation": "SHA256_CANONICAL_AUTHORIZATION_BYTES",
+    "whole_notebook_sha256_is_semantic_payload_identity": false
+  },
+  "transport_topology": {
+    "authorization_producer_notebooks": 0,
+    "authorization_specific_kaggle_inputs": 0,
+    "manual_confirmation_json_files": 0,
+    "permitted_kaggle_input_roles": [
+      "durable_runtime",
+      "model_snapshot"
+    ],
+    "runtime_authorization_filename_discovery_permitted": false
+  },
+  "worker_starts_performed": 0
+}
