@@ -1,0 +1,22 @@
+11.7s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+11.7s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+11.7s 3 0.00s - to python to disable frozen modules.
+11.7s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+12.5s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+12.5s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+12.5s 7 0.00s - to python to disable frozen modules.
+12.5s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+442.0s 9 {"authorization":{"authorization_producer_notebooks":0,"authorization_specific_kaggle_inputs":0,"authorization_transport":"EMBEDDED_WRAPPER_ADMISSION","runtime_execution_authorized":true,"transaction_id":"14c4249a5663cf7f94674fab924d5fc334c835f44836347ce13634eb505cc22e"},"completed_request_count":6,"counters":{"benchmark_trajectory_requests":0,"external_spend":0,"hidden_retries":0,"kaggle_sessions":1,"model_loads":1,"model_requests":6,"network_requests":0,"runtime_import_closure_probes":1,"runtime_install_attempts":1,"worker_starts":1},"credentials_used":false,"customer_data_present":false,"decision_state":"COMPOSITION_REGRESSION_SUPPORTED","design_record_sha256":"5bcea57f47573712c5776fcd7d210584c96ece5cf86d09902cf29453e27e39d1","diagnostic_id":"auragateway-p4-p5-composition-differential-v1","evidence_member_count":15,"evidence_zip_sha256":"128d9e0d76c1d55608b862bb4604ed654667cbeda821c8de8ec103445803cd3c","evidence_zip_size_bytes":20352,"external_network_requests":0,"failure_class":null,"hidden_retries":0,"implementation_base_commit":"36defc782c08e211680489f4d60a9173de6e9052","measured_abc_execution_performed":false,"next_gate":"PRESERVE_AND_DISPOSITION_P4_P5_COMPOSITION_DIFFERENTIAL_V1","pilot_execution_performed":false,"raw_output_retained":false,"raw_prompt_retained":false,"request_order":["A","B","B","A","A","B"],"scheduled_request_count":6,"schema_version":"1.0.0","scratch_cleanup_status":"PASSED","status":"DIAGNOSTIC_COMPLETE","worker_teardown_status":"PASSED"}
+442.0s 10 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+442.0s 11 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+442.0s 12 
+442.0s 13 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+442.0s 14 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+445.0s 15 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+445.0s 16 cells[i][c] = re.sub('\\\\\|', '|', cell)
+445.3s 17 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+445.3s 18 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+445.9s 19 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+446.3s 20 [NbConvertApp] Writing 219579 bytes to __notebook__.ipynb
+448.6s 21 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+449.5s 22 [NbConvertApp] Writing 515622 bytes to __results__.html
