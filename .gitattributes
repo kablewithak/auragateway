@@ -79,3 +79,6 @@ src/auragateway/local_abc/p4_p5_composition_remediation_execution_authorization_
 src/auragateway/local_abc/templates/p4_p5_composition_remediation_transaction_bound_wrapper_v1.py.tmpl text eol=lf
 benchmarks/local_abc/auragateway_p4_p5_composition_remediation_execution_authorization_v1_review.json text eol=lf
 benchmarks/local_abc/auragateway_p4_p5_composition_remediation_execution_authorization_v1_record.json text eol=lf
+
+# Preserve governed P4/P5 remediation C3 failure evidence byte-for-byte.
+evidence_vault/local_abc/p4-p5-composition-remediation-c3-failure-v1/** -text -whitespace
