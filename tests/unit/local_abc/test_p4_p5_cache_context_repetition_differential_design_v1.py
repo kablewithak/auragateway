@@ -26,8 +26,35 @@ def candidate_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         target = tmp_path / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source_root / relative, target)
-    monkeypatch.setattr(design, "_main_head", lambda root: design.BASE_MAIN_COMMIT)
+    monkeypatch.setattr(
+        design,
+        "_base_commit_is_ancestor_of_head",
+        lambda root: True,
+    )
     return tmp_path
+
+
+def test_descendant_lineage_is_accepted(candidate_repo: Path) -> None:
+    authorities = design.validate_authorities(candidate_repo)
+
+    assert len(authorities) == 7
+
+
+def test_unrelated_lineage_fails_closed(
+    candidate_repo: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        design,
+        "_base_commit_is_ancestor_of_head",
+        lambda root: False,
+    )
+
+    with pytest.raises(design.DesignError) as captured:
+        design.validate_authorities(candidate_repo)
+
+    assert captured.value.error_code == "P4_P5_REPETITION_DIFF_BASE_MAIN_DRIFT"
+    assert captured.value.safe_message == ("frozen design base is not an ancestor of current HEAD")
 
 
 def test_variable_is_repetition_count_only(candidate_repo: Path) -> None:

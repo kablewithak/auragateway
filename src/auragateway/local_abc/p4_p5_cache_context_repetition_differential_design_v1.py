@@ -346,27 +346,29 @@ def _object(root: Path, path: Path, expected: str | None = None) -> dict[str, ob
     return cast(dict[str, object], value)
 
 
-def _main_head(root: Path) -> str:
+def _base_commit_is_ancestor_of_head(root: Path) -> bool:
     result = subprocess.run(
-        ["git", "rev-parse", "main"],
+        ["git", "merge-base", "--is-ancestor", BASE_MAIN_COMMIT, "HEAD"],
         cwd=root,
         check=False,
         capture_output=True,
         text=True,
     )
-    if result.returncode != 0:
-        raise DesignError(
-            "P4_P5_REPETITION_DIFF_GIT_STATE_INVALID",
-            "unable to resolve local main",
-        )
-    return result.stdout.strip()
+    if result.returncode == 0:
+        return True
+    if result.returncode == 1:
+        return False
+    raise DesignError(
+        "P4_P5_REPETITION_DIFF_GIT_STATE_INVALID",
+        "unable to verify frozen design base ancestry",
+    )
 
 
 def _validate_semantics(root: Path) -> None:
-    if _main_head(root) != BASE_MAIN_COMMIT:
+    if not _base_commit_is_ancestor_of_head(root):
         raise DesignError(
             "P4_P5_REPETITION_DIFF_BASE_MAIN_DRIFT",
-            "local main no longer matches the frozen authority commit",
+            "frozen design base is not an ancestor of current HEAD",
         )
 
     static = _object(root, STATIC_RECORD_PATH)
