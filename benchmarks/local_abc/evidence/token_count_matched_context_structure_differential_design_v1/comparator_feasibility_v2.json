@@ -1,0 +1,343 @@
+{
+  "claims": {
+    "comparators_constructible": true,
+    "context_length_causal": false,
+    "exact_final_token_count_matched": true,
+    "exact_repetition_materially_reduced_in_c": true,
+    "repetition_threshold_established": false,
+    "root_cause_established": false,
+    "semantic_directive_amplification_removed_in_b": true
+  },
+  "conditions": {
+    "A_ORIGINAL_24X_ANCHOR": {
+      "prompt_token_count": 899,
+      "prompt_token_sha256": "6b34448d083e68826cae84c0675876c18d7a70fab53299860b78f2a5a18922b0",
+      "repetition_metrics": {
+        "body_token_count": 817,
+        "duplicate_16gram_fraction": 0.9975062344139651,
+        "duplicate_4gram_fraction": 0.9975429975429976,
+        "duplicate_8gram_fraction": 0.9975308641975309
+      },
+      "segment": "AuraGateway deterministic prefix-cache reliability probe variant A. This text is synthetic, contains no customer data, and must remain byte-identical whenever prefix variant A is requested. ",
+      "segment_count": 24,
+      "unique_segment_count": 1
+    },
+    "B_NEUTRAL_REPEATED_24X": {
+      "forbidden_term_counts": {
+        "byte-identical": 0,
+        "directive": 0,
+        "exact": 0,
+        "instruction": 0,
+        "json": 0,
+        "must": 0,
+        "output": 0,
+        "requested": 0,
+        "respond": 0,
+        "return": 0,
+        "variant a": 0,
+        "variant b": 0
+      },
+      "prompt_token_count": 899,
+      "prompt_token_sha256": "02f2675a0490d16e3a39de9619ae865a8f73024b26c6f9126bf4dea197d99f68",
+      "repetition_metrics": {
+        "body_token_count": 817,
+        "duplicate_16gram_fraction": 0.9975062344139651,
+        "duplicate_4gram_fraction": 0.9975429975429976,
+        "duplicate_8gram_fraction": 0.9975308641975309
+      },
+      "segment": "AuraGateway synthetic context marker meadow. This passage contains neutral synthetic material, no customer data, and descriptive test context only. It provides descriptive context for controlled tokenizer analysis. ",
+      "segment_count": 24,
+      "unique_segment_count": 1
+    },
+    "C_NEUTRAL_DIVERSE_24_SEGMENT": {
+      "forbidden_term_counts": {
+        "byte-identical": 0,
+        "directive": 0,
+        "exact": 0,
+        "instruction": 0,
+        "json": 0,
+        "must": 0,
+        "output": 0,
+        "requested": 0,
+        "respond": 0,
+        "return": 0,
+        "variant a": 0,
+        "variant b": 0
+      },
+      "prompt_token_count": 899,
+      "prompt_token_sha256": "612e1ada53aba2158536cb0d0e142e3152df7e177ff951a2565385473ec698d4",
+      "repetition_metrics": {
+        "body_token_count": 817,
+        "duplicate_16gram_fraction": 0.0199501246882793,
+        "duplicate_4gram_fraction": 0.6732186732186732,
+        "duplicate_8gram_fraction": 0.32592592592592595
+      },
+      "segment_count": 24,
+      "segments": [
+        "Synthetic AuraGateway material marked amber describes a neutral benchmark scene. The amber text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context.  The material remains factual and non-operational. ",
+        "For AuraGateway analysis, marker birch denotes neutral synthetic benchmark material. The birch passage contains no customer information and offers ordinary descriptive context for tokenizer comparison.  The material remains factual and non-operational. ",
+        "Marker cedar represents neutral synthetic AuraGateway benchmark material. This cedar passage has no customer information and provides ordinary descriptive context for controlled tokenizer analysis.  The material remains factual and non-operational. ",
+        "Neutral AuraGateway context labeled delta contains synthetic benchmark material. The delta record carries no customer information and serves as descriptive text for controlled tokenizer comparison.  The material remains factual and non-operational. ",
+        "The AuraGateway ember marker denotes neutral synthetic comparison material. Its ember passage has no customer information and supplies ordinary descriptive context for controlled tokenizer analysis.  The passage remains simple and descriptive. ",
+        "For AuraGateway analysis, marker frost denotes neutral synthetic benchmark material. The frost passage contains no customer information and offers ordinary descriptive context for tokenizer comparison.  The scene remains ordinary and descriptive. ",
+        "For AuraGateway analysis, marker grove denotes neutral synthetic benchmark material. The grove passage contains no customer information and offers ordinary descriptive context for tokenizer comparison.  The passage remains simple and descriptive. ",
+        "AuraGateway marker harbor identifies neutral synthetic benchmark context. The harbor passage contains no customer information and provides descriptive material for controlled tokenizer comparison.  The material remains factual and non-operational. ",
+        "Synthetic AuraGateway material marked iris describes a neutral benchmark scene. The iris text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context. ",
+        "For AuraGateway analysis, marker juniper denotes neutral synthetic benchmark material. The juniper passage contains no customer information and offers ordinary descriptive context for tokenizer comparison. ",
+        "For AuraGateway analysis, marker kestrel denotes neutral synthetic benchmark material. The kestrel passage contains no customer information and offers ordinary descriptive context for tokenizer comparison. ",
+        "Synthetic AuraGateway material marked lagoon describes a neutral benchmark scene. The lagoon text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context. ",
+        "Synthetic AuraGateway material marked meadow describes a neutral benchmark scene. The meadow text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context. ",
+        "The AuraGateway nickel marker denotes neutral synthetic comparison material. Its nickel passage has no customer information and supplies ordinary descriptive context for controlled tokenizer analysis. ",
+        "For AuraGateway analysis, marker olive denotes neutral synthetic benchmark material. The olive passage contains no customer information and offers ordinary descriptive context for tokenizer comparison. ",
+        "AuraGateway marker prairie identifies neutral synthetic benchmark context. The prairie passage contains no customer information and provides descriptive material for controlled tokenizer comparison.  The scene remains ordinary and descriptive. ",
+        "AuraGateway marker quartz identifies neutral synthetic benchmark context. The quartz passage contains no customer information and provides descriptive material for controlled tokenizer comparison.  The passage remains simple and descriptive. ",
+        "Synthetic AuraGateway material marked river describes a neutral benchmark scene. The river text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context. ",
+        "AuraGateway marker spruce identifies neutral synthetic benchmark context. The spruce passage contains no customer information and provides descriptive material for controlled tokenizer comparison. ",
+        "AuraGateway marker timber identifies neutral synthetic benchmark context. The timber passage contains no customer information and provides descriptive material for controlled tokenizer comparison. ",
+        "Synthetic AuraGateway material marked umber describes a neutral benchmark scene. The umber text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context.  The scene remains ordinary and descriptive. ",
+        "Synthetic AuraGateway material marked violet describes a neutral benchmark scene. The violet text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context.  The passage remains simple and descriptive. ",
+        "For AuraGateway analysis, marker willow denotes neutral synthetic benchmark material. The willow passage contains no customer information and offers ordinary descriptive context for tokenizer comparison. ",
+        "The AuraGateway zephyr marker denotes neutral synthetic comparison material. Its zephyr passage has no customer information and supplies ordinary descriptive context for controlled tokenizer analysis.  The scene remains ordinary and descriptive. "
+      ],
+      "unique_segment_count": 24
+    }
+  },
+  "design_correction": {
+    "predecessor_v1_script_sha256": "1807da5a05f415e830d72816f55c82b72f332628d14a5b7df5d346b3caae863b",
+    "preserved_causal_invariants": [
+      "FINAL_PROMPT_TOKEN_COUNT_899",
+      "SEGMENT_COUNT_24",
+      "FROZEN_SYSTEM_PROMPT",
+      "FROZEN_USER_CONTEXT_TAIL",
+      "FROZEN_ASSISTANT_ACK",
+      "FROZEN_FINAL_JSON_OBJECT",
+      "FROZEN_ROLE_TOPOLOGY",
+      "QUALIFIED_TOKENIZER_IDENTITY"
+    ],
+    "removed_noncausal_constraints": [
+      "PER_SEGMENT_EXACT_34_TOKEN_CONTRIBUTION",
+      "EVERY_INTERMEDIATE_PREFIX_EQUALS_83_PLUS_34N",
+      "GREEDY_LOCAL_REPETITION_MINIMIZATION"
+    ],
+    "v1_failure_classification": "HARNESS_DESIGN_OVERCONSTRAINED"
+  },
+  "gpu_execution_authorized": false,
+  "inspection_id": "auragateway-token-count-matched-context-structure-comparator-feasibility-v2",
+  "kaggle_execution_authorized": false,
+  "model_loaded": false,
+  "model_request_executed": false,
+  "new_execution_authorized": false,
+  "next_gate": "HUMAN_REVIEW_TOKEN_COUNT_MATCHED_COMPARATOR_SEMANTICS_V1",
+  "predeclared_acceptance": {
+    "all_prompt_token_counts_equal_899": true,
+    "b_and_c_forbidden_terms_zero": true,
+    "c_duplicate_16gram_at_most_half_of_b": true,
+    "c_duplicate_8gram_less_than_b": true,
+    "c_unique_segment_count_equals_24": true
+  },
+  "qualified_oracle_receipt_sha256": "dbf439c7ab51487aa04e0cd14e5ef9fd203409de08729bb4b293178de63eb0c5",
+  "runtime_execution_authorized": false,
+  "runtime_sha256": "dfa0e7ea48eaf21dd6d3faf97b0440dda19817dec18de7c17d720c9185569a4b",
+  "schema_version": "2.0.0",
+  "search": {
+    "globally_minimum_repetition_claimed": false,
+    "search_history": [
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 123,
+        "minimum_prompt_tokens": 109,
+        "segment_ordinal": 1,
+        "state_token_count_cardinality": 12,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 164,
+        "minimum_prompt_tokens": 137,
+        "segment_ordinal": 2,
+        "state_token_count_cardinality": 28,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 203,
+        "minimum_prompt_tokens": 163,
+        "segment_ordinal": 3,
+        "state_token_count_cardinality": 41,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 242,
+        "minimum_prompt_tokens": 189,
+        "segment_ordinal": 4,
+        "state_token_count_cardinality": 54,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 281,
+        "minimum_prompt_tokens": 215,
+        "segment_ordinal": 5,
+        "state_token_count_cardinality": 67,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 320,
+        "minimum_prompt_tokens": 241,
+        "segment_ordinal": 6,
+        "state_token_count_cardinality": 80,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 361,
+        "minimum_prompt_tokens": 269,
+        "segment_ordinal": 7,
+        "state_token_count_cardinality": 93,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 400,
+        "minimum_prompt_tokens": 295,
+        "segment_ordinal": 8,
+        "state_token_count_cardinality": 106,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 439,
+        "minimum_prompt_tokens": 321,
+        "segment_ordinal": 9,
+        "state_token_count_cardinality": 119,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 480,
+        "minimum_prompt_tokens": 349,
+        "segment_ordinal": 10,
+        "state_token_count_cardinality": 132,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 523,
+        "minimum_prompt_tokens": 379,
+        "segment_ordinal": 11,
+        "state_token_count_cardinality": 145,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 564,
+        "minimum_prompt_tokens": 407,
+        "segment_ordinal": 12,
+        "state_token_count_cardinality": 158,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 605,
+        "minimum_prompt_tokens": 435,
+        "segment_ordinal": 13,
+        "state_token_count_cardinality": 171,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 644,
+        "minimum_prompt_tokens": 461,
+        "segment_ordinal": 14,
+        "state_token_count_cardinality": 184,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 683,
+        "minimum_prompt_tokens": 487,
+        "segment_ordinal": 15,
+        "state_token_count_cardinality": 197,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 724,
+        "minimum_prompt_tokens": 515,
+        "segment_ordinal": 16,
+        "state_token_count_cardinality": 210,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 763,
+        "minimum_prompt_tokens": 541,
+        "segment_ordinal": 17,
+        "state_token_count_cardinality": 223,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 802,
+        "minimum_prompt_tokens": 567,
+        "segment_ordinal": 18,
+        "state_token_count_cardinality": 236,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 843,
+        "minimum_prompt_tokens": 595,
+        "segment_ordinal": 19,
+        "state_token_count_cardinality": 249,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 882,
+        "minimum_prompt_tokens": 621,
+        "segment_ordinal": 20,
+        "state_token_count_cardinality": 262,
+        "target_reachable_at_stage": false
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 899,
+        "minimum_prompt_tokens": 649,
+        "segment_ordinal": 21,
+        "state_token_count_cardinality": 251,
+        "target_reachable_at_stage": true
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 899,
+        "minimum_prompt_tokens": 675,
+        "segment_ordinal": 22,
+        "state_token_count_cardinality": 225,
+        "target_reachable_at_stage": true
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 899,
+        "minimum_prompt_tokens": 703,
+        "segment_ordinal": 23,
+        "state_token_count_cardinality": 197,
+        "target_reachable_at_stage": true
+      },
+      {
+        "candidate_family_size": 24,
+        "maximum_prompt_tokens": 899,
+        "minimum_prompt_tokens": 733,
+        "segment_ordinal": 24,
+        "state_token_count_cardinality": 167,
+        "target_reachable_at_stage": true
+      }
+    ],
+    "states_retained_per_token_count": 4,
+    "strategy": "BOUNDED_GLOBAL_DYNAMIC_SEARCH_BY_FINAL_TOKEN_COUNT"
+  },
+  "target_prompt_tokens": 899,
+  "tokenizer_artifact_manifest_sha256": "b1088b7cc9744352ea466a96aec25ed99e126de8600e915f4d19b66f5c615d57"
+}

@@ -1,0 +1,241 @@
+{
+  "authorization": {
+    "gpu_execution_authorized": false,
+    "kaggle_execution_authorized": false,
+    "model_loaded": false,
+    "model_request_executed": false,
+    "new_execution_authorized": false,
+    "runtime_execution_authorized": false
+  },
+  "conditions": {
+    "A_ORIGINAL_24X_ANCHOR": {
+      "prompt_token_count": 899,
+      "prompt_token_sha256": "6b34448d083e68826cae84c0675876c18d7a70fab53299860b78f2a5a18922b0",
+      "repetition_metrics": {
+        "body_token_count": 817,
+        "duplicate_16gram_fraction": 0.9975062344139651,
+        "duplicate_4gram_fraction": 0.9975429975429976,
+        "duplicate_8gram_fraction": 0.9975308641975309
+      },
+      "segment": "AuraGateway deterministic prefix-cache reliability probe variant A. This text is synthetic, contains no customer data, and must remain byte-identical whenever prefix variant A is requested. ",
+      "segment_count": 24,
+      "unique_segment_count": 1
+    },
+    "B_NEUTRAL_REPEATED_24X": {
+      "forbidden_term_counts": {
+        "byte-identical": 0,
+        "directive": 0,
+        "exact": 0,
+        "instruction": 0,
+        "json": 0,
+        "must": 0,
+        "output": 0,
+        "requested": 0,
+        "respond": 0,
+        "return": 0,
+        "variant a": 0,
+        "variant b": 0
+      },
+      "prompt_token_count": 899,
+      "prompt_token_sha256": "02f2675a0490d16e3a39de9619ae865a8f73024b26c6f9126bf4dea197d99f68",
+      "repetition_metrics": {
+        "body_token_count": 817,
+        "duplicate_16gram_fraction": 0.9975062344139651,
+        "duplicate_4gram_fraction": 0.9975429975429976,
+        "duplicate_8gram_fraction": 0.9975308641975309
+      },
+      "segment": "AuraGateway synthetic context marker meadow. This passage contains neutral synthetic material, no customer data, and descriptive test context only. It provides descriptive context for controlled tokenizer analysis. ",
+      "segment_count": 24,
+      "unique_segment_count": 1
+    },
+    "C_NEUTRAL_DIVERSE_24_SEGMENT": {
+      "forbidden_term_counts": {
+        "byte-identical": 0,
+        "directive": 0,
+        "exact": 0,
+        "instruction": 0,
+        "json": 0,
+        "must": 0,
+        "output": 0,
+        "requested": 0,
+        "respond": 0,
+        "return": 0,
+        "variant a": 0,
+        "variant b": 0
+      },
+      "prompt_token_count": 899,
+      "prompt_token_sha256": "612e1ada53aba2158536cb0d0e142e3152df7e177ff951a2565385473ec698d4",
+      "repetition_metrics": {
+        "body_token_count": 817,
+        "duplicate_16gram_fraction": 0.0199501246882793,
+        "duplicate_4gram_fraction": 0.6732186732186732,
+        "duplicate_8gram_fraction": 0.32592592592592595
+      },
+      "segment_count": 24,
+      "segments": [
+        "Synthetic AuraGateway material marked amber describes a neutral benchmark scene. The amber text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context.  The material remains factual and non-operational. ",
+        "For AuraGateway analysis, marker birch denotes neutral synthetic benchmark material. The birch passage contains no customer information and offers ordinary descriptive context for tokenizer comparison.  The material remains factual and non-operational. ",
+        "Marker cedar represents neutral synthetic AuraGateway benchmark material. This cedar passage has no customer information and provides ordinary descriptive context for controlled tokenizer analysis.  The material remains factual and non-operational. ",
+        "Neutral AuraGateway context labeled delta contains synthetic benchmark material. The delta record carries no customer information and serves as descriptive text for controlled tokenizer comparison.  The material remains factual and non-operational. ",
+        "The AuraGateway ember marker denotes neutral synthetic comparison material. Its ember passage has no customer information and supplies ordinary descriptive context for controlled tokenizer analysis.  The passage remains simple and descriptive. ",
+        "For AuraGateway analysis, marker frost denotes neutral synthetic benchmark material. The frost passage contains no customer information and offers ordinary descriptive context for tokenizer comparison.  The scene remains ordinary and descriptive. ",
+        "For AuraGateway analysis, marker grove denotes neutral synthetic benchmark material. The grove passage contains no customer information and offers ordinary descriptive context for tokenizer comparison.  The passage remains simple and descriptive. ",
+        "AuraGateway marker harbor identifies neutral synthetic benchmark context. The harbor passage contains no customer information and provides descriptive material for controlled tokenizer comparison.  The material remains factual and non-operational. ",
+        "Synthetic AuraGateway material marked iris describes a neutral benchmark scene. The iris text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context. ",
+        "For AuraGateway analysis, marker juniper denotes neutral synthetic benchmark material. The juniper passage contains no customer information and offers ordinary descriptive context for tokenizer comparison. ",
+        "For AuraGateway analysis, marker kestrel denotes neutral synthetic benchmark material. The kestrel passage contains no customer information and offers ordinary descriptive context for tokenizer comparison. ",
+        "Synthetic AuraGateway material marked lagoon describes a neutral benchmark scene. The lagoon text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context. ",
+        "Synthetic AuraGateway material marked meadow describes a neutral benchmark scene. The meadow text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context. ",
+        "The AuraGateway nickel marker denotes neutral synthetic comparison material. Its nickel passage has no customer information and supplies ordinary descriptive context for controlled tokenizer analysis. ",
+        "For AuraGateway analysis, marker olive denotes neutral synthetic benchmark material. The olive passage contains no customer information and offers ordinary descriptive context for tokenizer comparison. ",
+        "AuraGateway marker prairie identifies neutral synthetic benchmark context. The prairie passage contains no customer information and provides descriptive material for controlled tokenizer comparison.  The scene remains ordinary and descriptive. ",
+        "AuraGateway marker quartz identifies neutral synthetic benchmark context. The quartz passage contains no customer information and provides descriptive material for controlled tokenizer comparison.  The passage remains simple and descriptive. ",
+        "Synthetic AuraGateway material marked river describes a neutral benchmark scene. The river text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context. ",
+        "AuraGateway marker spruce identifies neutral synthetic benchmark context. The spruce passage contains no customer information and provides descriptive material for controlled tokenizer comparison. ",
+        "AuraGateway marker timber identifies neutral synthetic benchmark context. The timber passage contains no customer information and provides descriptive material for controlled tokenizer comparison. ",
+        "Synthetic AuraGateway material marked umber describes a neutral benchmark scene. The umber text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context.  The scene remains ordinary and descriptive. ",
+        "Synthetic AuraGateway material marked violet describes a neutral benchmark scene. The violet text includes no customer information and supports controlled tokenizer comparison as ordinary descriptive context.  The passage remains simple and descriptive. ",
+        "For AuraGateway analysis, marker willow denotes neutral synthetic benchmark material. The willow passage contains no customer information and offers ordinary descriptive context for tokenizer comparison. ",
+        "The AuraGateway zephyr marker denotes neutral synthetic comparison material. Its zephyr passage has no customer information and supplies ordinary descriptive context for controlled tokenizer analysis.  The scene remains ordinary and descriptive. "
+      ],
+      "unique_segment_count": 24
+    }
+  },
+  "design_id": "auragateway-token-count-matched-context-structure-differential-v1",
+  "design_state": "FREEZE_CANDIDATE",
+  "hard_invariants": {
+    "assistant_acknowledgement": "FROZEN_TO_BOUND_RUNTIME",
+    "final_json_object": "FROZEN_TO_BOUND_RUNTIME",
+    "generation_controls": "FROZEN_TO_BOUND_RUNTIME",
+    "hidden_retries": 0,
+    "model_repository": "FROZEN_TO_BOUND_RUNTIME",
+    "model_revision": "FROZEN_TO_BOUND_RUNTIME",
+    "network_operations_during_governed_requests": 0,
+    "prompt_token_count_per_condition": 899,
+    "replacement_observations": 0,
+    "role_topology": "FROZEN_FOUR_MESSAGE_TOPOLOGY",
+    "runtime": "FROZEN_TO_BOUND_RUNTIME",
+    "segment_count_per_condition": 24,
+    "spend": 0,
+    "system_prompt": "FROZEN_TO_BOUND_RUNTIME",
+    "tokenizer": "FROZEN_TO_QUALIFIED_ORACLE",
+    "user_context_tail": "FROZEN_TO_BOUND_RUNTIME",
+    "worker_policy": "FRESH_WORKER_PER_OBSERVATION"
+  },
+  "intentionally_varied_factors": {
+    "A_to_B": {
+      "description": "Replace the original instruction-like repeated body with a neutral repeated body while retaining very high exact repetition and exactly 899 total prompt tokens.",
+      "primary_factor": "REPEATED_BODY_SEMANTIC_AND_INSTRUCTION_LIKE_CONTENT"
+    },
+    "B_to_C": {
+      "bounded_residual_difference": "Lexical novelty necessarily increases when exact repetition is reduced; exact repetition is therefore strongly testable but cannot be claimed as the sole changed representational property.",
+      "description": "Replace 24 identical neutral segments with 24 distinct but semantically comparable neutral segments while retaining exactly 899 total prompt tokens.",
+      "primary_factor": "EXACT_TOKEN_PATTERN_AND_LEXICAL_REPETITION"
+    }
+  },
+  "interpretation_contract": {
+    "anchor_nonreproduction_rule": "If A is not 0_OF_3, historical anchor reproduction fails and B/C are not used for mechanistic inference.",
+    "anchor_validity_rule": "Condition A must reproduce the historical 0_OF_3 exact-object outcome before B or C receives mechanistic interpretation.",
+    "mixed_result_rule": "Any 1_OF_3 or 2_OF_3 primary-endpoint result in A, B, or C is classified as unstable and receives no mechanistic claim.",
+    "outcomes": [
+      {
+        "a": "0_OF_3",
+        "b": "3_OF_3",
+        "bounded_interpretation": "Neutralizing the original repeated semantic and instruction-like body restores exact-object behavior under both highly repetitive and diverse neutral 899-token contexts.",
+        "c": "3_OF_3",
+        "classification": "REPEATED_INSTRUCTION_LIKE_SEMANTIC_AMPLIFICATION_STRONGLY_IMPLICATED"
+      },
+      {
+        "a": "0_OF_3",
+        "b": "0_OF_3",
+        "bounded_interpretation": "Failure persists with a neutral but highly repeated 899-token body and is removed when exact repetition is substantially reduced while broad semantic class and total prompt length are preserved.",
+        "c": "3_OF_3",
+        "classification": "HIGH_EXACT_TOKEN_PATTERN_REPETITION_STRONGLY_IMPLICATED"
+      },
+      {
+        "a": "0_OF_3",
+        "b": "0_OF_3",
+        "bounded_interpretation": "Neither semantic neutralization nor substantial reduction of exact repetition restores the endpoint; total context magnitude, absolute position, or another shared long-context/runtime interaction rises.",
+        "c": "0_OF_3",
+        "classification": "SHARED_LONG_CONTEXT_FACTOR_REMAINS_LIVE"
+      },
+      {
+        "a": "0_OF_3",
+        "b": "3_OF_3",
+        "bounded_interpretation": "The neutral repeated comparator succeeds while the neutral diverse comparator fails. The intended target mechanisms are not isolated; C-specific lexical or structural effects require inspection.",
+        "c": "0_OF_3",
+        "classification": "DIVERSE_COMPARATOR_SPECIFIC_EFFECT_OBSERVED"
+      }
+    ]
+  },
+  "next_gate": "REVIEW_AND_BIND_TOKEN_COUNT_MATCHED_CONTEXT_STRUCTURE_DIFFERENTIAL_DESIGN_V1",
+  "predeclared_nonclaims": [
+    "ROOT_CAUSE_ESTABLISHED",
+    "EXACT_REPETITION_SOLE_CAUSE_ESTABLISHED",
+    "SEMANTIC_AMPLIFICATION_SOLE_CAUSE_ESTABLISHED",
+    "EXACT_REPETITION_THRESHOLD_ESTABLISHED",
+    "CONTEXT_LENGTH_ALONE_CAUSAL",
+    "PREFIX_CACHE_DEFECT_ESTABLISHED",
+    "P5_P6_REQUALIFIED",
+    "NORTH_STAR_ABC_EFFECT_ESTABLISHED"
+  ],
+  "primary_endpoint": {
+    "condition_fail": "0_OF_3_EXACT_OBJECT_TRUE",
+    "condition_mixed": "1_OR_2_OF_3_EXACT_OBJECT_TRUE",
+    "condition_pass": "3_OF_3_EXACT_OBJECT_TRUE",
+    "field": "exact_object",
+    "per_condition_observations": 3
+  },
+  "proposed_observation_plan": {
+    "condition_order": [
+      "A_ORIGINAL_24X_ANCHOR",
+      "B_NEUTRAL_REPEATED_24X",
+      "C_NEUTRAL_DIVERSE_24_SEGMENT",
+      "B_NEUTRAL_REPEATED_24X",
+      "C_NEUTRAL_DIVERSE_24_SEGMENT",
+      "A_ORIGINAL_24X_ANCHOR",
+      "C_NEUTRAL_DIVERSE_24_SEGMENT",
+      "A_ORIGINAL_24X_ANCHOR",
+      "B_NEUTRAL_REPEATED_24X"
+    ],
+    "fresh_worker_per_observation": true,
+    "maximum_model_loads": 9,
+    "maximum_requests": 9,
+    "maximum_worker_starts": 9,
+    "replacement_observations": 0,
+    "retries": 0,
+    "total_observations": 9
+  },
+  "purpose": "Discriminate repeated instruction-like semantic amplification, high exact token-pattern repetition, and shared long-context magnitude or absolute-position effects while holding total prompt token count and downstream request structure constant.",
+  "schema_version": "1.0.0",
+  "secondary_observations": [
+    "valid_json",
+    "completion_tokens",
+    "response_length",
+    "finish_reason",
+    "response_sha256",
+    "json_error_position",
+    "first_non_whitespace_class",
+    "last_non_whitespace_class",
+    "markdown_fence_detected",
+    "cached_prompt_tokens",
+    "local_cache_hit",
+    "prefix_cache_hits",
+    "prefix_cache_queries",
+    "local_compute_tokens",
+    "newly_computed_prefill_tokens",
+    "worker_identity"
+  ],
+  "source_evidence": {
+    "comparator_feasibility_v2_sha256": "7fb326c629c1df927aa97cc96fb86f555a58b024f400ef3712762f84af1f55d1",
+    "human_comparator_review": {
+      "naturalness": "PASS",
+      "neutrality": "PASS",
+      "semantic_comparability": "PASS",
+      "structural_isolation": "PASS_WITH_BOUNDED_LEXICAL_NOVELTY"
+    },
+    "qualified_tokenizer_oracle_sha256": "dbf439c7ab51487aa04e0cd14e5ef9fd203409de08729bb4b293178de63eb0c5",
+    "runtime_sha256": "dfa0e7ea48eaf21dd6d3faf97b0440dda19817dec18de7c17d720c9185569a4b",
+    "tokenizer_artifact_manifest_sha256": "b1088b7cc9744352ea466a96aec25ed99e126de8600e915f4d19b66f5c615d57"
+  }
+}
