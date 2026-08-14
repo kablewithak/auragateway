@@ -1,0 +1,28 @@
+{
+  "control": {
+    "expected_token_count": 117,
+    "expected_token_sha256": "32a570d63aaaeb9597a2b517315b052eae7308b7acba6f4a85d409e3c633edbb",
+    "identity_reproduced": true,
+    "observed_token_count": 117,
+    "observed_token_sha256": "32a570d63aaaeb9597a2b517315b052eae7308b7acba6f4a85d409e3c633edbb"
+  },
+  "gpu_execution_authorized": false,
+  "historical_token_identity_reproduced": true,
+  "kaggle_execution_authorized": false,
+  "model_loaded": false,
+  "model_request_executed": false,
+  "new_execution_authorized": false,
+  "offline_validation": true,
+  "receipt_id": "auragateway-tokenizer-grounded-comparator-feasibility-v2",
+  "runtime_sha256": "dfa0e7ea48eaf21dd6d3faf97b0440dda19817dec18de7c17d720c9185569a4b",
+  "schema_version": "2.0.0",
+  "tokenizer_artifact_manifest_sha256": "b1088b7cc9744352ea466a96aec25ed99e126de8600e915f4d19b66f5c615d57",
+  "transformers_v5_output_adapter": "RETURN_DICT_FALSE_INPUT_IDS",
+  "treatment": {
+    "expected_token_count": 899,
+    "expected_token_sha256": "6b34448d083e68826cae84c0675876c18d7a70fab53299860b78f2a5a18922b0",
+    "identity_reproduced": true,
+    "observed_token_count": 899,
+    "observed_token_sha256": "6b34448d083e68826cae84c0675876c18d7a70fab53299860b78f2a5a18922b0"
+  }
+}
