@@ -95,3 +95,6 @@ src/auragateway/local_abc/p4_p5_cache_context_repetition_differential_execution_
 src/auragateway/local_abc/templates/p4_p5_cache_context_repetition_differential_transaction_bound_wrapper_v1.py.tmpl text eol=lf
 benchmarks/local_abc/auragateway_p4_p5_cache_context_repetition_differential_execution_authorization_v1_review.json text eol=lf
 benchmarks/local_abc/auragateway_p4_p5_cache_context_repetition_differential_execution_authorization_v1_record.json text eol=lf
+
+# Preserve governed P4/P5 cache-context repetition differential evidence byte-for-byte.
+evidence_vault/local_abc/p4-p5-cache-context-repetition-differential-v1/** -text -whitespace

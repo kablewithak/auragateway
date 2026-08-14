@@ -1,0 +1,22 @@
+7.2s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.2s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.2s 3 0.00s - to python to disable frozen modules.
+7.2s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+7.8s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.8s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.8s 7 0.00s - to python to disable frozen modules.
+7.8s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+630.4s 9 {"authorization":{"authorization_producer_notebooks":0,"authorization_specific_kaggle_inputs":0,"authorization_transport":"EMBEDDED_WRAPPER_ADMISSION","runtime_execution_authorized":true,"transaction_id":"83d0e5c74aa607cc4b48232070c2caa3980c2f9ca5c9d84bcababed1542e960e"},"cache_telemetry_is_diagnostic_only":true,"completed_request_count":6,"control_repetition_count":1,"counters":{"benchmark_trajectory_requests":0,"external_spend":0,"hidden_retries":0,"kaggle_sessions":1,"model_loads":6,"model_requests":6,"network_requests":0,"runtime_import_closure_probes":1,"runtime_install_attempts":1,"worker_starts":6},"credentials_used":false,"customer_data_present":false,"decision_state":"LONG_REPEATED_CONTEXT_NECESSITY_SUPPORTED","design_record_sha256":"1dc00c0bc36a1979291078b16c7b54ed502385bb62a53c6043d255c5fcf4fa00","diagnostic_id":"auragateway-p4-p5-cache-context-repetition-differential-v1","evidence_zip":"/kaggle/working/ag-p4-p5-cache-context-repetition-differential-evidence-v1.zip","evidence_zip_sha256":"24be27819b28a39df08b3a69bf1c168f6abef58aec5cd90883b8621f2e4aafca","evidence_zip_size_bytes":14256,"external_network_requests":0,"failure_class":null,"fresh_worker_process_per_observation":true,"hidden_retries":0,"implementation_base_commit":"e3c42969a83b01aadcf989fd806004feea78f3c5","measured_abc_execution_performed":false,"next_gate":"PRESERVE_AND_DISPOSITION_P4_P5_CACHE_CONTEXT_REPETITION_DIFFERENTIAL_V1","observed_model_loads":6,"observed_worker_starts":6,"p5_requalified":false,"p6_requalified":false,"pilot_execution_performed":false,"raw_output_retained":false,"raw_prompt_retained":false,"request_order":["CONTROL_1X","TREATMENT_24X","TREATMENT_24X","CONTROL_1X","CONTROL_1X","TREATMENT_24X"],"scheduled_model_loads":6,"scheduled_request_count":6,"scheduled_worker_starts":6,"schema_version":"1.0.0","scratch_cleanup_status":"PASSED","status":"DIAGNOSTIC_COMPLETE","treatment_repetition_count":24,"variable_under_test":"CACHE_CONTEXT_REPETITION_COUNT","worker_teardown_status":"PASSED"}
+630.4s 10 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+630.4s 11 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+630.4s 12 
+630.4s 13 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+630.4s 14 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+633.2s 15 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+633.2s 16 cells[i][c] = re.sub('\\\\\|', '|', cell)
+633.4s 17 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+633.4s 18 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+634.0s 19 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+634.3s 20 [NbConvertApp] Writing 244054 bytes to __notebook__.ipynb
+636.8s 21 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+637.6s 22 [NbConvertApp] Writing 542458 bytes to __results__.html
