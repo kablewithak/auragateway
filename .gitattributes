@@ -98,3 +98,6 @@ benchmarks/local_abc/auragateway_p4_p5_cache_context_repetition_differential_exe
 
 # Preserve governed P4/P5 cache-context repetition differential evidence byte-for-byte.
 evidence_vault/local_abc/p4-p5-cache-context-repetition-differential-v1/** -text -whitespace
+
+# Preserve token-count-matched context-structure design qualification evidence byte-for-byte.
+benchmarks/local_abc/evidence/token_count_matched_context_structure_differential_design_v1/** -text -whitespace
