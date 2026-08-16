@@ -113,3 +113,5 @@ src/auragateway/local_abc/p4_p5_token_count_matched_context_structure_differenti
 src/auragateway/local_abc/templates/p4_p5_token_count_matched_context_structure_differential_transaction_bound_wrapper_v1.py.tmpl text eol=lf
 benchmarks/local_abc/auragateway_p4_p5_token_count_matched_context_structure_differential_execution_authorization_v1_review.json text eol=lf
 benchmarks/local_abc/auragateway_p4_p5_token_count_matched_context_structure_differential_execution_authorization_v1_record.json text eol=lf
+# Preserve governed P4/P5 token-count-matched context-structure differential evidence byte-for-byte.
+evidence_vault/local_abc/p4-p5-token-count-matched-context-structure-differential-v1/** -text -whitespace
