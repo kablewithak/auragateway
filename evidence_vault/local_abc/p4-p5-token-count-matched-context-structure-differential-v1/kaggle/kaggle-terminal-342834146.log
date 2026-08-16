@@ -1,0 +1,22 @@
+7.5s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.5s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.5s 3 0.00s - to python to disable frozen modules.
+7.5s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+8.1s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.1s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.1s 7 0.00s - to python to disable frozen modules.
+8.1s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+718.1s 9 {"authorization":{"authorization_producer_notebooks":0,"authorization_specific_kaggle_inputs":0,"authorization_transport":"EMBEDDED_WRAPPER_ADMISSION","runtime_execution_authorized":true,"transaction_id":"43ab735de5477d0d05c6eba1fc95b5966d4a06d37a5d5f28875ed5c2c423122a"},"completed_requests":9,"condition_token_sha256":{"A_ORIGINAL_24X_ANCHOR":"6b34448d083e68826cae84c0675876c18d7a70fab53299860b78f2a5a18922b0","B_NEUTRAL_REPEATED_24X":"02f2675a0490d16e3a39de9619ae865a8f73024b26c6f9126bf4dea197d99f68","C_NEUTRAL_DIVERSE_24_SEGMENT":"612e1ada53aba2158536cb0d0e142e3152df7e177ff951a2565385473ec698d4"},"decision_state":"HIGH_EXACT_TOKEN_PATTERN_REPETITION_STRONGLY_IMPLICATED","design_record_sha256":"888bf0a25a974ba2c62892bc999fe0c9f23d2cf845bcd2542c67e2c9bc4ccf03","diagnostic_id":"auragateway-p4-p5-token-count-matched-context-structure-differential-v1","evidence_zip":"/kaggle/working/ag-p4-p5-token-count-matched-context-structure-differential-evidence-v1.zip","evidence_zip_sha256":"4f44f378e309e49195e9bef1aa3122f9850d84f705c113782133febc96ce9654","evidence_zip_size_bytes":15148,"external_network_requests":0,"external_spend":0,"fresh_worker_process_per_observation":true,"hidden_retries":0,"implementation_base_commit":"20a7bd58c8937fefe9d4b1c2ca9c750709d2dceb","measured_abc_execution_performed":false,"model_loads":9,"model_requests":9,"next_gate":"PRESERVE_AND_DISPOSITION_P4_P5_TOKEN_COUNT_MATCHED_CONTEXT_STRUCTURE_DIFFERENTIAL_V1","p5_requalified":false,"p6_requalified":false,"pilot_execution_performed":false,"primary_endpoint":"exact_object","prompt_token_count_per_condition":899,"raw_output_retained":false,"raw_prompt_retained":false,"request_order":["A_ORIGINAL_24X_ANCHOR","B_NEUTRAL_REPEATED_24X","C_NEUTRAL_DIVERSE_24_SEGMENT","B_NEUTRAL_REPEATED_24X","C_NEUTRAL_DIVERSE_24_SEGMENT","A_ORIGINAL_24X_ANCHOR","C_NEUTRAL_DIVERSE_24_SEGMENT","A_ORIGINAL_24X_ANCHOR","B_NEUTRAL_REPEATED_24X"],"scheduled_requests":9,"schema_version":"1.0.0","scratch_cleanup_status":"PASSED","status":"DIAGNOSTIC_COMPLETE","teardown_status":"PASSED","worker_starts":9}
+718.1s 10 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+718.1s 11 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+718.1s 12 
+718.1s 13 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+718.1s 14 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+721.0s 15 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+721.0s 16 cells[i][c] = re.sub('\\\\\|', '|', cell)
+721.2s 17 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+721.2s 18 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+721.9s 19 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+722.2s 20 [NbConvertApp] Writing 298516 bytes to __notebook__.ipynb
+724.6s 21 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+725.5s 22 [NbConvertApp] Writing 599287 bytes to __results__.html
