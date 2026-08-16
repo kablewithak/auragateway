@@ -101,3 +101,9 @@ evidence_vault/local_abc/p4-p5-cache-context-repetition-differential-v1/** -text
 
 # Preserve token-count-matched context-structure design qualification evidence byte-for-byte.
 benchmarks/local_abc/evidence/token_count_matched_context_structure_differential_design_v1/** -text -whitespace
+
+# Preserve P4/P5 token-count-matched context-structure differential implementation identities as LF.
+src/auragateway/local_abc/p4_p5_token_count_matched_context_structure_differential_implementation_v1.py text eol=lf
+src/auragateway/local_abc/p4_p5_token_count_matched_context_structure_differential_runtime_v1.py text eol=lf
+benchmarks/local_abc/auragateway_p4_p5_token_count_matched_context_structure_differential_implementation_v1_review.json text eol=lf
+benchmarks/local_abc/auragateway_p4_p5_token_count_matched_context_structure_differential_implementation_v1.json text eol=lf
