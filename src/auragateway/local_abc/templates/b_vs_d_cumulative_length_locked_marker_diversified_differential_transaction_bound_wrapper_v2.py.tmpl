@@ -1,0 +1,346 @@
+"""Generated B-vs-D marker-diversified differential transaction-bound wrapper V2."""
+
+from __future__ import annotations
+
+import base64
+import hashlib
+import json
+import subprocess
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+_AUTHORIZATION_B64 = "__AUTHORIZATION_B64__"
+_RUNTIME_PAYLOAD_B64 = "__RUNTIME_PAYLOAD_B64__"
+_TRANSACTION_ID = "__TRANSACTION_ID__"
+_ISSUER_MERGE_COMMIT = "__ISSUER_MERGE_COMMIT__"
+_ISSUER_SOURCE_SHA256 = "__ISSUER_SOURCE_SHA256__"
+_RUNTIME_PAYLOAD_SHA256 = "__RUNTIME_PAYLOAD_SHA256__"
+_GENERATOR_CONTRACT_SHA256 = "__GENERATOR_CONTRACT_SHA256__"
+
+_DESIGN_RECORD_SHA256 = "77a8140ad6a95da54bc1b21a5844edbbcbc52f53e75d0ba2eaf8de4b55a0d848"
+_IMPLEMENTATION_MERGE_COMMIT = "a24eedc9d7a65756affc9cde224acdc80fdf7313"
+_IMPLEMENTATION_REVIEW_SHA256 = "7278fdf91cef5fd2a19e39f4bc34421c2dce823a42e09aacc7c44ccce7fb53dc"
+_IMPLEMENTATION_RECORD_SHA256 = "795a7cdf5285ba49e5dcc57a76cd46e03f07121359a5f66101692cee41bb2074"
+
+
+def _canonical_json_bytes(value: object) -> bytes:
+    return json.dumps(value, ensure_ascii=True, separators=(",", ":"), sort_keys=True).encode("utf-8")
+
+
+def _sha256(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _parse_time(value: str) -> datetime:
+    observed = datetime.fromisoformat(value)
+    if observed.tzinfo is None or observed.utcoffset() is None:
+        raise RuntimeError("authorization timestamp must be timezone-aware")
+    return observed.astimezone(UTC)
+
+
+def _observed_gpu_count() -> int:
+    completed = subprocess.run(["nvidia-smi", "-L"], check=False, capture_output=True, text=True)
+    if completed.returncode != 0:
+        raise RuntimeError("unable to observe GPU topology")
+    return sum(1 for line in completed.stdout.splitlines() if line.strip().startswith("GPU "))
+
+
+def _decode_authorization() -> tuple[dict[str, object], bytes]:
+    payload = base64.b64decode(_AUTHORIZATION_B64.encode("ascii"), validate=True)
+    parsed = json.loads(payload)
+    if not isinstance(parsed, dict):
+        raise RuntimeError("embedded authorization must be one JSON object")
+    if payload != _canonical_json_bytes(parsed):
+        raise RuntimeError("embedded authorization is not canonical")
+    return parsed, payload
+
+
+def admit(now: datetime | None = None) -> dict[str, object]:
+    envelope, _ = _decode_authorization()
+    transaction_id = envelope.get("transaction_id")
+    authorization = envelope.get("authorization")
+    if transaction_id != _TRANSACTION_ID or not isinstance(authorization, dict):
+        raise RuntimeError("embedded authorization envelope drifted")
+
+    canonical_authorization = _canonical_json_bytes(authorization)
+    runtime_payload = base64.b64decode(_RUNTIME_PAYLOAD_B64.encode("ascii"), validate=True)
+
+    required = {
+        "schema_version": "1.0.0",
+        "decision": "AUTHORIZED",
+        "lifecycle": "ISSUED",
+        "scope": "B_VS_D_CUMULATIVE_LENGTH_LOCKED_MARKER_DIVERSIFIED_DIFFERENTIAL_V1",
+        "issuer_merge_commit": _ISSUER_MERGE_COMMIT,
+        "authorization_design_record_sha256": _DESIGN_RECORD_SHA256,
+        "implementation_merge_commit": _IMPLEMENTATION_MERGE_COMMIT,
+        "implementation_review_sha256": _IMPLEMENTATION_REVIEW_SHA256,
+        "implementation_record_sha256": _IMPLEMENTATION_RECORD_SHA256,
+        "issuer_source_sha256": _ISSUER_SOURCE_SHA256,
+        "runtime_payload_sha256": _RUNTIME_PAYLOAD_SHA256,
+        "generator_contract_sha256": _GENERATOR_CONTRACT_SHA256,
+        "platform_observation_control_id": "PERSIST_DURABLE_OBSERVATION_BEFORE_SAVE_AND_RUN_ALL",
+        "durable_platform_observation_required": True,
+        "runtime_execution_authorized": True,
+        "single_use": True,
+        "every_terminal_attempt_consumes_authorization": True,
+        "unchanged_replay_authorized": False,
+        "authorization_reusable": False,
+        "runtime_anti_replay_established": False,
+        "threshold_search_authorized": False,
+        "runtime_remediation_authorized": False,
+        "north_star_abc_effect_claim_authorized": False,
+        "p5_p6_requalification_authorized": False,
+    }
+    drift = tuple(key for key, expected in required.items() if authorization.get(key) != expected)
+    if drift:
+        raise RuntimeError("embedded authorization contract drift: " + ",".join(drift))
+
+    if _sha256(canonical_authorization) != _TRANSACTION_ID:
+        raise RuntimeError("transaction identity mismatch")
+    if _sha256(runtime_payload) != _RUNTIME_PAYLOAD_SHA256:
+        raise RuntimeError("runtime payload identity mismatch")
+
+    expected_runtime = {'attention_backend': 'TRITON_ATTN',
+ 'cache_block_size': 16,
+ 'cuda_variant': 'cu129',
+ 'gpu_topology': 'T4_x2',
+ 'max_model_len': 4096,
+ 'model_directory_sha256': '84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94',
+ 'model_repository': 'Qwen/Qwen2.5-0.5B-Instruct',
+ 'model_revision': '7ae557604adf67be50417f59c2c2f167def9a775',
+ 'prefix_caching_enabled': True,
+ 'python': '3.12',
+ 'required_native_module': 'vllm._C_stable_libtorch',
+ 'tokenizer_revision': '7ae557604adf67be50417f59c2c2f167def9a775',
+ 'torch': '2.11.0+cu129',
+ 'torch_cuda_version': '12.9',
+ 'transformers': '5.14.1',
+ 'triton': '3.6.0',
+ 'vllm_distribution': '0.25.1+cu129',
+ 'vllm_public_semantic_version': '0.25.1',
+ 'worker_gpu_index': 0}
+    if authorization.get("runtime") != expected_runtime:
+        raise RuntimeError("runtime/model contract drifted")
+
+    expected_budget = {'maximum_benchmark_trajectory_requests': 0,
+ 'maximum_external_network_requests': 0,
+ 'maximum_external_spend': 0,
+ 'maximum_hidden_retries': 0,
+ 'maximum_kaggle_sessions': 1,
+ 'maximum_model_loads': 6,
+ 'maximum_model_requests': 6,
+ 'maximum_output_tokens_per_request': 32,
+ 'maximum_replacement_observations': 0,
+ 'maximum_runtime_import_closure_probes': 1,
+ 'maximum_runtime_install_attempts': 1,
+ 'maximum_save_and_run_all_actions': 1,
+ 'maximum_worker_starts': 6}
+    if authorization.get("budget") != expected_budget:
+        raise RuntimeError("execution budget drifted")
+
+    expected_experiment = {'aligned_block_recurrence_causal_claim_permitted': False,
+ 'b_0_d_0': 'MARKER_DIVERSIFICATION_INSUFFICIENT_AT_D_REPETITION_LEVEL',
+ 'b_0_d_3': 'MARKER_DIVERSIFICATION_RESTORES_BEHAVIOR_UNDER_CUMULATIVE_LENGTH_LOCK',
+ 'b_0_d_mixed': 'D_CONDITION_UNSTABLE_NO_MECHANISTIC_CLAIM',
+ 'b_anchor_must_reproduce_zero_of_three': True,
+ 'b_anchor_nonreproduction': 'B_ANCHOR_NONREPRODUCTION_INVALIDATES_INFERENCE',
+ 'b_payload_sha256': '1c1ccaad07d7f83eca3c79ae015d231dbe8f3da7d6b055ec10da6070378c4efb',
+ 'b_token_sha256': '02f2675a0490d16e3a39de9619ae865a8f73024b26c6f9126bf4dea197d99f68',
+ 'bounded_marker_lexical_semantic_novelty_remains': True,
+ 'canonical_final_object': '{"probe":"exact-runtime-p5-p6","value":1}',
+ 'complete_cumulative_prompt_token_profile_locked': True,
+ 'condition_b_id': 'B_NEUTRAL_REPEATED_24X',
+ 'condition_d_id': 'D_NEUTRAL_MARKER_DIVERSIFIED_24X_CUMULATIVE_LENGTH_LOCKED',
+ 'cumulative_prompt_token_count_profile': [83,
+                                           117,
+                                           151,
+                                           185,
+                                           219,
+                                           253,
+                                           287,
+                                           321,
+                                           355,
+                                           389,
+                                           423,
+                                           457,
+                                           491,
+                                           525,
+                                           559,
+                                           593,
+                                           627,
+                                           661,
+                                           695,
+                                           729,
+                                           763,
+                                           797,
+                                           831,
+                                           865,
+                                           899],
+ 'cumulative_prompt_token_increment': 34,
+ 'd_marker_sequence': ['birch',
+                       'grove',
+                       'juniper',
+                       'lagoon',
+                       'meadow',
+                       'prairie',
+                       'spruce',
+                       'umber',
+                       'willow',
+                       'acorn',
+                       'alder',
+                       'beech',
+                       'brook',
+                       'caper',
+                       'clover',
+                       'cove',
+                       'dune',
+                       'finch',
+                       'flint',
+                       'glade',
+                       'ivy',
+                       'larch',
+                       'lily',
+                       'orchid'],
+ 'd_payload_sha256': '0728e8632e4694cd670e472751154d38dcacc34071d74e1caad8ece6608c8010',
+ 'd_token_sha256': '878ecc057fbc92764c7b8bddc3024e12720470b84a72d974ef677c16d1e37e21',
+ 'exact_repetition_sole_or_root_cause_claim_permitted': False,
+ 'experiment_id': 'B_VS_D_CUMULATIVE_LENGTH_LOCKED_MARKER_DIVERSIFIED_DIFFERENTIAL_V1',
+ 'fresh_worker_process_per_observation': True,
+ 'invalid_json_retained_as_observation': True,
+ 'invariant_failure': 'DIAGNOSTIC_INVALID',
+ 'marker_lexical_novelty_eliminated': False,
+ 'marker_semantic_novelty_eliminated': False,
+ 'maximum_output_tokens': 32,
+ 'message_roles': ['system', 'user', 'assistant', 'user'],
+ 'mixed_result_permits_mechanistic_claim': False,
+ 'north_star_abc_effect_claim_authorized': False,
+ 'observations_per_condition': 3,
+ 'output_mode': 'UNCONSTRAINED',
+ 'p5_p6_requalification_authorized': False,
+ 'post_hoc_two_of_three_interpretation_permitted': False,
+ 'pre_request_identity_persisted_before_model_request_budget': True,
+ 'pre_request_token_identity_journal_required': True,
+ 'prior_request_cache_carryover_permitted': False,
+ 'prompt_token_count_per_condition': 899,
+ 'repetition_penalty': 1.1,
+ 'request_order': ['B_NEUTRAL_REPEATED_24X',
+                   'D_NEUTRAL_MARKER_DIVERSIFIED_24X_CUMULATIVE_LENGTH_LOCKED',
+                   'D_NEUTRAL_MARKER_DIVERSIFIED_24X_CUMULATIVE_LENGTH_LOCKED',
+                   'B_NEUTRAL_REPEATED_24X',
+                   'B_NEUTRAL_REPEATED_24X',
+                   'D_NEUTRAL_MARKER_DIVERSIFIED_24X_CUMULATIVE_LENGTH_LOCKED'],
+ 'response_format_present': False,
+ 'runtime_remediation_authorized': False,
+ 'seed': 7,
+ 'segment_count_per_condition': 24,
+ 'stream': False,
+ 'teardown_required_between_observations': True,
+ 'temperature': 0,
+ 'text_segment_boundary_must_equal_token_boundary': False,
+ 'threshold_search_authorized': False,
+ 'top_p': 1,
+ 'variable_under_test': 'MARKER_DIVERSIFICATION_UNDER_CUMULATIVE_PROMPT_TOKEN_LENGTH_LOCK',
+ 'zero_cached_prefix_baseline_required': True}
+    if authorization.get("experiment") != expected_experiment:
+        raise RuntimeError("repetition differential contract drifted")
+
+    required_platform = authorization.get("required_platform")
+    expected_platform = {'accelerator': 'T4_X2',
+ 'allocated_gpu_count': 2,
+ 'credentials_permitted': False,
+ 'customer_data_permitted': False,
+ 'external_network_access_permitted': False,
+ 'fresh_post_artifact_observation_required': True,
+ 'internet_enabled': False,
+ 'machine_observable_runtime_topology_check_required': True,
+ 'observation_mounted_as_runtime_input': False,
+ 'observation_precedes_save_and_run_all': True,
+ 'preissuance_platform_observation_required': False}
+    if required_platform != expected_platform:
+        raise RuntimeError("required platform policy drifted")
+
+    observed = (now or datetime.now(UTC)).astimezone(UTC)
+    issued_at = _parse_time(str(authorization["issued_at"]))
+    expires_at = _parse_time(str(authorization["expires_at"]))
+    if observed < issued_at or observed >= expires_at:
+        raise RuntimeError("authorization is outside live admission window")
+    if _observed_gpu_count() != 2:
+        raise RuntimeError("machine-observable GPU topology does not match authorization")
+
+    return {
+        "status": "B_VS_D_MARKER_DIVERSIFIED_TRANSACTION_BOUND_RUNTIME_ADMISSION_VALID",
+        "transaction_id": _TRANSACTION_ID,
+        "issuer_merge_commit": _ISSUER_MERGE_COMMIT,
+        "runtime_payload_sha256": _RUNTIME_PAYLOAD_SHA256,
+        "authorization_live_at_admission": True,
+        "observed_gpu_count": 2,
+        "internet_policy_bound": True,
+        "network_probe_performed": False,
+        "platform_observation_receipt_runtime_input": False,
+    }
+
+
+def _write_json(path: Path, value: object) -> None:
+    path.write_bytes(_canonical_json_bytes(value) + b"\n")
+
+
+def _capture_primary_failure(primary: BaseException) -> None:
+    record = {
+        "status": "PRIMARY_FAILURE_CAPTURED",
+        "transaction_id": _TRANSACTION_ID,
+        "exception_type": type(primary).__name__,
+        "safe_message": str(primary)[:1000],
+    }
+    try:
+        _write_json(
+            Path(
+                "b_vs_d_cumulative_length_locked_marker_diversified_differential_"
+                "primary_failure_v1.json"
+            ),
+            record,
+        )
+    except BaseException as reporting_error:
+        print(
+            "SECONDARY_FAILURE_REPORTING_ERROR=" + type(reporting_error).__name__,
+            file=sys.stderr,
+        )
+
+
+def execute_bound_payload() -> None:
+    admission = admit()
+    _write_json(
+        Path(
+            "b_vs_d_cumulative_length_locked_marker_diversified_differential_"
+            "transaction_bound_admission_v1.json"
+        ),
+        admission,
+    )
+    runtime_payload = base64.b64decode(_RUNTIME_PAYLOAD_B64.encode("ascii"), validate=True)
+    namespace = {
+        "__name__": "__main__",
+        "__file__": "<b-vs-d-marker-diversified-differential-runtime>",
+        "AURAGATEWAY_TRANSACTION_ID": _TRANSACTION_ID,
+        "EXECUTED_RUNTIME_SCRIPT_SHA256": _RUNTIME_PAYLOAD_SHA256,
+    }
+    try:
+        exec(
+            compile(runtime_payload, "<b-vs-d-marker-diversified-differential-runtime>", "exec"),
+            namespace,
+            namespace,
+        )
+    except SystemExit as primary:
+        exit_code = primary.code
+        if exit_code is None:
+            return
+        if isinstance(exit_code, int) and exit_code == 0:
+            return
+        _capture_primary_failure(primary)
+        raise
+    except BaseException as primary:
+        _capture_primary_failure(primary)
+        raise
+
+
+if __name__ == "__main__":
+    execute_bound_payload()
