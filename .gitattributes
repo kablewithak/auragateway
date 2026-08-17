@@ -134,3 +134,5 @@ src/auragateway/local_abc/b_vs_d_cumulative_length_locked_marker_diversified_dif
 src/auragateway/local_abc/templates/b_vs_d_cumulative_length_locked_marker_diversified_differential_transaction_bound_wrapper_v1.py.tmpl text eol=lf
 benchmarks/local_abc/auragateway_b_vs_d_cumulative_length_locked_marker_diversified_differential_execution_authorization_v1_review.json text eol=lf
 benchmarks/local_abc/auragateway_b_vs_d_cumulative_length_locked_marker_diversified_differential_execution_authorization_v1_record.json text eol=lf
+# Preserve governed B-vs-D marker-diversified differential evidence byte-for-byte.
+evidence_vault/local_abc/b-vs-d-marker-diversified-diff-v1/** -text -whitespace

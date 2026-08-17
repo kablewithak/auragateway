@@ -1,0 +1,22 @@
+10.5s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+10.5s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+10.5s 3 0.00s - to python to disable frozen modules.
+10.5s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+11.2s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+11.2s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+11.2s 7 0.00s - to python to disable frozen modules.
+11.2s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+617.6s 9 {"authorization":{"authorization_producer_notebooks":0,"authorization_specific_kaggle_inputs":0,"authorization_transport":"EMBEDDED_WRAPPER_ADMISSION","runtime_execution_authorized":true,"transaction_id":"75860f22287511bafba2bcf42be16214ef8b41a6260857fe258596aaab5d69d1"},"completed_requests":6,"condition_token_sha256":{"B_NEUTRAL_REPEATED_24X":"02f2675a0490d16e3a39de9619ae865a8f73024b26c6f9126bf4dea197d99f68","D_NEUTRAL_MARKER_DIVERSIFIED_24X_CUMULATIVE_LENGTH_LOCKED":"878ecc057fbc92764c7b8bddc3024e12720470b84a72d974ef677c16d1e37e21"},"decision_state":"MARKER_DIVERSIFICATION_RESTORES_BEHAVIOR_UNDER_CUMULATIVE_LENGTH_LOCK","design_record_sha256":"2e07651681d98d604f0e0f6b4e8964906f39b8bfa0e48b8f8fa8e9de431e7ef9","diagnostic_id":"auragateway-b-vs-d-cumulative-length-locked-marker-diversified-differential-v1","evidence_zip":"/kaggle/working/ag-b-vs-d-cumulative-length-locked-marker-diversified-differential-evidence-v1.zip","evidence_zip_sha256":"4661552364736621338249e6a21d0cacfbd355ba04e57432943cf721fc40e0f0","evidence_zip_size_bytes":14728,"external_network_requests":0,"external_spend":0,"fresh_worker_process_per_observation":true,"hidden_retries":0,"implementation_base_commit":"cfe36407fe7d7b1c71938d218886872e47a1be39","measured_abc_execution_performed":false,"model_loads":6,"model_requests":6,"next_gate":"PRESERVE_AND_DISPOSITION_B_VS_D_CUMULATIVE_LENGTH_LOCKED_MARKER_DIVERSIFIED_DIFFERENTIAL_V1","p5_requalified":false,"p6_requalified":false,"pilot_execution_performed":false,"primary_endpoint":"exact_object","prompt_token_count_per_condition":899,"raw_output_retained":false,"raw_prompt_retained":false,"request_order":["B_NEUTRAL_REPEATED_24X","D_NEUTRAL_MARKER_DIVERSIFIED_24X_CUMULATIVE_LENGTH_LOCKED","D_NEUTRAL_MARKER_DIVERSIFIED_24X_CUMULATIVE_LENGTH_LOCKED","B_NEUTRAL_REPEATED_24X","B_NEUTRAL_REPEATED_24X","D_NEUTRAL_MARKER_DIVERSIFIED_24X_CUMULATIVE_LENGTH_LOCKED"],"scheduled_requests":6,"schema_version":"1.0.0","scratch_cleanup_status":"PASSED","status":"DIAGNOSTIC_COMPLETE","teardown_status":"PASSED","worker_starts":6}
+617.6s 10 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+617.6s 11 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+617.6s 12 
+617.6s 13 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+617.6s 14 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+620.7s 15 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+620.7s 16 cells[i][c] = re.sub('\\\\\|', '|', cell)
+620.9s 17 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+620.9s 18 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+621.6s 19 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+621.9s 20 [NbConvertApp] Writing 356390 bytes to __notebook__.ipynb
+624.2s 21 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+625.1s 22 [NbConvertApp] Writing 659726 bytes to __results__.html
