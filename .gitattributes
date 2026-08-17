@@ -122,3 +122,9 @@ benchmarks/local_abc/auragateway_b_vs_d_cumulative_length_locked_marker_diversif
 
 # Preserve B-vs-D marker-diversified design qualification evidence byte-for-byte.
 benchmarks/local_abc/evidence/b_vs_d_cumulative_length_locked_marker_diversified_differential_design_v1/** -text -whitespace
+
+# Preserve B-vs-D marker-diversified differential implementation identities as LF.
+src/auragateway/local_abc/b_vs_d_cumulative_length_locked_marker_diversified_differential_implementation_v1.py text eol=lf
+src/auragateway/local_abc/b_vs_d_cumulative_length_locked_marker_diversified_differential_runtime_v1.py text eol=lf
+benchmarks/local_abc/auragateway_b_vs_d_cumulative_length_locked_marker_diversified_differential_implementation_v1_review.json text eol=lf
+benchmarks/local_abc/auragateway_b_vs_d_cumulative_length_locked_marker_diversified_differential_implementation_v1.json text eol=lf
