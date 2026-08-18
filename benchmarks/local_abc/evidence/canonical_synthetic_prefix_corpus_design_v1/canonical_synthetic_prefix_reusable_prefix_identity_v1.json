@@ -1,0 +1,63 @@
+{
+  "claims": {
+    "c4_qualified": false,
+    "cache_reuse_established": false,
+    "model_correctness_established": false,
+    "p5_requalified": false,
+    "p6_requalified": false,
+    "runtime_execution_authorized": false,
+    "static_token_identity_only": true
+  },
+  "measurement": {
+    "canonical_request_payload_sha256": "a888c17ed8e82360fdd46d0bb6833db9db2dc3fbbfb14d861f7063b271063788",
+    "canonical_request_payload_size_bytes": 4936,
+    "first_divergent_token_index": 880,
+    "full_prompt_token_count": 899,
+    "full_prompt_token_sha256": "f009b149b0b8ccf08a423346e1736be81927095907b5221e070e59ffc6d87f4c",
+    "reusable_prefix_token_count": 880,
+    "reusable_prefix_token_sha256": "f29af54ca46249fa63c7fd89da44ca375d64f183f8d463b3a43678318890dfb1",
+    "sentinel_prompt_token_count": 901,
+    "sentinel_prompt_token_sha256": "66b477d9eee98b059adfa478ebe0db5d68bf5ced7836e2cf93c85b1ac076988c",
+    "served_model_name": "local-qwen2.5-0.5b-instruct"
+  },
+  "next_gate": "FREEZE_REUSABLE_PREFIX_IDENTITY_IN_C4_IMPLEMENTATION_V1",
+  "oracle_boundary": {
+    "gpu_execution_performed": false,
+    "historical_b_calibration_passed": true,
+    "historical_d_calibration_passed": true,
+    "jinja2": "3.1.6",
+    "kaggle_execution_performed": false,
+    "markupsafe": "3.0.3",
+    "model_loaded": false,
+    "model_request_executed": false,
+    "offline_after_tokenizer_materialization": true,
+    "python": "3.12.10",
+    "runtime_execution_authorized": false,
+    "tokenizer_materialization_manifest_sha256": "02876b90ffcbc7ab2cad03f38923dc1093d0646b5fbe2e666111b257a4bc4128",
+    "tokenizer_subset_sha256": "f40feefdd7941989a2212340d3fc7ccc85482ada2446909663347301592c90ef",
+    "transformers": "5.14.1"
+  },
+  "receipt_id": "auragateway-canonical-synthetic-prefix-reusable-prefix-token-identity-v1",
+  "reusable_prefix_definition": {
+    "final_user_content_is_part_of_reusable_prefix": false,
+    "method": "LONGEST_COMMON_TOKEN_PREFIX_BETWEEN_CANONICAL_AND_SENTINEL_FINAL_USER_CONTENT",
+    "sentinel": "__AURAGATEWAY_FINAL_USER_BOUNDARY_SENTINEL_V1__",
+    "sentinel_sha256": "9c4dac3891986c3723d4a8a3a5d74effecc32278f2b7ce5a04157be9a14108e6",
+    "text_segment_boundary_assumed_to_equal_token_boundary": false
+  },
+  "schema_version": "1.0.0",
+  "source_state": {
+    "canonical_corpus_sha256": "140e8157da883e07f2d76d4f516ec2beec961fefb639b8509cc8f3a6239d14e9",
+    "canonical_corpus_version": "CANONICAL_SYNTHETIC_PREFIX_CORPUS_V1",
+    "full_prompt_token_count": 899,
+    "full_prompt_token_sha256": "f009b149b0b8ccf08a423346e1736be81927095907b5221e070e59ffc6d87f4c"
+  },
+  "tokenization_contract": {
+    "add_generation_prompt": true,
+    "apply_chat_template": true,
+    "candidate_tail_separator": "SINGLE_ASCII_SPACE",
+    "continue_final_message": false,
+    "return_dict": false,
+    "tokenize": true
+  }
+}
