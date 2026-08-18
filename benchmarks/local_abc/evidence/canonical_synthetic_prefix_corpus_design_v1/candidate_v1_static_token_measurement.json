@@ -1,0 +1,82 @@
+{
+  "candidate": {
+    "aligned_16_block_duplication_within_guardrail": true,
+    "corpus_sha256": "239e1d82373694d68493039a7ab39968610ea593b863d72331cd60315ef49841",
+    "duplicate_16gram_within_guardrail": true,
+    "prompt_token_count": 985,
+    "prompt_token_sha256": "484da7598ca0e4a6bb029878965030810ce60cad66e91b4e6c89fcbc79bc88ec",
+    "representation_metrics": {
+      "duplicate_16gram_fraction": 0.007216494845360825,
+      "duplicate_aligned_16_token_blocks_beyond_first": 0,
+      "prompt_unique_token_ids": 495,
+      "shift_34_match_fraction": 0.008412197686645636
+    },
+    "state": "NEEDS_LENGTH_TUNING",
+    "target_prompt_token_count_match": false
+  },
+  "claims": {
+    "c4_qualified": false,
+    "model_correctness_established": false,
+    "p5_requalified": false,
+    "p6_requalified": false,
+    "root_cause_established": false,
+    "static_representation_only": true
+  },
+  "guardrails": {
+    "maximum_duplicate_16gram_fraction": 0.4479638009049774,
+    "maximum_duplicate_aligned_16_token_blocks_beyond_first": 15,
+    "shift_34_match_fraction_is_diagnostic_only": true,
+    "target_prompt_token_count": 899,
+    "unique_token_ids_is_diagnostic_only": true
+  },
+  "historical_calibration": {
+    "B": {
+      "calibration_passed": true,
+      "representation_metrics": {
+        "duplicate_16gram_fraction": 0.8744343891402715,
+        "duplicate_aligned_16_token_blocks_beyond_first": 33,
+        "prompt_unique_token_ids": 67,
+        "shift_34_match_fraction": 0.9040462427745665
+      },
+      "token_count": 899,
+      "token_sha256": "02f2675a0490d16e3a39de9619ae865a8f73024b26c6f9126bf4dea197d99f68"
+    },
+    "D": {
+      "calibration_passed": true,
+      "representation_metrics": {
+        "duplicate_16gram_fraction": 0.4479638009049774,
+        "duplicate_aligned_16_token_blocks_beyond_first": 15,
+        "prompt_unique_token_ids": 110,
+        "shift_34_match_fraction": 0.8520231213872832
+      },
+      "token_count": 899,
+      "token_sha256": "878ecc057fbc92764c7b8bddc3024e12720470b84a72d974ef677c16d1e37e21"
+    },
+    "all_calibrations_passed": true
+  },
+  "next_gate": "TUNE_CANONICAL_SYNTHETIC_PREFIX_CORPUS_LENGTH_V2",
+  "oracle_boundary": {
+    "gpu_execution_performed": false,
+    "jinja2": "3.1.6",
+    "kaggle_execution_performed": false,
+    "markupsafe": "3.0.3",
+    "model_loaded": false,
+    "model_request_executed": false,
+    "offline_after_tokenizer_materialization": true,
+    "python": "3.12.10",
+    "runtime_execution_authorized": false,
+    "transformers": "5.14.1"
+  },
+  "receipt_id": "auragateway-canonical-synthetic-prefix-static-oracle-v3",
+  "schema_version": "2.0.0",
+  "tokenization_contract": {
+    "add_generation_prompt": true,
+    "apply_chat_template": true,
+    "candidate_tail_separator": "SINGLE_ASCII_SPACE",
+    "continue_final_message": false,
+    "return_dict": false,
+    "tokenize": true
+  },
+  "tokenizer_materialization_manifest_sha256": "02876b90ffcbc7ab2cad03f38923dc1093d0646b5fbe2e666111b257a4bc4128",
+  "tokenizer_subset_sha256": "f40feefdd7941989a2212340d3fc7ccc85482ada2446909663347301592c90ef"
+}

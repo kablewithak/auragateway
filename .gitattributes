@@ -136,3 +136,9 @@ benchmarks/local_abc/auragateway_b_vs_d_cumulative_length_locked_marker_diversif
 benchmarks/local_abc/auragateway_b_vs_d_cumulative_length_locked_marker_diversified_differential_execution_authorization_v1_record.json text eol=lf
 # Preserve governed B-vs-D marker-diversified differential evidence byte-for-byte.
 evidence_vault/local_abc/b-vs-d-marker-diversified-diff-v1/** -text -whitespace
+
+# Preserve canonical synthetic prefix corpus design evidence byte-for-byte.
+benchmarks/local_abc/evidence/canonical_synthetic_prefix_corpus_design_v1/** -text -whitespace
+
+# Preserve canonical synthetic prefix corpus freeze producer identity as LF.
+src/auragateway/local_abc/canonical_synthetic_prefix_corpus_freeze_v1.py text eol=lf
