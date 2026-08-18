@@ -148,3 +148,13 @@ src/auragateway/local_abc/canonical_synthetic_prefix_c4_behavioral_qualification
 docs/adr/2026-08-18-local-abc-canonical-synthetic-prefix-c4-behavioral-qualification-v1.md text eol=lf
 data/evals/benchmark/environment-qualification-v1/canonical_synthetic_prefix_c4_behavioral_qualification_v1_request.json text eol=lf
 benchmarks/local_abc/canonical_synthetic_prefix_c4_behavioral_qualification_v1_review.json text eol=lf
+
+# Preserve C4 reusable-prefix measurement evidence byte-for-byte.
+benchmarks/local_abc/evidence/canonical_synthetic_prefix_corpus_design_v1/canonical_synthetic_prefix_reusable_prefix_identity_v1.json -text -whitespace
+
+# Preserve canonical synthetic-prefix C4 implementation identities as LF.
+src/auragateway/local_abc/canonical_synthetic_prefix_c4_behavioral_qualification_implementation_v1.py text eol=lf
+tests/unit/local_abc/test_canonical_synthetic_prefix_c4_behavioral_qualification_implementation_v1.py text eol=lf
+src/auragateway/local_abc/canonical_synthetic_prefix_c4_behavioral_qualification_runtime_v1.py text eol=lf
+benchmarks/local_abc/auragateway_canonical_synthetic_prefix_c4_behavioral_qualification_implementation_v1_review.json text eol=lf
+benchmarks/local_abc/auragateway_canonical_synthetic_prefix_c4_behavioral_qualification_implementation_v1.json text eol=lf
