@@ -174,3 +174,14 @@ benchmarks/local_abc/auragateway_canonical_synthetic_prefix_c4_single_use_execut
 benchmarks/local_abc/auragateway_canonical_synthetic_prefix_c4_single_use_execution_authorization_v1_record.json text eol=lf
 docs/reports/AuraGateway_Canonical_Synthetic_Prefix_C4_Single_Use_Execution_Authorization_V1.md text eol=lf
 docs/runbooks/local_abc_canonical_synthetic_prefix_c4_single_use_execution_authorization_v1.md text eol=lf
+
+# Preserve governed canonical synthetic-prefix C4 NOT_QUALIFIED evidence byte-for-byte.
+evidence_vault/local_abc/c4-canonical-prefix-qualification-not-qualified-v1/** -text -whitespace
+
+# Preserve canonical synthetic-prefix C4 NOT_QUALIFIED disposition identities as LF.
+src/auragateway/local_abc/canonical_synthetic_prefix_c4_not_qualified_disposition_v1.py text eol=lf
+tests/unit/local_abc/test_canonical_synthetic_prefix_c4_not_qualified_disposition_v1.py text eol=lf
+benchmarks/local_abc/auragateway_canonical_synthetic_prefix_c4_not_qualified_disposition_v1.json text eol=lf
+benchmarks/local_abc/auragateway_canonical_synthetic_prefix_c4_not_qualified_disposition_v1_review.json text eol=lf
+docs/reports/AuraGateway_Canonical_Synthetic_Prefix_C4_Not_Qualified_Disposition_V1.md text eol=lf
+docs/runbooks/local_abc_canonical_synthetic_prefix_c4_not_qualified_disposition_v1.md text eol=lf
