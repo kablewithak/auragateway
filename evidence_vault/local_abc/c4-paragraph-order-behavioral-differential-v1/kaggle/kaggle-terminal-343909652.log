@@ -1,0 +1,17 @@
+7.2s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.2s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.2s 3 0.00s - to python to disable frozen modules.
+7.2s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+7.8s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.8s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.8s 7 0.00s - to python to disable frozen modules.
+7.8s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+616.0s 9 {"authorization":{"authorization_producer_notebooks":0,"authorization_specific_kaggle_inputs":0,"authorization_transport":"EMBEDDED_WRAPPER_ADMISSION","runtime_execution_authorized":true,"transaction_id":"19fc03a6b4ca74a025f8d9b8cd21be7e1cb14a4e776995760c679a581340f122"},"bundle_manifest_sha256":"c8f81c7c355faec536ecb32bd2c6bab3ceee61580a7e3b35fde653d039c49500","bundle_status":"PASSED","completed_requests":6,"condition_request_payload_sha256":{"CONTROL_ORIGINAL_C4":"a888c17ed8e82360fdd46d0bb6833db9db2dc3fbbfb14d861f7063b271063788","TREATMENT_REVERSED_MIDDLE_EIGHT":"47c519c24efd40e3bab4bfa2eaec1cf3d62c91a648870e631721625567f20b5e"},"control_prompt_token_sha256":"f009b149b0b8ccf08a423346e1736be81927095907b5221e070e59ffc6d87f4c","diagnostic_id":"C4_PARAGRAPH_ORDER_BEHAVIORAL_DIFFERENTIAL_V1","evidence_zip_sha256":"20e209c0a73f817b774065081ebed3e142405db1dca4e96847f5cc802650ca18","evidence_zip_size_bytes":15588,"external_network_requests":0,"external_spend":0,"final_abc_measured":false,"final_user_boundary_per_condition":880,"fresh_worker_process_per_observation":true,"hidden_retries":0,"model_loads":6,"model_requests":6,"next_gate":"PRESERVE_AND_DISPOSITION_C4_PARAGRAPH_ORDER_BEHAVIORAL_DIFFERENTIAL_V1","observed_terminal_state":"ORDER_INTERVENTION_DOES_NOT_CHANGE_OBSERVED_PHENOTYPE","p5_requalified":false,"p6_requalified":false,"paragraph_order_repository_state_advanced":false,"production_readiness_established":false,"prompt_token_count_per_condition":899,"qualification_accepted_by_repository":false,"raw_output_retained":false,"raw_prompt_retained":false,"scheduled_requests":6,"schema_version":"1.0.0","scratch_cleanup_status":"PASSED","status":"QUALIFICATION_EXECUTION_COMPLETE","teardown_status":"PASSED","treatment_prompt_token_sha256":"14d6a6856ffb5c4caa4a4ed229fa0c94ac06b86fbef473be001dd6d8e3698cce","worker_starts":6}
+618.7s 10 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+618.7s 11 cells[i][c] = re.sub('\\\\\|', '|', cell)
+618.9s 12 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+618.9s 13 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+619.5s 14 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+619.8s 15 [NbConvertApp] Writing 550033 bytes to __notebook__.ipynb
+622.3s 16 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+623.4s 17 [NbConvertApp] Writing 980963 bytes to __results__.html
