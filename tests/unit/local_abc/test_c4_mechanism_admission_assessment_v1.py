@@ -43,20 +43,14 @@ def test_build_all_preserves_semantic_failure_and_assesses_mechanism() -> None:
 
     assert record.semantic_observation.state == "NOT_QUALIFIED"
     assert record.semantic_c4_relabelled is False
-    assert (
-        record.mechanism_decision.state
-        == assessment.MechanismAdmissionState.QUALIFIED
-    )
+    assert record.mechanism_decision.state == assessment.MechanismAdmissionState.QUALIFIED
     assert record.p5_requalified is False
     assert record.p6_requalified is False
     assert record.model_requests_performed == 0
     assert record.new_execution_authorized is False
 
     assert review.semantic_c4_state == "NOT_QUALIFIED"
-    assert (
-        review.mechanism_admission_state
-        == assessment.MechanismAdmissionState.QUALIFIED
-    )
+    assert review.mechanism_admission_state == assessment.MechanismAdmissionState.QUALIFIED
     assert review.p5_requalified_claimed is False
     assert review.p6_requalified_claimed is False
 
@@ -90,9 +84,7 @@ def test_transport_failure_blocks_mechanism_admission() -> None:
 
 
 def test_token_geometry_drift_blocks_mechanism_admission() -> None:
-    observation = qualified_observation().model_copy(
-        update={"reusable_prefix_token_count": 879}
-    )
+    observation = qualified_observation().model_copy(update={"reusable_prefix_token_count": 879})
 
     decision = assessment.assess_mechanism(observation)
 
@@ -101,9 +93,7 @@ def test_token_geometry_drift_blocks_mechanism_admission() -> None:
 
 
 def test_missing_worker_identity_is_ambiguous() -> None:
-    observation = qualified_observation().model_copy(
-        update={"worker_identity_cardinality": None}
-    )
+    observation = qualified_observation().model_copy(update={"worker_identity_cardinality": None})
 
     decision = assessment.assess_mechanism(observation)
 
@@ -133,12 +123,10 @@ def test_contract_does_not_preprove_p5_or_p6() -> None:
     assert by_id["P5-OBS"].blocking_for_mechanism_admission is False
     assert by_id["P6-OBS"].blocking_for_mechanism_admission is False
     assert (
-        by_id["P5-OBS"].requirement_class
-        == assessment.RequirementClass.DOWNSTREAM_P5_MEASUREMENT
+        by_id["P5-OBS"].requirement_class == assessment.RequirementClass.DOWNSTREAM_P5_MEASUREMENT
     )
     assert (
-        by_id["P6-OBS"].requirement_class
-        == assessment.RequirementClass.DOWNSTREAM_P6_MEASUREMENT
+        by_id["P6-OBS"].requirement_class == assessment.RequirementClass.DOWNSTREAM_P6_MEASUREMENT
     )
 
 

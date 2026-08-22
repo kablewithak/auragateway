@@ -1,9 +1,9 @@
 # ADR: C4 Mechanism-Admission Contract V2
 
-**Date:** 2026-08-22  
-**Status:** Proposed for repository integration  
-**Scope:** static qualification boundary only  
-**Execution authorization:** absent  
+**Date:** 2026-08-22
+**Status:** Proposed for repository integration
+**Scope:** static qualification boundary only
+**Execution authorization:** absent
 
 ## Context
 

@@ -29,23 +29,16 @@ C4_DISPOSITION_PATH: Final = Path(
     "benchmarks/local_abc/"
     "auragateway_canonical_synthetic_prefix_c4_not_qualified_disposition_v1.json"
 )
-C4_DISPOSITION_SHA256: Final = (
-    "5d6dd611bf2d54778f86e43aac019c86648decb0aa9eb5121105e52928328cb3"
-)
+C4_DISPOSITION_SHA256: Final = "5d6dd611bf2d54778f86e43aac019c86648decb0aa9eb5121105e52928328cb3"
 C4_REVIEW_PATH: Final = Path(
     "benchmarks/local_abc/"
     "auragateway_canonical_synthetic_prefix_c4_not_qualified_disposition_v1_review.json"
 )
-C4_REVIEW_SHA256: Final = (
-    "96ffcdfffc7ff5c176ed0315b79ac59e4c15407e2ed742988b86550658ae6dc5"
-)
+C4_REVIEW_SHA256: Final = "96ffcdfffc7ff5c176ed0315b79ac59e4c15407e2ed742988b86550658ae6dc5"
 P5_P6_DESIGN_PATH: Final = Path(
-    "benchmarks/local_abc/"
-    "auragateway_p5_p6_exact_runtime_requalification_design_v1.json"
+    "benchmarks/local_abc/auragateway_p5_p6_exact_runtime_requalification_design_v1.json"
 )
-P5_P6_DESIGN_SHA256: Final = (
-    "4781d9d3dda0c69cdc629a78dbaa94c39e73374914e40d1b48486b7d0e0033a2"
-)
+P5_P6_DESIGN_SHA256: Final = "4781d9d3dda0c69cdc629a78dbaa94c39e73374914e40d1b48486b7d0e0033a2"
 
 EXPECTED_RUNTIME_PAYLOAD_SHA256: Final = (
     "d2cc4f38823a0133345279ed0257bf726ebcf8190ef0985620e76815700d4e82"
@@ -60,21 +53,11 @@ EXPECTED_EVIDENCE_ZIP_SHA256: Final = (
     "94ce021d8c208e5f4d4a39ac9f7c9e4fcb6db6fd25717b1eaa8d7772f6190ce4"
 )
 
-SOURCE_PATH: Final = Path(
-    "src/auragateway/local_abc/c4_mechanism_admission_assessment_v1.py"
-)
-TEST_PATH: Final = Path(
-    "tests/unit/local_abc/test_c4_mechanism_admission_assessment_v1.py"
-)
-ADR_PATH: Final = Path(
-    "docs/adr/2026-08-22-local-abc-c4-mechanism-admission-contract-v2.md"
-)
-REPORT_PATH: Final = Path(
-    "docs/reports/AuraGateway_C4_Mechanism_Admission_Assessment_V1.md"
-)
-RUNBOOK_PATH: Final = Path(
-    "docs/runbooks/local_abc_c4_mechanism_admission_assessment_v1.md"
-)
+SOURCE_PATH: Final = Path("src/auragateway/local_abc/c4_mechanism_admission_assessment_v1.py")
+TEST_PATH: Final = Path("tests/unit/local_abc/test_c4_mechanism_admission_assessment_v1.py")
+ADR_PATH: Final = Path("docs/adr/2026-08-22-local-abc-c4-mechanism-admission-contract-v2.md")
+REPORT_PATH: Final = Path("docs/reports/AuraGateway_C4_Mechanism_Admission_Assessment_V1.md")
+RUNBOOK_PATH: Final = Path("docs/runbooks/local_abc_c4_mechanism_admission_assessment_v1.md")
 
 CONTRACT_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_c4_mechanism_admission_contract_v2.json"
@@ -83,8 +66,7 @@ ASSESSMENT_PATH: Final = Path(
     "benchmarks/local_abc/auragateway_c4_mechanism_admission_assessment_v1.json"
 )
 REVIEW_PATH: Final = Path(
-    "benchmarks/local_abc/"
-    "auragateway_c4_mechanism_admission_assessment_v1_review.json"
+    "benchmarks/local_abc/auragateway_c4_mechanism_admission_assessment_v1_review.json"
 )
 
 GENERATED_PATHS: Final = (CONTRACT_PATH, ASSESSMENT_PATH, REVIEW_PATH)
@@ -150,13 +132,9 @@ class Receipt(FrozenModel):
 
 class C4DispositionRecord(FrozenModel):
     schema_version: Literal["1.0.0"]
-    record_id: Literal[
-        "auragateway-canonical-synthetic-prefix-c4-not-qualified-disposition-v1"
-    ]
+    record_id: Literal["auragateway-canonical-synthetic-prefix-c4-not-qualified-disposition-v1"]
     status: Literal["DISPOSITIONED_VALID_GOVERNED_C4_NOT_QUALIFIED_EXECUTION"]
-    transaction_id: Literal[
-        "70ef982013fd5ed97dcec8542fab075d3daa9a249ca80a11238e31926085c945"
-    ]
+    transaction_id: Literal["70ef982013fd5ed97dcec8542fab075d3daa9a249ca80a11238e31926085c945"]
     saved_version_id: Literal[343536641]
     execution_valid: bool
     observed_c4_state: Literal["NOT_QUALIFIED"]
@@ -272,9 +250,7 @@ class MechanismDecision(FrozenModel):
 class QualificationContract(FrozenModel):
     schema_version: Literal["2.0.0"] = "2.0.0"
     contract_id: Literal["auragateway-c4-mechanism-admission-contract-v2"]
-    base_main_commit: Literal[
-        "fbff1324ecf35d7aa53600b76fde41c21f9b349e"
-    ]
+    base_main_commit: Literal["fbff1324ecf35d7aa53600b76fde41c21f9b349e"]
     design_principle: Literal[
         "SEMANTIC_CANARY_AND_MECHANISM_ADMISSION_ARE_INDEPENDENT_OBSERVATIONS"
     ]
@@ -302,18 +278,12 @@ class AssessmentRecord(FrozenModel):
     schema_version: Literal["1.0.0"] = "1.0.0"
     record_id: Literal["auragateway-c4-mechanism-admission-assessment-v1"]
     contract_id: Literal["auragateway-c4-mechanism-admission-contract-v2"]
-    source_main_commit: Literal[
-        "fbff1324ecf35d7aa53600b76fde41c21f9b349e"
-    ]
+    source_main_commit: Literal["fbff1324ecf35d7aa53600b76fde41c21f9b349e"]
     c4_disposition_sha256: Literal[
         "5d6dd611bf2d54778f86e43aac019c86648decb0aa9eb5121105e52928328cb3"
     ]
-    c4_review_sha256: Literal[
-        "96ffcdfffc7ff5c176ed0315b79ac59e4c15407e2ed742988b86550658ae6dc5"
-    ]
-    p5_p6_design_sha256: Literal[
-        "4781d9d3dda0c69cdc629a78dbaa94c39e73374914e40d1b48486b7d0e0033a2"
-    ]
+    c4_review_sha256: Literal["96ffcdfffc7ff5c176ed0315b79ac59e4c15407e2ed742988b86550658ae6dc5"]
+    p5_p6_design_sha256: Literal["4781d9d3dda0c69cdc629a78dbaa94c39e73374914e40d1b48486b7d0e0033a2"]
     semantic_observation: SemanticObservation
     mechanism_observation: MechanismObservation
     mechanism_decision: MechanismDecision
@@ -446,17 +416,13 @@ def proof_basis(repo_root: Path) -> ProofBasis:
 
     p5_pass = p5.get("pass_criteria")
     p6_pass = p6.get("pass_criteria")
-    if not isinstance(p5_pass, list) or not all(
-        isinstance(item, str) for item in p5_pass
-    ):
+    if not isinstance(p5_pass, list) or not all(isinstance(item, str) for item in p5_pass):
         raise AssessmentError(
             "C4_MECHANISM_ADMISSION_P5_CRITERIA_INVALID",
             "P5 pass criteria are invalid",
             P5_P6_DESIGN_PATH.as_posix(),
         )
-    if not isinstance(p6_pass, list) or not all(
-        isinstance(item, str) for item in p6_pass
-    ):
+    if not isinstance(p6_pass, list) or not all(isinstance(item, str) for item in p6_pass):
         raise AssessmentError(
             "C4_MECHANISM_ADMISSION_P6_CRITERIA_INVALID",
             "P6 pass criteria are invalid",
@@ -547,9 +513,7 @@ def requirements() -> tuple[Requirement, ...]:
             expected_state="899 full; 880 reusable; 55 x 16-token blocks",
             provenance="P5 token identity and cacheable-prefix bound obligations.",
             protects=("P5",),
-            rationale=(
-                "Unresolved token geometry prevents bounded cache interpretation."
-            ),
+            rationale=("Unresolved token geometry prevents bounded cache interpretation."),
         ),
         Requirement(
             requirement_id="MA-06",
@@ -569,9 +533,7 @@ def requirements() -> tuple[Requirement, ...]:
             expected_state="true",
             provenance="P6 requires output provenance and request reconciliation.",
             protects=("P6",),
-            rationale=(
-                "The response must remain attributable even when semantically wrong."
-            ),
+            rationale=("The response must remain attributable even when semantically wrong."),
         ),
         Requirement(
             requirement_id="MA-08",
@@ -591,9 +553,7 @@ def requirements() -> tuple[Requirement, ...]:
             expected_state="independently recorded",
             provenance="C4 semantic canary, not P5/P6 mechanism proof.",
             protects=("SEMANTIC_CANARY",),
-            rationale=(
-                "Semantic disagreement is retained without becoming route/cache proof."
-            ),
+            rationale=("Semantic disagreement is retained without becoming route/cache proof."),
         ),
         Requirement(
             requirement_id="SC-02",
@@ -632,9 +592,7 @@ def contract(repo_root: Path) -> QualificationContract:
     return QualificationContract(
         contract_id="auragateway-c4-mechanism-admission-contract-v2",
         base_main_commit=BASE_MAIN_COMMIT,
-        design_principle=(
-            "SEMANTIC_CANARY_AND_MECHANISM_ADMISSION_ARE_INDEPENDENT_OBSERVATIONS"
-        ),
+        design_principle=("SEMANTIC_CANARY_AND_MECHANISM_ADMISSION_ARE_INDEPENDENT_OBSERVATIONS"),
         criteria_provenance="PREEXISTING_P5_P6_PROOF_OBLIGATIONS",
         mechanism_states=("QUALIFIED", "NOT_QUALIFIED", "AMBIGUOUS"),
         reusable_prefix_tokens=EXPECTED_REUSABLE_PREFIX_TOKENS,
@@ -693,9 +651,7 @@ def mechanism_observation(record: C4DispositionRecord) -> MechanismObservation:
                 EXPECTED_PREFIX_RECEIPT_SHA256,
             )
         ),
-        evidence_identity_bound=(
-            record.evidence_zip_sha256 == EXPECTED_EVIDENCE_ZIP_SHA256
-        ),
+        evidence_identity_bound=(record.evidence_zip_sha256 == EXPECTED_EVIDENCE_ZIP_SHA256),
         output_provenance_present=bool(
             record.canonical_parsed_object_sha256
             and record.worker_identity_cardinality == record.observation_count
