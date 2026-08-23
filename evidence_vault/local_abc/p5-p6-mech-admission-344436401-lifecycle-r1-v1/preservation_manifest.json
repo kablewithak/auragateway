@@ -1,0 +1,41 @@
+{
+    "schema_version":  "1.0.0",
+    "status":  "IMMUTABLE_EVIDENCE_INTAKE_COMPLETE",
+    "saved_version_id":  344436401,
+    "kaggle_url":  "https://www.kaggle.com/code/kabomolefe/ag-p5-p6-mechanism-tx-lifecycle-r1?scriptVersionId=344436401",
+    "transaction_id":  "27b11c47f159a5f1a16b00521c1fcb1a166284aff4630149a34f86b9df7d8cf1",
+    "issuer_merge_commit":  "af765fd19d2a486b2fe35e9989715430bd1f9f8c",
+    "runtime_payload_sha256":  "f5ad407ef49a6d39a79d2b3fc60b88581960a5c6b2d37f70cc93a4a76575659e",
+    "execution_disposition":  "CONSUMED",
+    "execution_outcome":  "FAILED",
+    "authorization_reusable":  false,
+    "new_execution_authorized":  false,
+    "observed_execution":  {
+                               "runtime_install_attempts":  1,
+                               "model_loads":  0,
+                               "worker_starts":  0,
+                               "model_requests":  0,
+                               "hidden_retries":  0,
+                               "p5_executed":  false,
+                               "p6_executed":  false
+                           },
+    "lifecycle":  {
+                      "authorization_live_sha256":  "33fb9e871ff871e82ceebc606499cf022af3cc7c463a9763744dbe07ce921674",
+                      "artifact_live_manifest_sha256":  "fc31835115113f9ebcf5eab02b7aa3e9a156b75d90eff54eba40d88dceb15e48",
+                      "platform_observation_sha256":  "5dceb0a7599f579df1ee5f3009305e73088365f271042096d9acc57692142565",
+                      "authorization_terminal_sha256":  "a0698f7adba4f872c426f78f6cc4a1a719db99d50546297ad7a15e8b218dfec0"
+                  },
+    "raw_kaggle":  {
+                       "evidence_zip_sha256":  "54b62507b30b6661ba949b29ccea855f8c1297f0d0d74341473157e69b3c3c37",
+                       "terminal_log_sha256":  "39e6516da1893d73f8ede16b0b31b48b7c877a92601066c66ae8b4f04fd8c81f",
+                       "duplicate_terminal_export_sha256":  "39e6516da1893d73f8ede16b0b31b48b7c877a92601066c66ae8b4f04fd8c81f",
+                       "executed_notebook_sha256":  "fd30572cc69946b0d29b1126f5a2b1678e69f512d47a8d0b894de39c3053109a"
+                   },
+    "custody":  {
+                    "lifecycle_file_count":  4,
+                    "raw_kaggle_file_count":  4,
+                    "immutable_source_files_modified":  false,
+                    "vault_copy_identity_verified":  true
+                },
+    "next_gate":  "AUTHOR_344436401_RECONCILIATION_AND_TARGET_RUNTIME_SYMLINK_POLICY_DESIGN"
+}
