@@ -31,7 +31,7 @@ from pydantic import (
     model_validator,
 )
 
-BASE_MAIN_COMMIT: Final = "92954e6e00cd144575a73d10f749feca24e7b735"
+BASE_MAIN_COMMIT: Final = "f63fa24ddd5fab038e5676a2c5792adf63c95d6c"
 BEHAVIOR_IMPLEMENTATION_MERGE_COMMIT: Final = "2b1841aee4397ae0c72bad6b2c9e7069835d8399"
 
 RECONCILIATION_RECORD_PATH: Final = Path(
@@ -53,11 +53,17 @@ RECONCILIATION_REVIEW_SHA256: Final = (
 
 LIFECYCLE_RECONCILIATION_PATH: Final = Path(
     "benchmarks/local_abc/"
-    "auragateway_p5_p6_mechanism_admission_successor_344405133_reconciliation_v1.json"
+    "auragateway_p5_p6_mechanism_admission_successor_344436401_reconciliation_v1.json"
 )
-LIFECYCLE_RECONCILIATION_GIT_BLOB: Final = "731a287dac3cc5ae947b5fd244395c6fd7339323"
+LIFECYCLE_RECONCILIATION_GIT_BLOB: Final = "6705324d30b06c7f361fb2b105873820720258d6"
+LIFECYCLE_DESIGN_PATH: Final = Path(
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_target_runtime_symlink_policy_and_"
+    "install_durability_design_v1.json"
+)
+LIFECYCLE_DESIGN_GIT_BLOB: Final = "7154d6831627e8ee14c29e1bb6a157ad78075dcb"
 PRE_REMEDIATION_RUNTIME_PAYLOAD_SHA256: Final = (
-    "ecf85755c1601452a7a63be81f2d536e1106229baed0a5e58bb38e85ed4adfd4"
+    "f5ad407ef49a6d39a79d2b3fc60b88581960a5c6b2d37f70cc93a4a76575659e"
 )
 
 BEHAVIOR_SOURCE_PATH: Final = Path(
@@ -120,21 +126,21 @@ RECORD_PATH: Final = Path(
 )
 
 LIVE_AUTHORIZATION_PATH: Final = Path(
-    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_authorization_live.json"
+    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r2_authorization_live.json"
 )
 LIVE_MANIFEST_PATH: Final = Path(
-    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_artifact_live_manifest.json"
+    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r2_artifact_live_manifest.json"
 )
 PLATFORM_OBSERVATION_PATH: Final = Path(
-    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_platform_observation_live.json"
+    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r2_platform_observation_live.json"
 )
 TERMINAL_RECEIPT_PATH: Final = Path(
-    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_authorization_terminal.json"
+    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r2_authorization_terminal.json"
 )
 
 AUTHORIZATION_SCOPE: Final = "P5_P6_MECHANISM_ADMISSION_SUCCESSOR_V1"
-NOTEBOOK_NAME: Final = "ag-p5-p6-mechanism-tx-lifecycle-r1"
-EVIDENCE_ZIP_NAME: Final = "ag-p5-p6-mechanism-successor-lifecycle-r1-evidence.zip"
+NOTEBOOK_NAME: Final = "ag-p5-p6-mechanism-tx-lifecycle-r2"
+EVIDENCE_ZIP_NAME: Final = "ag-p5-p6-mechanism-successor-lifecycle-r2-evidence.zip"
 MODEL_SNAPSHOT_SHA256: Final = "84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94"
 DEFAULT_WINDOW_MINUTES: Final = 180
 MAX_WINDOW_MINUTES: Final = 240
@@ -142,12 +148,12 @@ MAX_CONFIRMATION_AGE_MINUTES: Final = 15
 PLATFORM_CONTROL_ID: Final = "PERSIST_DURABLE_OBSERVATION_BEFORE_SAVE_AND_RUN_ALL"
 
 NEXT_GATE: Final = (
-    "MERGE_THEN_ISSUE_FRESH_P5_P6_MECHANISM_ADMISSION_TRANSACTION_BOUND_AUTHORIZATION_V1"
+    "MERGE_THEN_ISSUE_FRESH_P5_P6_MECHANISM_ADMISSION_TRANSACTION_BOUND_AUTHORIZATION_R2_V1"
 )
 NEXT_GATE_AFTER_ISSUE: Final = "PERSIST_DURABLE_PLATFORM_OBSERVATION_BEFORE_SAVE_AND_RUN_ALL"
 NEXT_GATE_AFTER_OBSERVATION: Final = "ONE_SAVE_AND_RUN_ALL_P5_P6_MECHANISM_ADMISSION_SUCCESSOR_V1"
 NEXT_GATE_AFTER_TERMINAL: Final = (
-    "PRESERVE_AND_RECONCILE_P5_P6_MECHANISM_ADMISSION_SUCCESSOR_EVIDENCE_V1"
+    "PRESERVE_AND_RECONCILE_P5_P6_MECHANISM_ADMISSION_SUCCESSOR_R2_EVIDENCE_V1"
 )
 
 HISTORICAL_UNTRACKED_PATHS: Final = (
@@ -170,6 +176,18 @@ HISTORICAL_UNTRACKED_PATHS: Final = (
     "observation_v1_live.json",
     "benchmarks/local_abc/"
     "auragateway_p5_p6_mechanism_admission_transaction_bound_authorization_v1_terminal.json",
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_"
+    "authorization_live.json",
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_"
+    "artifact_live_manifest.json",
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_"
+    "platform_observation_live.json",
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_"
+    "authorization_terminal.json",
 )
 
 STATIC_PATHS: Final = (SOURCE_PATH, TEMPLATE_PATH, TEST_PATH, REPORT_PATH, RUNBOOK_PATH)
@@ -643,49 +661,141 @@ def _validate_reconciliation(root: Path) -> None:
 
 
 def _validate_lifecycle_reconciliation(root: Path) -> None:
-    blob = _require_git(
+    reconciliation_blob = _require_git(
         root,
         "rev-parse",
         "HEAD:" + LIFECYCLE_RECONCILIATION_PATH.as_posix(),
     )
-    if blob != LIFECYCLE_RECONCILIATION_GIT_BLOB:
+    if reconciliation_blob != LIFECYCLE_RECONCILIATION_GIT_BLOB:
         raise AuthorizationIssuerError(
             "P5_P6_TX_AUTH_LIFECYCLE_RECONCILIATION_IDENTITY_DRIFT",
-            "target-runtime lifecycle reconciliation identity drifted",
+            "R2 lifecycle reconciliation identity drifted",
             LIFECYCLE_RECONCILIATION_PATH.as_posix(),
         )
+
+    design_blob = _require_git(
+        root,
+        "rev-parse",
+        "HEAD:" + LIFECYCLE_DESIGN_PATH.as_posix(),
+    )
+    if design_blob != LIFECYCLE_DESIGN_GIT_BLOB:
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_DESIGN_IDENTITY_DRIFT",
+            "R2 lifecycle remediation design identity drifted",
+            LIFECYCLE_DESIGN_PATH.as_posix(),
+        )
+
     payload = _read_required(root, LIFECYCLE_RECONCILIATION_PATH)
     record = json.loads(payload)
     if not isinstance(record, dict):
         raise AuthorizationIssuerError(
             "P5_P6_TX_AUTH_LIFECYCLE_RECONCILIATION_INVALID",
-            "target-runtime lifecycle reconciliation must be one JSON object",
+            "R2 lifecycle reconciliation must be one JSON object",
         )
+
     required = {
-        "status": "ACCEPTED_DIAGNOSTIC_OUTCOME_UNKNOWN",
-        "saved_version_id": 344405133,
+        "status": "ACCEPTED_DIAGNOSTIC_FAILURE",
+        "saved_version_id": 344436401,
         "runtime_payload_sha256": PRE_REMEDIATION_RUNTIME_PAYLOAD_SHA256,
-        "runtime_install_subprocess": "PASSED",
-        "first_supported_divergence": ("POST_INSTALL_TARGET_RUNTIME_SNAPSHOT_SYMLINK_REJECTION"),
-        "diagnostic_masking_established": True,
-        "baseline_venv_copies_enforced": False,
-        "cleanup_snapshot_protected_from_masking": False,
+        "runtime_install_attempted": True,
+        "runtime_install_attempts": 1,
+        "runtime_install_process_outcome_preserved": False,
+        "first_supported_divergence": (
+            "POST_INSTALL_TARGET_RUNTIME_SNAPSHOT_SYMLINK_REJECTION"
+        ),
+        "venv_copies_enforced": True,
+        "cleanup_primary_failure_preserved": True,
+        "model_loads": 0,
         "worker_starts": 0,
         "model_requests": 0,
         "p5_executed": False,
         "p6_executed": False,
+        "authorization_reusable": False,
         "new_execution_authorized": False,
         "next_gate": (
-            "IMPLEMENT_AND_MERGE_P5_P6_MECHANISM_ADMISSION_TARGET_RUNTIME_LIFECYCLE_REMEDIATION_V1"
+            "IMPLEMENT_AND_MERGE_P5_P6_MECHANISM_ADMISSION_TARGET_RUNTIME_"
+            "SYMLINK_AND_INSTALL_DURABILITY_REMEDIATION_V1"
         ),
     }
-    drift = tuple(key for key, expected in required.items() if record.get(key) != expected)
+    drift = tuple(
+        key
+        for key, expected in required.items()
+        if record.get(key) != expected
+    )
     if drift:
         raise AuthorizationIssuerError(
             "P5_P6_TX_AUTH_LIFECYCLE_RECONCILIATION_SEMANTIC_DRIFT",
-            "target-runtime lifecycle reconciliation drifted: " + ",".join(drift),
+            "R2 lifecycle reconciliation drifted: " + ",".join(drift),
         )
 
+    candidate = record.get("static_root_cause_candidate")
+    if not isinstance(candidate, dict):
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_RECONCILIATION_SEMANTIC_DRIFT",
+            "static root-cause candidate is missing",
+        )
+    if candidate.get("exact_kaggle_member_path_claimed") is not False:
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_RECONCILIATION_SEMANTIC_DRIFT",
+            "reconciliation overclaims the exact Kaggle symlink path",
+        )
+
+    design_payload = _read_required(root, LIFECYCLE_DESIGN_PATH)
+    design = json.loads(design_payload)
+    if not isinstance(design, dict):
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_DESIGN_INVALID",
+            "R2 lifecycle design must be one JSON object",
+        )
+    if design.get("status") != "APPROVED_DESIGN_NOT_IMPLEMENTED":
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_DESIGN_SEMANTIC_DRIFT",
+            "R2 lifecycle design status drifted",
+        )
+    if design.get("next_gate") != required["next_gate"]:
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_DESIGN_SEMANTIC_DRIFT",
+            "R2 lifecycle design next gate drifted",
+        )
+
+    requirements = design.get("requirements")
+    if not isinstance(requirements, list):
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_DESIGN_SEMANTIC_DRIFT",
+            "R2 lifecycle design requirements are missing",
+        )
+    requirement_ids = [
+        item.get("id")
+        for item in requirements
+        if isinstance(item, dict)
+    ]
+    if requirement_ids != ["R1", "R2", "R3", "R4", "R5"]:
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_DESIGN_SEMANTIC_DRIFT",
+            "R2 lifecycle design requirement IDs drifted",
+        )
+
+    frozen = design.get("frozen_boundaries")
+    if not isinstance(frozen, dict):
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_DESIGN_SEMANTIC_DRIFT",
+            "R2 lifecycle frozen boundary is missing",
+        )
+    if frozen.get("p5_semantics") != "UNCHANGED":
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_DESIGN_SEMANTIC_DRIFT",
+            "P5 semantics were not frozen",
+        )
+    if frozen.get("p6_semantics") != "UNCHANGED":
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_DESIGN_SEMANTIC_DRIFT",
+            "P6 semantics were not frozen",
+        )
+    if frozen.get("new_execution_authorized") is not False:
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_DESIGN_SEMANTIC_DRIFT",
+            "R2 lifecycle design accidentally authorizes execution",
+        )
 
 def _validate_behavior_authorities(root: Path) -> None:
     for relative, expected in (
@@ -718,6 +828,237 @@ TRANSACTION_CONTEXT_FUNCTION: Final = r"""def require_transaction_bound_context(
         "manual_confirmation_json_files": 0,
         "runtime_execution_authorized": True,
     }
+"""
+
+
+TARGET_RUNTIME_SNAPSHOT_FUNCTIONS: Final = """def _structural_target_runtime_symlink_contract(
+    member: Path,
+    raw_target: str,
+    resolved_target: Path,
+    target_root_resolved: Path,
+    target_is_real_directory: bool,
+) -> bool:
+    expected_member = TARGET_ROOT / "lib64"
+    expected_target = target_root_resolved / "lib"
+    if member != expected_member:
+        return False
+    if raw_target != "lib":
+        return False
+    if not target_is_real_directory:
+        return False
+    if resolved_target != expected_target:
+        return False
+    try:
+        resolved_target.relative_to(target_root_resolved)
+    except ValueError:
+        return False
+    return True
+
+
+def _is_allowed_target_runtime_structural_symlink(member: Path) -> bool:
+    expected_target = TARGET_ROOT / "lib"
+    if member != TARGET_ROOT / "lib64":
+        return False
+    if not expected_target.is_dir() or expected_target.is_symlink():
+        return False
+    try:
+        raw_target = os.readlink(member)
+        target_root_resolved = TARGET_ROOT.resolve(strict=True)
+        resolved_target = member.resolve(strict=True)
+    except (OSError, RuntimeError):
+        return False
+    return _structural_target_runtime_symlink_contract(
+        member,
+        raw_target,
+        resolved_target,
+        target_root_resolved,
+        True,
+    )
+
+
+def directory_snapshot(path: Path) -> dict[str, object]:
+    if not path.exists():
+        return {
+            "exists": False,
+            "file_count": 0,
+            "size_bytes": 0,
+        }
+    if not path.is_dir() or path.is_symlink():
+        raise RuntimeError("target runtime path is not one real directory")
+    file_count = 0
+    size_bytes = 0
+    for member in path.rglob("*"):
+        if member.is_symlink():
+            if _is_allowed_target_runtime_structural_symlink(member):
+                continue
+            raise RuntimeError("target runtime contains a symbolic link")
+        if member.is_dir():
+            continue
+        if not stat.S_ISREG(member.stat().st_mode):
+            raise RuntimeError("target runtime contains a non-regular member")
+        file_count += 1
+        size_bytes += member.stat().st_size
+    return {
+        "exists": True,
+        "file_count": file_count,
+        "size_bytes": size_bytes,
+    }
+"""
+
+INSTALL_RUNTIME_FUNCTION: Final = """def install_runtime(
+    wheelhouse: Path,
+    counters: dict[str, int],
+) -> dict[str, object]:
+    if TARGET_ROOT.exists():
+        raise RuntimeError("target runtime already exists")
+    wheels = wheelhouse / "wheels"
+    if not wheels.is_dir() or wheels.is_symlink():
+        raise RuntimeError("wheelhouse wheels directory is missing or unsafe")
+
+    create_process = run_bounded_process(
+        "target_environment_creation",
+        [
+            sys.executable,
+            "-m",
+            "venv",
+            "--without-pip",
+            "--copies",
+            str(TARGET_ROOT),
+        ],
+        timeout_seconds=120.0,
+        environment={**os.environ},
+        capture_root=SCRATCH_ROOT / "target_environment_logs",
+    )
+    if create_process["process_outcome"] != "PASSED":
+        raise DiagnosticFailure(
+            "MODEL_CONSTRUCTION_FAILURE",
+            "isolated target environment creation failed",
+        )
+    if not TARGET_PYTHON.is_file():
+        raise DiagnosticFailure(
+            "MODEL_CONSTRUCTION_FAILURE",
+            "isolated target Python executable is unavailable",
+        )
+
+    argv = [
+        sys.executable,
+        "-m",
+        "pip",
+        "--isolated",
+        "--disable-pip-version-check",
+        "--python",
+        str(TARGET_ROOT),
+        "install",
+        "--no-index",
+        "--no-cache-dir",
+        "--no-deps",
+        "--find-links",
+        str(wheels),
+        "--require-hashes",
+        "-r",
+        str(wheelhouse / "requirements.lock.txt"),
+    ]
+    environment = {**os.environ}
+    environment.pop("PIP_INDEX_URL", None)
+    environment.pop("PIP_EXTRA_INDEX_URL", None)
+    environment.update(
+        {
+            "PIP_NO_INDEX": "1",
+            "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+            "PIP_NO_CACHE_DIR": "1",
+        }
+    )
+
+    requirements_lock_sha256 = file_sha256(
+        wheelhouse / "requirements.lock.txt"
+    )
+    wheelhouse_manifest_sha256 = file_sha256(
+        wheelhouse / "sha256_manifest.json"
+    )
+    before_disk = disk_snapshot(WORK_ROOT)
+    consume_actions(counters, "runtime_install_attempts")
+    process = run_bounded_process(
+        "offline_target_runtime_install",
+        argv,
+        timeout_seconds=1800.0,
+        environment=environment,
+        capture_root=SCRATCH_ROOT / "install_logs",
+    )
+
+    report_path = OUTPUT_ROOT / "runtime_install_report_v1.json"
+    report = {
+        **process,
+        "report_id": (
+            "auragateway-p5-p6-exact-runtime-requalification-install-v1"
+        ),
+        "executor": "BASE_PYTHON_PIP_VENV_TARGET",
+        "find_links_scope": "wheelhouse/wheels",
+        "requirements_lock_sha256": requirements_lock_sha256,
+        "wheelhouse_manifest_sha256": wheelhouse_manifest_sha256,
+        "working_disk_before": before_disk,
+        "working_disk_after": None,
+        "target_runtime_after": None,
+        "target_python": str(TARGET_PYTHON),
+        "network_access_requested": False,
+        "hidden_retry_count": 0,
+        "root_cause_review_required": process["status"] != "PASSED",
+        "post_install_snapshot_status": "PENDING",
+        "post_install_snapshot_error_type": None,
+        "post_install_snapshot_safe_message": None,
+    }
+    write_json(report_path, report)
+
+    outcome = process["process_outcome"]
+    if outcome != "PASSED":
+        report = {
+            **report,
+            "post_install_snapshot_status": (
+                "NOT_ATTEMPTED_PROCESS_FAILED"
+            ),
+        }
+        write_json(report_path, report)
+
+    if outcome == "LAUNCH_ERROR":
+        raise DiagnosticFailure(
+            "MODEL_CONSTRUCTION_FAILURE",
+            "offline target-runtime installer could not be launched",
+        )
+    if outcome == "TIMEOUT":
+        raise DiagnosticFailure(
+            "MODEL_CONSTRUCTION_FAILURE",
+            "offline target-runtime installation timed out",
+        )
+    if outcome == "NONZERO_EXIT":
+        raise DiagnosticFailure(
+            "MODEL_CONSTRUCTION_FAILURE",
+            "offline target-runtime installation returned nonzero",
+        )
+
+    try:
+        working_disk_after = disk_snapshot(WORK_ROOT)
+        target_runtime_after = directory_snapshot(TARGET_ROOT)
+    except (OSError, RuntimeError) as error:
+        report = {
+            **report,
+            "status": "FAILED",
+            "root_cause_review_required": True,
+            "post_install_snapshot_status": "FAILED",
+            "post_install_snapshot_error_type": type(error).__name__,
+            "post_install_snapshot_safe_message": sanitize_excerpt(str(error)),
+        }
+        write_json(report_path, report)
+        raise
+
+    report = {
+        **report,
+        "working_disk_after": working_disk_after,
+        "target_runtime_after": target_runtime_after,
+        "post_install_snapshot_status": "PASSED",
+        "post_install_snapshot_error_type": None,
+        "post_install_snapshot_safe_message": None,
+    }
+    write_json(report_path, report)
+    return report
 """
 
 
@@ -959,6 +1300,25 @@ def build_runtime_payload(root: Path) -> bytes:
         "cleanup first-failure preservation",
     )
 
+    source = _replace_between(
+        source,
+        "\ndef directory_snapshot(path: Path) -> dict[str, object]:",
+        "\n\ndef install_failure_signals(",
+        "\n" + TARGET_RUNTIME_SNAPSHOT_FUNCTIONS.rstrip() + "\n\n",
+        "target-runtime structural symlink policy",
+    )
+    source = _replace_between(
+        source,
+        (
+            "\ndef install_runtime("
+            "wheelhouse: Path, counters: dict[str, int]"
+            ") -> dict[str, object]:"
+        ),
+        "\n\ndef target_library_directories()",
+        "\n" + INSTALL_RUNTIME_FUNCTION.rstrip() + "\n\n",
+        "install-process diagnostic durability",
+    )
+
     for token in (
         "AUTHORIZATION_CONTROL_NOTEBOOK_NAME",
         "AUTHORIZATION_CONTROL_OUTPUT_DIRECTORY",
@@ -994,6 +1354,9 @@ def build_runtime_payload(root: Path) -> bytes:
         '"raw_output_logged": False',
         '"authorization_specific_kaggle_inputs": 0',
         '"--copies"',
+        "_is_allowed_target_runtime_structural_symlink",
+        '"post_install_snapshot_status": "PENDING"',
+        '"post_install_snapshot_status": "FAILED"',
         'failure["secondary_scratch_cleanup_failure"] = True',
     )
     for token in required_tokens:
@@ -1046,9 +1409,15 @@ def _static_review(root: Path, runtime_payload: bytes) -> dict[str, object]:
         "maximum_hidden_retries": 0,
         "mechanism_semantics_preserved": True,
         "target_runtime_venv_copies_enforced": True,
+        "target_runtime_structural_symlink_policy": "EXACT_LIB64_TO_LIB_ONLY",
+        "install_process_outcome_persisted_before_snapshot": True,
+        "install_report_enrichment_monotonic": True,
         "cleanup_primary_failure_preserved": True,
+        "historical_untracked_path_count": 12,
+        "live_lifecycle_namespace": "R2",
         "pre_remediation_runtime_payload_sha256": PRE_REMEDIATION_RUNTIME_PAYLOAD_SHA256,
         "lifecycle_reconciliation_git_blob": LIFECYCLE_RECONCILIATION_GIT_BLOB,
+        "lifecycle_design_git_blob": LIFECYCLE_DESIGN_GIT_BLOB,
         "p5_acceptance_relaxed": False,
         "p6_acceptance_relaxed": False,
         "live_authorization_issued": False,
@@ -1083,9 +1452,15 @@ def _static_record(
         "maximum_hidden_retries": 0,
         "mechanism_semantics_preserved": True,
         "target_runtime_venv_copies_enforced": True,
+        "target_runtime_structural_symlink_policy": "EXACT_LIB64_TO_LIB_ONLY",
+        "install_process_outcome_persisted_before_snapshot": True,
+        "install_report_enrichment_monotonic": True,
         "cleanup_primary_failure_preserved": True,
+        "historical_untracked_path_count": 12,
+        "live_lifecycle_namespace": "R2",
         "pre_remediation_runtime_payload_sha256": PRE_REMEDIATION_RUNTIME_PAYLOAD_SHA256,
         "lifecycle_reconciliation_git_blob": LIFECYCLE_RECONCILIATION_GIT_BLOB,
+        "lifecycle_design_git_blob": LIFECYCLE_DESIGN_GIT_BLOB,
         "p5_requalified": False,
         "p6_requalified": False,
         "live_authorization_issued": False,
@@ -1168,7 +1543,12 @@ def validate_static(root: Path) -> dict[str, object]:
         "manual_confirmation_json_files": 0,
         "mechanism_semantics_preserved": True,
         "target_runtime_venv_copies_enforced": True,
+        "target_runtime_structural_symlink_policy": "EXACT_LIB64_TO_LIB_ONLY",
+        "install_process_outcome_persisted_before_snapshot": True,
+        "install_report_enrichment_monotonic": True,
         "cleanup_primary_failure_preserved": True,
+        "historical_untracked_path_count": 12,
+        "live_lifecycle_namespace": "R2",
         "live_authorization_issued": False,
         "runtime_execution_authorized": False,
         "kaggle_execution_performed": False,

@@ -21,8 +21,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Final
 
-NOTEBOOK_NAME: Final = "ag-p5-p6-mechanism-tx-lifecycle-r1"
-SOURCE_MAIN_COMMIT: Final = "92954e6e00cd144575a73d10f749feca24e7b735"
+NOTEBOOK_NAME: Final = "ag-p5-p6-mechanism-tx-lifecycle-r2"
+SOURCE_MAIN_COMMIT: Final = "f63fa24ddd5fab038e5676a2c5792adf63c95d6c"
 IMPLEMENTATION_REVIEW_SHA256: Final = (
     "3a5eebca0bb53439309456b19464fb7b0a707e6c0274e3fae2144fa9ccb35330"
 )
@@ -59,7 +59,7 @@ TARGET_ROOT = SCRATCH_ROOT / "target_runtime"
 TARGET_SITE = TARGET_ROOT / "lib" / "python3.12" / "site-packages"
 TARGET_PYTHON = TARGET_ROOT / "bin" / "python"
 LOG_ROOT = OUTPUT_ROOT / "worker_logs"
-EVIDENCE_ZIP = WORK_ROOT / "ag-p5-p6-mechanism-successor-lifecycle-r1-evidence.zip"
+EVIDENCE_ZIP = WORK_ROOT / "ag-p5-p6-mechanism-successor-lifecycle-r2-evidence.zip"
 
 RUNTIME_OUTPUT_DIRECTORY = "auragateway_preflight_v3_exact_runtime_wheelhouse_v1"
 MODEL_REVISION = "7ae557604adf67be50417f59c2c2f167def9a775"
@@ -884,6 +884,51 @@ def disk_snapshot(path: Path) -> dict[str, int]:
     }
 
 
+def _structural_target_runtime_symlink_contract(
+    member: Path,
+    raw_target: str,
+    resolved_target: Path,
+    target_root_resolved: Path,
+    target_is_real_directory: bool,
+) -> bool:
+    expected_member = TARGET_ROOT / "lib64"
+    expected_target = target_root_resolved / "lib"
+    if member != expected_member:
+        return False
+    if raw_target != "lib":
+        return False
+    if not target_is_real_directory:
+        return False
+    if resolved_target != expected_target:
+        return False
+    try:
+        resolved_target.relative_to(target_root_resolved)
+    except ValueError:
+        return False
+    return True
+
+
+def _is_allowed_target_runtime_structural_symlink(member: Path) -> bool:
+    expected_target = TARGET_ROOT / "lib"
+    if member != TARGET_ROOT / "lib64":
+        return False
+    if not expected_target.is_dir() or expected_target.is_symlink():
+        return False
+    try:
+        raw_target = os.readlink(member)
+        target_root_resolved = TARGET_ROOT.resolve(strict=True)
+        resolved_target = member.resolve(strict=True)
+    except (OSError, RuntimeError):
+        return False
+    return _structural_target_runtime_symlink_contract(
+        member,
+        raw_target,
+        resolved_target,
+        target_root_resolved,
+        True,
+    )
+
+
 def directory_snapshot(path: Path) -> dict[str, object]:
     if not path.exists():
         return {
@@ -897,6 +942,8 @@ def directory_snapshot(path: Path) -> dict[str, object]:
     size_bytes = 0
     for member in path.rglob("*"):
         if member.is_symlink():
+            if _is_allowed_target_runtime_structural_symlink(member):
+                continue
             raise RuntimeError("target runtime contains a symbolic link")
         if member.is_dir():
             continue
@@ -909,6 +956,7 @@ def directory_snapshot(path: Path) -> dict[str, object]:
         "file_count": file_count,
         "size_bytes": size_bytes,
     }
+
 
 
 def install_failure_signals(stdout_tail: str, stderr_tail: str) -> tuple[str, ...]:
@@ -1011,7 +1059,10 @@ def run_bounded_process(
     }
 
 
-def install_runtime(wheelhouse: Path, counters: dict[str, int]) -> dict[str, object]:
+def install_runtime(
+    wheelhouse: Path,
+    counters: dict[str, int],
+) -> dict[str, object]:
     if TARGET_ROOT.exists():
         raise RuntimeError("target runtime already exists")
     wheels = wheelhouse / "wheels"
@@ -1071,6 +1122,13 @@ def install_runtime(wheelhouse: Path, counters: dict[str, int]) -> dict[str, obj
             "PIP_NO_CACHE_DIR": "1",
         }
     )
+
+    requirements_lock_sha256 = file_sha256(
+        wheelhouse / "requirements.lock.txt"
+    )
+    wheelhouse_manifest_sha256 = file_sha256(
+        wheelhouse / "sha256_manifest.json"
+    )
     before_disk = disk_snapshot(WORK_ROOT)
     consume_actions(counters, "runtime_install_attempts")
     process = run_bounded_process(
@@ -1080,27 +1138,40 @@ def install_runtime(wheelhouse: Path, counters: dict[str, int]) -> dict[str, obj
         environment=environment,
         capture_root=SCRATCH_ROOT / "install_logs",
     )
+
+    report_path = OUTPUT_ROOT / "runtime_install_report_v1.json"
     report = {
         **process,
-        "report_id": "auragateway-p5-p6-exact-runtime-requalification-install-v1",
+        "report_id": (
+            "auragateway-p5-p6-exact-runtime-requalification-install-v1"
+        ),
         "executor": "BASE_PYTHON_PIP_VENV_TARGET",
         "find_links_scope": "wheelhouse/wheels",
-        "requirements_lock_sha256": file_sha256(
-            wheelhouse / "requirements.lock.txt"
-        ),
-        "wheelhouse_manifest_sha256": file_sha256(
-            wheelhouse / "sha256_manifest.json"
-        ),
+        "requirements_lock_sha256": requirements_lock_sha256,
+        "wheelhouse_manifest_sha256": wheelhouse_manifest_sha256,
         "working_disk_before": before_disk,
-        "working_disk_after": disk_snapshot(WORK_ROOT),
-        "target_runtime_after": directory_snapshot(TARGET_ROOT),
+        "working_disk_after": None,
+        "target_runtime_after": None,
         "target_python": str(TARGET_PYTHON),
         "network_access_requested": False,
         "hidden_retry_count": 0,
         "root_cause_review_required": process["status"] != "PASSED",
+        "post_install_snapshot_status": "PENDING",
+        "post_install_snapshot_error_type": None,
+        "post_install_snapshot_safe_message": None,
     }
-    write_json(OUTPUT_ROOT / "runtime_install_report_v1.json", report)
+    write_json(report_path, report)
+
     outcome = process["process_outcome"]
+    if outcome != "PASSED":
+        report = {
+            **report,
+            "post_install_snapshot_status": (
+                "NOT_ATTEMPTED_PROCESS_FAILED"
+            ),
+        }
+        write_json(report_path, report)
+
     if outcome == "LAUNCH_ERROR":
         raise DiagnosticFailure(
             "MODEL_CONSTRUCTION_FAILURE",
@@ -1116,7 +1187,33 @@ def install_runtime(wheelhouse: Path, counters: dict[str, int]) -> dict[str, obj
             "MODEL_CONSTRUCTION_FAILURE",
             "offline target-runtime installation returned nonzero",
         )
+
+    try:
+        working_disk_after = disk_snapshot(WORK_ROOT)
+        target_runtime_after = directory_snapshot(TARGET_ROOT)
+    except (OSError, RuntimeError) as error:
+        report = {
+            **report,
+            "status": "FAILED",
+            "root_cause_review_required": True,
+            "post_install_snapshot_status": "FAILED",
+            "post_install_snapshot_error_type": type(error).__name__,
+            "post_install_snapshot_safe_message": sanitize_excerpt(str(error)),
+        }
+        write_json(report_path, report)
+        raise
+
+    report = {
+        **report,
+        "working_disk_after": working_disk_after,
+        "target_runtime_after": target_runtime_after,
+        "post_install_snapshot_status": "PASSED",
+        "post_install_snapshot_error_type": None,
+        "post_install_snapshot_safe_message": None,
+    }
+    write_json(report_path, report)
     return report
+
 
 
 def target_library_directories() -> tuple[Path, ...]:
