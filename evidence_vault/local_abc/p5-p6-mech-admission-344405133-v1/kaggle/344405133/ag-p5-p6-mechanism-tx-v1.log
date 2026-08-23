@@ -1,0 +1,49 @@
+7.4s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.4s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.4s 3 0.00s - to python to disable frozen modules.
+7.4s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+8.0s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.0s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.0s 7 0.00s - to python to disable frozen modules.
+8.0s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+281.1s 9 Traceback (most recent call last):
+281.1s 10 File "<string>", line 1, in <module>
+281.1s 11 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+281.1s 12 raise_for_execution_errors(nb, output_path)
+281.1s 13 File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+281.1s 14 raise error
+281.1s 15 papermill.exceptions.PapermillExecutionError:
+281.1s 16 ---------------------------------------------------------------------------
+281.1s 17 Exception encountered at "In [1]":
+281.1s 18 ---------------------------------------------------------------------------
+281.1s 19 RuntimeError                              Traceback (most recent call last)
+281.1s 20 /tmp/ipykernel_23/1035987002.py in <cell line: 0>()
+281.1s 21 258
+281.1s 22 259 if __name__ == "__main__":
+281.1s 23 --> 260     execute_bound_payload()
+281.1s 24 
+281.1s 25 /tmp/ipykernel_23/1035987002.py in execute_bound_payload()
+281.1s 26 237     }
+281.1s 27 238     try:
+281.1s 28 --> 239         exec(
+281.1s 29 240             compile(
+281.1s 30 241                 runtime_payload,
+281.1s 31 
+281.1s 32 <p5-p6-mechanism-admission-runtime> in <module>
+281.1s 33 
+281.1s 34 <p5-p6-mechanism-admission-runtime> in main()
+281.1s 35 
+281.1s 36 <p5-p6-mechanism-admission-runtime> in cleanup_scratch()
+281.1s 37 
+281.1s 38 <p5-p6-mechanism-admission-runtime> in directory_snapshot(path)
+281.1s 39 
+281.1s 40 RuntimeError: target runtime contains a symbolic link
+281.1s 41 
+283.4s 42 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+283.4s 43 cells[i][c] = re.sub('\\\\\|', '|', cell)
+283.6s 44 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+283.6s 45 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+284.2s 46 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+284.4s 47 [NbConvertApp] Writing 222810 bytes to __notebook__.ipynb
+286.7s 48 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+287.5s 49 [NbConvertApp] Writing 518312 bytes to __results__.html

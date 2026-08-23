@@ -1,0 +1,1 @@
+{"exception_type":"RuntimeError","safe_message":"target runtime contains a symbolic link","status":"PRIMARY_FAILURE_CAPTURED","transaction_id":"c657f12dbbc9e6ec4c4490f2d1c9cc492912b3a04912dd4967f7b988a7761903"}
