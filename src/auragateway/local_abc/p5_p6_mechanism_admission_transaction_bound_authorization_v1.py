@@ -31,7 +31,7 @@ from pydantic import (
     model_validator,
 )
 
-BASE_MAIN_COMMIT: Final = "487e6b3d9f12ed8cc7b07c53cd8a0dd74e9e24b4"
+BASE_MAIN_COMMIT: Final = "92954e6e00cd144575a73d10f749feca24e7b735"
 BEHAVIOR_IMPLEMENTATION_MERGE_COMMIT: Final = "2b1841aee4397ae0c72bad6b2c9e7069835d8399"
 
 RECONCILIATION_RECORD_PATH: Final = Path(
@@ -49,6 +49,15 @@ RECONCILIATION_REVIEW_PATH: Final = Path(
 )
 RECONCILIATION_REVIEW_SHA256: Final = (
     "e7068ee5464435b7ac593efb09a5c408000703ca252a5780e1a6b110105030bf"
+)
+
+LIFECYCLE_RECONCILIATION_PATH: Final = Path(
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_mechanism_admission_successor_344405133_reconciliation_v1.json"
+)
+LIFECYCLE_RECONCILIATION_GIT_BLOB: Final = "731a287dac3cc5ae947b5fd244395c6fd7339323"
+PRE_REMEDIATION_RUNTIME_PAYLOAD_SHA256: Final = (
+    "ecf85755c1601452a7a63be81f2d536e1106229baed0a5e58bb38e85ed4adfd4"
 )
 
 BEHAVIOR_SOURCE_PATH: Final = Path(
@@ -111,26 +120,21 @@ RECORD_PATH: Final = Path(
 )
 
 LIVE_AUTHORIZATION_PATH: Final = Path(
-    "benchmarks/local_abc/"
-    "auragateway_p5_p6_mechanism_admission_transaction_bound_authorization_v1_live.json"
+    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_authorization_live.json"
 )
 LIVE_MANIFEST_PATH: Final = Path(
-    "benchmarks/local_abc/"
-    "auragateway_p5_p6_mechanism_admission_transaction_bound_artifact_v1_live_manifest.json"
+    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_artifact_live_manifest.json"
 )
 PLATFORM_OBSERVATION_PATH: Final = Path(
-    "benchmarks/local_abc/"
-    "auragateway_p5_p6_mechanism_admission_transaction_bound_platform_"
-    "observation_v1_live.json"
+    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_platform_observation_live.json"
 )
 TERMINAL_RECEIPT_PATH: Final = Path(
-    "benchmarks/local_abc/"
-    "auragateway_p5_p6_mechanism_admission_transaction_bound_authorization_v1_terminal.json"
+    "benchmarks/local_abc/auragateway_p5_p6_mechanism_admission_transaction_bound_lifecycle_r1_authorization_terminal.json"
 )
 
 AUTHORIZATION_SCOPE: Final = "P5_P6_MECHANISM_ADMISSION_SUCCESSOR_V1"
-NOTEBOOK_NAME: Final = "ag-p5-p6-mechanism-tx-v1"
-EVIDENCE_ZIP_NAME: Final = "ag-p5-p6-mechanism-successor-v1-evidence.zip"
+NOTEBOOK_NAME: Final = "ag-p5-p6-mechanism-tx-lifecycle-r1"
+EVIDENCE_ZIP_NAME: Final = "ag-p5-p6-mechanism-successor-lifecycle-r1-evidence.zip"
 MODEL_SNAPSHOT_SHA256: Final = "84969f6be2ed8c6685e04010f27b43fd917c5dc4387300c9224104b5d3b31c94"
 DEFAULT_WINDOW_MINUTES: Final = 180
 MAX_WINDOW_MINUTES: Final = 240
@@ -157,6 +161,15 @@ HISTORICAL_UNTRACKED_PATHS: Final = (
     "v1_terminal.json",
     "benchmarks/local_abc/"
     "auragateway_c4_paragraph_order_behavioral_differential_platform_observation_v1_live.json",
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_mechanism_admission_transaction_bound_authorization_v1_live.json",
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_mechanism_admission_transaction_bound_artifact_v1_live_manifest.json",
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_mechanism_admission_transaction_bound_platform_"
+    "observation_v1_live.json",
+    "benchmarks/local_abc/"
+    "auragateway_p5_p6_mechanism_admission_transaction_bound_authorization_v1_terminal.json",
 )
 
 STATIC_PATHS: Final = (SOURCE_PATH, TEMPLATE_PATH, TEST_PATH, REPORT_PATH, RUNBOOK_PATH)
@@ -629,6 +642,51 @@ def _validate_reconciliation(root: Path) -> None:
         )
 
 
+def _validate_lifecycle_reconciliation(root: Path) -> None:
+    blob = _require_git(
+        root,
+        "rev-parse",
+        "HEAD:" + LIFECYCLE_RECONCILIATION_PATH.as_posix(),
+    )
+    if blob != LIFECYCLE_RECONCILIATION_GIT_BLOB:
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_RECONCILIATION_IDENTITY_DRIFT",
+            "target-runtime lifecycle reconciliation identity drifted",
+            LIFECYCLE_RECONCILIATION_PATH.as_posix(),
+        )
+    payload = _read_required(root, LIFECYCLE_RECONCILIATION_PATH)
+    record = json.loads(payload)
+    if not isinstance(record, dict):
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_RECONCILIATION_INVALID",
+            "target-runtime lifecycle reconciliation must be one JSON object",
+        )
+    required = {
+        "status": "ACCEPTED_DIAGNOSTIC_OUTCOME_UNKNOWN",
+        "saved_version_id": 344405133,
+        "runtime_payload_sha256": PRE_REMEDIATION_RUNTIME_PAYLOAD_SHA256,
+        "runtime_install_subprocess": "PASSED",
+        "first_supported_divergence": ("POST_INSTALL_TARGET_RUNTIME_SNAPSHOT_SYMLINK_REJECTION"),
+        "diagnostic_masking_established": True,
+        "baseline_venv_copies_enforced": False,
+        "cleanup_snapshot_protected_from_masking": False,
+        "worker_starts": 0,
+        "model_requests": 0,
+        "p5_executed": False,
+        "p6_executed": False,
+        "new_execution_authorized": False,
+        "next_gate": (
+            "IMPLEMENT_AND_MERGE_P5_P6_MECHANISM_ADMISSION_TARGET_RUNTIME_LIFECYCLE_REMEDIATION_V1"
+        ),
+    }
+    drift = tuple(key for key, expected in required.items() if record.get(key) != expected)
+    if drift:
+        raise AuthorizationIssuerError(
+            "P5_P6_TX_AUTH_LIFECYCLE_RECONCILIATION_SEMANTIC_DRIFT",
+            "target-runtime lifecycle reconciliation drifted: " + ",".join(drift),
+        )
+
+
 def _validate_behavior_authorities(root: Path) -> None:
     for relative, expected in (
         (BEHAVIOR_SOURCE_PATH, BEHAVIOR_SOURCE_SHA256),
@@ -843,6 +901,63 @@ def build_runtime_payload(root: Path) -> bytes:
         "        p5_observations: dict[str, object] = {",
         "P5 observation dictionary typing",
     )
+    source = _replace_once(
+        source,
+        '            "--without-pip",\n            str(TARGET_ROOT),',
+        '            "--without-pip",\n            "--copies",\n            str(TARGET_ROOT),',
+        "target-runtime venv copies",
+    )
+    source = _replace_once(
+        source,
+        (
+            "def cleanup_scratch() -> dict[str, object]:\n"
+            "    before = directory_snapshot(SCRATCH_ROOT)\n"
+            '    status = "PASSED"\n'
+            "    error_type = None\n"
+            "    safe_message = None\n"
+            "    try:"
+        ),
+        (
+            "def cleanup_scratch() -> dict[str, object]:\n"
+            "    before: dict[str, object]\n"
+            '    status = "PASSED"\n'
+            "    error_type: str | None = None\n"
+            "    safe_message: str | None = None\n"
+            "    try:\n"
+            "        before = directory_snapshot(SCRATCH_ROOT)\n"
+            "    except (OSError, RuntimeError) as error:\n"
+            "        before = {\n"
+            '            "exists": True,\n'
+            '            "file_count": 0,\n'
+            '            "size_bytes": 0,\n'
+            '            "snapshot_failed": True,\n'
+            "        }\n"
+            '        status = "FAILED"\n'
+            "        error_type = type(error).__name__\n"
+            "        safe_message = sanitize_excerpt(str(error))\n"
+            "    try:"
+        ),
+        "cleanup snapshot failure containment",
+    )
+    source = _replace_once(
+        source,
+        (
+            "    except OSError as error:\n"
+            '        status = "FAILED"\n'
+            "        error_type = type(error).__name__\n"
+            "        safe_message = sanitize_excerpt(str(error))\n"
+            "    report = {"
+        ),
+        (
+            "    except OSError as error:\n"
+            '        status = "FAILED"\n'
+            "        if error_type is None:\n"
+            "            error_type = type(error).__name__\n"
+            "            safe_message = sanitize_excerpt(str(error))\n"
+            "    report = {"
+        ),
+        "cleanup first-failure preservation",
+    )
 
     for token in (
         "AUTHORIZATION_CONTROL_NOTEBOOK_NAME",
@@ -878,6 +993,8 @@ def build_runtime_payload(root: Path) -> bytes:
         'if finish_reason != "stop":',
         '"raw_output_logged": False',
         '"authorization_specific_kaggle_inputs": 0',
+        '"--copies"',
+        'failure["secondary_scratch_cleanup_failure"] = True',
     )
     for token in required_tokens:
         if token not in source:
@@ -892,6 +1009,7 @@ def build_runtime_payload(root: Path) -> bytes:
 
 def _static_review(root: Path, runtime_payload: bytes) -> dict[str, object]:
     _validate_reconciliation(root)
+    _validate_lifecycle_reconciliation(root)
     _validate_behavior_authorities(root)
     return {
         "schema_version": "1.0.0",
@@ -927,6 +1045,10 @@ def _static_review(root: Path, runtime_payload: bytes) -> dict[str, object]:
         "maximum_model_loads": 3,
         "maximum_hidden_retries": 0,
         "mechanism_semantics_preserved": True,
+        "target_runtime_venv_copies_enforced": True,
+        "cleanup_primary_failure_preserved": True,
+        "pre_remediation_runtime_payload_sha256": PRE_REMEDIATION_RUNTIME_PAYLOAD_SHA256,
+        "lifecycle_reconciliation_git_blob": LIFECYCLE_RECONCILIATION_GIT_BLOB,
         "p5_acceptance_relaxed": False,
         "p6_acceptance_relaxed": False,
         "live_authorization_issued": False,
@@ -960,6 +1082,10 @@ def _static_record(
         "maximum_model_loads": 3,
         "maximum_hidden_retries": 0,
         "mechanism_semantics_preserved": True,
+        "target_runtime_venv_copies_enforced": True,
+        "cleanup_primary_failure_preserved": True,
+        "pre_remediation_runtime_payload_sha256": PRE_REMEDIATION_RUNTIME_PAYLOAD_SHA256,
+        "lifecycle_reconciliation_git_blob": LIFECYCLE_RECONCILIATION_GIT_BLOB,
         "p5_requalified": False,
         "p6_requalified": False,
         "live_authorization_issued": False,
@@ -1041,6 +1167,8 @@ def validate_static(root: Path) -> dict[str, object]:
         "authorization_producer_notebooks": 0,
         "manual_confirmation_json_files": 0,
         "mechanism_semantics_preserved": True,
+        "target_runtime_venv_copies_enforced": True,
+        "cleanup_primary_failure_preserved": True,
         "live_authorization_issued": False,
         "runtime_execution_authorized": False,
         "kaggle_execution_performed": False,
@@ -1490,7 +1618,7 @@ def terminalize(
 
 
 def _default_output() -> Path:
-    return Path.home() / "Desktop" / "ag-p5-p6-mechanism-tx-v1.ipynb"
+    return Path.home() / "Desktop" / f"{NOTEBOOK_NAME}.ipynb"
 
 
 def _parser() -> _ArgumentParser:

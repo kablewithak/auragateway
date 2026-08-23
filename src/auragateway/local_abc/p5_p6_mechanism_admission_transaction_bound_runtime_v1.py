@@ -21,8 +21,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Final
 
-NOTEBOOK_NAME: Final = "ag-p5-p6-mechanism-tx-v1"
-SOURCE_MAIN_COMMIT: Final = "487e6b3d9f12ed8cc7b07c53cd8a0dd74e9e24b4"
+NOTEBOOK_NAME: Final = "ag-p5-p6-mechanism-tx-lifecycle-r1"
+SOURCE_MAIN_COMMIT: Final = "92954e6e00cd144575a73d10f749feca24e7b735"
 IMPLEMENTATION_REVIEW_SHA256: Final = (
     "3a5eebca0bb53439309456b19464fb7b0a707e6c0274e3fae2144fa9ccb35330"
 )
@@ -59,7 +59,7 @@ TARGET_ROOT = SCRATCH_ROOT / "target_runtime"
 TARGET_SITE = TARGET_ROOT / "lib" / "python3.12" / "site-packages"
 TARGET_PYTHON = TARGET_ROOT / "bin" / "python"
 LOG_ROOT = OUTPUT_ROOT / "worker_logs"
-EVIDENCE_ZIP = WORK_ROOT / "ag-p5-p6-mechanism-successor-v1-evidence.zip"
+EVIDENCE_ZIP = WORK_ROOT / "ag-p5-p6-mechanism-successor-lifecycle-r1-evidence.zip"
 
 RUNTIME_OUTPUT_DIRECTORY = "auragateway_preflight_v3_exact_runtime_wheelhouse_v1"
 MODEL_REVISION = "7ae557604adf67be50417f59c2c2f167def9a775"
@@ -1025,6 +1025,7 @@ def install_runtime(wheelhouse: Path, counters: dict[str, int]) -> dict[str, obj
             "-m",
             "venv",
             "--without-pip",
+            "--copies",
             str(TARGET_ROOT),
         ],
         timeout_seconds=120.0,
@@ -3511,17 +3512,30 @@ def ensure_import_closure_report(failure_code: str | None) -> None:
     )
 
 def cleanup_scratch() -> dict[str, object]:
-    before = directory_snapshot(SCRATCH_ROOT)
+    before: dict[str, object]
     status = "PASSED"
-    error_type = None
-    safe_message = None
+    error_type: str | None = None
+    safe_message: str | None = None
+    try:
+        before = directory_snapshot(SCRATCH_ROOT)
+    except (OSError, RuntimeError) as error:
+        before = {
+            "exists": True,
+            "file_count": 0,
+            "size_bytes": 0,
+            "snapshot_failed": True,
+        }
+        status = "FAILED"
+        error_type = type(error).__name__
+        safe_message = sanitize_excerpt(str(error))
     try:
         if SCRATCH_ROOT.exists():
             shutil.rmtree(SCRATCH_ROOT)
     except OSError as error:
         status = "FAILED"
-        error_type = type(error).__name__
-        safe_message = sanitize_excerpt(str(error))
+        if error_type is None:
+            error_type = type(error).__name__
+            safe_message = sanitize_excerpt(str(error))
     report = {
         "schema_version": "1.0.0",
         "report_id": "auragateway-p5-p6-exact-runtime-requalification-scratch-cleanup-v1",

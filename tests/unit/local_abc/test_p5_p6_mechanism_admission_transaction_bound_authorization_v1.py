@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
+import shutil
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import cast
 
 import pytest
 from pydantic import ValidationError
@@ -233,7 +237,10 @@ def test_notebook_metadata_has_no_authorization_input_role() -> None:
 def _synthetic_behavior_template() -> str:
     return """from __future__ import annotations
 import re
+import shutil
+import sys
 from enum import StrEnum
+from pathlib import Path
 from typing import Final
 NOTEBOOK_NAME: Final = "__NOTEBOOK_NAME__"
 SOURCE_MAIN_COMMIT: Final = "__SOURCE_MAIN_COMMIT__"
@@ -297,6 +304,48 @@ def gpu_memory(identity: dict[str, object]) -> int:
         if True:
             return int(identity["memory_used_mib"])
     return 0
+TARGET_ROOT = Path("target")
+SCRATCH_ROOT = Path("scratch")
+OUTPUT_ROOT = Path("output")
+def directory_snapshot(path: Path) -> dict[str, object]:
+    return {"exists": path.exists(), "file_count": 0, "size_bytes": 0}
+def write_json(path: Path, payload: dict[str, object]) -> None:
+    return None
+def sanitize_excerpt(value: str) -> str:
+    return value
+def install_runtime() -> None:
+    create_process = run_bounded_process(
+        "target_environment_creation",
+        [
+            sys.executable,
+            "-m",
+            "venv",
+            "--without-pip",
+            str(TARGET_ROOT),
+        ],
+    )
+    assert create_process is not None
+def cleanup_scratch() -> dict[str, object]:
+    before = directory_snapshot(SCRATCH_ROOT)
+    status = "PASSED"
+    error_type = None
+    safe_message = None
+    try:
+        if SCRATCH_ROOT.exists():
+            shutil.rmtree(SCRATCH_ROOT)
+    except OSError as error:
+        status = "FAILED"
+        error_type = type(error).__name__
+        safe_message = sanitize_excerpt(str(error))
+    report = {
+        "status": status,
+        "scratch_before": before,
+        "scratch_exists_after": SCRATCH_ROOT.exists(),
+        "error_type": error_type,
+        "safe_message": safe_message,
+    }
+    write_json(OUTPUT_ROOT / "scratch_cleanup_report_v1.json", report)
+    return report
 def observe_structured_response() -> object:
     finish_reason = "stop"
     if finish_reason != "stop":
@@ -319,10 +368,13 @@ def decide_p5() -> bool:
 def decide_p6() -> bool:
     return True
 def main() -> int:
+    failure: dict[str, object] | None = {}
     try:
         active_failure_code = "AUTHORITY_FAILURE"
         authorization = require_execution_authorization()
         p5_observations = {"authorization": authorization}
+        if failure is not None:
+            failure["secondary_scratch_cleanup_failure"] = True
         return 0
     except Exception:
         return 2
@@ -351,6 +403,9 @@ def test_runtime_transform_removes_only_stale_authorization_boundary(tmp_path: P
     assert "# type: ignore[call-overload]" in text
     assert "# type: ignore[no-any-return, call-overload]" in text
     assert "p5_observations: dict[str, object] = {" in text
+    assert '"--copies"' in text
+    assert "except (OSError, RuntimeError) as error:" in text
+    assert 'failure["secondary_scratch_cleanup_failure"] = True' in text
     assert max(len(line) for line in text.splitlines()) <= 100
 
 
@@ -364,3 +419,88 @@ def test_repository_static_validation_when_authorities_are_present() -> None:
     assert result["authorization_producer_notebooks"] == 0
     assert result["mechanism_semantics_preserved"] is True
     assert result["live_authorization_issued"] is False
+
+
+def _function_source(source: str, name: str) -> str:
+    module = ast.parse(source)
+    for node in module.body:
+        if isinstance(node, ast.FunctionDef) and node.name == name:
+            segment = ast.get_source_segment(source, node)
+            assert segment is not None
+            return segment
+    raise AssertionError(f"missing function: {name}")
+
+
+def test_lifecycle_remediation_rotates_consumed_artifact_namespace() -> None:
+    assert len(subject.HISTORICAL_UNTRACKED_PATHS) == 8
+    historical = set(subject.HISTORICAL_UNTRACKED_PATHS)
+    assert (
+        "benchmarks/local_abc/"
+        "auragateway_p5_p6_mechanism_admission_transaction_bound_"
+        "authorization_v1_terminal.json"
+    ) in historical
+    for path in (
+        subject.LIVE_AUTHORIZATION_PATH,
+        subject.LIVE_MANIFEST_PATH,
+        subject.PLATFORM_OBSERVATION_PATH,
+        subject.TERMINAL_RECEIPT_PATH,
+    ):
+        assert path.as_posix() not in historical
+        assert "lifecycle_r1" in path.as_posix()
+    assert subject.NOTEBOOK_NAME == "ag-p5-p6-mechanism-tx-lifecycle-r1"
+    assert subject._default_output().name == f"{subject.NOTEBOOK_NAME}.ipynb"
+
+
+def test_cleanup_snapshot_failure_is_contained_and_cleanup_continues(
+    tmp_path: Path,
+) -> None:
+    behavior = tmp_path / subject.BEHAVIOR_TEMPLATE_PATH
+    behavior.parent.mkdir(parents=True, exist_ok=True)
+    behavior.write_bytes(_synthetic_behavior_template().encode("utf-8"))
+    payload = subject.build_runtime_payload(tmp_path).decode("utf-8")
+    cleanup_source = _function_source(payload, "cleanup_scratch")
+
+    scratch = tmp_path / "scratch"
+    scratch.mkdir()
+    reports: list[dict[str, object]] = []
+
+    def fail_snapshot(path: Path) -> dict[str, object]:
+        raise RuntimeError("target runtime contains a symbolic link")
+
+    def write_report(path: Path, report: dict[str, object]) -> None:
+        reports.append(report)
+
+    namespace: dict[str, object] = {
+        "SCRATCH_ROOT": scratch,
+        "OUTPUT_ROOT": tmp_path,
+        "directory_snapshot": fail_snapshot,
+        "sanitize_excerpt": lambda value: value,
+        "shutil": shutil,
+        "write_json": write_report,
+    }
+    exec(cleanup_source, namespace)
+    cleanup = cast(
+        Callable[[], dict[str, object]],
+        namespace["cleanup_scratch"],
+    )
+    result = cleanup()
+
+    assert result["status"] == "FAILED"
+    assert result["error_type"] == "RuntimeError"
+    assert result["safe_message"] == "target runtime contains a symbolic link"
+    assert result["scratch_exists_after"] is False
+    assert result["scratch_before"] == {
+        "exists": True,
+        "file_count": 0,
+        "size_bytes": 0,
+        "snapshot_failed": True,
+    }
+    assert reports == [result]
+    assert scratch.exists() is False
+
+
+def test_static_review_declares_lifecycle_remediation() -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    if not (repo_root / subject.LIFECYCLE_RECONCILIATION_PATH).is_file():
+        pytest.skip("lifecycle reconciliation authority tree is not present")
+    subject._validate_lifecycle_reconciliation(repo_root)
