@@ -236,8 +236,10 @@ def test_notebook_metadata_has_no_authorization_input_role() -> None:
 
 def _synthetic_behavior_template() -> str:
     return """from __future__ import annotations
+import os
 import re
 import shutil
+import stat
 import sys
 from enum import StrEnum
 from pathlib import Path
@@ -309,11 +311,17 @@ SCRATCH_ROOT = Path("scratch")
 OUTPUT_ROOT = Path("output")
 def directory_snapshot(path: Path) -> dict[str, object]:
     return {"exists": path.exists(), "file_count": 0, "size_bytes": 0}
+
+def install_failure_signals(
+    stdout_tail: str,
+    stderr_tail: str,
+) -> tuple[str, ...]:
+    return ()
 def write_json(path: Path, payload: dict[str, object]) -> None:
     return None
 def sanitize_excerpt(value: str) -> str:
     return value
-def install_runtime() -> None:
+def install_runtime(wheelhouse: Path, counters: dict[str, int]) -> dict[str, object]:
     create_process = run_bounded_process(
         "target_environment_creation",
         [
@@ -325,6 +333,10 @@ def install_runtime() -> None:
         ],
     )
     assert create_process is not None
+    return {}
+
+def target_library_directories() -> tuple[Path, ...]:
+    return ()
 def cleanup_scratch() -> dict[str, object]:
     before = directory_snapshot(SCRATCH_ROOT)
     status = "PASSED"
@@ -404,6 +416,9 @@ def test_runtime_transform_removes_only_stale_authorization_boundary(tmp_path: P
     assert "# type: ignore[no-any-return, call-overload]" in text
     assert "p5_observations: dict[str, object] = {" in text
     assert '"--copies"' in text
+    assert "_is_allowed_target_runtime_structural_symlink" in text
+    assert '"post_install_snapshot_status": "PENDING"' in text
+    assert '"post_install_snapshot_status": "FAILED"' in text
     assert "except (OSError, RuntimeError) as error:" in text
     assert 'failure["secondary_scratch_cleanup_failure"] = True' in text
     assert max(len(line) for line in text.splitlines()) <= 100
@@ -432,7 +447,7 @@ def _function_source(source: str, name: str) -> str:
 
 
 def test_lifecycle_remediation_rotates_consumed_artifact_namespace() -> None:
-    assert len(subject.HISTORICAL_UNTRACKED_PATHS) == 8
+    assert len(subject.HISTORICAL_UNTRACKED_PATHS) == 12
     historical = set(subject.HISTORICAL_UNTRACKED_PATHS)
     assert (
         "benchmarks/local_abc/"
@@ -446,8 +461,8 @@ def test_lifecycle_remediation_rotates_consumed_artifact_namespace() -> None:
         subject.TERMINAL_RECEIPT_PATH,
     ):
         assert path.as_posix() not in historical
-        assert "lifecycle_r1" in path.as_posix()
-    assert subject.NOTEBOOK_NAME == "ag-p5-p6-mechanism-tx-lifecycle-r1"
+        assert "lifecycle_r2" in path.as_posix()
+    assert subject.NOTEBOOK_NAME == "ag-p5-p6-mechanism-tx-lifecycle-r2"
     assert subject._default_output().name == f"{subject.NOTEBOOK_NAME}.ipynb"
 
 
@@ -504,3 +519,141 @@ def test_static_review_declares_lifecycle_remediation() -> None:
     if not (repo_root / subject.LIFECYCLE_RECONCILIATION_PATH).is_file():
         pytest.skip("lifecycle reconciliation authority tree is not present")
     subject._validate_lifecycle_reconciliation(repo_root)
+
+def test_r2_structural_symlink_contract_is_exact_and_fail_closed(
+    tmp_path: Path,
+) -> None:
+    behavior = tmp_path / subject.BEHAVIOR_TEMPLATE_PATH
+    behavior.parent.mkdir(parents=True, exist_ok=True)
+    behavior.write_bytes(_synthetic_behavior_template().encode("utf-8"))
+    payload = subject.build_runtime_payload(tmp_path).decode("utf-8")
+    policy_source = _function_source(
+        payload,
+        "_structural_target_runtime_symlink_contract",
+    )
+
+    target_root = Path("/kaggle/working/test-scratch/target_runtime")
+    namespace: dict[str, object] = {
+        "Path": Path,
+        "TARGET_ROOT": target_root,
+    }
+    exec(policy_source, namespace)
+    policy = cast(
+        Callable[..., bool],
+        namespace["_structural_target_runtime_symlink_contract"],
+    )
+
+    assert policy(
+        target_root / "lib64",
+        "lib",
+        target_root / "lib",
+        target_root,
+        True,
+    )
+    assert not policy(
+        target_root / "other",
+        "lib",
+        target_root / "lib",
+        target_root,
+        True,
+    )
+    assert not policy(
+        target_root / "lib64",
+        "../lib",
+        target_root / "lib",
+        target_root,
+        True,
+    )
+    assert not policy(
+        target_root / "lib64",
+        "/tmp/lib",
+        target_root / "lib",
+        target_root,
+        True,
+    )
+    assert not policy(
+        target_root / "lib64",
+        "lib",
+        target_root.parent / "escape",
+        target_root,
+        True,
+    )
+    assert not policy(
+        target_root / "lib64",
+        "lib",
+        target_root / "lib",
+        target_root,
+        False,
+    )
+
+
+def test_directory_snapshot_uses_exact_structural_symlink_gate(
+    tmp_path: Path,
+) -> None:
+    behavior = tmp_path / subject.BEHAVIOR_TEMPLATE_PATH
+    behavior.parent.mkdir(parents=True, exist_ok=True)
+    behavior.write_bytes(_synthetic_behavior_template().encode("utf-8"))
+    payload = subject.build_runtime_payload(tmp_path).decode("utf-8")
+    snapshot_source = _function_source(payload, "directory_snapshot")
+
+    assert "_is_allowed_target_runtime_structural_symlink(member)" in (
+        snapshot_source
+    )
+    assert (
+        'raise RuntimeError("target runtime contains a symbolic link")'
+        in snapshot_source
+    )
+
+
+def test_install_process_truth_is_written_before_post_install_snapshot(
+    tmp_path: Path,
+) -> None:
+    behavior = tmp_path / subject.BEHAVIOR_TEMPLATE_PATH
+    behavior.parent.mkdir(parents=True, exist_ok=True)
+    behavior.write_bytes(_synthetic_behavior_template().encode("utf-8"))
+    payload = subject.build_runtime_payload(tmp_path).decode("utf-8")
+    install_source = _function_source(payload, "install_runtime")
+
+    initial_write = install_source.index("write_json(report_path, report)")
+    outcome_check = install_source.index('outcome = process["process_outcome"]')
+    snapshot = install_source.index("directory_snapshot(TARGET_ROOT)")
+
+    assert initial_write < outcome_check < snapshot
+    install_tree = ast.parse(install_source)
+    string_literals = {
+        node.value
+        for node in ast.walk(install_tree)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str)
+    }
+    assert {
+        "PENDING",
+        "FAILED",
+        "NOT_ATTEMPTED_PROCESS_FAILED",
+        "PASSED",
+    }.issubset(string_literals)
+
+
+def test_r2_lifecycle_namespace_is_disjoint_from_consumed_r1() -> None:
+    assert len(subject.HISTORICAL_UNTRACKED_PATHS) == 12
+    historical = set(subject.HISTORICAL_UNTRACKED_PATHS)
+    assert any(
+        "lifecycle_r1_authorization_live" in item
+        for item in historical
+    )
+    assert any(
+        "lifecycle_r1_authorization_terminal" in item
+        for item in historical
+    )
+    for path in (
+        subject.LIVE_AUTHORIZATION_PATH,
+        subject.LIVE_MANIFEST_PATH,
+        subject.PLATFORM_OBSERVATION_PATH,
+        subject.TERMINAL_RECEIPT_PATH,
+    ):
+        assert "lifecycle_r2" in path.as_posix()
+        assert path.as_posix() not in historical
+    assert subject.NOTEBOOK_NAME == "ag-p5-p6-mechanism-tx-lifecycle-r2"
+    assert (
+        subject.EVIDENCE_ZIP_NAME
+        == "ag-p5-p6-mechanism-successor-lifecycle-r2-evidence.zip"
+    )
