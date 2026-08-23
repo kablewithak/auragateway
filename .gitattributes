@@ -195,3 +195,6 @@ docs/reports/AuraGateway_C4_Paragraph_Order_Behavioral_Differential_Disposition_
 
 # Preserve governed C4 paragraph-order behavioral differential evidence byte-for-byte.
 evidence_vault/local_abc/c4-paragraph-order-behavioral-differential-v1/** -text -whitespace
+
+# Preserve P5/P6 mechanism-admission saved-version evidence byte-for-byte.
+evidence_vault/local_abc/p5-p6-mech-admission-344405133-v1/** -text -whitespace
