@@ -204,3 +204,14 @@ evidence_vault/local_abc/p5-p6-mech-admission-344436401-lifecycle-r1-v1/** -text
 
 # Preserve governed P5/P6 R2 evidence byte-for-byte.
 evidence_vault/local_abc/p5-p6-mech-admission-344464549-lifecycle-r2-v1/** -text -whitespace
+
+# Preserve governed variance-pilot 344611040 evidence byte-for-byte.
+evidence_vault/local_abc/measured-abc-variance-pilot-344611040-v1/** -text -whitespace
+
+# Preserve variance-pilot 344611040 classification identities as LF.
+data/evals/benchmark/variance-pilot-v1/variance_pilot_344611040_classification_v1_policy.json text eol=lf
+src/auragateway/local_abc/measured_abc_variance_pilot_344611040_classification_v1.py text eol=lf
+tests/unit/local_abc/test_measured_abc_variance_pilot_344611040_classification_v1.py text eol=lf
+docs/adr/2026-08-24-local-abc-variance-pilot-344611040-classification-v1.md text eol=lf
+benchmarks/local_abc/auragateway_measured_abc_variance_pilot_344611040_classification_v1.json text eol=lf
+benchmarks/local_abc/auragateway_measured_abc_variance_pilot_redesign_boundary_v1.json text eol=lf

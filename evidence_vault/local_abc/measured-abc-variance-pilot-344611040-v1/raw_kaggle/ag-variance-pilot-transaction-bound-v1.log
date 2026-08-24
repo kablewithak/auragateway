@@ -1,0 +1,21 @@
+7.2s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.2s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.2s 3 0.00s - to python to disable frozen modules.
+7.2s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+7.8s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.8s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.8s 7 0.00s - to python to disable frozen modules.
+7.8s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+9.2s 9 {"issuer_merge_commit":"bb1e2b46767e7b84ae8bbecab2887759e38e028d","network_probe_performed":false,"observed_gpu_count":2,"pilot_material_sha256":"e78c7219096bfd53560c28f953ee5397a7276334c157e32bfeb4e60f0b4e80dd","pilot_runtime_payload_sha256":"a3c832ba7b8233efccdcd035d408fbd7508ade1dabd5b929adcb148d35b28c5b","platform_observation_receipt_runtime_input":false,"status":"VARIANCE_PILOT_TRANSACTION_BOUND_RUNTIME_ADMISSION_VALID","transaction_id":"06935eae12e8f996c7046a859ea75525b436a871b086ba4c56470d24871747ab"}
+615.4s 10 EVIDENCE_ZIP_SHA256=540dcf0bdcb311b210c3b63a57483cf0ebb906725ded82ce6c0a8b0b045243c7
+615.4s 11 TRANSACTION_ID=06935eae12e8f996c7046a859ea75525b436a871b086ba4c56470d24871747ab
+615.4s 12 EXECUTION_OUTCOME=PASSED
+615.4s 13 AURAGATEWAY_VARIANCE_PILOT_RUNTIME_EXIT=0
+618.1s 14 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+618.1s 15 cells[i][c] = re.sub('\\\\\|', '|', cell)
+618.2s 16 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+618.2s 17 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+618.8s 18 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+619.1s 19 [NbConvertApp] Writing 350315 bytes to __notebook__.ipynb
+621.5s 20 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+622.3s 21 [NbConvertApp] Writing 645058 bytes to __results__.html

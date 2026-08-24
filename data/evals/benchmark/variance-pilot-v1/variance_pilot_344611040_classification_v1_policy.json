@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "auragateway-measured-abc-variance-pilot-344611040-classification-v1-policy",
+  "saved_version_id": 344611040,
+  "transaction_id": "06935eae12e8f996c7046a859ea75525b436a871b086ba4c56470d24871747ab",
+  "issuer_merge_commit": "bb1e2b46767e7b84ae8bbecab2887759e38e028d",
+  "runtime_payload_sha256": "a3c832ba7b8233efccdcd035d408fbd7508ade1dabd5b929adcb148d35b28c5b",
+  "vault_path": "evidence_vault/local_abc/measured-abc-variance-pilot-344611040-v1",
+  "expected_hashes": {
+    "lifecycle/authorization_live.json": "95d52f372f37b6c35213683eab5d9aafc50c47e424bb1b48eea0a394166f60df",
+    "lifecycle/artifact_live_manifest.json": "8c56745a77214e697159c202d03689cedcb537f754cf34e243a0e65fdc8c8701",
+    "lifecycle/platform_observation_live.json": "7986a801a7a7815aa3fd146b4d4940993dc323b328db5b26f2d69abe8b9b370e",
+    "lifecycle/authorization_terminal.json": "dc2a377577707418f54976b3038f008f8eb4d4de6d63577b7a4019a894206a5e",
+    "raw_kaggle/ag-variance-pilot-transaction-bound-v1.ipynb": "f83f86c0a49757c5d486a336ddd3575f777038c645408852ec233fac3a48390a",
+    "raw_kaggle/ag-variance-pilot-transaction-bound-v1.log": "8a30992fa5fe862a450c8f80ee3117f01f06616a4dc91f7eb083c8a29cfce292",
+    "raw_kaggle/ag-variance-pilot-tx-v1-evidence.zip": "540dcf0bdcb311b210c3b63a57483cf0ebb906725ded82ce6c0a8b0b045243c7"
+  },
+  "expected_zip_members": {
+    "timing_telemetry_preflight_v1.json": "9fe5de680a63c0c3c2f58ed9ca8d075b05d4d04ff3bf8fe1c3e70cb276f4784a",
+    "pilot_trajectory_ledger_v1.json": "b3153477bd8c5847c9eaecc3da62617d1a0843fa822bb8ad82e63fe8750a9727",
+    "pilot_operational_evidence_v1.json": "5ab26a3e603d11fe1a8cefb770bf4b02e40139bda159642cc66bc2b0b7059935",
+    "pilot_runtime_summary_v1.json": "632dad593f0d15fa5acbf8cde52e8b1c5a454d8e615a29a065d4fccdd048de4f",
+    "worker_teardown_report_v1.json": "2051f347d8502e5279af8cb418e1a6dd62813712f8f54dc5e46de9895cb3aa62",
+    "scratch_cleanup_report_v1.json": "659b0bf9fe122a8309bf664633d19c018fd99122e212864042eb48a194644722",
+    "failure_report_v1.json": "e10cecae1736410ee61ce5329ec97eee3bf28b78913e3216d905216bab73a247",
+    "bundle_manifest_v1.json": "9b94a21bd7b0290c56cc64810018548d81e5e9c1362ccf36c9d6b919aeeaae1a"
+  },
+  "expected_semantics": {
+    "zip_member_count": 8,
+    "bundle_manifest_member_count": 7,
+    "scheduled_trajectory_count": 54,
+    "scheduled_turn_count": 216,
+    "pilot_model_request_count": 216,
+    "preflight_model_request_count": 5,
+    "total_model_request_count": 221,
+    "interrupted_trajectory_count": 0,
+    "comparison_eligible_trajectory_count": 54,
+    "task_failed_trajectory_count": 54,
+    "request_completed_turn_count": 216,
+    "finish_reason_length_count": 132,
+    "finish_reason_stop_count": 84,
+    "json_valid_turn_count": 6,
+    "json_invalid_turn_count": 210,
+    "unique_output_sha256_count": 21,
+    "same_salt_cold_cached_prefix_tokens": 0,
+    "same_salt_warm_cached_prefix_tokens": 944,
+    "different_salt_cached_prefix_tokens": 0,
+    "worker_1_projection_count": 18,
+    "worker_2_projection_count": 36,
+    "worker_1_conditions": [
+      "C"
+    ],
+    "worker_2_conditions": [
+      "A",
+      "B"
+    ]
+  },
+  "classification": {
+    "governed_execution_disposition": "ACCEPTED_GOVERNED_EXECUTION_PASS",
+    "cache_salt_qualification": "QUALIFIED",
+    "task_output_contract": "FAILED",
+    "worker_symmetry_estimator": "CONFOUNDED",
+    "repetition_freeze_decision": "BLOCK_REPETITION_FREEZE_AND_REDESIGN",
+    "pilot_repository_acceptance_established": false,
+    "final_measured_abc_execution_authorized": false,
+    "new_execution_authorized": false,
+    "effect_claims_permitted": false
+  },
+  "redesign_requirements": [
+    "QUALIFY_WORKERS_WITH_IDENTICAL_NEUTRAL_WORKLOAD_AND_EQUAL_WARMUP_OUTSIDE_ABC_TREATMENT",
+    "KEEP_CACHE_SALT_ISOLATION_QUALIFICATION_SEPARATE_FROM_WORKER_SYMMETRY_QUALIFICATION",
+    "REQUIRE_SCHEMA_VALID_MODEL_OUTPUT_BEFORE_CONVERSATION_STATE_MUTATION",
+    "PROVE_OUTPUT_TOKEN_BUDGET_SUFFICIENT_OR_QUALIFY_AN_IDENTICAL_SCHEMA_ENFORCEMENT_BOUNDARY",
+    "BLOCK_FINAL_ABC_AUTHORIZATION_UNTIL_SUCCESSOR_PILOT_ACCEPTANCE"
+  ]
+}
