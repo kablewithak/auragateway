@@ -6,6 +6,8 @@ import base64
 import hashlib
 import json
 import subprocess
+import sys
+import types
 from datetime import UTC, datetime
 
 
@@ -21,6 +23,9 @@ _R2_RUNTIME_SHA256 = "__R2_RUNTIME_SHA256__"
 _PILOT_RUNTIME_SHA256 = "__PILOT_RUNTIME_SHA256__"
 _PILOT_MATERIAL_SHA256 = "__PILOT_MATERIAL_SHA256__"
 _READINESS_SHA256 = "__READINESS_SHA256__"
+
+_R2_RUNTIME_MODULE_NAME = "auragateway_r2_runtime_library"
+_R2_RUNTIME_MODULE_FILE = "<accepted-r2-runtime-library>"
 
 
 def _canonical_json_bytes(value: object) -> bytes:
@@ -184,6 +189,27 @@ def admit(now: datetime | None = None) -> dict[str, object]:
     }
 
 
+def _load_r2_runtime(r2_source: bytes) -> dict[str, object]:
+    if _R2_RUNTIME_MODULE_NAME in sys.modules:
+        raise RuntimeError("accepted R2 runtime module is already registered")
+    module = types.ModuleType(_R2_RUNTIME_MODULE_NAME)
+    module.__file__ = _R2_RUNTIME_MODULE_FILE
+    sys.modules[_R2_RUNTIME_MODULE_NAME] = module
+    try:
+        exec(
+            compile(
+                r2_source,
+                _R2_RUNTIME_MODULE_FILE,
+                "exec",
+            ),
+            module.__dict__,
+            module.__dict__,
+        )
+    except BaseException:
+        sys.modules.pop(_R2_RUNTIME_MODULE_NAME, None)
+        raise
+    return module.__dict__
+
 
 def _execute_pilot_runtime(
     pilot_source: bytes,
@@ -205,6 +231,7 @@ def _execute_pilot_runtime(
             return
         raise
 
+
 def execute() -> None:
     admission = admit()
     print(
@@ -217,19 +244,7 @@ def execute() -> None:
     )
 
     r2_source = _decode(_R2_RUNTIME_B64)
-    r2_namespace = {
-        "__name__": "auragateway_r2_runtime_library",
-        "__file__": "<accepted-r2-runtime-library>",
-    }
-    exec(
-        compile(
-            r2_source,
-            "<accepted-r2-runtime-library>",
-            "exec",
-        ),
-        r2_namespace,
-        r2_namespace,
-    )
+    r2_namespace = _load_r2_runtime(r2_source)
 
     material_bytes = _decode(_PILOT_MATERIAL_B64)
     material = json.loads(material_bytes)

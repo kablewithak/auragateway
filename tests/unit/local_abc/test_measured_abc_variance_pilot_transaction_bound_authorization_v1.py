@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+import types
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -12,6 +14,13 @@ from auragateway.local_abc import (
 )
 
 ROOT = Path(__file__).resolve().parents[3]
+R2_RUNTIME_PATH = (
+    ROOT
+    / "src"
+    / "auragateway"
+    / "local_abc"
+    / "p5_p6_mechanism_admission_transaction_bound_runtime_v1.py"
+)
 
 
 def test_static_review_is_non_authorizing() -> None:
@@ -83,6 +92,43 @@ def _wrapper_namespace() -> dict[str, object]:
         namespace,
     )
     return namespace
+
+
+def test_wrapper_realizes_exact_r2_runtime_in_registered_module() -> None:
+    namespace = _wrapper_namespace()
+    loader = cast(
+        Callable[[bytes], dict[str, object]],
+        namespace["_load_r2_runtime"],
+    )
+    module_name = cast(str, namespace["_R2_RUNTIME_MODULE_NAME"])
+    sys.modules.pop(module_name, None)
+    try:
+        r2_namespace = loader(R2_RUNTIME_PATH.read_bytes())
+        assert module_name in sys.modules
+        assert sys.modules[module_name].__dict__ is r2_namespace
+        metric_type = r2_namespace["MetricSnapshotObservation"]
+        assert getattr(metric_type, "__module__", None) == module_name
+    finally:
+        sys.modules.pop(module_name, None)
+
+
+def test_wrapper_refuses_to_clobber_existing_r2_runtime_module() -> None:
+    namespace = _wrapper_namespace()
+    loader = cast(
+        Callable[[bytes], dict[str, object]],
+        namespace["_load_r2_runtime"],
+    )
+    module_name = cast(str, namespace["_R2_RUNTIME_MODULE_NAME"])
+    marker = types.ModuleType("preexisting_r2_runtime")
+    sys.modules[module_name] = marker
+    try:
+        with pytest.raises(
+            RuntimeError,
+            match="accepted R2 runtime module is already registered",
+        ):
+            loader(b"pass\n")
+    finally:
+        sys.modules.pop(module_name, None)
 
 
 def test_wrapper_treats_runtime_system_exit_zero_as_success(
