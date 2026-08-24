@@ -1,0 +1,45 @@
+﻿{
+    "schema_version":  "1.0.0",
+    "status":  "IMMUTABLE_EVIDENCE_INTAKE_COMPLETE",
+    "saved_version_id":  344464549,
+    "kaggle_url":  "https://www.kaggle.com/code/kabomolefe/ag-p5-p6-mechanism-tx-lifecycle-r2?scriptVersionId=344464549",
+    "transaction_id":  "0ab0101b14901f484c2c9d3342302563ea5d334f827e8b25dfa515faa3820843",
+    "issuer_merge_commit":  "73e05613e1bf8a3e3529325730d79843a0b8fb4d",
+    "runtime_payload_sha256":  "7f820f1b1195dd2877d4cd197fdc10b79c4e86490e98597aab8bae09cd4a3afc",
+    "execution_disposition":  "CONSUMED",
+    "execution_outcome":  "PASSED",
+    "authorization_reusable":  false,
+    "new_execution_authorized":  false,
+    "observed_execution":  {
+                               "runtime_install_attempts":  1,
+                               "runtime_import_closure_probes":  1,
+                               "model_loads":  3,
+                               "worker_starts":  3,
+                               "model_requests":  6,
+                               "hidden_retries":  0,
+                               "network_requests":  0,
+                               "p5_executed":  true,
+                               "p5_decision":  "PASS",
+                               "p6_executed":  true,
+                               "p6_decision":  "PASS"
+                           },
+    "lifecycle":  {
+                      "authorization_live_sha256":  "070e3a0a653489878bd22d7d1926037afe69633b33aa92638c6a2eae13805248",
+                      "artifact_live_manifest_sha256":  "4e053a9c6636a4bbb06945551747532a744d27b4ef02d86dae8e79443a02705c",
+                      "platform_observation_sha256":  "ea8bbe32d9165bacb232fb2b23184f99e648ccd41c5f9657701fd03f7ded4739",
+                      "authorization_terminal_sha256":  "d7ff2dcf28008844f0b0d0cbd04ee95218af8b230ff95e3059b0c8803608bf9d"
+                  },
+    "raw_kaggle":  {
+                       "evidence_zip_sha256":  "32e4b72392722e4d81984239acd75dda72ae3f7eaf103f27acbf597e11453c3b",
+                       "terminal_log_sha256":  "15fff44d4337454b734dbd97cc5be38c0472a051e6027214094793540d04c6cb",
+                       "duplicate_terminal_export_sha256":  "15fff44d4337454b734dbd97cc5be38c0472a051e6027214094793540d04c6cb",
+                       "executed_notebook_sha256":  "b9ec8e5c8c075bd9308d24cae11617e4cf024bcd8eabb5af4a99c2ef71420121"
+                   },
+    "custody":  {
+                    "lifecycle_file_count":  4,
+                    "raw_kaggle_file_count":  4,
+                    "immutable_source_files_modified":  false,
+                    "vault_copy_identity_verified":  true
+                },
+    "next_gate":  "AUTHOR_344464549_RECONCILIATION_AND_CURRENT_P5_P6_REQUALIFICATION_DISPOSITION_V1"
+}
