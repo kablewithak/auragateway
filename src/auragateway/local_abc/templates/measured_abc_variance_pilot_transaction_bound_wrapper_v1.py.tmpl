@@ -1,0 +1,239 @@
+"""Generated AuraGateway variance-pilot transaction-bound wrapper V1."""
+
+from __future__ import annotations
+
+import base64
+import hashlib
+import json
+import subprocess
+from datetime import UTC, datetime
+
+
+_AUTHORIZATION_B64 = "__AUTHORIZATION_B64__"
+_R2_RUNTIME_B64 = "__R2_RUNTIME_B64__"
+_PILOT_RUNTIME_B64 = "__PILOT_RUNTIME_B64__"
+_PILOT_MATERIAL_B64 = "__PILOT_MATERIAL_B64__"
+
+_TRANSACTION_ID = "__TRANSACTION_ID__"
+_ISSUER_MERGE_COMMIT = "__ISSUER_MERGE_COMMIT__"
+_ISSUER_SOURCE_SHA256 = "__ISSUER_SOURCE_SHA256__"
+_R2_RUNTIME_SHA256 = "__R2_RUNTIME_SHA256__"
+_PILOT_RUNTIME_SHA256 = "__PILOT_RUNTIME_SHA256__"
+_PILOT_MATERIAL_SHA256 = "__PILOT_MATERIAL_SHA256__"
+_READINESS_SHA256 = "__READINESS_SHA256__"
+
+
+def _canonical_json_bytes(value: object) -> bytes:
+    return json.dumps(
+        value,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+
+
+def _sha256(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def _decode(value: str) -> bytes:
+    return base64.b64decode(value.encode("ascii"), validate=True)
+
+
+def _parse_time(value: object) -> datetime:
+    if not isinstance(value, str):
+        raise RuntimeError("authorization timestamp is invalid")
+    observed = datetime.fromisoformat(value)
+    if observed.tzinfo is None or observed.utcoffset() is None:
+        raise RuntimeError("authorization timestamp must be timezone-aware")
+    return observed.astimezone(UTC)
+
+
+def _gpu_count() -> int:
+    completed = subprocess.run(
+        ["nvidia-smi", "-L"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError("unable to observe GPU topology")
+    return sum(
+        line.strip().startswith("GPU ")
+        for line in completed.stdout.splitlines()
+    )
+
+
+def admit(now: datetime | None = None) -> dict[str, object]:
+    envelope_bytes = _decode(_AUTHORIZATION_B64)
+    envelope = json.loads(envelope_bytes)
+    if not isinstance(envelope, dict):
+        raise RuntimeError("embedded authorization envelope invalid")
+    transaction_id = envelope.get("transaction_id")
+    authorization = envelope.get("authorization")
+    if transaction_id != _TRANSACTION_ID or not isinstance(authorization, dict):
+        raise RuntimeError("embedded transaction identity drifted")
+
+    canonical_authorization = _canonical_json_bytes(authorization)
+    if _sha256(canonical_authorization) != _TRANSACTION_ID:
+        raise RuntimeError("inner authorization transaction identity mismatch")
+
+    required = {
+        "schema_version": "1.0.0",
+        "decision": "AUTHORIZED",
+        "lifecycle": "ISSUED",
+        "scope": "MEASURED_ABC_VARIANCE_PILOT_TRANSACTION_BOUND_V1",
+        "issuer_merge_commit": _ISSUER_MERGE_COMMIT,
+        "issuer_source_sha256": _ISSUER_SOURCE_SHA256,
+        "r2_runtime_library_sha256": _R2_RUNTIME_SHA256,
+        "pilot_runtime_payload_sha256": _PILOT_RUNTIME_SHA256,
+        "pilot_material_sha256": _PILOT_MATERIAL_SHA256,
+        "runtime_launcher_readiness_sha256": _READINESS_SHA256,
+        "pilot_execution_authorized": True,
+        "final_measured_abc_execution_authorized": False,
+        "single_use": True,
+        "authorization_reusable": False,
+        "unchanged_replay_authorized": False,
+        "runtime_anti_replay_established": False,
+        "authorization_specific_kaggle_inputs": 0,
+        "manual_confirmation_json_files": 0,
+        "preissuance_platform_observation_required": False,
+        "fresh_post_artifact_platform_observation_required": True,
+        "platform_observation_runtime_input": False,
+    }
+    drift = tuple(
+        key for key, expected in required.items()
+        if authorization.get(key) != expected
+    )
+    if drift:
+        raise RuntimeError(
+            "embedded variance-pilot authorization drift: " + ",".join(drift)
+        )
+
+    budget = authorization.get("budget")
+    expected_budget = {
+        "maximum_external_network_requests": 0,
+        "maximum_external_spend": 0,
+        "maximum_hidden_retries": 0,
+        "maximum_kaggle_sessions": 1,
+        "maximum_model_loads": 2,
+        "maximum_output_tokens_per_request": 64,
+        "maximum_pilot_request_attempts": 432,
+        "maximum_pilot_trajectory_count": 54,
+        "maximum_pilot_turn_count": 216,
+        "maximum_replacement_cases": 0,
+        "maximum_runtime_import_closure_probes": 1,
+        "maximum_runtime_install_attempts": 1,
+        "maximum_save_and_run_all_actions": 1,
+        "maximum_timing_preflight_requests": 2,
+        "maximum_cache_salt_preflight_requests": 3,
+        "maximum_preflight_requests": 5,
+        "maximum_total_model_requests": 437,
+        "maximum_worker_starts": 2,
+        "maximum_worker_teardowns": 2,
+    }
+    if budget != expected_budget:
+        raise RuntimeError("variance-pilot execution budget drifted")
+
+    isolation = authorization.get("cache_isolation")
+    expected_isolation = {
+        "cache_salt_security_secret_claimed": False,
+        "cross_trajectory_cache_reuse_permitted": False,
+        "mechanism": "VLLM_CACHE_SALT",
+        "per_trajectory_cache_salt_required": True,
+        "salt_derivation": "SHA256_CACHE_NAMESPACE_ID",
+        "same_trajectory_cache_reuse_permitted": True,
+    }
+    if isolation != expected_isolation:
+        raise RuntimeError("variance-pilot cache isolation contract drifted")
+
+    payloads = (
+        (_decode(_R2_RUNTIME_B64), _R2_RUNTIME_SHA256, "R2 runtime"),
+        (
+            _decode(_PILOT_RUNTIME_B64),
+            _PILOT_RUNTIME_SHA256,
+            "pilot runtime",
+        ),
+        (
+            _decode(_PILOT_MATERIAL_B64),
+            _PILOT_MATERIAL_SHA256,
+            "pilot material",
+        ),
+    )
+    for payload, expected_sha, label in payloads:
+        if _sha256(payload) != expected_sha:
+            raise RuntimeError(label + " identity mismatch")
+
+    observed = (now or datetime.now(UTC)).astimezone(UTC)
+    issued = _parse_time(authorization.get("issued_at"))
+    expires = _parse_time(authorization.get("expires_at"))
+    if observed < issued or observed >= expires:
+        raise RuntimeError("authorization is outside its live window")
+    if _gpu_count() != 2:
+        raise RuntimeError("machine-observable GPU topology is not T4 x2")
+
+    return {
+        "status": "VARIANCE_PILOT_TRANSACTION_BOUND_RUNTIME_ADMISSION_VALID",
+        "transaction_id": _TRANSACTION_ID,
+        "issuer_merge_commit": _ISSUER_MERGE_COMMIT,
+        "pilot_runtime_payload_sha256": _PILOT_RUNTIME_SHA256,
+        "pilot_material_sha256": _PILOT_MATERIAL_SHA256,
+        "observed_gpu_count": 2,
+        "network_probe_performed": False,
+        "platform_observation_receipt_runtime_input": False,
+    }
+
+
+def execute() -> None:
+    admission = admit()
+    print(
+        json.dumps(
+            admission,
+            ensure_ascii=True,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+    )
+
+    r2_source = _decode(_R2_RUNTIME_B64)
+    r2_namespace = {
+        "__name__": "auragateway_r2_runtime_library",
+        "__file__": "<accepted-r2-runtime-library>",
+    }
+    exec(
+        compile(
+            r2_source,
+            "<accepted-r2-runtime-library>",
+            "exec",
+        ),
+        r2_namespace,
+        r2_namespace,
+    )
+
+    material_bytes = _decode(_PILOT_MATERIAL_B64)
+    material = json.loads(material_bytes)
+    if not isinstance(material, dict):
+        raise RuntimeError("embedded pilot material must be one JSON object")
+
+    pilot_source = _decode(_PILOT_RUNTIME_B64)
+    pilot_namespace = {
+        "__name__": "__main__",
+        "__file__": "<variance-pilot-transaction-bound-runtime>",
+        "AURAGATEWAY_R2_RUNTIME": r2_namespace,
+        "AURAGATEWAY_PILOT_MATERIAL": material,
+        "AURAGATEWAY_TRANSACTION_ID": _TRANSACTION_ID,
+        "EXECUTED_RUNTIME_SCRIPT_SHA256": _PILOT_RUNTIME_SHA256,
+    }
+    exec(
+        compile(
+            pilot_source,
+            "<variance-pilot-transaction-bound-runtime>",
+            "exec",
+        ),
+        pilot_namespace,
+        pilot_namespace,
+    )
+
+
+if __name__ == "__main__":
+    execute()

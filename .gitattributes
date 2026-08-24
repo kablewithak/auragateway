@@ -201,3 +201,6 @@ evidence_vault/local_abc/p5-p6-mech-admission-344405133-v1/** -text -whitespace
 
 # Preserve P5/P6 saved Version 344436401 lifecycle evidence byte-for-byte.
 evidence_vault/local_abc/p5-p6-mech-admission-344436401-lifecycle-r1-v1/** -text -whitespace
+
+# Preserve governed P5/P6 R2 evidence byte-for-byte.
+evidence_vault/local_abc/p5-p6-mech-admission-344464549-lifecycle-r2-v1/** -text -whitespace
