@@ -1,0 +1,18 @@
+7.6s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.6s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.6s 3 0.00s - to python to disable frozen modules.
+7.6s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+8.2s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+8.2s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+8.2s 7 0.00s - to python to disable frozen modules.
+8.2s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+498.3s 9 {"authorization":{"authorization_producer_notebooks":0,"authorization_specific_kaggle_inputs":0,"authorization_transport":"EMBEDDED_WRAPPER_ADMISSION","manual_confirmation_json_files":0,"runtime_execution_authorized":true,"transaction_id":"0ab0101b14901f484c2c9d3342302563ea5d334f827e8b25dfa515faa3820843"},"benchmark_trajectory_requests":0,"c4_semantic_qualified":false,"c4_semantic_state":"INVALID_JSON","completed_capabilities":["C1","C2","C3","C4","P5","P6"],"counters":{"benchmark_trajectory_requests":0,"external_spend":0,"hidden_retries":0,"kaggle_sessions":1,"model_loads":3,"model_requests":6,"network_requests":0,"runtime_import_closure_probes":1,"runtime_install_attempts":1,"worker_starts":3},"credentials_used":false,"customer_data_present":false,"design_record_sha256":"6137052bd06503bbb77589d043a095fb3a8d2e8ae4d6d56e75296d34b8c6310c","diagnostic_id":"auragateway-p5-p6-mechanism-admission-successor-v1","evidence_zip":"/kaggle/working/ag-p5-p6-mechanism-successor-lifecycle-r2-evidence.zip","evidence_zip_sha256":"32e4b72392722e4d81984239acd75dda72ae3f7eaf103f27acbf597e11453c3b","evidence_zip_size_bytes":25479,"executed_runtime_script_sha256":"7f820f1b1195dd2877d4cd197fdc10b79c4e86490e98597aab8bae09cd4a3afc","failed_capability":null,"failure_class":null,"implementation_addendum_sha256":"395f9c7e9955594d7c962659dd882e0851dcc6f9833715bb53e5d37bb7439239","implementation_review_sha256":"3a5eebca0bb53439309456b19464fb7b0a707e6c0274e3fae2144fa9ccb35330","measured_abc_execution_performed":false,"mechanism_admission_contract_sha256":"95948be1f9487dbfc650efd11b4789a4f3c60302c7cc9e38e2e1c271076684d8","network_access_permitted":false,"next_gate":"PRESERVE_AND_DISPOSITION_P5_P6_MECHANISM_ADMISSION_SUCCESSOR_V1","p5_decision":"PASS","p6_decision":"PASS","pilot_execution_performed":false,"public_evidence_used_as_semantic_input":false,"runtime_import_closure_process_outcome":"PASSED","runtime_import_closure_status":"PASSED","runtime_install_process_outcome":"PASSED","runtime_install_status":"PASSED","schema_version":"1.0.0","scratch_cleanup_status":"PASSED","scratch_exists_after_cleanup":false,"source_main_commit":"f63fa24ddd5fab038e5676a2c5792adf63c95d6c","status":"PASSED","terminal_state":"PASSED_PENDING_REPOSITORY_ACCEPTANCE","worker_teardown_status":"PASSED"}
+498.3s 10 AURAGATEWAY_BOUND_RUNTIME_EXIT=0
+500.8s 11 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+500.8s 12 cells[i][c] = re.sub('\\\\\|', '|', cell)
+500.9s 13 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+500.9s 14 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+501.6s 15 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+501.9s 16 [NbConvertApp] Writing 227719 bytes to __notebook__.ipynb
+504.1s 17 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+504.9s 18 [NbConvertApp] Writing 523425 bytes to __results__.html
