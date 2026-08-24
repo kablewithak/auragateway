@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import cast
+
+import pytest
 
 from auragateway.local_abc import (
     measured_abc_variance_pilot_transaction_bound_authorization_v1 as subject,
@@ -64,3 +68,41 @@ def test_generated_outputs_validate() -> None:
     result = subject.validate_implementation(ROOT)
     assert result["status"] == ("VARIANCE_PILOT_TRANSACTION_BOUND_AUTHORIZATION_V1_VALID")
     assert result["candidate_introduced_execution_authority"] is False
+
+
+def _wrapper_namespace() -> dict[str, object]:
+    source = (ROOT / subject.WRAPPER_TEMPLATE_PATH).read_text(encoding="utf-8")
+    namespace: dict[str, object] = {"__name__": "variance_pilot_wrapper_test"}
+    exec(
+        compile(
+            source,
+            str(subject.WRAPPER_TEMPLATE_PATH),
+            "exec",
+        ),
+        namespace,
+        namespace,
+    )
+    return namespace
+
+
+def test_wrapper_treats_runtime_system_exit_zero_as_success(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    namespace = _wrapper_namespace()
+    runner = cast(
+        Callable[[bytes, dict[str, object]], None],
+        namespace["_execute_pilot_runtime"],
+    )
+    runner(b"raise SystemExit(0)\n", {"__name__": "__main__"})
+    assert "AURAGATEWAY_VARIANCE_PILOT_RUNTIME_EXIT=0" in capsys.readouterr().out
+
+
+def test_wrapper_propagates_nonzero_runtime_system_exit() -> None:
+    namespace = _wrapper_namespace()
+    runner = cast(
+        Callable[[bytes, dict[str, object]], None],
+        namespace["_execute_pilot_runtime"],
+    )
+    with pytest.raises(SystemExit) as observed:
+        runner(b"raise SystemExit(3)\n", {"__name__": "__main__"})
+    assert observed.value.code == 3

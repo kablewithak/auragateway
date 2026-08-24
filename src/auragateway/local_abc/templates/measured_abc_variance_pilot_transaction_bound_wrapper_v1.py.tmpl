@@ -184,6 +184,27 @@ def admit(now: datetime | None = None) -> dict[str, object]:
     }
 
 
+
+def _execute_pilot_runtime(
+    pilot_source: bytes,
+    pilot_namespace: dict[str, object],
+) -> None:
+    try:
+        exec(
+            compile(
+                pilot_source,
+                "<variance-pilot-transaction-bound-runtime>",
+                "exec",
+            ),
+            pilot_namespace,
+            pilot_namespace,
+        )
+    except SystemExit as primary:
+        if primary.code in (None, 0):
+            print("AURAGATEWAY_VARIANCE_PILOT_RUNTIME_EXIT=0")
+            return
+        raise
+
 def execute() -> None:
     admission = admit()
     print(
@@ -224,15 +245,7 @@ def execute() -> None:
         "AURAGATEWAY_TRANSACTION_ID": _TRANSACTION_ID,
         "EXECUTED_RUNTIME_SCRIPT_SHA256": _PILOT_RUNTIME_SHA256,
     }
-    exec(
-        compile(
-            pilot_source,
-            "<variance-pilot-transaction-bound-runtime>",
-            "exec",
-        ),
-        pilot_namespace,
-        pilot_namespace,
-    )
+    _execute_pilot_runtime(pilot_source, pilot_namespace)
 
 
 if __name__ == "__main__":
