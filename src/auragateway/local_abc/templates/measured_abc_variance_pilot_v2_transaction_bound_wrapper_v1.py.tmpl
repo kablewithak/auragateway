@@ -1,0 +1,330 @@
+"""Inert structural-rehearsal wrapper for variance-pilot successor V2.
+
+This template is not a live authorization or execution wrapper. It exists to prove the
+exact embedded Python module graph, dataclass realization, package import path, V2 material
+validation, and SystemExit boundary before a future authority tranche can issue execution.
+"""
+
+from __future__ import annotations
+
+import base64
+import hashlib
+import json
+import sys
+import types
+from typing import Any
+
+_R2_RUNTIME_B64 = "__R2_RUNTIME_B64__"
+_R2_RUNTIME_SHA256 = "__R2_RUNTIME_SHA256__"
+_OUTPUT_ADMISSION_RUNTIME_B64 = "__OUTPUT_ADMISSION_RUNTIME_B64__"
+_OUTPUT_ADMISSION_RUNTIME_SHA256 = "__OUTPUT_ADMISSION_RUNTIME_SHA256__"
+_STANDALONE_RUNTIME_B64 = "__STANDALONE_RUNTIME_B64__"
+_STANDALONE_RUNTIME_SHA256 = "__STANDALONE_RUNTIME_SHA256__"
+_LIVE_SEMANTICS_RUNTIME_B64 = "__LIVE_SEMANTICS_RUNTIME_B64__"
+_LIVE_SEMANTICS_RUNTIME_SHA256 = "__LIVE_SEMANTICS_RUNTIME_SHA256__"
+_REQUEST_ADAPTER_B64 = "__REQUEST_ADAPTER_B64__"
+_REQUEST_ADAPTER_SHA256 = "__REQUEST_ADAPTER_SHA256__"
+_TRANSACTION_RUNTIME_B64 = "__TRANSACTION_RUNTIME_B64__"
+_TRANSACTION_RUNTIME_SHA256 = "__TRANSACTION_RUNTIME_SHA256__"
+_MATERIAL_B64 = "__MATERIAL_B64__"
+_MATERIAL_SHA256 = "__MATERIAL_SHA256__"
+
+_AURAGATEWAY_PACKAGE = "auragateway"
+_LOCAL_ABC_PACKAGE = "auragateway.local_abc"
+_OUTPUT_ADMISSION_MODULE = (
+    "auragateway.local_abc.measured_abc_variance_pilot_v2_output_admission_runtime"
+)
+_STANDALONE_MODULE = "auragateway.local_abc.measured_abc_variance_pilot_v2_standalone_runtime_v2"
+_LIVE_SEMANTICS_MODULE = (
+    "auragateway.local_abc.measured_abc_variance_pilot_v2_live_semantics_runtime_v1"
+)
+_REQUEST_ADAPTER_MODULE = (
+    "auragateway.local_abc.measured_abc_variance_pilot_v2_accepted_runtime_request_adapter_v1"
+)
+_R2_RUNTIME_MODULE = "auragateway_r2_runtime_library"
+_TRANSACTION_RUNTIME_MODULE = (
+    "auragateway.local_abc.measured_abc_variance_pilot_v2_transaction_bound_runtime_v1"
+)
+
+_LIVE_EXECUTION_ENABLED = False
+_REHEARSAL_TRANSACTION_ID = "0" * 64
+
+
+def _canonical_json(value: object) -> str:
+    return json.dumps(value, ensure_ascii=True, separators=(",", ":"), sort_keys=True)
+
+
+def _sha256(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def _decode(value: str) -> bytes:
+    return base64.b64decode(value.encode("ascii"), validate=True)
+
+
+def _payload(value: str, expected_sha256: str, label: str) -> bytes:
+    raw = _decode(value)
+    if _sha256(raw) != expected_sha256:
+        raise RuntimeError(label + " identity mismatch")
+    return raw
+
+
+def _create_package(name: str, created: list[str]) -> types.ModuleType:
+    if name in sys.modules:
+        raise RuntimeError("governed rehearsal package is already registered: " + name)
+    package = types.ModuleType(name)
+    package.__package__ = name
+    package.__path__ = []
+    package.__file__ = "<embedded-package:" + name + ">"
+    sys.modules[name] = package
+    created.append(name)
+    parent_name, _, child_name = name.rpartition(".")
+    if parent_name:
+        parent = sys.modules.get(parent_name)
+        if parent is None:
+            raise RuntimeError("governed rehearsal parent package is missing: " + parent_name)
+        setattr(parent, child_name, package)
+    return package
+
+
+def _load_module(
+    name: str,
+    filename: str,
+    source: bytes,
+    created: list[str],
+    seed: dict[str, object] | None = None,
+) -> types.ModuleType:
+    if name in sys.modules:
+        raise RuntimeError("governed rehearsal module is already registered: " + name)
+    module = types.ModuleType(name)
+    module.__file__ = filename
+    module.__package__ = name.rpartition(".")[0]
+    if seed:
+        module.__dict__.update(seed)
+    sys.modules[name] = module
+    created.append(name)
+    try:
+        exec(compile(source, filename, "exec"), module.__dict__, module.__dict__)
+    except BaseException:
+        sys.modules.pop(name, None)
+        created.remove(name)
+        raise
+    parent_name, _, child_name = name.rpartition(".")
+    if parent_name:
+        parent = sys.modules.get(parent_name)
+        if parent is not None:
+            setattr(parent, child_name, module)
+    return module
+
+
+def _cleanup(created: list[str]) -> None:
+    for name in reversed(created):
+        sys.modules.pop(name, None)
+
+
+def _execute_runtime_source(source: bytes) -> int:
+    namespace: dict[str, object] = {"__name__": "__main__", "__file__": "<system-exit-probe>"}
+    try:
+        exec(compile(source, "<system-exit-probe>", "exec"), namespace, namespace)
+    except SystemExit as exc:
+        if exc.code in (None, 0):
+            return 0
+        raise
+    return 0
+
+
+def _bootstrap_failure_cleanup_probe() -> bool:
+    name = "_auragateway_v2_bootstrap_failure_probe"
+    sys.modules.pop(name, None)
+    created: list[str] = []
+    try:
+        _load_module(
+            name,
+            "<bootstrap-failure-probe>",
+            b"raise RuntimeError('expected rehearsal probe')\n",
+            created,
+        )
+    except RuntimeError as exc:
+        if str(exc) != "expected rehearsal probe":
+            raise
+    else:
+        raise RuntimeError("bootstrap failure probe unexpectedly succeeded")
+    return name not in sys.modules and not created
+
+
+def _realize_graph() -> tuple[dict[str, types.ModuleType], list[str], dict[str, object]]:
+    payloads = {
+        "r2": _payload(_R2_RUNTIME_B64, _R2_RUNTIME_SHA256, "R2 runtime"),
+        "admission": _payload(
+            _OUTPUT_ADMISSION_RUNTIME_B64,
+            _OUTPUT_ADMISSION_RUNTIME_SHA256,
+            "output-admission runtime",
+        ),
+        "standalone": _payload(
+            _STANDALONE_RUNTIME_B64,
+            _STANDALONE_RUNTIME_SHA256,
+            "standalone runtime",
+        ),
+        "live": _payload(
+            _LIVE_SEMANTICS_RUNTIME_B64,
+            _LIVE_SEMANTICS_RUNTIME_SHA256,
+            "live-semantics runtime",
+        ),
+        "adapter": _payload(
+            _REQUEST_ADAPTER_B64,
+            _REQUEST_ADAPTER_SHA256,
+            "request-adapter runtime",
+        ),
+        "transaction": _payload(
+            _TRANSACTION_RUNTIME_B64,
+            _TRANSACTION_RUNTIME_SHA256,
+            "transaction runtime",
+        ),
+    }
+    material_raw = _payload(_MATERIAL_B64, _MATERIAL_SHA256, "V2 transaction material")
+    material = json.loads(material_raw)
+    if not isinstance(material, dict):
+        raise RuntimeError("V2 transaction material root is invalid")
+
+    created: list[str] = []
+    modules: dict[str, types.ModuleType] = {}
+    try:
+        _create_package(_AURAGATEWAY_PACKAGE, created)
+        _create_package(_LOCAL_ABC_PACKAGE, created)
+
+        modules["admission"] = _load_module(
+            _OUTPUT_ADMISSION_MODULE,
+            "<embedded-v2-output-admission-runtime>",
+            payloads["admission"],
+            created,
+        )
+        modules["standalone"] = _load_module(
+            _STANDALONE_MODULE,
+            "<embedded-v2-standalone-runtime>",
+            payloads["standalone"],
+            created,
+        )
+        modules["live"] = _load_module(
+            _LIVE_SEMANTICS_MODULE,
+            "<embedded-v2-live-semantics-runtime>",
+            payloads["live"],
+            created,
+        )
+        modules["adapter"] = _load_module(
+            _REQUEST_ADAPTER_MODULE,
+            "<embedded-v2-request-adapter-runtime>",
+            payloads["adapter"],
+            created,
+        )
+        modules["r2"] = _load_module(
+            _R2_RUNTIME_MODULE,
+            "<embedded-accepted-r2-runtime>",
+            payloads["r2"],
+            created,
+        )
+        modules["transaction"] = _load_module(
+            _TRANSACTION_RUNTIME_MODULE,
+            "<embedded-v2-transaction-runtime>",
+            payloads["transaction"],
+            created,
+            {
+                "AURAGATEWAY_R2_RUNTIME": modules["r2"].__dict__,
+                "AURAGATEWAY_V2_LIVE_SEMANTICS": modules["live"].__dict__,
+                "AURAGATEWAY_V2_REQUEST_ADAPTER": modules["adapter"].__dict__,
+                "AURAGATEWAY_V2_STANDALONE_RUNTIME": modules["standalone"].__dict__,
+                "AURAGATEWAY_V2_OUTPUT_ADMISSION_RUNTIME": modules["admission"].__dict__,
+                "AURAGATEWAY_V2_MATERIAL": material,
+                "AURAGATEWAY_TRANSACTION_ID": _REHEARSAL_TRANSACTION_ID,
+                "EXECUTED_RUNTIME_SCRIPT_SHA256": _TRANSACTION_RUNTIME_SHA256,
+            },
+        )
+    except BaseException:
+        _cleanup(created)
+        raise
+    return modules, created, material
+
+
+def rehearse() -> dict[str, object]:
+    if _LIVE_EXECUTION_ENABLED:
+        raise RuntimeError("structural rehearsal wrapper unexpectedly enables live execution")
+
+    modules, created, material = _realize_graph()
+    try:
+        admission = modules["admission"].__dict__
+        standalone = modules["standalone"].__dict__
+        live = modules["live"].__dict__
+        adapter = modules["adapter"].__dict__
+        r2 = modules["r2"].__dict__
+        transaction = modules["transaction"].__dict__
+
+        admission["validate_admission_spec"](material["standalone_admission_spec"])
+        validated_material = transaction["validate_material"](material)
+        if not isinstance(validated_material, dict):
+            raise RuntimeError("transaction runtime material validation returned an invalid result")
+
+        static_prompt = live["build_static_system_prompt"](
+            material["compiler_spec"],
+            material["standalone_admission_spec"],
+        )
+        if not isinstance(static_prompt, str) or not static_prompt:
+            raise RuntimeError("live-semantics static prompt rehearsal failed")
+
+        request_budget = adapter["RequestBudget"]()
+        if (
+            request_budget.maximum_total_model_requests != 240
+            or request_budget.attempted_model_requests != 0
+        ):
+            raise RuntimeError("request-adapter budget rehearsal drifted")
+
+        module_checks = (
+            (admission["AdmittedTerminalOutput"], _OUTPUT_ADMISSION_MODULE),
+            (standalone["RuntimeTurnRequest"], _STANDALONE_MODULE),
+            (adapter["RequestReceipt"], _REQUEST_ADAPTER_MODULE),
+            (r2["MetricSnapshotObservation"], _R2_RUNTIME_MODULE),
+        )
+        for value, expected_module in module_checks:
+            if getattr(value, "__module__", None) != expected_module:
+                raise RuntimeError("dataclass module identity rehearsal failed")
+
+        if _execute_runtime_source(b"raise SystemExit(0)\n") != 0:
+            raise RuntimeError("SystemExit(0) rehearsal failed")
+        nonzero_propagated = False
+        try:
+            _execute_runtime_source(b"raise SystemExit(3)\n")
+        except SystemExit as exc:
+            nonzero_propagated = exc.code == 3
+        if not nonzero_propagated:
+            raise RuntimeError("nonzero SystemExit rehearsal failed")
+
+        cleanup_probe = _bootstrap_failure_cleanup_probe()
+        if not cleanup_probe:
+            raise RuntimeError("bootstrap failure cleanup rehearsal failed")
+
+        return {
+            "status": "V2_TRANSACTION_WRAPPER_STRUCTURAL_REHEARSAL_PASS",
+            "loaded_runtime_module_count": len(modules),
+            "material_validated": True,
+            "dataclass_module_identity_validated": True,
+            "package_import_graph_validated": True,
+            "request_budget_validated": True,
+            "system_exit_zero_handled": True,
+            "nonzero_system_exit_propagated": True,
+            "bootstrap_failure_cleanup_validated": True,
+            "live_execution_enabled": False,
+            "model_requests_performed": 0,
+            "gpu_execution_performed": False,
+            "kaggle_execution_performed": False,
+            "new_execution_authorized": False,
+        }
+    finally:
+        _cleanup(created)
+
+
+def main() -> int:
+    result = rehearse()
+    print(_canonical_json(result))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

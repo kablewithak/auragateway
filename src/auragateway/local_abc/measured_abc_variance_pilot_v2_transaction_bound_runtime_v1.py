@@ -263,12 +263,14 @@ def _validate_schedule(schedule: JsonObject) -> list[JsonObject]:
     for pair_index in range(EXPECTED_COMPARISON_PAIR_COUNT):
         trio = trajectories[pair_index * 3 : pair_index * 3 + 3]
         pair_ids = {item.get("comparison_pair_id") for item in trio}
+        pair_indexes = {item.get("comparison_pair_index") for item in trio}
         condition_ids = [item.get("condition_id") for item in trio]
         condition_order = [item.get("condition_order_index") for item in trio]
         _require(
             len(pair_ids) == 1
             and None not in pair_ids
-            and condition_ids == ["A", "B", "C"]
+            and pair_indexes == {pair_index}
+            and set(condition_ids) == {"A", "B", "C"}
             and condition_order == [0, 1, 2],
             "V2_PILOT_COMPARISON_TRIO_INVALID",
             "V2 pilot comparison trio contract drifted",

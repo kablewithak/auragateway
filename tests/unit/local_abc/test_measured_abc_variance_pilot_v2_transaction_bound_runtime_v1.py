@@ -37,9 +37,15 @@ def _schedule() -> dict[str, Any]:
         "ep-func-011",
     ]
     trajectories: list[dict[str, Any]] = []
+    condition_orders = (
+        ("A", "B", "C"),
+        ("B", "C", "A"),
+        ("C", "A", "B"),
+    )
     index = 0
     for pair_index in range(18):
         episode_id = case_ids[pair_index % len(case_ids)]
+        replication_index = pair_index // 6
         orientation_one = pair_index % 2 == 0
         alternating = (
             ["worker_1", "worker_2", "worker_1", "worker_2"]
@@ -47,7 +53,7 @@ def _schedule() -> dict[str, Any]:
             else ["worker_2", "worker_1", "worker_2", "worker_1"]
         )
         sticky = [alternating[0]] * 4
-        for condition_index, condition_id in enumerate(("A", "B", "C")):
+        for condition_index, condition_id in enumerate(condition_orders[replication_index]):
             trajectories.append(
                 {
                     "schema_version": "2.0.0",
@@ -57,7 +63,7 @@ def _schedule() -> dict[str, Any]:
                     "condition_order_index": condition_index,
                     "condition_id": condition_id,
                     "episode_id": episode_id,
-                    "pilot_replication_id": f"r{pair_index // 6 + 1}",
+                    "pilot_replication_id": f"r{replication_index + 1}",
                     "worker_orientation": ("orientation_1" if orientation_one else "orientation_2"),
                     "run_id": f"run-{index:03d}",
                     "cache_namespace_id": f"namespace-{index:03d}",
@@ -362,6 +368,15 @@ def test_validate_material_accepts_frozen_v2_shape_and_rejects_bad_realized_rout
     with pytest.raises(runtime.V2TransactionRuntimeError) as exc:
         runtime.validate_material(material)
     assert exc.value.error_code == "V2_PILOT_REALIZED_ROUTE_INVALID"
+
+
+def test_validate_material_accepts_frozen_replication_condition_rotation() -> None:
+    schedule = _schedule()
+    trajectories = schedule["trajectories"]
+    assert [item["condition_id"] for item in trajectories[0:3]] == ["A", "B", "C"]
+    assert [item["condition_id"] for item in trajectories[18:21]] == ["B", "C", "A"]
+    assert [item["condition_id"] for item in trajectories[36:39]] == ["C", "A", "B"]
+    runtime.validate_material(_material())
 
 
 def test_neutral_plan_requires_frozen_canary_and_warmup_order() -> None:
