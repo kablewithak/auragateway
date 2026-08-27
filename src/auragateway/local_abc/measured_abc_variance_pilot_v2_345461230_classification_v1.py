@@ -93,8 +93,8 @@ class ExpectedSemantics(StrictModel):
     neutral_worker_qualification_decision: Literal["PASS"]
     neutral_worker_1_sample_count: Literal[10]
     neutral_worker_2_sample_count: Literal[10]
-    maximum_worker_median_ttft_ratio: Literal[1.25]
-    maximum_worker_median_prefill_ratio: Literal[1.25]
+    maximum_worker_median_ttft_ratio: float = Field(ge=1.25, le=1.25)
+    maximum_worker_median_prefill_ratio: float = Field(ge=1.25, le=1.25)
     observed_worker_median_ttft_ratio: float = Field(ge=1.0, le=1.25)
     observed_worker_median_prefill_ratio: float = Field(ge=1.0, le=1.25)
     bc_output_hash_comparison_count: Literal[72]
@@ -195,8 +195,8 @@ class WorkerNuisanceFinding(StrictModel):
     worker_2_sample_count: Literal[10] = 10
     worker_median_ttft_ratio: float = Field(ge=1.0, le=1.25)
     worker_median_prefill_ratio: float = Field(ge=1.0, le=1.25)
-    maximum_worker_median_ttft_ratio: Literal[1.25] = 1.25
-    maximum_worker_median_prefill_ratio: Literal[1.25] = 1.25
+    maximum_worker_median_ttft_ratio: float = Field(default=1.25, ge=1.25, le=1.25)
+    maximum_worker_median_prefill_ratio: float = Field(default=1.25, ge=1.25, le=1.25)
     global_orientation_1_pair_count: Literal[9] = 9
     global_orientation_2_pair_count: Literal[9] = 9
     each_replication_orientation_1_pair_count: Literal[3] = 3
@@ -784,7 +784,7 @@ def _execution_finding(
         "V2 runtime binding reports replacement cases",
     )
 
-    reconciliation_fields = {
+    reconciliation_fields: dict[str, object] = {
         "scheduled_request_count": expected.total_model_request_count,
         "attempted_request_count": expected.attempted_request_count,
         "http_completed_request_count": expected.http_completed_request_count,
@@ -806,7 +806,7 @@ def _execution_finding(
             f"V2 request reconciliation field {key} drifted",
         )
 
-    summary_fields = {
+    summary_fields: dict[str, object] = {
         "status": "PASSED_PENDING_REPOSITORY_ACCEPTANCE",
         "transaction_id": policy.transaction_id,
         "pretreatment_qualification": "PASS",
