@@ -1,0 +1,25 @@
+7.1s 1 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.1s 2 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.1s 3 0.00s - to python to disable frozen modules.
+7.1s 4 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+7.7s 5 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.7s 6 0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.7s 7 0.00s - to python to disable frozen modules.
+7.7s 8 0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+9.2s 9 {"bound_artifact_count":19,"issuer_merge_commit":"563aa99958d75d3cf09eb83dc6ea3062e8308a90","live_execution_enabled":true,"network_probe_performed":false,"observed_gpu_count":2,"platform_observation_receipt_runtime_input":false,"rendered_wrapper_sha256":"5bc26b220c7b34da7d634686af97d67b0d2666f84ac6f8d9b1f214163c17cb41","static_authority_binding_record_sha256":"21331033149dc7c79a94aa27dfd831b525185fdc0a9f32916306522598cde34f","status":"VARIANCE_PILOT_SUCCESSOR_V2_TRANSACTION_BOUND_RUNTIME_ADMISSION_VALID","transaction_id":"4341cafac81245d433a680db0bc9c62ecabdbf1d279c0ddc0a19741eb44c7d8b"}
+674.7s 10 EVIDENCE_ZIP_SHA256=19091996b681729d67ccf4331646b3d1ccc96cf197fa31079c7a432eab78c0e0
+674.7s 11 TRANSACTION_ID=4341cafac81245d433a680db0bc9c62ecabdbf1d279c0ddc0a19741eb44c7d8b
+674.7s 12 EXECUTION_OUTCOME=PASSED
+674.7s 13 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+674.7s 14 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+674.7s 15 
+674.7s 16 /usr/local/lib/python3.12/dist-packages/IPython/core/interactiveshell.py:3561: UserWarning: To exit: use 'exit', 'quit', or Ctrl-D.
+674.7s 17 warn("To exit: use 'exit', 'quit', or Ctrl-D.", stacklevel=1)
+677.4s 18 /usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+677.4s 19 cells[i][c] = re.sub('\\\\\|', '|', cell)
+677.6s 20 /usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+677.6s 21 text = re.sub(r'_', '\_', text) # Escape underscores in display text
+678.2s 22 [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+678.5s 23 [NbConvertApp] Writing 516704 bytes to __notebook__.ipynb
+680.9s 24 [NbConvertApp] Converting notebook __notebook__.ipynb to html
+681.8s 25 [NbConvertApp] Writing 833210 bytes to __results__.html
