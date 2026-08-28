@@ -1,8 +1,8 @@
 # ADR: Final 342-Trajectory Runtime Requalification Architecture V1
 
-**Date:** 2026-08-28  
-**Status:** Proposed for G11.0 architecture acceptance  
-**Base main:** `c05af5260df3cae71ca8d66154b60432b0af46f0`  
+**Date:** 2026-08-28
+**Status:** Proposed for G11.0 architecture acceptance
+**Base main:** `c05af5260df3cae71ca8d66154b60432b0af46f0`
 **Execution authority:** None
 
 ## Context
