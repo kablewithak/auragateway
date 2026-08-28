@@ -224,3 +224,10 @@ src/auragateway/local_abc/measured_abc_variance_pilot_v2_345461230_classificatio
 tests/unit/local_abc/test_measured_abc_variance_pilot_v2_345461230_classification_v1.py text eol=lf
 benchmarks/local_abc/auragateway_measured_abc_variance_pilot_v2_345461230_classification_v1.json text eol=lf
 benchmarks/local_abc/auragateway_measured_abc_variance_pilot_v2_345461230_acceptance_v1.json text eol=lf
+# Preserve measured A/B/C G10 repetition/statistical-freeze identities as LF.
+src/auragateway/local_abc/measured_abc_repetition_statistical_freeze_v1.py text eol=lf
+tests/unit/local_abc/test_measured_abc_repetition_statistical_freeze_v1.py text eol=lf
+docs/adr/2026-08-27-local-abc-measured-abc-repetition-statistical-freeze-v1.md text eol=lf
+data/evals/benchmark/freeze-v2/measured_abc_repetition_statistical_freeze_v1.json text eol=lf
+benchmarks/local_abc/auragateway_measured_abc_repetition_statistical_freeze_v1_review.json text eol=lf
+benchmarks/local_abc/auragateway_measured_abc_repetition_statistical_freeze_v1_record.json text eol=lf
