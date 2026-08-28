@@ -571,6 +571,11 @@ def classify_warm_eligibility(
             classification=WarmClassification.COLD,
             decision_code=WarmDecisionCode.FIRST_TURN_COLD,
         )
+    if current.session_reset or current.benchmark_transition:
+        return WarmEligibilityDecision(
+            classification=WarmClassification.COLD,
+            decision_code=WarmDecisionCode.NO_ELIGIBLE_PRIOR_REQUEST,
+        )
     if current.static_prefix_fingerprint is None or current.residency_identity is None:
         return WarmEligibilityDecision(
             classification=WarmClassification.UNAVAILABLE_OR_AMBIGUOUS,

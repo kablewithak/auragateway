@@ -440,3 +440,41 @@ def test_core_validation_is_non_authorizing() -> None:
     assert result["new_execution_authorized"] is False
     assert result["effect_claims_permitted"] is False
     assert result["next_gate"] == "REHEARSE_FINAL_342_TRANSACTION_WRAPPER_V1"
+
+
+def test_current_session_reset_invalidates_warm_eligibility() -> None:
+    prior = _warm_evidence(
+        turn_index=1,
+        started_ns=100,
+        completed_ns=200,
+        completed=True,
+    )
+    current = _warm_evidence(
+        turn_index=2,
+        started_ns=300,
+        completed_ns=None,
+        completed=False,
+    ).model_copy(update={"session_reset": True})
+
+    decision = core.classify_warm_eligibility(current, (prior,))
+
+    assert decision.classification is core.WarmClassification.COLD
+
+
+def test_current_benchmark_transition_invalidates_warm_eligibility() -> None:
+    prior = _warm_evidence(
+        turn_index=1,
+        started_ns=100,
+        completed_ns=200,
+        completed=True,
+    )
+    current = _warm_evidence(
+        turn_index=2,
+        started_ns=300,
+        completed_ns=None,
+        completed=False,
+    ).model_copy(update={"benchmark_transition": True})
+
+    decision = core.classify_warm_eligibility(current, (prior,))
+
+    assert decision.classification is core.WarmClassification.COLD
