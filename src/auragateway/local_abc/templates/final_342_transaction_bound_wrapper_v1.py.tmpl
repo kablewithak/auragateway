@@ -1,0 +1,365 @@
+"""Inert structural-rehearsal wrapper for the final 342 runtime core.
+
+This template is not a live execution wrapper and is not execution authority. It proves
+that the exact non-authorizing runtime core and frozen 342-run ledger can be embedded,
+identity-checked, loaded through a real ModuleType/sys.modules package graph, transaction
+seeded, and validated with repository PYTHONPATH cleared.
+"""
+
+from __future__ import annotations
+
+import base64
+import hashlib
+import json
+import os
+import sys
+import types
+from pathlib import Path
+
+_RUNTIME_CORE_B64 = "__RUNTIME_CORE_B64__"
+_RUNTIME_CORE_SHA256 = "__RUNTIME_CORE_SHA256__"
+_PLANNED_RUN_LEDGER_B64 = "__PLANNED_RUN_LEDGER_B64__"
+_PLANNED_RUN_LEDGER_SHA256 = "__PLANNED_RUN_LEDGER_SHA256__"
+
+_AURAGATEWAY_PACKAGE = "auragateway"
+_LOCAL_ABC_PACKAGE = "auragateway.local_abc"
+_RUNTIME_CORE_MODULE = (
+    "auragateway.local_abc.final_342_non_authorizing_runtime_core_v1"
+)
+
+_LIVE_EXECUTION_ENABLED = False
+_EXECUTION_MANIFEST_FROZEN = False
+_REHEARSAL_TRANSACTION_ID = "0" * 64
+
+
+def _canonical_json(value: object) -> str:
+    return json.dumps(
+        value,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def _sha256(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def _decode(value: str) -> bytes:
+    return base64.b64decode(value.encode("ascii"), validate=True)
+
+
+def _payload(
+    value: str,
+    expected_sha256: str,
+    label: str,
+) -> bytes:
+    raw = _decode(value)
+    if _sha256(raw) != expected_sha256:
+        raise RuntimeError(label + " identity mismatch")
+    return raw
+
+
+def _create_package(
+    name: str,
+    created: list[str],
+) -> types.ModuleType:
+    if name in sys.modules:
+        raise RuntimeError(
+            "governed rehearsal package is already registered: " + name
+        )
+    package = types.ModuleType(name)
+    package.__package__ = name
+    package.__path__ = []
+    package.__file__ = "<embedded-package:" + name + ">"
+    sys.modules[name] = package
+    created.append(name)
+
+    parent_name, _, child_name = name.rpartition(".")
+    if parent_name:
+        parent = sys.modules.get(parent_name)
+        if parent is None:
+            raise RuntimeError(
+                "governed rehearsal parent package is missing: "
+                + parent_name
+            )
+        setattr(parent, child_name, package)
+    return package
+
+
+def _load_module(
+    name: str,
+    filename: str,
+    source: bytes,
+    created: list[str],
+    seed: dict[str, object],
+) -> types.ModuleType:
+    if name in sys.modules:
+        raise RuntimeError(
+            "governed rehearsal module is already registered: " + name
+        )
+
+    module = types.ModuleType(name)
+    module.__file__ = filename
+    module.__package__ = name.rpartition(".")[0]
+    module.__dict__.update(seed)
+    sys.modules[name] = module
+    created.append(name)
+
+    try:
+        exec(
+            compile(source, filename, "exec"),
+            module.__dict__,
+            module.__dict__,
+        )
+    except BaseException:
+        sys.modules.pop(name, None)
+        created.remove(name)
+        raise
+
+    parent_name, _, child_name = name.rpartition(".")
+    if parent_name:
+        parent = sys.modules.get(parent_name)
+        if parent is not None:
+            setattr(parent, child_name, module)
+    return module
+
+
+def _cleanup(created: list[str]) -> None:
+    for name in reversed(created):
+        sys.modules.pop(name, None)
+
+
+def _execute_runtime_source(source: bytes) -> int:
+    namespace: dict[str, object] = {
+        "__name__": "__main__",
+        "__file__": "<system-exit-probe>",
+    }
+    try:
+        exec(
+            compile(source, "<system-exit-probe>", "exec"),
+            namespace,
+            namespace,
+        )
+    except SystemExit as error:
+        if error.code in (None, 0):
+            return 0
+        raise
+    return 0
+
+
+def _bootstrap_failure_cleanup_probe() -> bool:
+    name = "_auragateway_final_342_bootstrap_failure_probe"
+    sys.modules.pop(name, None)
+    created: list[str] = []
+
+    try:
+        _load_module(
+            name,
+            "<bootstrap-failure-probe>",
+            b"raise RuntimeError('expected rehearsal probe')\n",
+            created,
+            {},
+        )
+    except RuntimeError as error:
+        if str(error) != "expected rehearsal probe":
+            raise
+    else:
+        raise RuntimeError(
+            "bootstrap failure probe unexpectedly succeeded"
+        )
+
+    return name not in sys.modules and not created
+
+
+def _realize_graph() -> tuple[
+    types.ModuleType,
+    list[str],
+    bytes,
+]:
+    runtime_core = _payload(
+        _RUNTIME_CORE_B64,
+        _RUNTIME_CORE_SHA256,
+        "final runtime core",
+    )
+    ledger = _payload(
+        _PLANNED_RUN_LEDGER_B64,
+        _PLANNED_RUN_LEDGER_SHA256,
+        "planned run ledger",
+    )
+
+    created: list[str] = []
+    try:
+        _create_package(_AURAGATEWAY_PACKAGE, created)
+        _create_package(_LOCAL_ABC_PACKAGE, created)
+
+        runtime_module = _load_module(
+            _RUNTIME_CORE_MODULE,
+            "<embedded-final-342-runtime-core>",
+            runtime_core,
+            created,
+            {
+                "AURAGATEWAY_TRANSACTION_ID": (
+                    _REHEARSAL_TRANSACTION_ID
+                ),
+                "EXECUTED_RUNTIME_SCRIPT_SHA256": (
+                    _RUNTIME_CORE_SHA256
+                ),
+            },
+        )
+    except BaseException:
+        _cleanup(created)
+        raise
+
+    return runtime_module, created, ledger
+
+
+def rehearse() -> dict[str, object]:
+    if _LIVE_EXECUTION_ENABLED:
+        raise RuntimeError(
+            "structural rehearsal unexpectedly enables live execution"
+        )
+    if _EXECUTION_MANIFEST_FROZEN:
+        raise RuntimeError(
+            "structural rehearsal unexpectedly freezes execution manifest"
+        )
+    if os.environ.get("PYTHONPATH", ""):
+        raise RuntimeError(
+            "structural rehearsal requires repository PYTHONPATH cleared"
+        )
+    if any(
+        key.startswith("AURAGATEWAY_")
+        for key in os.environ
+    ):
+        raise RuntimeError(
+            "structural rehearsal inherited AuraGateway environment state"
+        )
+
+    runtime_module, created, ledger_raw = _realize_graph()
+    try:
+        runtime = runtime_module.__dict__
+
+        if (
+            runtime.get("AURAGATEWAY_TRANSACTION_ID")
+            != _REHEARSAL_TRANSACTION_ID
+        ):
+            raise RuntimeError(
+                "rehearsal transaction identity seed drifted"
+            )
+        if (
+            runtime.get("EXECUTED_RUNTIME_SCRIPT_SHA256")
+            != _RUNTIME_CORE_SHA256
+        ):
+            raise RuntimeError(
+                "rehearsal runtime payload identity seed drifted"
+            )
+
+        planned_run_ledger = runtime["PlannedRunLedger"]
+        ledger = planned_run_ledger.model_validate_json(
+            ledger_raw.decode("utf-8")
+        )
+
+        ledger_path = Path(
+            "data/evals/benchmark/preflight-v3/"
+            "planned_run_ledger.json"
+        )
+        ledger_path.parent.mkdir(parents=True, exist_ok=False)
+        ledger_path.write_bytes(ledger_raw)
+
+        validation = runtime["validate"](Path("."))
+        if (
+            validation.get("status")
+            != "FINAL_342_NON_AUTHORIZING_RUNTIME_CORE_V1_VALID"
+        ):
+            raise RuntimeError(
+                "embedded runtime-core validation drifted"
+            )
+
+        realized_turns = sum(
+            len(runtime["realize_run"](run))
+            for run in ledger.runs
+        )
+        if realized_turns != 1368:
+            raise RuntimeError(
+                "embedded final run realization drifted"
+            )
+
+        if (
+            getattr(planned_run_ledger, "__module__", None)
+            != _RUNTIME_CORE_MODULE
+        ):
+            raise RuntimeError(
+                "runtime-core Pydantic model module identity drifted"
+            )
+
+        if _execute_runtime_source(
+            b"raise SystemExit(0)\n"
+        ) != 0:
+            raise RuntimeError(
+                "SystemExit(0) rehearsal failed"
+            )
+
+        nonzero_propagated = False
+        try:
+            _execute_runtime_source(
+                b"raise SystemExit(3)\n"
+            )
+        except SystemExit as error:
+            nonzero_propagated = error.code == 3
+        if not nonzero_propagated:
+            raise RuntimeError(
+                "nonzero SystemExit rehearsal failed"
+            )
+
+        cleanup_probe = _bootstrap_failure_cleanup_probe()
+        if not cleanup_probe:
+            raise RuntimeError(
+                "bootstrap failure cleanup rehearsal failed"
+            )
+
+        return {
+            "status": (
+                "FINAL_342_TRANSACTION_WRAPPER_"
+                "STRUCTURAL_REHEARSAL_PASS"
+            ),
+            "runtime_core_sha256": _RUNTIME_CORE_SHA256,
+            "planned_run_ledger_sha256": (
+                _PLANNED_RUN_LEDGER_SHA256
+            ),
+            "loaded_runtime_module_count": 1,
+            "created_module_graph_entry_count": len(created),
+            "runtime_core_validated": True,
+            "planned_trajectories": len(ledger.runs),
+            "realized_turns": realized_turns,
+            "maximum_request_attempts": (
+                ledger.maximum_request_attempt_count
+            ),
+            "runtime_payload_identity_bound": True,
+            "transaction_identity_seeded": True,
+            "dataclass_module_identity_validated": True,
+            "package_import_graph_validated": True,
+            "pythonpath_cleared": True,
+            "auragateway_environment_cleared": True,
+            "system_exit_zero_handled": True,
+            "nonzero_system_exit_propagated": True,
+            "bootstrap_failure_cleanup_validated": True,
+            "live_execution_enabled": False,
+            "execution_manifest_frozen": False,
+            "final_measured_abc_execution_authorized": False,
+            "model_requests_performed": 0,
+            "gpu_execution_performed": False,
+            "kaggle_execution_performed": False,
+            "new_execution_authorized": False,
+        }
+    finally:
+        _cleanup(created)
+
+
+def main() -> int:
+    result = rehearse()
+    print(_canonical_json(result))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
