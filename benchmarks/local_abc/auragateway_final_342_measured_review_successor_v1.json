@@ -1,0 +1,143 @@
+{
+  "base_main_commit": "6d9f1c5cb54ab89e6e199ba42c676282330410b0",
+  "decision": "FINAL_342_MEASURED_REVIEW_SUCCESSOR_V1",
+  "implementation_boundary": {
+    "analysis_engine_implemented": false,
+    "measured_feedback_successor_implemented": false,
+    "measured_quality_reducers_implemented": false,
+    "next_missing_boundary": "FINAL_342_MEASURED_QUALITY_REDUCERS_V1",
+    "offline_integration_rehearsal_implemented": false,
+    "producer_modification_authorized": false
+  },
+  "next_gate": "AUTHOR_FINAL_342_MEASURED_QUALITY_REDUCERS_V1",
+  "protected_capture": {
+    "append_only_turn_capture": true,
+    "capture_failure_is_model_failure": false,
+    "capture_failure_may_be_silent": false,
+    "capture_failure_state": "EVIDENCE_INCOMPLETE",
+    "consume_transient_response_object": true,
+    "hook_source": "execute_transport_attempt.return.TransportExecutionResult",
+    "internal_rendered_prompt_captured": false,
+    "producer_modification_required": false,
+    "protected_root": ".local/auragateway/final-342-protected-review-v1",
+    "raw_run_id_protected_only": true,
+    "replacement_after_capture_failure_permitted": false,
+    "response_json_object_valid_required": true,
+    "status": "IMPLEMENTED_THIN_SUCCESSOR"
+  },
+  "retention": {
+    "adjudication_complete_required": true,
+    "analysis_inputs_materialized_required": true,
+    "deletion_authorized_now": false,
+    "deletion_receipt_required": true,
+    "event_driven_deletion_only": true,
+    "public_receipt_verified_required": true,
+    "review_complete_required": true
+  },
+  "reviewer_export": {
+    "cache_telemetry_visible": false,
+    "condition_id_visible": false,
+    "cost_visible": false,
+    "expected_answer_key_visible": false,
+    "internal_rendered_prompt_visible": false,
+    "latency_visible": false,
+    "planned_run_order_visible": false,
+    "primary_assignment_required_for_every_reviewable_candidate": true,
+    "public_receipt_digest_only": true,
+    "public_receipt_item_count_semantics": "unique_review_item_count",
+    "raw_outputs_in_public_evidence": false,
+    "reviewer_payload_forbidden_fields_fail_closed": true,
+    "route_visible": false,
+    "secondary_assignment_only_for_predeclared_schedule": true,
+    "status": "IMPLEMENTED_THIN_SUCCESSOR",
+    "worker_identity_visible": false
+  },
+  "safety_state": {
+    "effect_claims_permitted": false,
+    "execution_manifest_frozen": false,
+    "final_measured_abc_execution_authorized": false,
+    "gpu_execution_performed": false,
+    "kaggle_execution_performed": false,
+    "manifest_freeze_permitted": false,
+    "model_requests_performed": 0,
+    "new_execution_authorized": false
+  },
+  "schema_version": "1.0.0",
+  "secondary_schedule": {
+    "allocation_method": "hamilton_largest_remainder",
+    "final_manifest_must_bind_schedule_sha256": true,
+    "materialization_required_in_acceptance_gate": true,
+    "observed_outcomes_used": false,
+    "population": 162,
+    "protected_path":
+      ".local/auragateway/final-342-protected-review-v1/review_sample_schedule_v1.json",
+    "replacement_permitted": false,
+    "schedule_bytes_publicly_persisted": false,
+    "schedule_digest_publicly_persisted": true,
+    "schedule_sha256": "9566edb218c2d9c6459e8428bc93676bc1e73484b2fd56a249aed2cc1db6748c",
+    "seed": 20260712,
+    "status": "IMPLEMENTED_AS_PROTECTED_DETERMINISTIC_MATERIALIZATION",
+    "stratum_count": 12,
+    "target": 41
+  },
+  "source_bindings": [
+    {
+      "git_blob_sha": "9bedae7c7815e80d7c03ccc37b1e5261310056cf",
+      "path": "src/auragateway/local_abc/final_342_execution_producer_v1.py",
+      "role": "final_execution_producer"
+    },
+    {
+      "git_blob_sha": "7edeb7cb3f6c2213868d23863c33a9a94669468c",
+      "path": "src/auragateway/local_abc/final_342_non_authorizing_runtime_core_v1.py",
+      "role": "final_runtime_core"
+    },
+    {
+      "git_blob_sha": "673091128975b2fc33ba175649c8e82b2670a522",
+      "path": "src/auragateway/local_abc/final_342_measured_review_design_v1.py",
+      "role": "measured_review_design_source"
+    },
+    {
+      "git_blob_sha": "e667cf734e6fdeec1acf4a5b254beebb78754fb7",
+      "path": "benchmarks/local_abc/auragateway_final_342_measured_review_design_v1.json",
+      "role": "measured_review_design_record"
+    },
+    {
+      "git_blob_sha": "f271f2746effc77b03147a7c9929e30c8c563e2e",
+      "path": "src/auragateway/local_abc/final_342_producer_review_analysis_seam_audit_v1.py",
+      "role": "seam_audit_source"
+    },
+    {
+      "git_blob_sha": "605a193bf7873ec1184e7f50a7a1ed410e5b94c3",
+      "path":
+        "benchmarks/local_abc/auragateway_final_342_producer_review_analysis_seam_audit_v1.json",
+      "role": "seam_audit_record"
+    },
+    {
+      "git_blob_sha": "0e7f654a5e8562f93ada988bba51f4e3ed5b5b1f",
+      "path": "benchmarks/local_abc/auragateway_final_342_analysis_contracts_v1.json",
+      "role": "analysis_contract_record"
+    },
+    {
+      "git_blob_sha": "553b23e24629bdca81d9fb9fdcbd90cc2081caf0",
+      "path": "data/evals/benchmark/preflight-v3/planned_run_ledger.json",
+      "role": "planned_run_ledger"
+    },
+    {
+      "git_blob_sha": "b8e6a9c0a0097b0755acf9b47ac332792ffaaeac",
+      "path": "data/evals/episodes/functional-v1/accepted_episodes.json",
+      "role": "functional_episode_set"
+    },
+    {
+      "git_blob_sha": "13fc4dbd77dfd2667dd601c481821f7ac5ce0bd5",
+      "path": "data/evals/quality/blinded-v1/rubric.json",
+      "role": "quality_rubric"
+    },
+    {
+      "git_blob_sha": "0ad3aa46086d7ed6955448b7bd01d7c7b08969d7",
+      "path": "data/corpus/source_inventory.json",
+      "role": "source_inventory"
+    }
+  ],
+  "status": "PROPOSED_FOR_FINAL_342_MEASURED_REVIEW_SUCCESSOR_ACCEPTANCE",
+  "successor_id": "auragateway-final-342-measured-review-successor-v1"
+}
