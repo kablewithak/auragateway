@@ -1,0 +1,162 @@
+{
+  "base_main_commit": "b2a67efa3abca65031090f52712ec87e816a911f",
+  "capture_policy": {
+    "candidate_exists_capture_failed_quality_state": "EVIDENCE_INCOMPLETE",
+    "capture_boundary": "successful_response_before_public_only_reduction",
+    "captured_candidate_review_state": "REVIEWABLE",
+    "no_candidate_due_execution_failure_review_state": "NOT_REVIEWABLE_EXECUTION_FAILURE",
+    "original_execution_evidence_preserved": true,
+    "protected_capture_failure_changes_model_or_conversation_behavior": false,
+    "protected_capture_failure_is_model_quality_failure": false,
+    "protected_capture_failure_may_be_silent": false,
+    "protected_turn_capture_is_append_only": true,
+    "quality_non_inferiority_permitted_with_capture_gap": false,
+    "rerun_requires_fresh_execution_authority": true,
+    "runtime_improvement_claim_permitted_with_capture_gap": false
+  },
+  "decision": "FINAL_342_MEASURED_PROTECTED_REVIEW_DESIGN_V1",
+  "design_id": "auragateway-final-342-measured-review-design-v1",
+  "identity_policy": {
+    "internal_linkage_reviewer_visible": false,
+    "primary_and_secondary_assignment_ids_distinct": true,
+    "protected_internal_linkage_required": true,
+    "raw_run_id_reviewer_visible": false,
+    "review_item_id_is_lowercase_sha256": true,
+    "review_item_identity_domain": "auragateway-final-342-protected-review-v1|{run_id}",
+    "role_assignment_identity_domain": "auragateway-final-342-measured-review-assignment-v1|{review_item_id}|{role}",
+    "role_assignment_public_shape": "review-<first-24-lowercase-hex>"
+  },
+  "next_gate": "DEFINE_FINAL_342_ANALYSIS_CONTRACTS_V1",
+  "retention_policy": {
+    "arbitrary_calendar_retention_period_required": false,
+    "deletion_receipt_required": true,
+    "policy_id": "final-342-protected-review-event-retention-v1",
+    "raw_protected_material_deletion_permitted_only_after_adjudication_complete": true,
+    "raw_protected_material_deletion_permitted_only_after_analysis_inputs_materialized": true,
+    "raw_protected_material_deletion_permitted_only_after_public_receipt_verified": true,
+    "raw_protected_material_deletion_permitted_only_after_review_complete": true,
+    "retained_after_deletion": [
+      "hashes",
+      "opaque_ids",
+      "counts",
+      "review_verdicts",
+      "criterion_scores",
+      "failure_labels",
+      "adjudication_metadata",
+      "deletion_receipt"
+    ]
+  },
+  "reuse_policy": {
+    "final_execution_producer_redesign_authorized_by_this_decision": false,
+    "frozen_corpus_and_source_inventory_reused": true,
+    "frozen_episode_definitions_reused": true,
+    "frozen_rubric_reused": true,
+    "historical_adjudication_invariants_reused": true,
+    "historical_disagreement_detection_reused": true,
+    "historical_episode_unique_assignment_manifest_reused_as_final_schedule": false,
+    "historical_unique_episode_assignment_builder_requires_successor": true,
+    "measured_reviewer_export_requires_thin_successor": true
+  },
+  "review_population": {
+    "planned_functional_trajectory_count": 162,
+    "post_result_case_selection_permitted": false,
+    "primary_assignment_slot_count": 162,
+    "primary_review_fraction": "1",
+    "replacement_review_case_permitted": false,
+    "review_unit": "planned_functional_trajectory",
+    "runtime_microbenchmark_human_review_required": false,
+    "runtime_microbenchmark_trajectory_count": 180,
+    "secondary_review_fraction": "0.25",
+    "secondary_review_target_count": 41
+  },
+  "reviewer_payload": {
+    "cache_namespace_visible": false,
+    "cache_telemetry_visible": false,
+    "candidate_assistant_outputs_required": true,
+    "citation_and_retrieved_source_ids_permitted": true,
+    "condition_fingerprint_visible": false,
+    "condition_id_visible": false,
+    "cost_visible": false,
+    "deterministic_quality_summary_permitted": true,
+    "episode_id_visible": true,
+    "expected_answer_key_permitted": false,
+    "frozen_source_evidence_permitted": true,
+    "internal_rendered_prompt_permitted": false,
+    "latency_visible": false,
+    "planned_run_order_visible": false,
+    "required_or_forbidden_claim_registry_visible": false,
+    "route_visible": false,
+    "rubric_identity_required": true,
+    "terminal_decision_output_required": true,
+    "user_visible_conversation_required": true,
+    "worker_identity_visible": false
+  },
+  "safety_state": {
+    "effect_claims_permitted": false,
+    "execution_manifest_frozen": false,
+    "final_measured_abc_execution_authorized": false,
+    "gpu_execution_performed": false,
+    "kaggle_execution_performed": false,
+    "manifest_freeze_permitted": false,
+    "model_requests_performed": 0,
+    "new_execution_authorized": false,
+    "rehearsal_files_authorized": false,
+    "source_mutation_authorized": false
+  },
+  "sampling_policy": {
+    "allocation_method": "hamilton_largest_remainder",
+    "ascending_sha256_rank": true,
+    "exact_schedule_materialized_before_manifest_freeze": true,
+    "final_manifest_binds_review_sample_schedule_sha256": true,
+    "observed_terminal_decision_used_for_sampling": false,
+    "policy_id": "final-342-measured-review-stratified-sampling-v1",
+    "seed": 20260712,
+    "selected_nonreviewable_case_replacement_permitted": false,
+    "stratum_fields": [
+      "condition_id",
+      "expected_terminal_decision"
+    ],
+    "stratum_tie_break_domain": "auragateway-final-342-review-stratum-v1|{seed}|{condition_id}|{expected_terminal_decision}",
+    "target_rounding_rule": "ceil_planned_functional_population_times_fraction",
+    "within_stratum_rank_domain": "auragateway-final-342-review-secondary-v1|{seed}|{run_id}"
+  },
+  "schema_version": "1.0.0",
+  "source_bindings": [
+    {
+      "path": "data/evals/benchmark/preflight-v3/planned_run_ledger.json",
+      "role": "planned_run_ledger",
+      "sha256": "c6ea56cd0be059101f9984e2cbdfab05e7a676e4c451b1bbf99120ae25a8472c"
+    },
+    {
+      "path": "data/evals/benchmark/freeze-v2/measured_abc_repetition_statistical_freeze_v1.json",
+      "role": "g10_repetition_statistical_freeze",
+      "sha256": "4c4345e57e7aae7453616bc90e405d6aa7aef9d2673e20bc060c99579a863b18"
+    },
+    {
+      "path": "data/evals/episodes/functional-v1/accepted_episodes.json",
+      "role": "functional_episode_set",
+      "sha256": "6229df94a6a426f815a2050172a79e115d9554031239043b397140ce13894285"
+    },
+    {
+      "path": "data/evals/episodes/manifest.json",
+      "role": "episode_manifest",
+      "sha256": "3a77c6fa037c62a1a548c2e5dc13e9668ebd3114cb58903df538bf7fa239ea6b"
+    },
+    {
+      "path": "data/evals/episodes/blinded_review_protocol.json",
+      "role": "blinded_review_protocol",
+      "sha256": "925e614c3a81d7e438299436ddf3619fa462cd861e0b816f26937279506ab3af"
+    },
+    {
+      "path": "data/evals/quality/blinded-v1/rubric.json",
+      "role": "quality_rubric",
+      "sha256": "7e9ddcc086392a8c571e406257edce0fd8cf962f055746245e3e0219c3844951"
+    },
+    {
+      "path": "data/corpus/source_inventory.json",
+      "role": "source_inventory",
+      "sha256": "25b34bbb646952f0b9345d25a9a958fcab9ca33e88696c474a41621e7f90a3be"
+    }
+  ],
+  "status": "PROPOSED_FOR_FINAL_342_MEASURED_REVIEW_DESIGN_ACCEPTANCE"
+}
