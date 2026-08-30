@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0.0",
+  "audit_id": "auragateway-final-342-producer-review-analysis-seam-audit-v1",
+  "status": "PROPOSED_FOR_FINAL_342_PRODUCER_REVIEW_ANALYSIS_SEAM_AUDIT_ACCEPTANCE",
+  "base_main_commit": "6320f1e636897c8cf90bcd3094eaae93b5cd5530",
+  "decision": "FINAL_342_PRODUCER_REVIEW_ANALYSIS_SEAM_AUDIT_V1",
+  "source_bindings": [
+    {
+      "role": "final_execution_producer",
+      "path": "src/auragateway/local_abc/final_342_execution_producer_v1.py",
+      "git_blob_sha": "9bedae7c7815e80d7c03ccc37b1e5261310056cf"
+    },
+    {
+      "role": "measured_review_design_source",
+      "path": "src/auragateway/local_abc/final_342_measured_review_design_v1.py",
+      "git_blob_sha": "673091128975b2fc33ba175649c8e82b2670a522"
+    },
+    {
+      "role": "measured_review_design_record",
+      "path": "benchmarks/local_abc/auragateway_final_342_measured_review_design_v1.json",
+      "git_blob_sha": "e667cf734e6fdeec1acf4a5b254beebb78754fb7"
+    },
+    {
+      "role": "analysis_contract_source",
+      "path": "src/auragateway/local_abc/final_342_analysis_contracts_v1.py",
+      "git_blob_sha": "e5ff63b8a1f148dee42bbf1e39504b26657a6d75"
+    },
+    {
+      "role": "analysis_contract_record",
+      "path": "benchmarks/local_abc/auragateway_final_342_analysis_contracts_v1.json",
+      "git_blob_sha": "0e7f654a5e8562f93ada988bba51f4e3ed5b5b1f"
+    },
+    {
+      "role": "planned_run_ledger",
+      "path": "data/evals/benchmark/preflight-v3/planned_run_ledger.json",
+      "git_blob_sha": "553b23e24629bdca81d9fb9fdcbd90cc2081caf0"
+    },
+    {
+      "role": "functional_episode_set",
+      "path": "data/evals/episodes/functional-v1/accepted_episodes.json",
+      "git_blob_sha": "b8e6a9c0a0097b0755acf9b47ac332792ffaaeac"
+    },
+    {
+      "role": "deterministic_quality_contracts",
+      "path": "src/auragateway/contracts/quality.py",
+      "git_blob_sha": "f25d94de7ad0f5ed2bc4c961a6aaa16e32dd9a09"
+    },
+    {
+      "role": "blinded_quality_contracts",
+      "path": "src/auragateway/contracts/blinded_quality.py",
+      "git_blob_sha": "14a3cdf2463ed980913e7c3c8a37ad037ea84a4d"
+    },
+    {
+      "role": "historical_feedback_contracts",
+      "path": "src/auragateway/contracts/feedback.py",
+      "git_blob_sha": "4375eff8e45ed2cc7bf6ff788200b67e39a07ae1"
+    }
+  ],
+  "producer_seam": {
+    "classification": "EXISTING_TRANSIENT_RESPONSE_HOOK_SUFFICIENT",
+    "execute_transport_attempt_returns_transient_response_object": true,
+    "response_json_validity_flag_available": true,
+    "transport_outcome_persisted_before_response_object_returned": true,
+    "response_object_persisted_in_public_producer_state": false,
+    "raw_output_persisted_in_public_bundle": false,
+    "public_attempt_action_ledger_available": true,
+    "public_turn_measurements_available": true,
+    "public_request_reconciliation_available": true,
+    "public_failure_report_available": true,
+    "public_trajectory_terminal_ledger_available": true,
+    "producer_modification_required": false,
+    "producer_modification_authorized": false
+  },
+  "review_seams": {
+    "protected_capture_boundary": "successful_response_before_public_only_reduction",
+    "protected_capture_hook_source": "execute_transport_attempt.return.TransportExecutionResult",
+    "exact_secondary_schedule": {
+      "status": "THIN_SUCCESSOR_REQUIRED",
+      "population": 162,
+      "target": 41,
+      "stratum_count": 12,
+      "seed": 20260712,
+      "allocation_method": "hamilton_largest_remainder",
+      "within_stratum_rank_domain": "auragateway-final-342-review-secondary-v1|{seed}|{run_id}",
+      "derivable_from_frozen_inputs_without_execution_results": true,
+      "materialized": false,
+      "must_be_hash_bound_before_manifest_freeze": true
+    },
+    "measured_protected_review_exporter": {
+      "status": "THIN_SUCCESSOR_REQUIRED",
+      "producer_redesign_required": false,
+      "consume_transient_response_object": true,
+      "append_only_protected_turn_capture_required": true,
+      "reviewer_payload_must_remain_blinded": true,
+      "public_receipt_digest_only": true,
+      "post_result_replacement_permitted": false
+    }
+  },
+  "quality_seams": {
+    "measured_task_success_reducer": {
+      "status": "SUCCESSOR_REQUIRED",
+      "historical_synthetic_direct_reuse_permitted": false,
+      "runtime_completion_alone_sufficient": false,
+      "structured_validity_alone_sufficient": false
+    },
+    "unsafe_behavior_regression_reducer": {
+      "status": "SUCCESSOR_REQUIRED",
+      "must_cover_route_retry_escalation_refusal_regression": true,
+      "post_hoc_human_override_permitted": false
+    }
+  },
+  "feedback_seam": {
+    "status": "SUCCESSOR_REQUIRED",
+    "historical_synthetic_direct_reuse_permitted": false,
+    "required_dimensions": [
+      "validity",
+      "novelty",
+      "retention",
+      "later_action_change",
+      "task_sufficiency"
+    ],
+    "universal_efc_score_permitted": false
+  },
+  "analysis_engine_seam": {
+    "status": "DEFERRED_UNTIL_INPUT_SUCCESSORS_EXIST",
+    "implementation_authorized_by_current_accepted_design": false,
+    "quality_gate_must_precede_runtime_improvement_claim": true,
+    "producer_mutation_prerequisite": false
+  },
+  "implementation_sequence": [
+    "FINAL_342_MEASURED_REVIEW_SUCCESSOR_V1",
+    "FINAL_342_MEASURED_QUALITY_REDUCERS_V1",
+    "FINAL_342_MEASURED_FEEDBACK_SUCCESSOR_V1",
+    "FINAL_342_ANALYSIS_ENGINE_V1",
+    "FINAL_342_OFFLINE_ORCHESTRATION_AND_INTEGRATION_REHEARSAL_V1"
+  ],
+  "audit_conclusion": {
+    "producer_change_is_first_missing_boundary": false,
+    "first_missing_boundary": "FINAL_342_MEASURED_REVIEW_SUCCESSOR_V1",
+    "producer_modification_permitted_only_if_successor_integration_proves_missing_hook": true,
+    "manifest_freeze_permitted": false,
+    "final_measured_abc_execution_authorized": false,
+    "effect_claims_permitted": false
+  },
+  "safety_state": {
+    "model_requests_performed": 0,
+    "gpu_execution_performed": false,
+    "kaggle_execution_performed": false,
+    "source_mutation_authorized": false,
+    "new_execution_authorized": false,
+    "manifest_freeze_permitted": false,
+    "final_measured_abc_execution_authorized": false,
+    "effect_claims_permitted": false
+  },
+  "next_gate": "AUTHOR_FINAL_342_MEASURED_REVIEW_SUCCESSOR_V1"
+}
