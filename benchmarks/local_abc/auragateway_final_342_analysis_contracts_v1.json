@@ -1,0 +1,216 @@
+{
+  "schema_version": "1.0.0",
+  "analysis_contract_id": "auragateway-final-342-analysis-contracts-v1",
+  "status": "PROPOSED_FOR_FINAL_342_ANALYSIS_CONTRACT_ACCEPTANCE",
+  "base_main_commit": "9888f05a8c1c3b36fa9728b2bd2790f5704f4109",
+  "decision": "FINAL_342_POST_RUN_ANALYSIS_CONTRACTS_V1",
+  "source_bindings": [
+    {
+      "role": "benchmark_constitution",
+      "path": "docs/benchmark/AuraGateway_Benchmark_Constitution.md",
+      "git_blob_sha": "dc25906298a611b71f3482da85c6aba763c474e7"
+    },
+    {
+      "role": "g10_repetition_statistical_freeze",
+      "path": "data/evals/benchmark/freeze-v2/measured_abc_repetition_statistical_freeze_v1.json",
+      "git_blob_sha": "9999eb0350a3d3e01a9f5f3451f54d7deaa35aef"
+    },
+    {
+      "role": "planned_run_ledger",
+      "path": "data/evals/benchmark/preflight-v3/planned_run_ledger.json",
+      "git_blob_sha": "553b23e24629bdca81d9fb9fdcbd90cc2081caf0"
+    },
+    {
+      "role": "final_execution_producer",
+      "path": "src/auragateway/local_abc/final_342_execution_producer_v1.py",
+      "git_blob_sha": "9bedae7c7815e80d7c03ccc37b1e5261310056cf"
+    },
+    {
+      "role": "measured_review_design",
+      "path": "benchmarks/local_abc/auragateway_final_342_measured_review_design_v1.json",
+      "git_blob_sha": "e667cf734e6fdeec1acf4a5b254beebb78754fb7"
+    },
+    {
+      "role": "quality_gate_contracts",
+      "path": "src/auragateway/contracts/quality_gate.py",
+      "git_blob_sha": "31c18f9735b26ff194a65bb824f7810db3a208f5"
+    },
+    {
+      "role": "deterministic_quality_contracts",
+      "path": "src/auragateway/contracts/quality.py",
+      "git_blob_sha": "f25d94de7ad0f5ed2bc4c961a6aaa16e32dd9a09"
+    },
+    {
+      "role": "blinded_quality_contracts",
+      "path": "src/auragateway/contracts/blinded_quality.py",
+      "git_blob_sha": "14a3cdf2463ed980913e7c3c8a37ad037ea84a4d"
+    },
+    {
+      "role": "feedback_contracts",
+      "path": "src/auragateway/contracts/feedback.py",
+      "git_blob_sha": "4375eff8e45ed2cc7bf6ff788200b67e39a07ae1"
+    },
+    {
+      "role": "feedback_manifest",
+      "path": "data/evals/feedback/efc-v1/manifest.json",
+      "git_blob_sha": "7c56abed309031e0d9f8d371d2fc1124ff4c8640"
+    }
+  ],
+  "denominator_authority": {
+    "scientific_scheduled_trajectory_source": "planned_run_ledger.runs",
+    "total_scheduled_trajectory_count": 342,
+    "functional_scheduled_trajectory_count": 162,
+    "runtime_scheduled_trajectory_count": 180,
+    "total_scheduled_logical_turn_count": 1368,
+    "maximum_physical_attempt_count": 2736,
+    "request_reconciliation_scheduled_request_count_role": "operational_attempt_reservation_counter",
+    "request_reconciliation_scheduled_request_count_is_scientific_denominator": false,
+    "physical_attempt_source": "attempt_action_ledger_v1.json.reservations",
+    "transport_completion_source": "attempt_action_ledger_v1.json.transport_outcomes.http_completed",
+    "admitted_turn_source": "attempt_action_ledger_v1.json.admissions.evidence.schema_admitted",
+    "committed_turn_source": "attempt_action_ledger_v1.json.state_mutations.decision.commit",
+    "trajectory_terminal_source": "trajectory_terminal_ledger_v1.json.trajectories",
+    "completed_run_runtime_view_required": true,
+    "failure_accounted_all_scheduled_view_required": true
+  },
+  "execution_accountability": {
+    "all_planned_run_ids_must_be_reconciled": true,
+    "unknown_run_ids_permitted": false,
+    "missing_terminal_record_is_evidence_incomplete": true,
+    "logical_turn_and_physical_attempt_counts_must_remain_distinct": true,
+    "every_attempt_retained": true,
+    "hidden_retry_permitted": false,
+    "replacement_case_permitted": false,
+    "first_causal_failure_preserved": true,
+    "secondary_failure_may_mask_primary": false,
+    "metric_specific_exclusions_must_use_predeclared_rules": true,
+    "excluded_runs_remain_failure_accounted": true,
+    "poor_quality_latency_or_unfavorable_result_is_exclusion_reason": false,
+    "rerun_original_record_deleted": false
+  },
+  "comparison_eligibility": {
+    "final_execution_manifest_hash_match_required": true,
+    "configuration_fingerprint_match_required": true,
+    "mixed_execution_manifest_hashes_eligible_by_default": false,
+    "route_realization_required_for_route_dependent_metrics": true,
+    "telemetry_sufficiency_required_per_metric_family": true,
+    "warm_eligibility_required_for_primary_runtime_endpoint_turns": true,
+    "partially_eligible_metric_families_require_explicit_support": true,
+    "human_authored_report_may_override_ineligible_decision": false,
+    "comparison_gate_records_compared_run_ids": true,
+    "comparison_gate_records_mismatched_fields": true,
+    "comparison_gate_records_invalidated_metrics": true,
+    "comparison_gate_records_invalidated_claims": true,
+    "comparison_gate_records_required_reruns": true
+  },
+  "quality_analysis": {
+    "functional_population_count": 162,
+    "runtime_microbenchmark_human_review_required": false,
+    "deterministic_scoring_required_for_each_produced_candidate": true,
+    "execution_failure_without_candidate_counts_as_task_non_success": true,
+    "capture_gap_state": "EVIDENCE_INCOMPLETE",
+    "capture_gap_permits_quality_noninferiority": false,
+    "capture_gap_permits_runtime_improvement_claim": false,
+    "primary_review_required_for_every_reviewable_candidate": true,
+    "secondary_review_target_count": 41,
+    "secondary_schedule_materialized_before_manifest_freeze": true,
+    "selected_nonreviewable_case_replacement_permitted": false,
+    "material_disagreement_requires_independent_adjudication": true,
+    "structured_output_validity_minimum": "0.95",
+    "task_success_max_regression_percentage_points": "5",
+    "citation_support_regression_permitted": false,
+    "unsupported_answer_rate_increase_permitted": false,
+    "retrieval_configuration_change_permitted": false,
+    "unsafe_route_retry_escalation_refusal_regression_permitted": false,
+    "measured_task_success_reducer_required_before_manifest_freeze": true,
+    "task_success_may_be_inferred_from_runtime_completion_only": false,
+    "task_success_may_be_inferred_from_structured_validity_only": false,
+    "historical_synthetic_quality_gate_direct_measured_reuse_permitted": false,
+    "historical_quality_threshold_logic_reusable": true,
+    "quality_gate_precedes_runtime_improvement_claim": true
+  },
+  "runtime_analysis": {
+    "runtime_population_count": 180,
+    "runtime_comparison_pair_count": 60,
+    "primary_endpoint_id": "warm-eligible-newly-computed-prefill-tokens-v1",
+    "primary_telemetry_field": "newly_computed_prefill_tokens",
+    "turn_1_classification": "cold",
+    "primary_candidate_turn_indices": [
+      2,
+      3,
+      4
+    ],
+    "include_turn_only_when_warm_eligible": true,
+    "trajectory_aggregation": "sum_warm_eligible_turns_within_runtime_trajectory",
+    "direction": "lower_is_better",
+    "contrasts": [
+      "B-A",
+      "C-B",
+      "C-A"
+    ],
+    "cold_and_warm_views_reported_separately": true,
+    "completed_run_and_failure_accounted_views_required": true,
+    "warm_ineligible_or_missing_telemetry_remains_visible_in_coverage": true,
+    "monetary_cost_comparison_in_scope": false
+  },
+  "statistical_and_claim_analysis": {
+    "configuration_id": "paired-bootstrap-v1",
+    "method": "percentile_bootstrap",
+    "resampling_unit": "comparison_pair_at_episode_level",
+    "bootstrap_samples": 10000,
+    "confidence_level": "0.95",
+    "random_seed": 20260712,
+    "primary_point_estimator": "median_paired_difference",
+    "runtime_improvement_requires_negative_point_estimate": true,
+    "runtime_improvement_requires_ci_upper_bound_below_zero": true,
+    "academic_statistical_significance_claim_permitted": false,
+    "universal_generalization_claim_permitted": false,
+    "decision_precedence": [
+      "bundle_schema_and_hash_verification",
+      "run_accountability_verification",
+      "execution_manifest_and_configuration_fingerprint_eligibility",
+      "telemetry_sufficiency_decision",
+      "quality_noninferiority_decision",
+      "metric_calculation",
+      "claim_generation"
+    ],
+    "earlier_gate_failure_blocks_dependent_claims": true,
+    "quality_failure_with_faster_runtime_classification": "quality_regression_not_improvement",
+    "monetary_cost_effect_claims_permitted": false
+  },
+  "feedback_analysis": {
+    "trace_level_feedback_evidence_required_for_feedback_claims": true,
+    "required_dimensions": [
+      "validity",
+      "novelty",
+      "retention",
+      "later_action_change",
+      "task_sufficiency"
+    ],
+    "universal_efc_score_permitted": false,
+    "historical_synthetic_feedback_direct_measured_reuse_permitted": false,
+    "measured_feedback_successor_required_before_manifest_freeze": true
+  },
+  "implementation_boundary": {
+    "exact_secondary_review_schedule_implementation_still_required": true,
+    "measured_protected_review_exporter_implementation_still_required": true,
+    "measured_task_success_reducer_implementation_still_required": true,
+    "unsafe_behavior_regression_reducer_implementation_still_required": true,
+    "measured_feedback_successor_implementation_still_required": true,
+    "producer_modification_authorized_by_this_decision": false,
+    "analysis_engine_implementation_authorized_by_this_decision": false,
+    "complete_offline_integration_rehearsal_authorized_by_this_decision": false,
+    "producer_review_analysis_seam_audit_required_next": true
+  },
+  "safety_state": {
+    "model_requests_performed": 0,
+    "gpu_execution_performed": false,
+    "kaggle_execution_performed": false,
+    "execution_manifest_frozen": false,
+    "manifest_freeze_permitted": false,
+    "final_measured_abc_execution_authorized": false,
+    "new_execution_authorized": false,
+    "effect_claims_permitted": false
+  },
+  "next_gate": "AUDIT_FINAL_342_PRODUCER_REVIEW_ANALYSIS_SEAMS_V1"
+}
