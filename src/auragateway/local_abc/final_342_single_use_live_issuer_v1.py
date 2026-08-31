@@ -20,6 +20,7 @@ import secrets
 import subprocess
 import sys
 import tempfile
+import zlib
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Final, Literal, Never, Self, cast
@@ -35,7 +36,7 @@ from auragateway.local_abc import final_342_measured_review_successor_v1 as revi
 from auragateway.local_abc import final_342_non_authorizing_runtime_core_v1 as core
 from auragateway.local_abc import final_342_static_execution_authority_binding_v1 as static_binding
 
-BASE_MAIN_COMMIT: Final = "af3cd0c189ddfcd85c63e21d1ca355907e1cf628"
+BASE_MAIN_COMMIT: Final = "4f19491ee6851a52d322974f2d1607e3518fee98"
 
 SOURCE_PATH: Final = Path("src/auragateway/local_abc/final_342_single_use_live_issuer_v1.py")
 TEST_PATH: Final = Path("tests/unit/local_abc/test_final_342_single_use_live_issuer_v1.py")
@@ -139,6 +140,8 @@ EXPECTED_REVIEW_SCHEDULE_SHA256: Final = (
 
 AUTHORIZATION_SCOPE: Final = "FINAL_342_TRANSACTION_BOUND_MEASURED_ABC_V1"
 NOTEBOOK_NAME: Final = "auragateway_final_342_transaction_bound_v1"
+KAGGLE_NOTEBOOK_SOURCE_BUDGET_BYTES: Final = 900_000
+NOTEBOOK_CONTAINER_ENCODING: Final = "zlib-level-9+base64"
 EXPECTED_TRAJECTORIES: Final = 342
 EXPECTED_TURNS: Final = 1368
 EXPECTED_MAX_ATTEMPTS: Final = 2736
@@ -226,13 +229,18 @@ class QualificationRecord(FrozenModel):
     schema_version: Literal["1.0.0"] = "1.0.0"
     qualification_id: Literal["auragateway-final-342-single-use-live-issuer-qualification-v1"]
     status: Literal["QUALIFIED_NOT_ISSUED"]
-    source_main_commit: Literal["af3cd0c189ddfcd85c63e21d1ca355907e1cf628"]
+    source_main_commit: Literal["4f19491ee6851a52d322974f2d1607e3518fee98"]
     authorization_scope: Literal["FINAL_342_TRANSACTION_BOUND_MEASURED_ABC_V1"]
     source: ArtifactReceipt
     test: ArtifactReceipt
     live_execution_template: ArtifactReceipt
     transaction_material_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     qualification_rendered_wrapper_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    qualification_notebook_launcher_source_bytes: int = Field(
+        gt=0, lt=KAGGLE_NOTEBOOK_SOURCE_BUDGET_BYTES
+    )
+    notebook_container_encoding: Literal["zlib-level-9+base64"] = NOTEBOOK_CONTAINER_ENCODING
+    notebook_container_reconstructs_exact_wrapper_bytes: Literal[True] = True
     bootstrap_state_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     canonical_static_payload_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     protected_review_schedule_sha256: Literal[
@@ -807,6 +815,11 @@ def build_qualification_record(root: Path) -> QualificationRecord:
         live_execution_template=_receipt(root, TEMPLATE_PATH),
         transaction_material_sha256=sha256_bytes(material),
         qualification_rendered_wrapper_sha256=sha256_bytes(wrapper),
+        qualification_notebook_launcher_source_bytes=len(
+            _notebook_launcher_source(wrapper).encode("utf-8")
+        ),
+        notebook_container_encoding=NOTEBOOK_CONTAINER_ENCODING,
+        notebook_container_reconstructs_exact_wrapper_bytes=True,
         bootstrap_state_sha256=bootstrap_sha,
         canonical_static_payload_sha256=static_sha,
         protected_review_schedule_sha256=EXPECTED_REVIEW_SCHEDULE_SHA256,
@@ -825,7 +838,59 @@ def _write_atomic(path: Path, payload: bytes) -> None:
     temporary.replace(path)
 
 
+def _notebook_launcher_source(wrapper: bytes) -> str:
+    compressed = zlib.compress(wrapper, level=9)
+    encoded = base64.b64encode(compressed).decode("ascii")
+    expected_sha256 = sha256_bytes(wrapper)
+    wrapper_filename = f"{NOTEBOOK_NAME}.py"
+    source = (
+        "from __future__ import annotations\n\n"
+        "import base64\n"
+        "import hashlib\n"
+        "import sys\n"
+        "import zlib\n\n"
+        f"_PAYLOAD_B64 = {encoded!r}\n"
+        f"_EXPECTED_SHA256 = {expected_sha256!r}\n"
+        f"_WRAPPER_FILENAME = {wrapper_filename!r}\n\n"
+        "_wrapper = zlib.decompress(\n"
+        '    base64.b64decode(_PAYLOAD_B64.encode("ascii"), validate=True)\n'
+        ")\n"
+        "if hashlib.sha256(_wrapper).hexdigest() != _EXPECTED_SHA256:\n"
+        '    raise RuntimeError("transaction-bound wrapper reconstruction SHA-256 mismatch")\n'
+        '_source = _wrapper.decode("utf-8")\n'
+        "_original_argv = sys.argv[:]\n"
+        "sys.argv = [_WRAPPER_FILENAME]\n"
+        "try:\n"
+        "    exec(\n"
+        '        compile(_source, _WRAPPER_FILENAME, "exec"),\n'
+        "        {\n"
+        '            "__name__": "__main__",\n'
+        '            "__file__": _WRAPPER_FILENAME,\n'
+        '            "__package__": None,\n'
+        '            "__cached__": None,\n'
+        "        },\n"
+        "    )\n"
+        "finally:\n"
+        "    sys.argv = _original_argv\n"
+    )
+    source_bytes = source.encode("utf-8")
+    if len(source_bytes) >= KAGGLE_NOTEBOOK_SOURCE_BUDGET_BYTES:
+        raise IssuerError(
+            "FINAL_342_ISSUER_KAGGLE_SOURCE_BUDGET_EXCEEDED",
+            "compressed Kaggle notebook launcher exceeds the governed source budget",
+        )
+    reconstructed = zlib.decompress(base64.b64decode(encoded.encode("ascii"), validate=True))
+    if reconstructed != wrapper:
+        raise IssuerError(
+            "FINAL_342_ISSUER_NOTEBOOK_RECONSTRUCTION_DRIFT",
+            "compressed Kaggle notebook container does not reconstruct exact wrapper bytes",
+        )
+    return source
+
+
 def _write_notebook(path: Path, wrapper: bytes) -> bytes:
+    launcher_source = _notebook_launcher_source(wrapper)
+    launcher_source_bytes = len(launcher_source.encode("utf-8"))
     notebook = {
         "cells": [
             {
@@ -833,7 +898,7 @@ def _write_notebook(path: Path, wrapper: bytes) -> bytes:
                 "execution_count": None,
                 "metadata": {},
                 "outputs": [],
-                "source": wrapper.decode("utf-8").splitlines(keepends=True),
+                "source": launcher_source.splitlines(keepends=True),
             }
         ],
         "metadata": {
@@ -841,7 +906,11 @@ def _write_notebook(path: Path, wrapper: bytes) -> bytes:
                 "schema_version": "1.0.0",
                 "container_role": "final_342_transaction_bound_execution_container",
                 "semantic_execution_identity": "python_wrapper_bytes",
+                "semantic_wrapper_sha256": sha256_bytes(wrapper),
                 "notebook_container_is_semantic_payload_identity": False,
+                "notebook_container_encoding": NOTEBOOK_CONTAINER_ENCODING,
+                "launcher_source_bytes": launcher_source_bytes,
+                "kaggle_kernel_source_budget_bytes": (KAGGLE_NOTEBOOK_SOURCE_BUDGET_BYTES),
             },
             "kernelspec": {
                 "display_name": "Python 3",

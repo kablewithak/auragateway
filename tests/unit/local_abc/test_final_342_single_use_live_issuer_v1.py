@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import sys
 from pathlib import Path
+
+import pytest
 
 from auragateway.local_abc import final_342_single_use_live_issuer_v1 as subject
 
@@ -44,6 +48,12 @@ def test_qualification_closes_exact_transaction_bound_execution_seam() -> None:
     assert record.planned_trajectory_count == 342
     assert record.planned_turn_count == 1368
     assert record.maximum_request_attempt_count == 2736
+    assert record.notebook_container_encoding == "zlib-level-9+base64"
+    assert record.notebook_container_reconstructs_exact_wrapper_bytes is True
+    assert (
+        record.qualification_notebook_launcher_source_bytes
+        < subject.KAGGLE_NOTEBOOK_SOURCE_BUDGET_BYTES
+    )
 
 
 def test_single_use_governance_does_not_claim_runtime_anti_replay() -> None:
@@ -78,19 +88,42 @@ def test_live_authorization_contract_is_single_use() -> None:
     assert "transaction_material_sha256" in fields
 
 
-def test_notebook_container_preserves_exact_wrapper_bytes(tmp_path: Path) -> None:
-    wrapper = b"print('final-342')\n"
+def test_compressed_notebook_container_executes_exact_wrapper_with_normalized_argv(
+    tmp_path: Path,
+) -> None:
+    marker = tmp_path / "wrapper-executed.json"
+    wrapper = (
+        "from __future__ import annotations\n"
+        "import json\n"
+        "import sys\n"
+        "from pathlib import Path\n"
+        f"Path({str(marker)!r}).write_text(json.dumps(sys.argv), encoding='utf-8')\n"
+    ).encode()
     notebook_path = tmp_path / f"{subject.NOTEBOOK_NAME}.ipynb"
 
     notebook_bytes = subject._write_notebook(notebook_path, wrapper)
     payload = json.loads(notebook_bytes)
+    source = "".join(payload["cells"][0]["source"])
+    original_argv = sys.argv[:]
 
+    exec(compile(source, "generated_notebook_cell.py", "exec"), {"__name__": "__main__"})
+
+    assert sys.argv == original_argv
+    assert json.loads(marker.read_text(encoding="utf-8")) == [f"{subject.NOTEBOOK_NAME}.py"]
     assert notebook_path.read_bytes() == notebook_bytes
     assert payload["nbformat"] == 4
     assert payload["nbformat_minor"] == 5
     assert len(payload["cells"]) == 1
     assert payload["cells"][0]["cell_type"] == "code"
-    assert "".join(payload["cells"][0]["source"]).encode("utf-8") == wrapper
+    assert source.encode("utf-8") != wrapper
+    assert len(source.encode("utf-8")) < subject.KAGGLE_NOTEBOOK_SOURCE_BUDGET_BYTES
+    assert (
+        payload["metadata"]["auragateway"]["semantic_wrapper_sha256"]
+        == hashlib.sha256(wrapper).hexdigest()
+    )
+    assert payload["metadata"]["auragateway"]["notebook_container_encoding"] == (
+        "zlib-level-9+base64"
+    )
     assert (
         payload["metadata"]["auragateway"]["notebook_container_is_semantic_payload_identity"]
         is False
@@ -98,3 +131,31 @@ def test_notebook_container_preserves_exact_wrapper_bytes(tmp_path: Path) -> Non
     assert (
         payload["metadata"]["auragateway"]["semantic_execution_identity"] == "python_wrapper_bytes"
     )
+
+
+def test_compressed_notebook_container_keeps_large_source_under_budget(
+    tmp_path: Path,
+) -> None:
+    wrapper = b"print('final-342-governed')\n" * 60_000
+    assert len(wrapper) > 1_000_000
+
+    notebook_path = tmp_path / f"{subject.NOTEBOOK_NAME}.ipynb"
+    notebook_bytes = subject._write_notebook(notebook_path, wrapper)
+    payload = json.loads(notebook_bytes)
+    source = "".join(payload["cells"][0]["source"])
+
+    assert len(source.encode("utf-8")) < subject.KAGGLE_NOTEBOOK_SOURCE_BUDGET_BYTES
+    assert payload["metadata"]["auragateway"]["launcher_source_bytes"] == len(
+        source.encode("utf-8")
+    )
+
+
+def test_compressed_notebook_container_fails_closed_over_source_budget(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(subject, "KAGGLE_NOTEBOOK_SOURCE_BUDGET_BYTES", 128)
+
+    with pytest.raises(subject.IssuerError) as error:
+        subject._notebook_launcher_source(b"print('final-342')\n")
+
+    assert error.value.error_code == "FINAL_342_ISSUER_KAGGLE_SOURCE_BUDGET_EXCEEDED"
