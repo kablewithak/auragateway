@@ -1,11 +1,13 @@
-"""Focused tests for G11.14 final-342 single-use live issuer qualification."""
+"""Focused tests for G11.14C final-342 live orchestration reliability."""
 
 from __future__ import annotations
 
 import hashlib
 import json
 import sys
+import types
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -159,3 +161,130 @@ def test_compressed_notebook_container_fails_closed_over_source_budget(
         subject._notebook_launcher_source(b"print('final-342')\n")
 
     assert error.value.error_code == "FINAL_342_ISSUER_KAGGLE_SOURCE_BUDGET_EXCEEDED"
+
+
+@pytest.fixture(scope="module")
+def rendered_live_wrapper_namespace() -> dict[str, Any]:
+    material = subject.build_transaction_material(ROOT)
+    wrapper = subject._qualification_wrapper(ROOT, material)
+    namespace: dict[str, Any] = {
+        "__name__": "auragateway_g1114c_live_seam_test",
+        "__file__": "<auragateway-g1114c-live-seam-test>",
+    }
+    exec(
+        compile(
+            wrapper,
+            "<auragateway-g1114c-rendered-wrapper>",
+            "exec",
+        ),
+        namespace,
+        namespace,
+    )
+    return namespace
+
+
+def test_live_workspace_initialization_owns_output_root_before_store_persist(
+    tmp_path: Path,
+    rendered_live_wrapper_namespace: dict[str, Any],
+) -> None:
+    namespace = rendered_live_wrapper_namespace
+    output_root = tmp_path / "final_342_transaction_bound_v1"
+    producer_store_root = output_root / "producer_state"
+    consumption_path = output_root / "authorization_consumption_v1.json"
+    transaction_id = "a" * 64
+    persisted_state = object()
+
+    namespace["_OUTPUT_ROOT"] = output_root
+    namespace["_PRODUCER_STORE_ROOT"] = producer_store_root
+    namespace["_AUTHORIZATION_CONSUMPTION_PATH"] = consumption_path
+
+    class FakeMonotonicEvidenceStore:
+        def __init__(self, root: Path) -> None:
+            self.root = Path(root)
+
+        def persist(self, state: object) -> None:
+            assert state is persisted_state
+            assert output_root.is_dir()
+            self.root.mkdir(parents=True, exist_ok=True)
+            (self.root / "producer_state_v1.json").write_text(
+                "persisted\n",
+                encoding="utf-8",
+            )
+
+    fake_producer = types.ModuleType("auragateway_g1114c_fake_producer")
+    fake_producer.__dict__["MonotonicEvidenceStore"] = FakeMonotonicEvidenceStore
+
+    store = namespace["_initialize_transaction_workspace"](
+        fake_producer,
+        persisted_state,
+        transaction_id,
+    )
+
+    assert isinstance(store, FakeMonotonicEvidenceStore)
+    assert output_root.is_dir()
+    assert (producer_store_root / "producer_state_v1.json").read_text(
+        encoding="utf-8"
+    ) == "persisted\n"
+
+    consumption = json.loads(consumption_path.read_text(encoding="utf-8"))
+    assert consumption["transaction_id"] == transaction_id
+    assert consumption["disposition"] == "EXECUTION_STARTED_SINGLE_USE_GOVERNANCE"
+    assert consumption["authorization_reusable"] is False
+    assert consumption["runtime_anti_replay_established"] is False
+
+
+@pytest.mark.parametrize("exit_code", [None, 0])
+def test_compressed_notebook_launcher_treats_zero_exit_as_success(
+    exit_code: int | None,
+) -> None:
+    wrapper = f"raise SystemExit({exit_code!r})\n".encode()
+    source = subject._notebook_launcher_source(wrapper)
+    original_argv = sys.argv[:]
+
+    exec(
+        compile(
+            source,
+            "<auragateway-g1114c-zero-exit-launcher>",
+            "exec",
+        ),
+        {"__name__": "__main__"},
+    )
+
+    assert sys.argv == original_argv
+
+
+def test_compressed_notebook_launcher_propagates_nonzero_exit() -> None:
+    wrapper = b"raise SystemExit(3)\n"
+    source = subject._notebook_launcher_source(wrapper)
+    original_argv = sys.argv[:]
+
+    with pytest.raises(SystemExit) as error:
+        exec(
+            compile(
+                source,
+                "<auragateway-g1114c-nonzero-exit-launcher>",
+                "exec",
+            ),
+            {"__name__": "__main__"},
+        )
+
+    assert error.value.code == 3
+    assert sys.argv == original_argv
+
+
+def test_live_terminal_failure_precedence_preserves_primary_failure(
+    rendered_live_wrapper_namespace: dict[str, Any],
+) -> None:
+    raise_terminal_failure = rendered_live_wrapper_namespace["_raise_terminal_failure"]
+    primary = RuntimeError("primary execution failure")
+    bundle = RuntimeError("evidence bundle failure")
+
+    with pytest.raises(RuntimeError) as error:
+        raise_terminal_failure(primary, bundle)
+
+    assert error.value is primary
+
+    with pytest.raises(RuntimeError) as bundle_only_error:
+        raise_terminal_failure(None, bundle)
+
+    assert bundle_only_error.value is bundle
