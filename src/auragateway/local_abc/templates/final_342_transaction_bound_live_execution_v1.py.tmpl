@@ -1,0 +1,1208 @@
+"""Generated-capable final-342 transaction-bound live execution template.
+
+The committed template is inert. G11.14 qualification renders it with live execution disabled
+and exercises the exact embedded module graph without model/GPU/network work. Only the merged
+single-use issuer may render a live-enabled transaction artifact.
+"""
+
+from __future__ import annotations
+
+import base64
+import hashlib
+import hmac
+import json
+import os
+import sys
+import time
+import types
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, cast
+
+_TRANSACTION_MATERIAL_B64 = "__TRANSACTION_MATERIAL_B64__"
+_TRANSACTION_MATERIAL_SHA256 = "__TRANSACTION_MATERIAL_SHA256__"
+_LIVE_EXECUTION_ENABLED = __LIVE_EXECUTION_ENABLED__
+_AUTHORIZATION_B64 = "__AUTHORIZATION_B64__"
+_PREFIX_HMAC_KEY_B64 = "__PREFIX_HMAC_KEY_B64__"
+
+_CORE_NAME = "auragateway.local_abc.final_342_non_authorizing_runtime_core_v1"
+_PRODUCER_NAME = "auragateway.local_abc.final_342_execution_producer_v1"
+_P5_NAME = (
+    "auragateway.local_abc."
+    "p5_p6_mechanism_admission_transaction_bound_runtime_v1"
+)
+_REQUEST_ADAPTER_NAME = (
+    "auragateway.local_abc."
+    "measured_abc_variance_pilot_v2_accepted_runtime_request_adapter_v1"
+)
+_OUTPUT_ADMISSION_NAME = (
+    "auragateway.local_abc.measured_abc_variance_pilot_v2_output_admission_runtime"
+)
+_REVIEW_DESIGN_NAME = "auragateway.local_abc.final_342_measured_review_design_v1"
+_SEAM_AUDIT_NAME = (
+    "auragateway.local_abc.final_342_producer_review_analysis_seam_audit_v1"
+)
+_REVIEW_SUCCESSOR_NAME = (
+    "auragateway.local_abc.final_342_measured_review_successor_v1"
+)
+
+_OUTPUT_ROOT = Path("/kaggle/working/final_342_transaction_bound_v1")
+_PRODUCER_STORE_ROOT = _OUTPUT_ROOT / "producer_state"
+_PUBLIC_EVIDENCE_ROOT = _OUTPUT_ROOT / "public_evidence"
+_PUBLIC_EVIDENCE_ZIP = Path("/kaggle/working/final_342_measured_evidence_v1.zip")
+_PROTECTED_ROOT = Path("/kaggle/working/.final_342_protected_review_v1")
+_AUTHORIZATION_CONSUMPTION_PATH = _OUTPUT_ROOT / "authorization_consumption_v1.json"
+
+_MAX_MODEL_LEN = 4096
+_MAX_OUTPUT_TOKENS = 256
+_EXPECTED_TRAJECTORIES = 342
+_EXPECTED_TURNS = 1368
+_EXPECTED_MAX_ATTEMPTS = 2736
+
+
+def _canonical(value: object) -> str:
+    return json.dumps(
+        value,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def _canonical_bytes(value: object) -> bytes:
+    return (_canonical(value) + "\n").encode("utf-8")
+
+
+def _sha256(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def _decode(value: str) -> bytes:
+    return base64.b64decode(value.encode("ascii"), validate=True)
+
+
+def _material() -> dict[str, object]:
+    raw = _decode(_TRANSACTION_MATERIAL_B64)
+    if _sha256(raw) != _TRANSACTION_MATERIAL_SHA256:
+        raise RuntimeError("transaction material identity mismatch")
+    value = json.loads(raw)
+    if not isinstance(value, dict):
+        raise RuntimeError("transaction material root is invalid")
+    if value.get("material_id") != "auragateway-final-342-transaction-material-v1":
+        raise RuntimeError("transaction material ID drifted")
+    return cast(dict[str, object], value)
+
+
+def _entry_bytes(entry: object, label: str) -> bytes:
+    if not isinstance(entry, dict):
+        raise RuntimeError(label + " entry is invalid")
+    b64 = entry.get("b64")
+    expected = entry.get("sha256")
+    if not isinstance(b64, str) or not isinstance(expected, str):
+        raise RuntimeError(label + " identity is invalid")
+    payload = _decode(b64)
+    if _sha256(payload) != expected:
+        raise RuntimeError(label + " bytes drifted")
+    return payload
+
+
+def _create_package(name: str, created: list[str]) -> types.ModuleType:
+    if name in sys.modules:
+        raise RuntimeError("embedded package already registered: " + name)
+    package = types.ModuleType(name)
+    package.__package__ = name
+    package.__path__ = []
+    package.__file__ = "<embedded-package:" + name + ">"
+    sys.modules[name] = package
+    created.append(name)
+    parent_name, _, child_name = name.rpartition(".")
+    if parent_name:
+        parent = sys.modules.get(parent_name)
+        if parent is None:
+            raise RuntimeError("embedded parent package missing: " + parent_name)
+        setattr(parent, child_name, package)
+    return package
+
+
+def _load_module(
+    name: str,
+    filename: str,
+    source: bytes,
+    created: list[str],
+) -> types.ModuleType:
+    if name in sys.modules:
+        raise RuntimeError("embedded module already registered: " + name)
+    module = types.ModuleType(name)
+    module.__file__ = filename
+    module.__package__ = name.rpartition(".")[0]
+    sys.modules[name] = module
+    created.append(name)
+    try:
+        exec(
+            compile(source, filename, "exec"),
+            module.__dict__,
+            module.__dict__,
+        )
+    except BaseException:
+        sys.modules.pop(name, None)
+        created.remove(name)
+        raise
+    parent_name, _, child_name = name.rpartition(".")
+    parent = sys.modules.get(parent_name)
+    if parent is not None:
+        setattr(parent, child_name, module)
+    return module
+
+
+def _cleanup_modules(created: list[str]) -> None:
+    for name in reversed(created):
+        sys.modules.pop(name, None)
+
+
+def _realize_modules(
+    material: dict[str, object],
+) -> tuple[dict[str, types.ModuleType], list[str]]:
+    raw_modules = material.get("modules")
+    if not isinstance(raw_modules, dict):
+        raise RuntimeError("transaction module material is invalid")
+    modules = cast(dict[str, object], raw_modules)
+    created: list[str] = []
+    try:
+        _create_package("auragateway", created)
+        _create_package("auragateway.local_abc", created)
+        loaded: dict[str, types.ModuleType] = {}
+        loaded["core"] = _load_module(
+            _CORE_NAME,
+            "<embedded-final-342-core>",
+            _entry_bytes(modules["core"], "core"),
+            created,
+        )
+        loaded["review_design"] = _load_module(
+            _REVIEW_DESIGN_NAME,
+            "<embedded-final-342-review-design>",
+            _entry_bytes(modules["review_design"], "review design"),
+            created,
+        )
+        loaded["seam_audit"] = _load_module(
+            _SEAM_AUDIT_NAME,
+            "<embedded-final-342-seam-audit>",
+            _entry_bytes(modules["seam_audit"], "seam audit"),
+            created,
+        )
+        loaded["review_successor"] = _load_module(
+            _REVIEW_SUCCESSOR_NAME,
+            "<embedded-final-342-review-successor>",
+            _entry_bytes(modules["review_successor"], "review successor"),
+            created,
+        )
+        loaded["producer"] = _load_module(
+            _PRODUCER_NAME,
+            "<embedded-final-342-producer>",
+            _entry_bytes(modules["producer"], "producer"),
+            created,
+        )
+        loaded["p5"] = _load_module(
+            _P5_NAME,
+            "<embedded-final-342-p5-runtime>",
+            _entry_bytes(modules["p5_runtime"], "p5 runtime"),
+            created,
+        )
+        loaded["request_adapter"] = _load_module(
+            _REQUEST_ADAPTER_NAME,
+            "<embedded-final-342-request-adapter>",
+            _entry_bytes(modules["request_adapter"], "request adapter"),
+            created,
+        )
+        loaded["output_admission"] = _load_module(
+            _OUTPUT_ADMISSION_NAME,
+            "<embedded-final-342-output-admission>",
+            _entry_bytes(modules["output_admission"], "output admission"),
+            created,
+        )
+    except BaseException:
+        _cleanup_modules(created)
+        raise
+    return loaded, created
+
+
+def _asset_bytes(material: dict[str, object], name: str) -> bytes:
+    raw = material.get("assets")
+    if not isinstance(raw, dict):
+        raise RuntimeError("transaction asset material is invalid")
+    assets = cast(dict[str, object], raw)
+    if name not in assets:
+        raise RuntimeError("required transaction asset missing: " + name)
+    return _entry_bytes(assets[name], name)
+
+
+def _asset_object(material: dict[str, object], name: str) -> dict[str, object]:
+    value = json.loads(_asset_bytes(material, name))
+    if not isinstance(value, dict):
+        raise RuntimeError(name + " JSON root is invalid")
+    return cast(dict[str, object], value)
+
+
+def _bootstrap_state(
+    modules: dict[str, types.ModuleType],
+    material: dict[str, object],
+    transaction_id: str,
+    manifest_sha256: str,
+) -> Any:
+    core = modules["core"]
+    producer = modules["producer"]
+    ledger_type = core.__dict__["PlannedRunLedger"]
+    ledger = ledger_type.model_validate_json(_asset_bytes(material, "ledger"))
+    source_bindings_raw = material.get("source_bindings")
+    if not isinstance(source_bindings_raw, list):
+        raise RuntimeError("embedded producer source bindings are invalid")
+    source_binding_type = producer.__dict__["SourceBinding"]
+    source_bindings = tuple(
+        source_binding_type.model_validate(item) for item in source_bindings_raw
+    )
+    plan_binding_type = producer.__dict__["PlanBinding"]
+    trace_identity_type = core.__dict__["RuntimeTraceIdentity"]
+    plan_bindings = tuple(
+        plan_binding_type(
+            planned_order_index=run.planned_order_index,
+            run_id=run.run_id,
+            trace_id=run.trace_id,
+            comparison_pair_id=run.comparison_pair_id,
+            workload=run.workload,
+            condition_id=run.condition_id,
+            route_schedule_id=run.route_schedule_id,
+            cache_namespace_sha256=producer.__dict__["sha256_text"](
+                run.cache_namespace_id
+            ),
+        )
+        for run in ledger.runs
+    )
+    trace_bindings = tuple(
+        trace_identity_type(
+            run_id=run.run_id,
+            trace_id=run.trace_id,
+            final_execution_manifest_sha256=manifest_sha256,
+        )
+        for run in ledger.runs
+    )
+    request_counters = core.__dict__["RequestCounters"](
+        scheduled_request_count=0,
+        attempted_request_count=0,
+        http_completed_request_count=0,
+        admitted_request_count=0,
+        committed_request_count=0,
+    )
+    event_type = producer.__dict__["ProducerEvent"]
+    phase_type = producer.__dict__["ProducerPhase"]
+    state_type = producer.__dict__["ProducerState"]
+    return state_type(
+        transaction_id=transaction_id,
+        final_execution_manifest_sha256=manifest_sha256,
+        source_bindings=source_bindings,
+        runtime_composition=producer.__dict__["RuntimeCompositionBinding"](),
+        plan_bindings=plan_bindings,
+        trace_bindings=trace_bindings,
+        request_counters=request_counters,
+        failure_state=core.__dict__["FailureState"](),
+        events=(
+            event_type(
+                sequence=1,
+                phase=phase_type.TRANSACTION_ADMISSION,
+            ),
+        ),
+    )
+
+
+def _frozen_static_prompt(compiler_spec: dict[str, object]) -> str:
+    required = {
+        "serialization_version",
+        "template_id",
+        "template_version",
+        "segments",
+        "tools",
+        "output_schema",
+        "context_pack",
+    }
+    if not required.issubset(compiler_spec):
+        raise RuntimeError("frozen compiler specification is incomplete")
+    payload = {
+        "runtime_prompt_profile": "development-live-compact-v1",
+        "serialization_version": compiler_spec["serialization_version"],
+        "template_id": compiler_spec["template_id"],
+        "template_version": compiler_spec["template_version"],
+        "segments": compiler_spec["segments"],
+        "tools": compiler_spec["tools"],
+        "output_schema": compiler_spec["output_schema"],
+        "context_pack": compiler_spec["context_pack"],
+        "response_rule": (
+            "Return exactly one JSON object. Do not use Markdown fences, commentary, "
+            "or fields outside the frozen terminal-decision schema."
+        ),
+    }
+    return _canonical(payload) + "\n"
+
+
+def _volatile_prompt(
+    episode: dict[str, object],
+    turn_index: int,
+    source_evidence: list[dict[str, str]],
+    prior_user_messages: list[str],
+    prior_assistant_outputs: list[str],
+) -> str:
+    history: list[dict[str, str]] = []
+    for user_message, assistant_output in zip(
+        prior_user_messages,
+        prior_assistant_outputs,
+        strict=True,
+    ):
+        history.extend(
+            (
+                {"role": "user", "content": user_message},
+                {"role": "assistant", "content": assistant_output},
+            )
+        )
+    turns = episode.get("turns")
+    scope = episode.get("source_scope")
+    if not isinstance(turns, list) or not isinstance(scope, dict):
+        raise RuntimeError("episode prompt material is invalid")
+    turn = turns[turn_index - 1]
+    if not isinstance(turn, dict):
+        raise RuntimeError("episode turn material is invalid")
+    user_message = turn.get("user_message")
+    raw_ids = scope.get("required_source_ids")
+    if not isinstance(user_message, str) or not isinstance(raw_ids, list):
+        raise RuntimeError("episode prompt identity is invalid")
+    payload = {
+        "episode_id": episode.get("episode_id"),
+        "episode_title": episode.get("title"),
+        "turn_index": turn_index,
+        "conversation_history": history,
+        "current_user_message": user_message,
+        "permitted_source_ids": raw_ids,
+        "retrieval_evidence": source_evidence,
+        "instruction": (
+            "Use only the supplied synthetic evidence. Return one terminal-decision JSON "
+            "object for the current turn. Clarify rather than guess when evidence is incomplete."
+        ),
+    }
+    return _canonical(payload) + "\n"
+
+
+def _messages_for_condition(
+    condition_id: str,
+    static_prompt: str,
+    volatile_prompt: str,
+) -> list[dict[str, str]]:
+    if condition_id == "A":
+        return [
+            {"role": "system", "content": static_prompt + volatile_prompt},
+            {
+                "role": "user",
+                "content": "Return the JSON decision for the current embedded turn.",
+            },
+        ]
+    if condition_id in {"B", "C"}:
+        return [
+            {"role": "system", "content": static_prompt},
+            {"role": "user", "content": volatile_prompt},
+        ]
+    raise RuntimeError("condition identity is invalid")
+
+
+def _source_map(material: dict[str, object]) -> dict[str, str]:
+    raw = material.get("source_documents")
+    if not isinstance(raw, dict):
+        raise RuntimeError("source-document material is invalid")
+    result: dict[str, str] = {}
+    for source_id, entry in raw.items():
+        if not isinstance(source_id, str) or not isinstance(entry, dict):
+            raise RuntimeError("source-document entry is invalid")
+        payload = _entry_bytes(entry, "source document " + source_id)
+        expected_count = entry.get("byte_count")
+        if not isinstance(expected_count, int) or len(payload) != expected_count:
+            raise RuntimeError("source-document byte count drifted")
+        result[source_id] = payload.decode("utf-8")
+    return result
+
+
+def _episode_map(material: dict[str, object]) -> dict[str, dict[str, object]]:
+    root = _asset_object(material, "episodes")
+    raw = root.get("episodes")
+    if not isinstance(raw, list):
+        raise RuntimeError("functional episode set is invalid")
+    result: dict[str, dict[str, object]] = {}
+    for item in raw:
+        if not isinstance(item, dict) or not isinstance(item.get("episode_id"), str):
+            raise RuntimeError("functional episode entry is invalid")
+        result[cast(str, item["episode_id"])] = cast(dict[str, object], item)
+    if len(result) != 18:
+        raise RuntimeError("functional episode population drifted")
+    return result
+
+
+def _source_evidence(
+    episode: dict[str, object],
+    source_map: dict[str, str],
+) -> list[dict[str, str]]:
+    scope = episode.get("source_scope")
+    if not isinstance(scope, dict):
+        raise RuntimeError("episode source scope is invalid")
+    raw_ids = scope.get("required_source_ids")
+    if not isinstance(raw_ids, list) or any(not isinstance(item, str) for item in raw_ids):
+        raise RuntimeError("episode required-source scope is invalid")
+    evidence: list[dict[str, str]] = []
+    for source_id in cast(list[str], raw_ids):
+        document = source_map.get(source_id)
+        if document is None:
+            raise RuntimeError("required frozen source is unavailable")
+        evidence.append({"source_id": source_id, "document": document})
+    return evidence
+
+
+def _admitted_citations(payload: dict[str, object]) -> tuple[str, ...]:
+    for field in ("citation_ids", "evidence_source_ids"):
+        value = payload.get(field)
+        if isinstance(value, list) and all(isinstance(item, str) for item in value):
+            return tuple(cast(list[str], value))
+    return ()
+
+
+def _response_details(response: dict[str, object]) -> tuple[str, str | None, int]:
+    choices = response.get("choices")
+    usage = response.get("usage")
+    if (
+        not isinstance(choices, list)
+        or len(choices) != 1
+        or not isinstance(choices[0], dict)
+        or not isinstance(usage, dict)
+    ):
+        raise RuntimeError("OpenAI-compatible response envelope is invalid")
+    choice = cast(dict[str, object], choices[0])
+    message = choice.get("message")
+    finish_reason = choice.get("finish_reason")
+    prompt_tokens = usage.get("prompt_tokens")
+    if not isinstance(message, dict):
+        raise RuntimeError("response message is invalid")
+    content = message.get("content")
+    if not isinstance(content, str) or not isinstance(prompt_tokens, int):
+        raise RuntimeError("response content or usage is invalid")
+    if finish_reason is not None and not isinstance(finish_reason, str):
+        raise RuntimeError("response finish reason is invalid")
+    return content, cast(str | None, finish_reason), prompt_tokens
+
+
+def _authorization() -> tuple[str, dict[str, object]]:
+    envelope = json.loads(_decode(_AUTHORIZATION_B64))
+    if not isinstance(envelope, dict):
+        raise RuntimeError("authorization envelope is invalid")
+    transaction_id = envelope.get("transaction_id")
+    authorization = envelope.get("authorization")
+    if not isinstance(transaction_id, str) or not isinstance(authorization, dict):
+        raise RuntimeError("authorization transaction identity is invalid")
+    if _sha256(_canonical_bytes(authorization)) != transaction_id:
+        raise RuntimeError("authorization transaction digest mismatch")
+    required = {
+        "decision": "AUTHORIZED",
+        "lifecycle": "ISSUED",
+        "scope": "FINAL_342_TRANSACTION_BOUND_MEASURED_ABC_V1",
+        "final_manifest_semantic_sha256": (
+            "11b4ef75a6a44df51b445c4421290e41ee0994a6143d2e2d8bc034130f35129b"
+        ),
+        "final_manifest_file_sha256": (
+            "74ce9ada48c2a788ddba9c4cbf2eeba61ab68937e04916b044b567c9b239cc0c"
+        ),
+        "transaction_material_sha256": _TRANSACTION_MATERIAL_SHA256,
+        "planned_trajectory_count": 342,
+        "planned_turn_count": 1368,
+        "maximum_request_attempt_count": 2736,
+        "maximum_retries_after_initial_attempt": 1,
+        "hidden_retries_permitted": False,
+        "replacement_cases_permitted": False,
+        "extra_authority_canary_requests_permitted": False,
+        "extra_worker_qualification_requests_permitted": False,
+        "external_spend_ceiling": 0,
+        "final_measured_abc_execution_authorized": True,
+        "new_execution_authorized": True,
+        "single_use": True,
+        "authorization_reusable": False,
+        "unchanged_replay_authorized": False,
+        "runtime_anti_replay_established": False,
+        "fresh_platform_observation_required_before_execution": True,
+        "platform_observation_runtime_input": False,
+    }
+    drift = [
+        key for key, expected in required.items() if authorization.get(key) != expected
+    ]
+    if drift:
+        raise RuntimeError("authorization contract drift: " + ",".join(drift))
+    observed = datetime.now(UTC)
+    issued = datetime.fromisoformat(cast(str, authorization["issued_at"])).astimezone(UTC)
+    expires = datetime.fromisoformat(cast(str, authorization["expires_at"])).astimezone(UTC)
+    if observed < issued or observed >= expires:
+        raise RuntimeError("authorization is outside its live window")
+    key = _decode(_PREFIX_HMAC_KEY_B64)
+    if len(key) < 32 or _sha256(key) != authorization.get("prefix_hmac_key_sha256"):
+        raise RuntimeError("embedded prefix HMAC key identity drifted")
+    return transaction_id, cast(dict[str, object], authorization)
+
+
+def qualify() -> dict[str, object]:
+    if _LIVE_EXECUTION_ENABLED:
+        raise RuntimeError("qualification wrapper unexpectedly enables live execution")
+    if os.environ.get("PYTHONPATH", ""):
+        raise RuntimeError("qualification requires repository PYTHONPATH cleared")
+    if any(key.startswith("AURAGATEWAY_") for key in os.environ):
+        raise RuntimeError("qualification inherited AuraGateway environment state")
+
+    material = _material()
+    modules, created = _realize_modules(material)
+    try:
+        state = _bootstrap_state(
+            modules,
+            material,
+            cast(str, material["qualification_transaction_id"]),
+            cast(str, material["final_manifest_semantic_sha256"]),
+        )
+        producer = modules["producer"]
+        state_sha = _sha256(
+            producer.__dict__["canonical_json"](
+                state.model_dump(mode="json")
+            ).encode("utf-8")
+        )
+        if state_sha != material.get("qualification_bootstrap_state_sha256"):
+            raise RuntimeError("standalone producer bootstrap parity drifted")
+
+        canonical_static = _entry_bytes(
+            material["canonical_static_payload"],
+            "canonical static payload",
+        )
+        schedule = _entry_bytes(
+            material["protected_review_schedule"],
+            "protected review schedule",
+        )
+        if _sha256(schedule) != (
+            "9566edb218c2d9c6459e8428bc93676bc1e73484b2fd56a249aed2cc1db6748c"
+        ):
+            raise RuntimeError("protected review schedule identity drifted")
+        core = modules["core"]
+        ledger_type = core.__dict__["PlannedRunLedger"]
+        ledger = ledger_type.model_validate_json(_asset_bytes(material, "ledger"))
+        realized_turns = sum(
+            len(core.__dict__["realize_run"](run)) for run in ledger.runs
+        )
+        if len(ledger.runs) != 342 or realized_turns != 1368:
+            raise RuntimeError("embedded final-342 plan shape drifted")
+
+        return {
+            "status": "FINAL_342_TRANSACTION_BOUND_LIVE_EXECUTION_QUALIFICATION_PASS",
+            "bootstrap_state_sha256": state_sha,
+            "canonical_static_payload_sha256": _sha256(canonical_static),
+            "protected_review_schedule_sha256": _sha256(schedule),
+            "planned_trajectory_count": len(ledger.runs),
+            "planned_turn_count": realized_turns,
+            "maximum_request_attempt_count": ledger.maximum_request_attempt_count,
+            "embedded_module_count": len(modules),
+            "repository_pythonpath_required": False,
+            "live_execution_enabled": False,
+            "model_requests_performed": 0,
+            "gpu_execution_performed": False,
+            "network_transport_performed": False,
+            "final_measured_abc_execution_authorized": False,
+        }
+    finally:
+        _cleanup_modules(created)
+
+
+def _write_json(path: Path, value: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists() or path.is_symlink():
+        raise RuntimeError("transaction output path is not fresh: " + str(path))
+    path.write_bytes(_canonical_bytes(value))
+
+
+def _terminal_record(
+    producer: types.ModuleType,
+    run: Any,
+    state: Any,
+    terminal_state: str,
+    failure_code: str | None,
+    attempts_before: int,
+) -> Any:
+    attempt_count = len(state.attempt_reservations) - attempts_before
+    committed = sum(
+        int(item.decision.history_mutation_permitted)
+        for item in state.state_mutations
+        if any(
+            reservation.global_attempt_sequence == item.global_attempt_sequence
+            and reservation.run_id == run.run_id
+            for reservation in state.attempt_reservations
+        )
+    )
+    state_enum = producer.__dict__["TrajectoryTerminalState"]
+    selected = (
+        state_enum.COMPLETED
+        if terminal_state == "COMPLETED"
+        else state_enum.FAILED
+    )
+    return producer.__dict__["TrajectoryTerminalRecord"](
+        run_id=run.run_id,
+        trace_id=run.trace_id,
+        terminal_state=selected,
+        attempted_request_count=attempt_count,
+        committed_turn_count=committed,
+        failure_code=failure_code,
+    )
+
+
+def execute() -> int:
+    if not _LIVE_EXECUTION_ENABLED:
+        raise RuntimeError("live execution is not enabled in this artifact")
+
+    transaction_id, authorization = _authorization()
+    if _OUTPUT_ROOT.exists() or _PUBLIC_EVIDENCE_ZIP.exists() or _PROTECTED_ROOT.exists():
+        raise RuntimeError("final-342 transaction workspace is not fresh")
+
+    material = _material()
+    modules, created = _realize_modules(material)
+    producer = modules["producer"]
+    core = modules["core"]
+    p5 = modules["p5"]
+    request_adapter = modules["request_adapter"]
+    output_admission = modules["output_admission"]
+    review_successor = modules["review_successor"]
+
+    state = _bootstrap_state(
+        modules,
+        material,
+        transaction_id,
+        cast(str, authorization["final_manifest_semantic_sha256"]),
+    )
+    store = producer.__dict__["MonotonicEvidenceStore"](_PRODUCER_STORE_ROOT)
+    store.persist(state)
+
+    _OUTPUT_ROOT.mkdir(parents=True)
+    _write_json(
+        _AUTHORIZATION_CONSUMPTION_PATH,
+        {
+            "schema_version": "1.0.0",
+            "transaction_id": transaction_id,
+            "disposition": "EXECUTION_STARTED_SINGLE_USE_GOVERNANCE",
+            "authorization_reusable": False,
+            "runtime_anti_replay_established": False,
+            "multiple_observed_executions_invalidate_acceptance": True,
+            "started_at": datetime.now(UTC).isoformat(),
+        },
+    )
+
+    schedule_bytes = _entry_bytes(
+        material["protected_review_schedule"],
+        "protected review schedule",
+    )
+    _PROTECTED_ROOT.mkdir(parents=True)
+    schedule_path = _PROTECTED_ROOT / "review_sample_schedule_v1.json"
+    schedule_path.write_bytes(schedule_bytes)
+    schedule_type = review_successor.__dict__["ProtectedSchedule"]
+    protected_schedule = schedule_type.model_validate_json(schedule_bytes)
+
+    episodes = _episode_map(material)
+    source_map = _source_map(material)
+    compiler_spec = _asset_object(material, "compiler_spec")
+    static_prompt = _frozen_static_prompt(compiler_spec)
+    generation_contract = _asset_object(material, "generation_contract")
+    response_format = _asset_object(material, "strict_response_format")
+    admission_spec = _asset_object(material, "admission_spec")
+    canonical_static = _entry_bytes(
+        material["canonical_static_payload"],
+        "canonical static payload",
+    )
+    hmac_key = _decode(_PREFIX_HMAC_KEY_B64)
+    canonical_static_hmac = hmac.new(
+        hmac_key,
+        canonical_static,
+        hashlib.sha256,
+    ).hexdigest()
+
+    action_counters = {
+        key: 0 for key in cast(dict[str, int], p5.__dict__["ACTION_BUDGET_LIMITS"])
+    }
+    workers: dict[Any, Any] = {}
+    tokenizer: Any | None = None
+    primary_error: BaseException | None = None
+
+    try:
+        p5.__dict__["require_private_environment"]()
+        wheelhouse = p5.__dict__["discover_one_directory"](
+            p5.__dict__["RUNTIME_OUTPUT_DIRECTORY"]
+        )
+        p5.__dict__["validate_wheelhouse"](wheelhouse)
+        source_snapshot = p5.__dict__["discover_model_snapshot"]()
+        p5.__dict__["install_runtime"](wheelhouse, action_counters)
+        p5.__dict__["validate_target_runtime"]()
+        p5.__dict__["validate_process_tree_import_closure"](action_counters)
+        model_home, snapshot = p5.__dict__["prepare_model_home"](source_snapshot)
+
+        state, workers = producer.__dict__["start_workers"](
+            state,
+            store,
+            worker_factory=p5.__dict__["Worker"],
+            action_counters=action_counters,
+            model_home=model_home,
+            snapshot=snapshot,
+        )
+        tokenizer = request_adapter.__dict__["AcceptedTokenizerSidecar"](
+            p5.__dict__["TARGET_PYTHON"],
+            snapshot,
+        )
+
+        ledger_type = core.__dict__["PlannedRunLedger"]
+        ledger = ledger_type.model_validate_json(_asset_bytes(material, "ledger"))
+        runtime_binding = {
+            "schema_version": "1.0.0",
+            "transaction_id": transaction_id,
+            "canonical_static_payload_sha256": _sha256(canonical_static),
+            "canonical_static_hmac_sha256": canonical_static_hmac,
+            "prefix_hmac_key_id": authorization["prefix_hmac_key_id"],
+            "prompt_profile": "development-live-compact-v1",
+            "planned_trajectory_count": 342,
+            "planned_turn_count": 1368,
+            "maximum_request_attempt_count": 2736,
+            "raw_prompts_retained_publicly": False,
+            "raw_outputs_retained_publicly": False,
+        }
+        _write_json(_OUTPUT_ROOT / "runtime_binding_report_v1.json", runtime_binding)
+
+        for run in ledger.runs:
+            attempts_before = len(state.attempt_reservations)
+            episode = episodes.get(run.episode_id)
+            if episode is None:
+                raise RuntimeError("planned run references an unknown episode")
+            evidence = _source_evidence(episode, source_map)
+            prior_users: list[str] = []
+            prior_outputs: list[str] = []
+            turns = core.__dict__["realize_run"](run)
+            trajectory_failed = False
+            failure_code: str | None = None
+
+            for turn in turns:
+                raw_turns = episode.get("turns")
+                if not isinstance(raw_turns, list):
+                    raise RuntimeError("episode turns are invalid")
+                raw_turn = raw_turns[turn.turn_index - 1]
+                if not isinstance(raw_turn, dict):
+                    raise RuntimeError("episode turn is invalid")
+                user_message = raw_turn.get("user_message")
+                if not isinstance(user_message, str):
+                    raise RuntimeError("episode user message is invalid")
+
+                volatile = _volatile_prompt(
+                    episode,
+                    turn.turn_index,
+                    evidence,
+                    prior_users,
+                    prior_outputs,
+                )
+                messages = _messages_for_condition(
+                    run.condition_id.value,
+                    static_prompt,
+                    volatile,
+                )
+                prompt_count = tokenizer.count(messages)
+                observation = tokenizer.observation_for(messages)
+                if prompt_count + _MAX_OUTPUT_TOKENS > _MAX_MODEL_LEN:
+                    trajectory_failed = True
+                    failure_code = "FINAL_342_PROMPT_BUDGET_UNREACHABLE"
+                    break
+
+                cache_salt = producer.__dict__["sha256_text"](
+                    run.cache_namespace_id
+                )
+                payload = request_adapter.__dict__["build_request_payload"](
+                    messages=messages,
+                    cache_salt=cache_salt,
+                    generation_contract=generation_contract,
+                    response_format=response_format,
+                )
+
+                startup = next(
+                    item
+                    for item in state.worker_startups
+                    if item.worker_id is turn.worker_id
+                )
+                route_identity = core.__dict__["CacheResidencyIdentity"](
+                    worker_id=turn.worker_id,
+                    worker_generation=startup.worker_generation,
+                    runtime_model_fingerprint=startup.runtime_model_fingerprint,
+                )
+                worker = workers[turn.worker_id]
+                transport = producer.__dict__["FinalLoopbackVllmTransport"](
+                    f"http://127.0.0.1:{worker.port}/v1/chat/completions"
+                )
+                logical_fingerprint = producer.__dict__["sha256_text"](
+                    _canonical(
+                        {
+                            "run_id": run.run_id,
+                            "trace_id": run.trace_id,
+                            "turn_index": turn.turn_index,
+                            "messages_sha256": observation.messages_sha256,
+                            "payload_sha256": _sha256(
+                                _canonical(payload).encode("utf-8")
+                            ),
+                        }
+                    )
+                )
+
+                result: Any | None = None
+                started_ns = 0
+                completed_ns = 0
+                before_metrics: Any | None = None
+                after_metrics: Any | None = None
+
+                for _attempt in (1, 2):
+                    started_ns = time.monotonic_ns()
+                    before_metrics = worker.metric_snapshot()
+                    state, result = producer.__dict__["execute_transport_attempt"](
+                        state,
+                        store,
+                        run_id=run.run_id,
+                        trace_id=run.trace_id,
+                        turn_index=turn.turn_index,
+                        logical_request_fingerprint=logical_fingerprint,
+                        route_identity=route_identity,
+                        payload=payload,
+                        transport=transport,
+                    )
+                    completed_ns = time.monotonic_ns()
+                    after_metrics = worker.metric_snapshot()
+                    if result.record.outcome is core.__dict__["AttemptOutcome"].SUCCEEDED:
+                        break
+                    if not result.record.retryable:
+                        break
+
+                if result is None:
+                    raise RuntimeError("transport attempt did not produce evidence")
+
+                if result.record.outcome is not core.__dict__["AttemptOutcome"].SUCCEEDED:
+                    trajectory_failed = True
+                    failure_code = (
+                        result.record.error_code or "FINAL_342_TRANSPORT_FAILURE"
+                    )
+                    state = producer.__dict__["record_failure"](
+                        state,
+                        core.__dict__["FailureRecord"](
+                            phase=core.__dict__["FailurePhase"].TRANSPORT,
+                            error_code=failure_code,
+                            safe_message="final-342 loopback transport failed",
+                        ),
+                    )
+                    store.persist(state)
+                    break
+
+                if (
+                    before_metrics is None
+                    or after_metrics is None
+                    or result.response_object is None
+                    or not result.response_json_object_valid
+                ):
+                    trajectory_failed = True
+                    failure_code = "FINAL_342_RESPONSE_OR_TELEMETRY_INVALID"
+                    break
+
+                delta = p5.__dict__["metric_delta"](
+                    before_metrics,
+                    after_metrics,
+                )
+                response_object = cast(dict[str, object], result.response_object)
+                content, finish_reason, server_prompt_tokens = _response_details(
+                    response_object
+                )
+                system_prompt = messages[0]["content"]
+                static_prefix_fingerprint = hmac.new(
+                    hmac_key,
+                    system_prompt.encode("utf-8"),
+                    hashlib.sha256,
+                ).hexdigest()
+                warm_evidence = core.__dict__["WarmTurnEvidence"](
+                    turn_index=turn.turn_index,
+                    session_id_hash=turn.session_id_hash,
+                    cache_namespace_sha256=turn.cache_namespace_sha256,
+                    static_prefix_fingerprint=static_prefix_fingerprint,
+                    residency_identity=route_identity,
+                    affinity_epoch=1,
+                    request_started_monotonic_ns=started_ns,
+                    request_completed_monotonic_ns=completed_ns,
+                    request_completed=True,
+                    provider_failure=False,
+                    session_reset=False,
+                    benchmark_transition=False,
+                )
+
+                state = producer.__dict__["record_measurement"](
+                    state,
+                    global_attempt_sequence=result.record.global_attempt_sequence,
+                    warm_evidence=warm_evidence,
+                    prompt_token_count=prompt_count,
+                    server_usage_prompt_tokens=server_prompt_tokens,
+                    cached_prefix_tokens=round(float(delta.local_cache_hit)),
+                    newly_computed_prefill_tokens=round(
+                        float(delta.newly_computed_prefill_tokens)
+                    ),
+                    prefill_duration_ms=None,
+                    time_to_first_token_ms=None,
+                    end_to_end_latency_ms=(
+                        (completed_ns - started_ns) / 1_000_000.0
+                    ),
+                    finish_reason=finish_reason,
+                    output_sha256=_sha256(content.encode("utf-8")),
+                )
+                store.persist(state)
+
+                schema_admitted = True
+                admitted_payload: dict[str, object] | None = None
+                admitted_canonical: str | None = None
+                try:
+                    admitted = output_admission.__dict__["admit_response"](
+                        response_object,
+                        admission_spec,
+                    )
+                    admitted_payload = cast(
+                        dict[str, object],
+                        admitted.payload,
+                    )
+                    admitted_canonical = cast(str, admitted.canonical_json)
+                except BaseException:
+                    schema_admitted = False
+
+                has_next_turn = turn.turn_index < 4
+                next_reachable: bool | None = None
+                if has_next_turn:
+                    if schema_admitted and admitted_canonical is not None:
+                        next_users = [*prior_users, user_message]
+                        next_outputs = [*prior_outputs, admitted_canonical]
+                        next_volatile = _volatile_prompt(
+                            episode,
+                            turn.turn_index + 1,
+                            evidence,
+                            next_users,
+                            next_outputs,
+                        )
+                        next_messages = _messages_for_condition(
+                            run.condition_id.value,
+                            static_prompt,
+                            next_volatile,
+                        )
+                        next_count = tokenizer.count(next_messages)
+                        next_reachable = (
+                            next_count + _MAX_OUTPUT_TOKENS <= _MAX_MODEL_LEN
+                        )
+                    else:
+                        next_reachable = False
+
+                admission_evidence = core.__dict__["TurnAdmissionEvidence"](
+                    turn_index=turn.turn_index,
+                    current_prompt_budget_valid=True,
+                    finish_reason=finish_reason,
+                    schema_admitted=schema_admitted,
+                    has_next_turn=has_next_turn,
+                    next_prompt_reachable=next_reachable,
+                )
+                state = producer.__dict__["record_admission"](
+                    state,
+                    producer.__dict__["AdmissionRecord"](
+                        global_attempt_sequence=result.record.global_attempt_sequence,
+                        evidence=admission_evidence,
+                    ),
+                )
+                store.persist(state)
+                state = producer.__dict__["record_state_mutation_decision"](
+                    state,
+                    global_attempt_sequence=result.record.global_attempt_sequence,
+                )
+                store.persist(state)
+
+                mutation = state.state_mutations[-1]
+                if not mutation.decision.history_mutation_permitted:
+                    trajectory_failed = True
+                    failure_code = "FINAL_342_TURN_NOT_COMMITTED"
+                else:
+                    if admitted_canonical is None or admitted_payload is None:
+                        raise RuntimeError("committed turn lacks admitted output")
+                    prior_users.append(user_message)
+                    prior_outputs.append(admitted_canonical)
+
+                if run.workload.value == "functional":
+                    review_successor.__dict__["capture_transport_response"](
+                        store_root=_PROTECTED_ROOT,
+                        transport_result=result,
+                        run_id=run.run_id,
+                        episode_id=run.episode_id,
+                        turn_index=turn.turn_index,
+                        user_message=user_message,
+                        terminal_structured_result=(
+                            admitted_payload if turn.turn_index == 4 else None
+                        ),
+                        citation_source_ids=(
+                            ()
+                            if admitted_payload is None
+                            else _admitted_citations(admitted_payload)
+                        ),
+                        deterministic_validation_summary={
+                            "schema_admitted": schema_admitted,
+                            "history_mutation_permitted": (
+                                mutation.decision.history_mutation_permitted
+                            ),
+                            "prompt_budget_valid": True,
+                        },
+                    )
+
+                if trajectory_failed:
+                    break
+
+            terminal = _terminal_record(
+                producer,
+                run,
+                state,
+                "FAILED" if trajectory_failed else "COMPLETED",
+                failure_code,
+                attempts_before,
+            )
+            state = producer.__dict__["record_trajectory_terminal"](
+                state,
+                terminal,
+            )
+            store.persist(state)
+
+        if len(state.trajectory_terminals) != _EXPECTED_TRAJECTORIES:
+            raise RuntimeError("final-342 terminal population is incomplete")
+
+        assignments: list[Any] = []
+        for run in ledger.runs:
+            if run.workload.value != "functional":
+                continue
+            captures = review_successor.__dict__["load_captures"](
+                _PROTECTED_ROOT,
+                core.__dict__["protected_review_id"](run.run_id),
+            )
+            episode = episodes[run.episode_id]
+            frozen_sources = tuple(_source_evidence(episode, source_map))
+            payloads = review_successor.__dict__["build_reviewer_payloads"](
+                captures=captures,
+                schedule=protected_schedule,
+                frozen_source_evidence=frozen_sources,
+            )
+            assignments.extend(payloads)
+        review_receipt = review_successor.__dict__["write_protected_export"](
+            protected_root=_PROTECTED_ROOT,
+            assignments=assignments,
+        )
+        _write_json(
+            _OUTPUT_ROOT / "protected_review_public_receipt_v1.json",
+            review_receipt.model_dump(mode="json"),
+        )
+
+    except BaseException as error:
+        primary_error = error
+        try:
+            state = producer.__dict__["record_failure"](
+                state,
+                core.__dict__["FailureRecord"](
+                    phase=core.__dict__["FailurePhase"].STATE,
+                    error_code="FINAL_342_EXECUTION_PRIMARY_FAILURE",
+                    safe_message=type(error).__name__,
+                ),
+            )
+            store.persist(state)
+        except BaseException:
+            pass
+    finally:
+        if tokenizer is not None:
+            try:
+                tokenizer.close()
+            except BaseException:
+                pass
+        try:
+            state = producer.__dict__["teardown_workers"](
+                state,
+                store,
+                workers,
+                reason="final-342-transaction-terminalization",
+            )
+        except BaseException as teardown_error:
+            try:
+                state = producer.__dict__["record_failure"](
+                    state,
+                    core.__dict__["FailureRecord"](
+                        phase=core.__dict__["FailurePhase"].TEARDOWN,
+                        error_code="FINAL_342_TEARDOWN_FAILURE",
+                        safe_message=type(teardown_error).__name__,
+                    ),
+                )
+                store.persist(state)
+            except BaseException:
+                pass
+        try:
+            state = producer.__dict__["cleanup_scratch"](
+                state,
+                store,
+                p5.__dict__["SCRATCH_ROOT"],
+            )
+        except BaseException as cleanup_error:
+            try:
+                state = producer.__dict__["record_failure"](
+                    state,
+                    core.__dict__["FailureRecord"](
+                        phase=core.__dict__["FailurePhase"].CLEANUP,
+                        error_code="FINAL_342_CLEANUP_FAILURE",
+                        safe_message=type(cleanup_error).__name__,
+                    ),
+                )
+                store.persist(state)
+            except BaseException:
+                pass
+
+        try:
+            receipt = producer.__dict__["write_evidence_bundle"](
+                state,
+                output_root=_PUBLIC_EVIDENCE_ROOT,
+                archive_path=_PUBLIC_EVIDENCE_ZIP,
+            )
+            state = producer.__dict__["record_evidence_bundle"](
+                state,
+                store,
+                receipt,
+            )
+        finally:
+            _cleanup_modules(created)
+
+    if primary_error is not None:
+        raise primary_error
+
+    print(
+        _canonical(
+            {
+                "status": "FINAL_342_GOVERNED_EXECUTION_COMPLETED",
+                "transaction_id": transaction_id,
+                "trajectory_terminal_count": len(state.trajectory_terminals),
+                "request_reconciliation": producer.__dict__["request_reconciliation"](
+                    state
+                ),
+                "evidence_zip": str(_PUBLIC_EVIDENCE_ZIP),
+                "protected_review_root": str(_PROTECTED_ROOT),
+                "authorization_reusable": False,
+                "runtime_anti_replay_established": False,
+                "effect_claims_permitted": False,
+            }
+        )
+    )
+    return 0
+
+
+def main() -> int:
+    if len(sys.argv) == 2 and sys.argv[1] == "--qualify":
+        print(_canonical(qualify()))
+        return 0
+    if len(sys.argv) != 1:
+        raise RuntimeError("unsupported transaction-bound wrapper arguments")
+    return execute()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
