@@ -35,7 +35,7 @@ from auragateway.local_abc import final_342_measured_review_successor_v1 as revi
 from auragateway.local_abc import final_342_non_authorizing_runtime_core_v1 as core
 from auragateway.local_abc import final_342_static_execution_authority_binding_v1 as static_binding
 
-BASE_MAIN_COMMIT: Final = "9c11804e05ca2e37fae1116cfccf587670f50bdb"
+BASE_MAIN_COMMIT: Final = "af3cd0c189ddfcd85c63e21d1ca355907e1cf628"
 
 SOURCE_PATH: Final = Path("src/auragateway/local_abc/final_342_single_use_live_issuer_v1.py")
 TEST_PATH: Final = Path("tests/unit/local_abc/test_final_342_single_use_live_issuer_v1.py")
@@ -138,6 +138,7 @@ EXPECTED_REVIEW_SCHEDULE_SHA256: Final = (
 )
 
 AUTHORIZATION_SCOPE: Final = "FINAL_342_TRANSACTION_BOUND_MEASURED_ABC_V1"
+NOTEBOOK_NAME: Final = "auragateway_final_342_transaction_bound_v1"
 EXPECTED_TRAJECTORIES: Final = 342
 EXPECTED_TURNS: Final = 1368
 EXPECTED_MAX_ATTEMPTS: Final = 2736
@@ -225,7 +226,7 @@ class QualificationRecord(FrozenModel):
     schema_version: Literal["1.0.0"] = "1.0.0"
     qualification_id: Literal["auragateway-final-342-single-use-live-issuer-qualification-v1"]
     status: Literal["QUALIFIED_NOT_ISSUED"]
-    source_main_commit: Literal["9c11804e05ca2e37fae1116cfccf587670f50bdb"]
+    source_main_commit: Literal["af3cd0c189ddfcd85c63e21d1ca355907e1cf628"]
     authorization_scope: Literal["FINAL_342_TRANSACTION_BOUND_MEASURED_ABC_V1"]
     source: ArtifactReceipt
     test: ArtifactReceipt
@@ -824,6 +825,39 @@ def _write_atomic(path: Path, payload: bytes) -> None:
     temporary.replace(path)
 
 
+def _write_notebook(path: Path, wrapper: bytes) -> bytes:
+    notebook = {
+        "cells": [
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": wrapper.decode("utf-8").splitlines(keepends=True),
+            }
+        ],
+        "metadata": {
+            "auragateway": {
+                "schema_version": "1.0.0",
+                "container_role": "final_342_transaction_bound_execution_container",
+                "semantic_execution_identity": "python_wrapper_bytes",
+                "notebook_container_is_semantic_payload_identity": False,
+            },
+            "kernelspec": {
+                "display_name": "Python 3",
+                "language": "python",
+                "name": "python3",
+            },
+            "language_info": {"name": "python"},
+        },
+        "nbformat": 4,
+        "nbformat_minor": 5,
+    }
+    payload = canonical_bytes(notebook)
+    _write_atomic(path, payload)
+    return payload
+
+
 def materialize_qualification(repo_root: Path) -> dict[str, object]:
     root = repo_root.resolve()
     _require_base_ancestor(root, exact=True)
@@ -980,8 +1014,10 @@ def issue_live(
     )
 
     artifact_dir.mkdir(parents=True, exist_ok=True)
-    executable_path = artifact_dir / "auragateway_final_342_transaction_bound_v1.py"
+    executable_path = artifact_dir / f"{NOTEBOOK_NAME}.py"
+    notebook_path = artifact_dir / f"{NOTEBOOK_NAME}.ipynb"
     executable_path.write_bytes(wrapper)
+    notebook_bytes = _write_notebook(notebook_path, wrapper)
 
     live_record = {
         "schema_version": "1.0.0",
@@ -1000,6 +1036,14 @@ def issue_live(
         "transaction_material_sha256": sha256_bytes(material),
         "live_execution_template_sha256": sha256_bytes(template_bytes),
         "executable_sha256": sha256_bytes(wrapper),
+        "notebook_container_sha256": sha256_bytes(notebook_bytes),
+        "notebook_container_is_semantic_payload_identity": False,
+        "semantic_execution_identity": "python_wrapper_bytes",
+        "authorization_specific_kaggle_inputs": 0,
+        "permitted_kaggle_input_roles": [
+            "durable_runtime",
+            "model_snapshot",
+        ],
         "planned_trajectory_count": EXPECTED_TRAJECTORIES,
         "planned_turn_count": EXPECTED_TURNS,
         "maximum_request_attempt_count": EXPECTED_MAX_ATTEMPTS,
