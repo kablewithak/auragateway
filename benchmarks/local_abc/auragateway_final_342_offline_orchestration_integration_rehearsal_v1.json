@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "rehearsal_id": "auragateway-final-342-offline-orchestration-integration-rehearsal-v1",
+  "status": "PROPOSED_FOR_FINAL_342_OFFLINE_REHEARSAL_ACCEPTANCE",
+  "base_main_commit": "0cbb6cea399537345efdbddbb874fecfa6dc5a85",
+  "decision": "FINAL_342_OFFLINE_ORCHESTRATION_AND_INTEGRATION_REHEARSAL_V1",
+  "source_bindings": [
+    {
+      "role": "final_runtime_core",
+      "path": "src/auragateway/local_abc/final_342_non_authorizing_runtime_core_v1.py",
+      "git_blob_sha": "7edeb7cb3f6c2213868d23863c33a9a94669468c"
+    },
+    {
+      "role": "final_execution_producer",
+      "path": "src/auragateway/local_abc/final_342_execution_producer_v1.py",
+      "git_blob_sha": "9bedae7c7815e80d7c03ccc37b1e5261310056cf"
+    },
+    {
+      "role": "measured_review_design",
+      "path": "src/auragateway/local_abc/final_342_measured_review_design_v1.py",
+      "git_blob_sha": "673091128975b2fc33ba175649c8e82b2670a522"
+    },
+    {
+      "role": "measured_review_successor_source",
+      "path": "src/auragateway/local_abc/final_342_measured_review_successor_v1.py",
+      "git_blob_sha": "aee9891d5fa5a23621d4e2c7fb20b575e6f43aaf"
+    },
+    {
+      "role": "measured_review_successor_record",
+      "path": "benchmarks/local_abc/auragateway_final_342_measured_review_successor_v1.json",
+      "git_blob_sha": "684d645daccb2357e886267154424e2533c6401c"
+    },
+    {
+      "role": "measured_quality_reducer_source",
+      "path": "src/auragateway/local_abc/final_342_measured_quality_reducers_v1.py",
+      "git_blob_sha": "e84f47010f16f0340d38de71a22e1cc7c03b6252"
+    },
+    {
+      "role": "measured_quality_reducer_record",
+      "path": "benchmarks/local_abc/auragateway_final_342_measured_quality_reducers_v1.json",
+      "git_blob_sha": "dd2a9be5dca8eccbf1c70c9d6645866736dff57e"
+    },
+    {
+      "role": "final_analysis_engine_source",
+      "path": "src/auragateway/local_abc/final_342_analysis_engine_v1.py",
+      "git_blob_sha": "6385c01486885e3e21b90fb18765602eba3b083e"
+    },
+    {
+      "role": "final_analysis_engine_record",
+      "path": "benchmarks/local_abc/auragateway_final_342_analysis_engine_v1.json",
+      "git_blob_sha": "11b213762ae673cb9c1e13af53df0bb15303d06a"
+    },
+    {
+      "role": "planned_run_ledger",
+      "path": "data/evals/benchmark/preflight-v3/planned_run_ledger.json",
+      "git_blob_sha": "553b23e24629bdca81d9fb9fdcbd90cc2081caf0"
+    },
+    {
+      "role": "blinded_quality_rubric",
+      "path": "data/evals/quality/blinded-v1/rubric.json",
+      "git_blob_sha": "13fc4dbd77dfd2667dd601c481821f7ac5ce0bd5"
+    }
+  ],
+  "composition_boundary": {
+    "planned_trajectory_count": 342,
+    "functional_run_count": 162,
+    "runtime_run_count": 180,
+    "secondary_review_target_count": 41,
+    "producer_initial_state_required": true,
+    "protected_review_capture_round_trip_required": true,
+    "measured_quality_reducer_required": true,
+    "final_analysis_engine_required": true,
+    "exact_population_analysis_required": true,
+    "synthetic_evidence_only": true
+  },
+  "claim_boundary": {
+    "synthetic_result_is_scientific_evidence": false,
+    "synthetic_supported_decision_permits_effect_claim": false,
+    "measured_feedback_required_for_north_star_claims": false,
+    "feedback_specific_claims_without_measured_feedback_permitted": false,
+    "measured_execution_claims_permitted": false
+  },
+  "safety_state": {
+    "model_requests_performed": 0,
+    "gpu_execution_performed": false,
+    "kaggle_execution_performed": false,
+    "network_transport_performed": false,
+    "execution_manifest_frozen": false,
+    "manifest_freeze_permitted": false,
+    "live_authorization_issued": false,
+    "final_measured_abc_execution_authorized": false,
+    "new_execution_authorized": false,
+    "effect_claims_permitted": false
+  },
+  "next_gate": "REQUALIFY_AND_FREEZE_FINAL_342_EXECUTION_MANIFEST_V1"
+}
