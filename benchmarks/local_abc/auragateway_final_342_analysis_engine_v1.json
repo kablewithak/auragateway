@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0.0",
+  "analysis_engine_id": "auragateway-final-342-analysis-engine-v1",
+  "status": "PROPOSED_FOR_FINAL_342_ANALYSIS_ENGINE_ACCEPTANCE",
+  "base_main_commit": "c5bac2c3d2903418c60ad59a190c0dc7e5adfdd3",
+  "decision": "FINAL_342_ANALYSIS_ENGINE_V1",
+  "source_bindings": [
+    {
+      "role": "final_execution_producer",
+      "path": "src/auragateway/local_abc/final_342_execution_producer_v1.py",
+      "git_blob_sha": "9bedae7c7815e80d7c03ccc37b1e5261310056cf"
+    },
+    {
+      "role": "final_runtime_core",
+      "path": "src/auragateway/local_abc/final_342_non_authorizing_runtime_core_v1.py",
+      "git_blob_sha": "7edeb7cb3f6c2213868d23863c33a9a94669468c"
+    },
+    {
+      "role": "measured_quality_reducer_source",
+      "path": "src/auragateway/local_abc/final_342_measured_quality_reducers_v1.py",
+      "git_blob_sha": "e84f47010f16f0340d38de71a22e1cc7c03b6252"
+    },
+    {
+      "role": "measured_quality_reducer_record",
+      "path": "benchmarks/local_abc/auragateway_final_342_measured_quality_reducers_v1.json",
+      "git_blob_sha": "dd2a9be5dca8eccbf1c70c9d6645866736dff57e"
+    },
+    {
+      "role": "analysis_contract_source",
+      "path": "src/auragateway/local_abc/final_342_analysis_contracts_v1.py",
+      "git_blob_sha": "e5ff63b8a1f148dee42bbf1e39504b26657a6d75"
+    },
+    {
+      "role": "analysis_contract_record",
+      "path": "benchmarks/local_abc/auragateway_final_342_analysis_contracts_v1.json",
+      "git_blob_sha": "0e7f654a5e8562f93ada988bba51f4e3ed5b5b1f"
+    },
+    {
+      "role": "g10_repetition_statistical_freeze_source",
+      "path": "src/auragateway/local_abc/measured_abc_repetition_statistical_freeze_v1.py",
+      "git_blob_sha": "404aac33c8ca7d35d3997f348ea88b975b3b7d12"
+    },
+    {
+      "role": "g10_repetition_statistical_freeze_record",
+      "path": "data/evals/benchmark/freeze-v2/measured_abc_repetition_statistical_freeze_v1.json",
+      "git_blob_sha": "9999eb0350a3d3e01a9f5f3451f54d7deaa35aef"
+    },
+    {
+      "role": "planned_run_ledger",
+      "path": "data/evals/benchmark/preflight-v3/planned_run_ledger.json",
+      "git_blob_sha": "553b23e24629bdca81d9fb9fdcbd90cc2081caf0"
+    }
+  ],
+  "denominator_policy": {
+    "scheduled_trajectory_source": "planned_run_ledger.runs",
+    "total_scheduled_trajectories": 342,
+    "functional_scheduled_trajectories": 162,
+    "runtime_scheduled_trajectories": 180,
+    "functional_runs_per_condition": 54,
+    "runtime_runs_per_condition": 60,
+    "runtime_comparison_pairs": 60,
+    "failures_remain_in_accountability": true,
+    "replacement_cases_permitted": false
+  },
+  "quality_policy": {
+    "task_success_regression_margin": "0.05",
+    "structured_output_validity_minimum": "0.95",
+    "citation_support_regression_permitted": false,
+    "unsupported_answer_rate_increase_permitted": false,
+    "unsafe_behavior_rate_increase_permitted": false,
+    "retrieval_configuration_change_permitted": false,
+    "evidence_incomplete_permits_quality_decision": false,
+    "quality_gate_precedes_runtime_improvement_claim": true
+  },
+  "runtime_policy": {
+    "primary_endpoint_id": "warm-eligible-newly-computed-prefill-tokens-v1",
+    "telemetry_field": "newly_computed_prefill_tokens",
+    "candidate_turn_indices": [2, 3, 4],
+    "aggregation": "sum_warm_eligible_turns_within_runtime_trajectory",
+    "non_warm_candidate_turn_is_error": false,
+    "missing_candidate_measurement_blocks_endpoint": true,
+    "missing_warm_primary_telemetry_blocks_endpoint": true,
+    "missing_cold_telemetry_blocks_primary_endpoint": false,
+    "complete_pair_set_required_for_effect_claim": true,
+    "contrasts": ["B-A", "C-B", "C-A"]
+  },
+  "statistical_policy": {
+    "method": "percentile_bootstrap",
+    "resampling_unit": "comparison_pair_at_episode_level",
+    "bootstrap_samples": 10000,
+    "confidence_level": "0.95",
+    "random_seed": 20260712,
+    "point_estimator": "median_paired_difference",
+    "percentile_interpolation": "linear_empirical_p_times_n_minus_1",
+    "improvement_requires_negative_point_estimate": true,
+    "improvement_requires_ci_upper_bound_below_zero": true,
+    "practical_effect_threshold_defined": false
+  },
+  "feedback_reconciliation": {
+    "historical_pre_run_feedback_blocker_superseded": true,
+    "measured_feedback_required_for_north_star_claims": false,
+    "measured_feedback_required_for_feedback_specific_claims": true,
+    "feedback_specific_claims_without_measured_feedback_permitted": false,
+    "historical_gate7_modified": false
+  },
+  "implementation_boundary": {
+    "analysis_engine_implemented": true,
+    "producer_modified": false,
+    "measured_quality_reducer_modified": false,
+    "measured_feedback_successor_implemented": false,
+    "offline_integration_rehearsal_implemented": false,
+    "execution_manifest_frozen": false,
+    "next_missing_boundary": "FINAL_342_OFFLINE_ORCHESTRATION_AND_INTEGRATION_REHEARSAL_V1"
+  },
+  "safety_state": {
+    "model_requests_performed": 0,
+    "gpu_execution_performed": false,
+    "kaggle_execution_performed": false,
+    "manifest_freeze_permitted": false,
+    "final_measured_abc_execution_authorized": false,
+    "new_execution_authorized": false,
+    "effect_claims_permitted": false
+  },
+  "next_gate": "AUTHOR_FINAL_342_OFFLINE_ORCHESTRATION_AND_INTEGRATION_REHEARSAL_V1"
+}
