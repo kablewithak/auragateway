@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from auragateway.local_abc import final_342_single_use_live_issuer_v1 as subject
@@ -75,3 +76,25 @@ def test_live_authorization_contract_is_single_use() -> None:
     assert "runtime_anti_replay_established" in fields
     assert "prefix_hmac_key_sha256" in fields
     assert "transaction_material_sha256" in fields
+
+
+def test_notebook_container_preserves_exact_wrapper_bytes(tmp_path: Path) -> None:
+    wrapper = b"print('final-342')\n"
+    notebook_path = tmp_path / f"{subject.NOTEBOOK_NAME}.ipynb"
+
+    notebook_bytes = subject._write_notebook(notebook_path, wrapper)
+    payload = json.loads(notebook_bytes)
+
+    assert notebook_path.read_bytes() == notebook_bytes
+    assert payload["nbformat"] == 4
+    assert payload["nbformat_minor"] == 5
+    assert len(payload["cells"]) == 1
+    assert payload["cells"][0]["cell_type"] == "code"
+    assert "".join(payload["cells"][0]["source"]).encode("utf-8") == wrapper
+    assert (
+        payload["metadata"]["auragateway"]["notebook_container_is_semantic_payload_identity"]
+        is False
+    )
+    assert (
+        payload["metadata"]["auragateway"]["semantic_execution_identity"] == "python_wrapper_bytes"
+    )
