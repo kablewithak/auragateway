@@ -653,6 +653,43 @@ def _terminal_record(
     )
 
 
+def _initialize_transaction_workspace(
+    producer: types.ModuleType,
+    state: Any,
+    transaction_id: str,
+) -> Any:
+    _OUTPUT_ROOT.mkdir(parents=True, exist_ok=False)
+    store = producer.__dict__["MonotonicEvidenceStore"](
+        _PRODUCER_STORE_ROOT
+    )
+    store.persist(state)
+    _write_json(
+        _AUTHORIZATION_CONSUMPTION_PATH,
+        {
+            "schema_version": "1.0.0",
+            "transaction_id": transaction_id,
+            "disposition": (
+                "EXECUTION_STARTED_SINGLE_USE_GOVERNANCE"
+            ),
+            "authorization_reusable": False,
+            "runtime_anti_replay_established": False,
+            "multiple_observed_executions_invalidate_acceptance": True,
+            "started_at": datetime.now(UTC).isoformat(),
+        },
+    )
+    return store
+
+
+def _raise_terminal_failure(
+    primary_error: BaseException | None,
+    evidence_bundle_error: BaseException | None,
+) -> None:
+    if primary_error is not None:
+        raise primary_error
+    if evidence_bundle_error is not None:
+        raise evidence_bundle_error
+
+
 def execute() -> int:
     if not _LIVE_EXECUTION_ENABLED:
         raise RuntimeError("live execution is not enabled in this artifact")
@@ -676,21 +713,10 @@ def execute() -> int:
         transaction_id,
         cast(str, authorization["final_manifest_semantic_sha256"]),
     )
-    store = producer.__dict__["MonotonicEvidenceStore"](_PRODUCER_STORE_ROOT)
-    store.persist(state)
-
-    _OUTPUT_ROOT.mkdir(parents=True)
-    _write_json(
-        _AUTHORIZATION_CONSUMPTION_PATH,
-        {
-            "schema_version": "1.0.0",
-            "transaction_id": transaction_id,
-            "disposition": "EXECUTION_STARTED_SINGLE_USE_GOVERNANCE",
-            "authorization_reusable": False,
-            "runtime_anti_replay_established": False,
-            "multiple_observed_executions_invalidate_acceptance": True,
-            "started_at": datetime.now(UTC).isoformat(),
-        },
+    store = _initialize_transaction_workspace(
+        producer,
+        state,
+        transaction_id,
     )
 
     schedule_bytes = _entry_bytes(
@@ -727,6 +753,7 @@ def execute() -> int:
     workers: dict[Any, Any] = {}
     tokenizer: Any | None = None
     primary_error: BaseException | None = None
+    evidence_bundle_error: BaseException | None = None
 
     try:
         p5.__dict__["require_private_environment"]()
@@ -1169,11 +1196,19 @@ def execute() -> int:
                 store,
                 receipt,
             )
+        except BaseException as bundle_error:
+            evidence_bundle_error = bundle_error
         finally:
-            _cleanup_modules(created)
+            try:
+                _cleanup_modules(created)
+            except BaseException as module_cleanup_error:
+                if evidence_bundle_error is None:
+                    evidence_bundle_error = module_cleanup_error
 
-    if primary_error is not None:
-        raise primary_error
+    _raise_terminal_failure(
+        primary_error,
+        evidence_bundle_error,
+    )
 
     print(
         _canonical(

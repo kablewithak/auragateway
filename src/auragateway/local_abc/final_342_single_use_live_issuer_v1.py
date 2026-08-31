@@ -36,7 +36,7 @@ from auragateway.local_abc import final_342_measured_review_successor_v1 as revi
 from auragateway.local_abc import final_342_non_authorizing_runtime_core_v1 as core
 from auragateway.local_abc import final_342_static_execution_authority_binding_v1 as static_binding
 
-BASE_MAIN_COMMIT: Final = "4f19491ee6851a52d322974f2d1607e3518fee98"
+BASE_MAIN_COMMIT: Final = "15014bc0ca6da2cdfc75d9fc0785e739fbd6a99d"
 
 SOURCE_PATH: Final = Path("src/auragateway/local_abc/final_342_single_use_live_issuer_v1.py")
 TEST_PATH: Final = Path("tests/unit/local_abc/test_final_342_single_use_live_issuer_v1.py")
@@ -229,7 +229,7 @@ class QualificationRecord(FrozenModel):
     schema_version: Literal["1.0.0"] = "1.0.0"
     qualification_id: Literal["auragateway-final-342-single-use-live-issuer-qualification-v1"]
     status: Literal["QUALIFIED_NOT_ISSUED"]
-    source_main_commit: Literal["4f19491ee6851a52d322974f2d1607e3518fee98"]
+    source_main_commit: Literal["15014bc0ca6da2cdfc75d9fc0785e739fbd6a99d"]
     authorization_scope: Literal["FINAL_342_TRANSACTION_BOUND_MEASURED_ABC_V1"]
     source: ArtifactReceipt
     test: ArtifactReceipt
@@ -870,6 +870,9 @@ def _notebook_launcher_source(wrapper: bytes) -> str:
         '            "__cached__": None,\n'
         "        },\n"
         "    )\n"
+        "except SystemExit as error:\n"
+        "    if error.code not in (None, 0):\n"
+        "        raise\n"
         "finally:\n"
         "    sys.argv = _original_argv\n"
     )
