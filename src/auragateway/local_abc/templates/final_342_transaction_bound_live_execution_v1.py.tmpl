@@ -653,6 +653,55 @@ def _terminal_record(
     )
 
 
+class _TeardownReportAdapter:
+    def __init__(self, worker: Any) -> None:
+        self._worker = worker
+        self.worker_id = worker.worker_id
+        self.generation = worker.generation
+
+    def stop_and_report(self, reason: str) -> dict[str, object]:
+        report = self._worker.stop_and_report(reason)
+
+        if not isinstance(report, dict):
+            raise RuntimeError(
+                "worker teardown report must be an object"
+            )
+
+        adapted = dict(report)
+        aliases = (
+            (
+                "process_tree_absent",
+                "process_tree_absent_after",
+            ),
+            (
+                "gpu_processes_absent",
+                "gpu_processes_absent_after",
+            ),
+            (
+                "port_closed",
+                "port_closed_after",
+            ),
+            (
+                "memory_returned",
+                "memory_returned_within_tolerance",
+            ),
+        )
+
+        for canonical_field, runtime_field in aliases:
+            if runtime_field in report:
+                adapted[canonical_field] = report[runtime_field]
+
+        return adapted
+
+
+def _teardown_workers_view(
+    workers: dict[Any, Any],
+) -> dict[Any, Any]:
+    return {
+        worker_id: _TeardownReportAdapter(worker)
+        for worker_id, worker in workers.items()
+    }
+
 def _initialize_transaction_workspace(
     producer: types.ModuleType,
     state: Any,
@@ -1149,7 +1198,7 @@ def execute() -> int:
             state = producer.__dict__["teardown_workers"](
                 state,
                 store,
-                workers,
+                _teardown_workers_view(workers),
                 reason="final-342-transaction-terminalization",
             )
         except BaseException as teardown_error:
