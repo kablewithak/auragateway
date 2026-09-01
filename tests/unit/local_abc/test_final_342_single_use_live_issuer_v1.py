@@ -288,3 +288,49 @@ def test_live_terminal_failure_precedence_preserves_primary_failure(
         raise_terminal_failure(None, bundle)
 
     assert bundle_only_error.value is bundle
+
+
+def test_live_teardown_adapter_maps_actual_p5_p6_report_schema(
+    rendered_live_wrapper_namespace: dict[str, Any],
+) -> None:
+    namespace = rendered_live_wrapper_namespace
+    template = (ROOT / subject.TEMPLATE_PATH).read_text(encoding="utf-8")
+
+    assert "_teardown_workers_view(workers)" in template
+
+    adapter_type = namespace["_TeardownReportAdapter"]
+
+    class ActualP5P6RuntimeWorker:
+        worker_id = "worker-1"
+        generation = 7
+
+        def stop_and_report(self, reason: str) -> dict[str, object]:
+            assert reason == "final-342-transaction-terminalization"
+            return {
+                "schema_version": "1.0.0",
+                "worker_id": self.worker_id,
+                "generation": self.generation,
+                "reason": reason,
+                "status": "PASSED",
+                "process_tree_absent_after": True,
+                "gpu_processes_absent_after": True,
+                "port_closed_after": True,
+                "memory_returned_within_tolerance": True,
+            }
+
+    adapter = adapter_type(ActualP5P6RuntimeWorker())
+
+    report = adapter.stop_and_report("final-342-transaction-terminalization")
+
+    assert adapter.worker_id == "worker-1"
+    assert adapter.generation == 7
+    assert report["status"] == "PASSED"
+    assert report["process_tree_absent"] is True
+    assert report["gpu_processes_absent"] is True
+    assert report["port_closed"] is True
+    assert report["memory_returned"] is True
+
+    assert report["process_tree_absent_after"] is True
+    assert report["gpu_processes_absent_after"] is True
+    assert report["port_closed_after"] is True
+    assert report["memory_returned_within_tolerance"] is True
