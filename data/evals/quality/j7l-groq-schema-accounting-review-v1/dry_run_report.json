@@ -1,0 +1,27 @@
+{
+  "attempts": [
+    {
+      "attempt_index": 0,
+      "planned_offset_seconds": 0,
+      "prompt_recipe_sha256": "dbbc4b8eb919e1061ebbc337ec96dd2b440dc494a3701f78b30b77c6290066ee",
+      "response_format_present": false,
+      "role": "control_no_response_format",
+      "strict_response_schema_sha256": null
+    },
+    {
+      "attempt_index": 1,
+      "planned_offset_seconds": 10,
+      "prompt_recipe_sha256": "dbbc4b8eb919e1061ebbc337ec96dd2b440dc494a3701f78b30b77c6290066ee",
+      "response_format_present": true,
+      "role": "strict_json_schema",
+      "strict_response_schema_sha256": "10ed526194e1abd1f7d276df443990e516b991958ff5e3d312069722a765d664"
+    }
+  ],
+  "credential_accessed": false,
+  "dry_run_id": "j7l-groq-schema-accounting-dry-run-v1",
+  "execution_command_available": false,
+  "messages_identical_across_attempts": true,
+  "provider_call_performed": false,
+  "schema_version": "1.0.0",
+  "status": "dry_run_pass"
+}

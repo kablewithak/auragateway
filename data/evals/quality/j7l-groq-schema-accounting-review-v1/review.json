@@ -1,0 +1,47 @@
+{
+  "active_authorization_created": false,
+  "claim_boundary": {
+    "groq_reference_judge_binding_frozen": false,
+    "j7l_reference_execution_authorized": false,
+    "positive_prompt_delta_closes_current_groq_j7l_shape": true,
+    "zero_prompt_delta_proves_schema_free_rate_accounting": false,
+    "zero_prompt_delta_requires_full_size_synthetic_qualification": true
+  },
+  "credential_accessed": false,
+  "credential_required_for_review": false,
+  "decision": "schema_accounting_probe_review_ready_inactive",
+  "execution_command_available": false,
+  "external_spend_ceiling_zar": 0,
+  "information_gain_question": "Does adding strict response_format JSON Schema to byte-identical messages increase provider-reported prompt-token usage?",
+  "j7l_reference_request_permitted": false,
+  "jev_request_permitted": false,
+  "model_projection_sha256": "b89a8934f404a0f5341e77cde10cbf4424267d7122d38af6f8288093ed53295e",
+  "next_gate": "J7L_GROQ_SCHEMA_ACCOUNTING_PROBE_ACTIVATION_V1",
+  "preactivation_measurements_sha256": "5759d66e88e6c92ee20c9035d13ec48e3a450a997affc555f2e13fefbcd3440a",
+  "primary_decision_rule": {
+    "negative_delta_invalid": "strict_prompt_tokens < control_prompt_tokens",
+    "schema_not_visible_but_rate_accounting_unresolved": "strict_prompt_tokens == control_prompt_tokens",
+    "schema_visible_in_prompt_usage": "strict_prompt_tokens > control_prompt_tokens"
+  },
+  "probe_plan_sha256": "d28429a81176c37ddba228c44dd913a9445d654a07769b88c36652fb85c9a0d6",
+  "provider_call_authorized": false,
+  "provider_call_performed": false,
+  "provider_facts": {
+    "context_window_tokens": 131072,
+    "documentation_date": "2026-09-20",
+    "exact_model_identifier": "openai/gpt-oss-20b",
+    "organization_rpd_observed": 1000,
+    "organization_rpm_observed": 30,
+    "organization_tpd_observed": 200000,
+    "organization_tpm_observed": 8000,
+    "strict_json_schema_supported": true
+  },
+  "review_id": "j7l-groq-schema-accounting-review-v1",
+  "schema_version": "1.0.0",
+  "semantic_registry_sha256": "0ac2c66786a4f2713d314b2870954446ac3dfefef4c45e990faf769061944166",
+  "source_commit": "7009ad00ed7f766a85e18283ae347c74516cde1c",
+  "status": "review_ready_inactive",
+  "strict_response_schema_sha256": "10ed526194e1abd1f7d276df443990e516b991958ff5e3d312069722a765d664",
+  "successor_constitution_sha256": "aef0d6a3edbaa63c1e5b46c278b019aeed613d8b8f941f98ee45eaee0a2d6ad2",
+  "synthetic_prompt_recipe_sha256": "dbbc4b8eb919e1061ebbc337ec96dd2b440dc494a3701f78b30b77c6290066ee"
+}
