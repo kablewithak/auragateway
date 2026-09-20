@@ -1,6 +1,6 @@
 {
   "adr_path": "docs/adr/j7l-groq-schema-accounting-probe-review-v1.md",
-  "adr_sha256": "ce9d9a24dde57c3e31667dbeb47ed425442edd02c350dd2006586015a1eab360",
+  "adr_sha256": "2bb7ae85b7e64753a5feefdea446510b9789651011b95248d57b3707b6a9c691",
   "dry_run_report_path": "data/evals/quality/j7l-groq-schema-accounting-review-v1/dry_run_report.json",
   "dry_run_report_sha256": "42c32811924db228e3403bed8de3a2243a8d949eb26f09ab7d6bfc80cc741020",
   "execution_command_available": false,
