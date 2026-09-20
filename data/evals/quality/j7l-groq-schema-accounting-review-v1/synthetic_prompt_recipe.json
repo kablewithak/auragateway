@@ -1,0 +1,18 @@
+{
+  "contains_j7l_case_content": false,
+  "contains_jev_content": false,
+  "contains_reference_answers": false,
+  "messages": [
+    {
+      "content": "This is a synthetic provider-accounting probe. Do not use external tools. Return a minimal valid answer.",
+      "role": "system"
+    },
+    {
+      "content": "Evaluate the synthetic token ACCOUNTING-PROBE and return the requested output.",
+      "role": "user"
+    }
+  ],
+  "recipe_id": "j7l-groq-schema-accounting-synthetic-prompt-v1",
+  "schema_version": "1.0.0",
+  "synthetic_only": true
+}

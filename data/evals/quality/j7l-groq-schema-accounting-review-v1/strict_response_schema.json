@@ -1,0 +1,116 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "criterion_scores": {
+      "additionalProperties": false,
+      "properties": {
+        "clarity": {
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "completeness": {
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "evidence_grounding": {
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "safety": {
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "source_use": {
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "task_correctness": {
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "terminal_decision": {
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "task_correctness",
+        "evidence_grounding",
+        "source_use",
+        "terminal_decision",
+        "completeness",
+        "clarity",
+        "safety"
+      ],
+      "type": "object"
+    },
+    "evidence_references": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "failure_labels": {
+      "items": {
+        "enum": [
+          "STALE_SOURCE_SELECTED",
+          "FORBIDDEN_SOURCE_USED",
+          "MISSING_REQUIRED_SOURCE",
+          "UNSUPPORTED_CLAIM",
+          "INVALID_TERMINAL_DECISION",
+          "MISSING_CLARIFICATION",
+          "UNNECESSARY_CLARIFICATION",
+          "ESCALATION_BYPASSED",
+          "REFUSAL_BYPASSED",
+          "DUPLICATE_RETRIEVAL_EVIDENCE",
+          "REDUNDANT_FEEDBACK",
+          "UNRETAINED_FEEDBACK",
+          "CONTRADICTORY_STATE",
+          "NOISY_CONTEXT_DILUTION",
+          "CAPABILITY_MISMATCH",
+          "PROVIDER_FAILURE_UNHANDLED",
+          "BLIND_RETRY",
+          "INVALID_CITATION_ID",
+          "CITATION_UNSUPPORTED",
+          "STRUCTURED_OUTPUT_INVALID",
+          "PRIVACY_VIOLATION",
+          "TASK_INSUFFICIENT"
+        ],
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "uncertainty_statement": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verdict": {
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "criterion_scores",
+    "failure_labels",
+    "evidence_references",
+    "rationale",
+    "verdict",
+    "uncertainty_statement"
+  ],
+  "type": "object"
+}
