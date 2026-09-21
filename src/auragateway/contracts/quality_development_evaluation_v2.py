@@ -72,6 +72,10 @@ class ReferenceApiProtocol(StrEnum):
     OTHER_TYPED_HTTP = "OTHER_TYPED_HTTP"
 
 
+class ReferenceStructuredOutputMode(StrEnum):
+    FORCED_NAMED_TOOL = "FORCED_NAMED_TOOL"
+
+
 class J7LReferenceSubjectV1(FrozenModel):
     subject_id: Literal["auragateway-j7l-reference-subject-v1"] = (
         "auragateway-j7l-reference-subject-v1"
@@ -144,9 +148,26 @@ class ReferenceDecodingSettingsV1(FrozenModel):
     temperature: float | None = Field(default=None, ge=0.0, le=2.0)
     top_p: float | None = Field(default=None, ge=0.0, le=1.0)
     seed: int | None = None
-    response_format: Literal["JSON_SCHEMA"] = "JSON_SCHEMA"
+    structured_output_mode: Literal["FORCED_NAMED_TOOL"] = (
+        ReferenceStructuredOutputMode.FORCED_NAMED_TOOL.value
+    )
     reasoning_mode: str | None = Field(default=None, min_length=1, max_length=120)
     provider_specific_settings: dict[str, JsonValue] = Field(default_factory=dict)
+
+
+class J7LReferenceStructuredOutputContractV1(FrozenModel):
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    mode: Literal["FORCED_NAMED_TOOL"] = ReferenceStructuredOutputMode.FORCED_NAMED_TOOL.value
+    tool_name: Literal["submit_reference_judgment"] = "submit_reference_judgment"
+    tool_contract_id: str = Field(min_length=20, max_length=160)
+    tool_contract_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    tool_choice_required: Literal[True] = True
+    response_format_present: Literal[False] = False
+    additional_model_tools_permitted: Literal[False] = False
+    tool_arguments_validation_contract: Literal["J7LReferenceToolArgumentsV1"] = (
+        "J7LReferenceToolArgumentsV1"
+    )
+    hidden_reasoning_persisted: Literal[False] = False
 
 
 class J7LReferenceJudgeBindingV1(FrozenModel):
@@ -167,6 +188,7 @@ class J7LReferenceJudgeBindingV1(FrozenModel):
         "b89a8934f404a0f5341e77cde10cbf4424267d7122d38af6f8288093ed53295e"
     ] = EXPECTED_MODEL_PROJECTION_SHA256
     decoding_settings: ReferenceDecodingSettingsV1
+    structured_output: J7LReferenceStructuredOutputContractV1
     max_context_tokens: int = Field(ge=1)
     max_input_tokens_per_request: int = Field(ge=1)
     max_output_tokens_per_request: int = Field(ge=1)
@@ -188,6 +210,48 @@ class J7LReferenceJudgeBindingV1(FrozenModel):
             raise ValueError("total reference input budget is smaller than one request budget")
         if self.max_total_reference_output_tokens < self.max_output_tokens_per_request:
             raise ValueError("total reference output budget is smaller than one request budget")
+        return self
+
+
+def _validate_reference_content(
+    *,
+    criterion_scores: dict[RubricCriterion, int],
+    failure_labels: tuple[EpisodeFailureLabel, ...],
+    evidence_references: tuple[str, ...],
+    verdict: ReviewVerdict,
+) -> None:
+    if set(criterion_scores) != set(RubricCriterion):
+        raise ValueError("reference judgment must score every rubric criterion")
+    if any(score < 1 or score > 4 for score in criterion_scores.values()):
+        raise ValueError("reference criterion scores must be in [1,4]")
+    if len(failure_labels) != len(set(failure_labels)):
+        raise ValueError("reference failure labels must be unique")
+    if len(evidence_references) != len(set(evidence_references)):
+        raise ValueError("reference evidence references must be unique")
+
+    values = tuple(criterion_scores[criterion] for criterion in RubricCriterion)
+    passed = sum(values) >= 21 and min(values) >= 2 and not failure_labels
+    implied = ReviewVerdict.PASS if passed else ReviewVerdict.FAIL
+    if verdict is not implied:
+        raise ValueError("reference verdict does not match the frozen derivation rule")
+
+
+class J7LReferenceToolArgumentsV1(FrozenModel):
+    criterion_scores: dict[RubricCriterion, int]
+    failure_labels: tuple[EpisodeFailureLabel, ...] = ()
+    evidence_references: tuple[str, ...] = Field(min_length=1)
+    rationale: str = Field(min_length=20, max_length=3000)
+    verdict: ReviewVerdict
+    uncertainty_statement: str | None = Field(default=None, max_length=1000)
+
+    @model_validator(mode="after")
+    def validate_arguments(self) -> Self:
+        _validate_reference_content(
+            criterion_scores=self.criterion_scores,
+            failure_labels=self.failure_labels,
+            evidence_references=self.evidence_references,
+            verdict=self.verdict,
+        )
         return self
 
 
@@ -232,20 +296,12 @@ class J7LReferenceJudgmentV1(FrozenModel):
 
     @model_validator(mode="after")
     def validate_judgment(self) -> Self:
-        if set(self.criterion_scores) != set(RubricCriterion):
-            raise ValueError("reference judgment must score every rubric criterion")
-        if any(score < 1 or score > 4 for score in self.criterion_scores.values()):
-            raise ValueError("reference criterion scores must be in [1,4]")
-        if len(self.failure_labels) != len(set(self.failure_labels)):
-            raise ValueError("reference failure labels must be unique")
-        if len(self.evidence_references) != len(set(self.evidence_references)):
-            raise ValueError("reference evidence references must be unique")
-
-        values = tuple(self.criterion_scores[criterion] for criterion in RubricCriterion)
-        passed = sum(values) >= 21 and min(values) >= 2 and not self.failure_labels
-        implied = ReviewVerdict.PASS if passed else ReviewVerdict.FAIL
-        if self.verdict is not implied:
-            raise ValueError("reference verdict does not match the frozen derivation rule")
+        _validate_reference_content(
+            criterion_scores=self.criterion_scores,
+            failure_labels=self.failure_labels,
+            evidence_references=self.evidence_references,
+            verdict=self.verdict,
+        )
         return self
 
 

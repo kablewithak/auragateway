@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "plan_id": "j7l-glm52-reference-judge-binding-plan-v1",
+  "status": "PLANNED_NON_EXECUTABLE",
+  "authority_class": "MODEL_DERIVED_REFERENCE",
+  "selected_candidate": {
+    "provider_id": "huawei_modelarts_maas",
+    "model_id": "glm-5.2",
+    "model_version_or_revision": null,
+    "api_protocol": "OPENAI_COMPATIBLE_CHAT_COMPLETIONS",
+    "endpoint_url": "https://api-ap-southeast-1.modelarts-maas.com/openai/v1/chat/completions",
+    "region_label": "ap-southeast-1",
+    "credential_env_name": "HUAWEI_MAAS_API_KEY",
+    "configuration_lineage": {
+      "repository": "kablewithak/adaptive-agent-runtime",
+      "pull_request": 9,
+      "authority_for_auragateway_execution": false
+    }
+  },
+  "structured_output": {
+    "mode": "FORCED_NAMED_TOOL",
+    "tool_name": "submit_reference_judgment",
+    "tool_contract_path": "data/evals/quality/j7l-reference-judge-binding-v1/named_tool_contract.json",
+    "tool_contract_sha256": "2279c972598100c5bb52c77b97c6134f86e8cf77d479167358b1d52a5fd9e695",
+    "response_format_present": false,
+    "additional_model_tools_permitted": false,
+    "tool_arguments_validation_contract": "J7LReferenceToolArgumentsV1"
+  },
+  "decoding_plan": {
+    "temperature": null,
+    "top_p": null,
+    "seed": null,
+    "reasoning_mode": "DISABLED_PENDING_QUALIFICATION",
+    "max_output_tokens_per_request": 768
+  },
+  "token_budget": {
+    "planned_primary_reference_request_count": 48,
+    "planning_exact_message_tokens_min": 7322,
+    "planning_exact_message_tokens_max": 7448,
+    "planning_conservative_input_tokens_per_request": 8500,
+    "planned_primary_input_token_ceiling": 408000,
+    "planned_primary_output_token_ceiling": 36864,
+    "planned_primary_total_token_ceiling": 444864,
+    "qualification_request_count_ceiling": 2,
+    "qualification_token_allowance": 20000,
+    "hard_reference_phase_total_token_ceiling": 500000,
+    "planning_measurement_origin": "AuraGateway Groq/OpenAI-Harmony preactivation measurements; not Huawei token accounting"
+  },
+  "execution_policy": {
+    "serial_execution": true,
+    "max_in_flight_requests": 1,
+    "automatic_retry_permitted": false,
+    "external_spend_ceiling_zar": 0
+  },
+  "unresolved_before_binding_freeze": [
+    "provider_exposed_model_version_or_revision",
+    "auragateway_specific_provider_access_evidence",
+    "zero_spend_evidence",
+    "network_authority_identity",
+    "forced_named_tool_wire_compatibility",
+    "thinking_disabled_behavior",
+    "huawei_usage_accounting",
+    "qualified_context_window_and_request_token_budget"
+  ],
+  "provider_requests_performed": 0,
+  "jev_requests_performed": 0,
+  "network_access_authorized": false,
+  "reference_execution_authorized": false,
+  "binding_frozen": false,
+  "next_gate": "QUALIFY_J7L_GLM52_NAMED_TOOL_BOUNDARY_V1"
+}
