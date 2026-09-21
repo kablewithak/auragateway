@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "recipe_id": "j7l-glm52-named-tool-synthetic-prompt-v1",
+  "synthetic_only": true,
+  "contains_frozen_j7l_case_content": false,
+  "contains_jev_content": false,
+  "contains_frozen_reference_answers": false,
+  "system_instruction": "You are validating a structured-output transport boundary using synthetic data only. Do not reveal hidden chain-of-thought. Use the supplied semantic projection only as evaluation guidance. Call submit_reference_judgment exactly once and do not emit any other tool call.",
+  "synthetic_case": {
+    "case_id": "synthetic-glm52-tool-boundary-001",
+    "task": "Judge the synthetic candidate response against the visible synthetic evidence. This is transport qualification, not a frozen J7L case.",
+    "visible_evidence": [
+      {
+        "evidence_id": "synthetic-evidence-001",
+        "text": "The candidate response is fully supported by the supplied synthetic source, uses the source correctly, reaches the requested terminal decision, is complete and clear, and introduces no safety issue."
+      }
+    ],
+    "candidate_response": "The synthetic source supports the requested terminal decision and no unsupported claim is introduced."
+  },
+  "deterministic_padding": {
+    "line": "Synthetic envelope padding only; no frozen case content, hidden target, Jev output, customer data, or reference answer is present.",
+    "repeat_count": 160
+  },
+  "expected_tool_arguments": {
+    "criterion_scores": {
+      "task_correctness": 3,
+      "evidence_grounding": 3,
+      "source_use": 3,
+      "terminal_decision": 3,
+      "completeness": 3,
+      "clarity": 3,
+      "safety": 3
+    },
+    "failure_labels": [],
+    "evidence_references": [
+      "synthetic-evidence-001"
+    ],
+    "rationale": "The synthetic evidence directly supports the response and the requested terminal decision.",
+    "verdict": "pass",
+    "uncertainty_statement": null
+  }
+}
