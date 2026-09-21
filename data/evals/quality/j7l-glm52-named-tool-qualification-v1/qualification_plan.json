@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0.0",
+  "plan_id": "j7l-glm52-named-tool-boundary-qualification-v1",
+  "status": "REVIEW_READY_INACTIVE",
+  "binding_plan_id": "j7l-glm52-reference-judge-binding-plan-v1",
+  "binding_plan_source_merge_commit": "0ba2b7b22e7f79d50ba45c2220da7faa0735433c",
+  "provider": "huawei_modelarts_maas",
+  "exact_model_identifier": "glm-5.2",
+  "provider_version_or_revision_required_for_final_binding": true,
+  "catalog_endpoint_url": "https://api-ap-southeast-1.modelarts-maas.com/v2/models",
+  "chat_endpoint_url": "https://api-ap-southeast-1.modelarts-maas.com/openai/v1/chat/completions",
+  "region_label": "ap-southeast-1",
+  "credential_env_name": "HUAWEI_MAAS_API_KEY",
+  "http_backend": "urllib.request",
+  "named_tool_contract_path": "data/evals/quality/j7l-reference-judge-binding-v1/named_tool_contract.json",
+  "named_tool_contract_sha256": "2279c972598100c5bb52c77b97c6134f86e8cf77d479167358b1d52a5fd9e695",
+  "synthetic_prompt_recipe_path": "data/evals/quality/j7l-glm52-named-tool-qualification-v1/synthetic_prompt_recipe.json",
+  "synthetic_prompt_recipe_sha256": "1096b01fcffa5b42c79b77dce2840ddb9ebf8ce837c7ed304e1c6f092c40167b",
+  "model_projection_path": "data/evals/quality/semantic-registry-v2/projection-v1/model.json",
+  "model_projection_sha256": "b89a8934f404a0f5341e77cde10cbf4424267d7122d38af6f8288093ed53295e",
+  "request_contract": {
+    "stream": false,
+    "max_completion_tokens": 768,
+    "thinking_control": {
+      "chat_template_kwargs": {
+        "thinking": false
+      }
+    },
+    "structured_output_mode": "FORCED_NAMED_TOOL",
+    "tool_name": "submit_reference_judgment",
+    "response_format_present": false,
+    "temperature_present": false,
+    "top_p_present": false,
+    "seed_present": false
+  },
+  "execution_budget": {
+    "maximum_provider_http_requests": 2,
+    "maximum_model_inference_requests": 1,
+    "maximum_catalog_requests": 1,
+    "qualification_token_allowance": 20000,
+    "automatic_retry_permitted": false,
+    "resume_permitted": false,
+    "rerun_permitted": false,
+    "external_spend_ceiling_zar": 0,
+    "paid_fallback_permitted": false
+  },
+  "acceptance_requirements": {
+    "catalog_contains_exact_model_id": true,
+    "chat_http_success_required": true,
+    "returned_model_required": true,
+    "exactly_one_choice_required": true,
+    "exactly_one_tool_call_required": true,
+    "tool_name_must_match": true,
+    "tool_arguments_must_parse_as_json": true,
+    "tool_arguments_must_validate": true,
+    "reasoning_content_must_be_empty_or_null": true,
+    "reasoning_tokens_must_equal_zero": true,
+    "prompt_tokens_required": true,
+    "completion_tokens_required": true,
+    "total_tokens_required": true,
+    "total_tokens_must_not_exceed_qualification_allowance": true,
+    "provider_version_or_revision_must_be_reported_if_exposed": true
+  },
+  "claim_boundary": {
+    "qualifies_named_tool_transport_if_passed": true,
+    "qualifies_thinking_disabled_wire_if_passed": true,
+    "qualifies_usage_accounting_if_passed": true,
+    "proves_reference_judgment_quality": false,
+    "authorizes_frozen_j7l_reference_execution": false,
+    "authorizes_jev_execution": false,
+    "adaptive_agent_runtime_evidence_is_execution_authority": false,
+    "catalog_model_id_alone_resolves_version_or_revision": false
+  },
+  "protected_raw_response_path": ".local/auragateway/j7l-glm52-named-tool-qualification-v1/raw_response.json",
+  "protected_parsed_response_path": ".local/auragateway/j7l-glm52-named-tool-qualification-v1/parsed_response.json",
+  "public_result_path": "data/evals/quality/j7l-glm52-named-tool-qualification-v1/qualification_result.json",
+  "provider_documentation_observed_on": "2026-09-21",
+  "provider_documentation": {
+    "openai_compatible_chat": "https://support.huaweicloud.com/intl/en-us/model-call-maas/model-call-021.html",
+    "models_get": "https://support.huaweicloud.com/intl/en-us/model-call-maas/model-call-029.html",
+    "evidence_class": "PLANNING_ONLY_NOT_AURAGATEWAY_PROVIDER_ACCESS_EVIDENCE"
+  },
+  "provider_call_authorized": false,
+  "credential_access_authorized": false,
+  "network_access_authorized": false,
+  "execution_command_available": false,
+  "activation_required": true,
+  "j7l_reference_request_permitted": false,
+  "jev_request_permitted": false,
+  "binding_freeze_permitted": false,
+  "next_gate": "AUTHORIZE_J7L_GLM52_NAMED_TOOL_QUALIFICATION_V1"
+}
