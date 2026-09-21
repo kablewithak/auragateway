@@ -1,0 +1,14 @@
+{
+  "authorization_id": "j7l-groq-schema-accounting-activation-v2",
+  "control_prompt_tokens": 110,
+  "j7l_reference_request_performed": false,
+  "jev_request_performed": false,
+  "outcome": "strict_schema_prompt_tokens_higher",
+  "prompt_token_delta": 436,
+  "provider_call_count": 2,
+  "rerun_permitted": false,
+  "resume_permitted": false,
+  "schema_version": "1.0.0",
+  "status": "J7L_GROQ_SCHEMA_ACCOUNTING_OBSERVATION_COMPLETE",
+  "strict_prompt_tokens": 546
+}
