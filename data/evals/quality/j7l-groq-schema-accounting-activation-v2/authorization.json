@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "authorization_id": "j7l-groq-schema-accounting-activation-v2",
+  "status": "active",
+  "plan_path": "data/evals/quality/j7l-groq-schema-accounting-review-v1/probe_plan_v2.json",
+  "plan_canonical_sha256": "af0adbd6bd2426cd6cd6877868ebbf96bb75f02dcb4ab062a363e6cc18898974",
+  "confirmation_phrase": "EXECUTE_J7L_GROQ_SCHEMA_ACCOUNTING_PROBE_ONCE",
+  "provider_call_authorized": true,
+  "execution_command_available": true,
+  "maximum_provider_calls": 2,
+  "free_tier_required": true,
+  "paid_fallback_permitted": false,
+  "external_spend_ceiling_zar": 0,
+  "retry_permitted": false,
+  "resume_permitted": false,
+  "rerun_permitted": false,
+  "j7l_reference_request_permitted": false,
+  "jev_request_permitted": false
+}
