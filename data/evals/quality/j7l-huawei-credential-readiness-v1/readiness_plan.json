@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0.0",
+  "plan_id": "j7l-huawei-credential-readiness-v1",
+  "status": "REVIEW_READY_INACTIVE",
+  "remediation_context": {
+    "prior_boundary": "j7l-glm52-named-tool-qualification-v1",
+    "observed_failure_class": "PROVIDER_AUTHENTICATION_FAILURE",
+    "observed_failure_depth": "MODEL_CATALOG_AUTHENTICATION_BOUNDARY",
+    "observed_http_status": 401,
+    "prior_authorization_reusable": false,
+    "prior_qualification_rerun_permitted": false,
+    "glm52_failure_established": false,
+    "named_tool_failure_established": false
+  },
+  "provider": "huawei_modelarts_maas",
+  "region_label": "ap-southeast-1",
+  "exact_model_identifier": "glm-5.2",
+  "catalog_endpoint_url": "https://api-ap-southeast-1.modelarts-maas.com/v2/models",
+  "credential_env_name": "HUAWEI_MAAS_API_KEY",
+  "implementation_binding": {
+    "source_base_commit": "98d46c0396de94b99b3c2ceb93b9809474d9e2cc",
+    "source_path": "src/auragateway/local_abc/j7l_huawei_credential_readiness_v1.py",
+    "source_sha256": "aa8f5f88d44112b8553b0b0945496762354828d1dab3e66a61e9b6d1ecf90a86",
+    "test_path": "tests/unit/local_abc/test_j7l_huawei_credential_readiness_v1.py",
+    "test_sha256": "a2fbdd05d13414a83e8f227c4fd8ad804f1871fbb2821964bab08a8a63198cce",
+    "classification_core_implemented": true,
+    "real_network_adapter_implemented": false,
+    "live_activation_implemented": false
+  },
+  "request_boundary": {
+    "permitted_request_role": "MODEL_CATALOG_READINESS_ONLY",
+    "maximum_provider_http_requests": 1,
+    "maximum_catalog_requests": 1,
+    "maximum_model_inference_requests": 0,
+    "automatic_retry_permitted": false,
+    "resume_permitted": false,
+    "rerun_under_same_future_authorization_permitted": false,
+    "external_spend_ceiling_zar": 0,
+    "request_body_present": false,
+    "j7l_case_content_permitted": false,
+    "jev_content_permitted": false,
+    "frozen_reference_answer_content_permitted": false
+  },
+  "classification_contract": {
+    "http_200_exact_model_present": "READY",
+    "http_401": "AUTHENTICATION_FAILED",
+    "http_403": "ENTITLEMENT_DENIED",
+    "http_429": "RATE_LIMITED",
+    "http_5xx": "PROVIDER_UNAVAILABLE",
+    "transport_failure": "TRANSPORT_FAILED",
+    "malformed_http_200_catalog": "CATALOG_INVALID",
+    "http_200_exact_model_absent": "MODEL_NOT_PRESENT"
+  },
+  "privacy_and_evidence": {
+    "credential_value_persistence_permitted": false,
+    "authorization_header_persistence_permitted": false,
+    "raw_provider_error_body_persistence_permitted": false,
+    "metadata_safe_result_required": true,
+    "raw_j7l_prompt_persistence_permitted": false,
+    "raw_jev_content_persistence_permitted": false
+  },
+  "claim_boundary": {
+    "ready_may_establish_catalog_authentication_at_observed_time": true,
+    "ready_may_establish_exact_model_catalog_visibility": true,
+    "proves_chat_inference_entitlement": false,
+    "proves_glm52_inference_success": false,
+    "proves_named_tool_transport": false,
+    "proves_thinking_disabled_behavior": false,
+    "proves_usage_accounting": false,
+    "proves_reference_judgment_quality": false,
+    "authorizes_named_tool_qualification": false,
+    "authorizes_j7l_reference_execution": false,
+    "authorizes_jev_execution": false,
+    "authorizes_binding_freeze": false,
+    "independently_proves_zero_spend": false
+  },
+  "provider_call_authorized": false,
+  "credential_access_authorized": false,
+  "network_access_authorized": false,
+  "execution_command_available": false,
+  "activation_required": true,
+  "next_gate": "IMPLEMENT_J7L_HUAWEI_CREDENTIAL_READINESS_ACTIVATION_V1"
+}
