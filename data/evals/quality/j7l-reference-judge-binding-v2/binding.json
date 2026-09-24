@@ -1,0 +1,127 @@
+{
+  "audit_precondition": {
+    "additional_spot_check_count": 4,
+    "additional_spot_check_rule": "first two ordinary_clean and first two clear_failure cases in frozen case order",
+    "audit_may_rewrite_reference": false,
+    "material_disagreement_invalidates_reference_set": true,
+    "protected_case_schedule_path": ".local/auragateway/j7l-development-v1/review/review-schedule-v1.json",
+    "protected_case_schedule_sha256": "0a526cc4ad983e0e0fe040c13703c6d09e86ebcdb9aaa839e2e14f9c6a201cf3",
+    "protected_primary_export_path": ".local/auragateway/j7l-development-v1/review/primary-reviewer-export-v1.json",
+    "protected_primary_export_sha256": "226eb0ceb89e6f173b2a500e1ce009b09abeb373d4086bd08cbe3c94277441fd",
+    "protected_secondary_stratum_count": 24,
+    "reference_audit_schedule_must_freeze_before_first_provider_request": true
+  },
+  "authority_class": "MODEL_DERIVED_REFERENCE",
+  "binding_frozen": true,
+  "binding_id": "j7l-glm52-reference-judge-binding-v2",
+  "claim_boundary": {
+    "binding_identity_frozen": true,
+    "final_abc_effect_established": false,
+    "heldout_performance_established": false,
+    "j7l_reference_results_established": false,
+    "jev_results_established": false,
+    "production_readiness_established": false,
+    "provider_revision_absence_disclosed": true,
+    "provider_revision_known": false,
+    "provider_revision_required": false,
+    "reference_judge_quality_established": false
+  },
+  "decoding": {
+    "chat_template_kwargs": {
+      "thinking": false
+    },
+    "max_completion_tokens": 768,
+    "reasoning_content_must_be_empty_or_null": true,
+    "reasoning_tokens_must_equal_zero": true,
+    "seed_present": false,
+    "stream": false,
+    "temperature_present": false,
+    "top_p_present": false
+  },
+  "jev_execution_authorized": false,
+  "network_access_authorized": false,
+  "next_gate": "AUTHORIZE_J7L_REFERENCE_EXECUTION_V2",
+  "operational_budget": {
+    "ambiguous_attempt_retry_permitted": false,
+    "automatic_retry_permitted": false,
+    "budget_basis": "Operational experiment ceiling derived from the successful 14,902-token AuraGateway qualification envelope; it is not a claim about Huawei's maximum context window.",
+    "completed_case_replay_permitted": false,
+    "external_spend_ceiling_zar": 0,
+    "hard_reference_phase_total_token_ceiling": 960000,
+    "max_in_flight_requests": 1,
+    "max_output_tokens_per_request": 768,
+    "paid_fallback_permitted": false,
+    "per_request_total_token_ceiling": 20000,
+    "planned_reference_request_count": 48,
+    "provider_max_context_claimed": false,
+    "resume_after_completed_cases_permitted": true,
+    "serial_execution": true
+  },
+  "provider_identity": {
+    "api_protocol": "OPENAI_COMPATIBLE_CHAT_COMPLETIONS",
+    "catalog_endpoint_url": "https://api-ap-southeast-1.modelarts-maas.com/v2/models",
+    "chat_endpoint_url": "https://api-ap-southeast-1.modelarts-maas.com/openai/v1/chat/completions",
+    "credential_env_name": "HUAWEI_MAAS_API_KEY",
+    "identity_basis": [
+      "provider_id",
+      "region_label",
+      "exact_chat_endpoint",
+      "exact_requested_model",
+      "qualified_returned_model",
+      "named_tool_contract_sha256",
+      "model_projection_sha256",
+      "qualification_result_sha256"
+    ],
+    "provider_id": "huawei_modelarts_maas",
+    "provider_revision_not_fabricated": true,
+    "provider_revision_state": "NOT_EXPOSED_BY_PROVIDER",
+    "provider_revision_value": null,
+    "qualified_returned_model": "glm-5.2",
+    "region_label": "ap-southeast-1",
+    "requested_model": "glm-5.2"
+  },
+  "qualification_evidence": {
+    "named_tool_transport_qualified": true,
+    "provider_version_or_revision_exposed": false,
+    "qualification_result_path": "data/evals/quality/j7l-glm52-named-tool-requalification-v2/qualification_result.json",
+    "qualification_result_sha256": "ef14040d8d33c89434f8a5476c4444898441b3a7d4794e8d08b2a71ea1b9f936",
+    "qualification_status": "J7L_GLM52_NAMED_TOOL_REQUALIFICATION_V2_PASS",
+    "qualified_completion_tokens": 247,
+    "qualified_prompt_tokens": 14655,
+    "qualified_total_tokens": 14902,
+    "readiness_result_sha256": "3e0b499fa6d88a5392de607bd56f26d81b0577559ab64fe45e8ec4077a8c42bd",
+    "requalification_authorization_sha256": "7a9a787a53f09d4b5a72bc62bc7675dd439b3f33705c68d962aaac00ba4e3ed9",
+    "source_qualification_plan_sha256": "362cdbb9eb19901cf181526abc58eff11fcf54e392509fa74de1bab9cc8603ee",
+    "thinking_disabled_observed": true,
+    "usage_accounting_observed": true
+  },
+  "reference_execution_authorized": false,
+  "schema_version": "2.0.0",
+  "semantic_binding": {
+    "model_projection_path": "data/evals/quality/semantic-registry-v2/projection-v1/model.json",
+    "model_projection_sha256": "b89a8934f404a0f5341e77cde10cbf4424267d7122d38af6f8288093ed53295e",
+    "private_semantic_augmentation_permitted": false,
+    "semantic_elision_permitted": false
+  },
+  "status": "BINDING_FROZEN_PENDING_EXECUTION_AUTHORITY",
+  "structured_output": {
+    "additional_model_tools_permitted": false,
+    "host_bound_identity_fields": [
+      "case_id",
+      "request_id_sha256",
+      "judge_binding_sha256"
+    ],
+    "mode": "FORCED_NAMED_TOOL",
+    "response_format_present": false,
+    "tool_arguments_validation_contract": "J7LReferenceToolArgumentsV1",
+    "tool_contract_path": "data/evals/quality/j7l-reference-judge-binding-v1/named_tool_contract.json",
+    "tool_contract_sha256": "2279c972598100c5bb52c77b97c6134f86e8cf77d479167358b1d52a5fd9e695",
+    "tool_name": "submit_reference_judgment"
+  },
+  "zero_spend": {
+    "external_spend_ceiling_zar": 0,
+    "independent_zero_spend_claim_permitted": false,
+    "independently_proven": false,
+    "operator_confirmation_required_before_execution": true
+  }
+}
