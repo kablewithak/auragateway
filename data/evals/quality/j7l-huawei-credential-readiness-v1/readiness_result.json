@@ -1,0 +1,30 @@
+{
+  "authorization_id": "j7l-huawei-credential-readiness-authorization-v1",
+  "authorization_sha256": "979931f350951798cf086171ffa02eb8b7c0259f25cdffee7b07862eecadb5a4",
+  "execution_status": "J7L_HUAWEI_CREDENTIAL_READINESS_OBSERVED",
+  "next_gate": "REVIEW_J7L_HUAWEI_CREDENTIAL_READINESS_RESULT_V1",
+  "readiness": {
+    "authorization_header_persisted": false,
+    "automatic_retries_performed": 0,
+    "binding_freeze_performed": false,
+    "catalog_endpoint_url": "https://api-ap-southeast-1.modelarts-maas.com/v2/models",
+    "catalog_model_present": true,
+    "catalog_requests_attempted": 1,
+    "credential_value_persisted": false,
+    "exact_model_identifier": "glm-5.2",
+    "j7l_reference_requests_performed": 0,
+    "jev_requests_performed": 0,
+    "model_inference_requests_attempted": 0,
+    "provider": "huawei_modelarts_maas",
+    "provider_http_requests_attempted": 1,
+    "raw_provider_error_body_persisted": false,
+    "schema_version": "1.0.0",
+    "status": "READY"
+  },
+  "readiness_plan_sha256": "2868b33d8a1a2f40c6e894fda7ea46dd156bee8aca2eee6f7996a6de45ba3d77",
+  "rerun_permitted": false,
+  "resume_permitted": false,
+  "schema_version": "1.0.0",
+  "zero_spend_independently_proven": false,
+  "zero_spend_operator_confirmed_before_execution": true
+}
