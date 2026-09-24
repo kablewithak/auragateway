@@ -23,9 +23,14 @@
     "source_sha256": "aa8f5f88d44112b8553b0b0945496762354828d1dab3e66a61e9b6d1ecf90a86",
     "test_path": "tests/unit/local_abc/test_j7l_huawei_credential_readiness_v1.py",
     "test_sha256": "a2fbdd05d13414a83e8f227c4fd8ad804f1871fbb2821964bab08a8a63198cce",
+    "activation_source_base_commit": "2f84509d112c05156fe992bee9ebd355205ebb43",
+    "activation_source_path": "src/auragateway/local_abc/j7l_huawei_credential_readiness_activation_v1.py",
+    "activation_source_sha256": "5b7d9db850cc864b89bc169e07d448c24565f9d56bf171f2fc902a31f1e1a091",
+    "activation_test_path": "tests/unit/local_abc/test_j7l_huawei_credential_readiness_activation_v1.py",
+    "activation_test_sha256": "62319fbc399d976bab1df603600e457a10ba7bec5a64c79cfc1fce72af6e2f95",
     "classification_core_implemented": true,
-    "real_network_adapter_implemented": false,
-    "live_activation_implemented": false
+    "real_network_adapter_implemented": true,
+    "live_activation_implemented": true
   },
   "request_boundary": {
     "permitted_request_role": "MODEL_CATALOG_READINESS_ONLY",
@@ -79,5 +84,5 @@
   "network_access_authorized": false,
   "execution_command_available": false,
   "activation_required": true,
-  "next_gate": "IMPLEMENT_J7L_HUAWEI_CREDENTIAL_READINESS_ACTIVATION_V1"
+  "next_gate": "AUTHORIZE_J7L_HUAWEI_CREDENTIAL_READINESS_ONCE_V1"
 }
