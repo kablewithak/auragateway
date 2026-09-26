@@ -1,4 +1,4 @@
-﻿# ADR: J7L Audited/Adjudicated Development Reference V1
+# ADR: J7L Audited/Adjudicated Development Reference V1
 
 **Date:** 2026-09-26
 **Status:** Proposed for implementation
@@ -154,7 +154,7 @@ qualification deferred to fresh J7M evidence.
 
 ## Implementation gates
 
-### S1 â€” inactive successor contract and remaining-human queue
+### S1 — inactive successor contract and remaining-human queue
 
 Implement:
 
@@ -168,7 +168,7 @@ Implement:
 No provider request. No Jev request. No model-reference content may be read by
 the human-review work-item path.
 
-### S2 â€” complete remaining 20 blinded human assessments
+### S2 — complete remaining 20 blinded human assessments
 
 After S1 is merged and synchronized:
 
@@ -177,17 +177,17 @@ After S1 is merged and synchronized:
 - persist append-only assessments;
 - freeze the full 48-case human inventory before any full-48 model comparison.
 
-### S3 â€” full-48 comparison
+### S3 — full-48 comparison
 
 Implement and execute the exact V3 material-disagreement rule over all 48
 cases. Preserve per-case comparisons and aggregate counts.
 
-### S4 â€” independent adjudication
+### S4 — independent adjudication
 
 Materialize anonymous A/B adjudication only for cases identified by S3.
 Complete every required adjudication before producing final development truth.
 
-### S5 â€” development-reference coverage
+### S5 — development-reference coverage
 
 Construct the 48-case authoritative development reference from:
 
